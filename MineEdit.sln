@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MineEdit", "NBTForgeCS\MineEdit.csproj", "{A80D9B8A-63C7-4F51-94F5-D07CF4019245}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibNbt", "..\..\..\aphistic-libnbt-f78c2b4\aphistic-libnbt-f78c2b4\LibNbt.csproj", "{4488498D-976D-4DA3-BF72-109531AF0488}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibNbt", "lib\LibNBT\LibNbt.csproj", "{4488498D-976D-4DA3-BF72-109531AF0488}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

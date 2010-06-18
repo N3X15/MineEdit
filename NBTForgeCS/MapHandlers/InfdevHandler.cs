@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-//using NamedBinaryTag;
 using LibNbt;
 using LibNbt.Tags;
 using System.Diagnostics;
@@ -537,7 +536,7 @@ namespace MineEdit
 
             int x = (int)p.X % ChunkX;
             int y = (int)p.Y % ChunkY;
-            int z = (int)p.Z % ChunkZ;
+            int z = (int)p.Z;// % ChunkZ;
 
             if (
                 !Check(x, -1, ChunkX) || 
@@ -547,16 +546,20 @@ namespace MineEdit
                 //Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
                 return 0x00;
             }
-            BlockCount++;
-            BlockCount = BlockCount % 256;
 
 
-            int index = x * ChunkX + y * ChunkX * ChunkZ + z;
-            // 0000 0000 0000 0000
-            // yyyy yyyx xxxz zzz
-            //int index = y << 11 | x << 7 | y;
-            
+            // X Y Z    = Me
+            // X Z Y ?  = Notch
+            //int index = (x * ChunkZ) + (y * ChunkX * ChunkZ) + z;
+            int index = x << 11 | y << 7 | z;
+
             string ci = string.Format("{0},{1}", CX, CZ);
+
+            //BlockCount++;
+            //BlockCount = BlockCount % 256;
+            //if(BlockCount==0)
+            //  Console.WriteLine("Accessing <{0},{1},{2}> of chunk ({3},{4}) - Index {5}/{6} ", x, y, z, CX, CZ, index, ChunkX*ChunkY*ChunkZ);
+            
             //try
             //{
                 if (ChunkBlocks.ContainsKey(ci))
@@ -568,8 +571,6 @@ namespace MineEdit
             //}
             byte[] Blox = LoadChunk(CX,CZ);
 
-            //if(BlockCount==0)
-            //    Console.WriteLine("Accessing <{0},{1},{2}> of chunk ({3},{4}) - Index {5}/{6} ", x, y, z, CX, CZ, index, Blox.Length);
             try
             {
                 return Blox[index];

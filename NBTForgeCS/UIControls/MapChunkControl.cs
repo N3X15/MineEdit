@@ -79,7 +79,7 @@ namespace MineEdit
             {
                 for (int y = 0; y < Height / parent.ZoomLevel; y++)
                 {
-                    Vector3i blockpos = new Vector3i(x * parent.ZoomLevel, y * parent.ZoomLevel, parent.CurrentPosition.Y);
+                    Vector3i blockpos = new Vector3i(x, y, parent.CurrentPosition.Y);
                     blockpos.X += AssignedChunk.X * ChunkSize.X;
                     blockpos.Y += AssignedChunk.Y * ChunkSize.Y;
                     
@@ -108,12 +108,12 @@ namespace MineEdit
                     if (DrawSquares)
                     {
                          DrawCross(ref g, fp, 0, 0);
-                         g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Z), f, Brushes.Black,1,1);
+                         g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black,1,1);
                     }
                     else
                     {
                         g.DrawRectangle(fp, 0, 0, parent.Map.ChunkScale.X*parent.ZoomLevel, parent.Map.ChunkScale.Y * parent.ZoomLevel);
-                        g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Z), f, Brushes.Black, 1, 1);
+                        g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black, 1, 1);
                     }
                 }
             }
