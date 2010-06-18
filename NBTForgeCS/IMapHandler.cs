@@ -44,5 +44,7 @@ namespace MineEdit
         int InventoryColumns { get; }
 
         void GetOverview(Vector3i pos, out int h, out byte block, out int waterdepth);
+
+        void Load();
     }
 }

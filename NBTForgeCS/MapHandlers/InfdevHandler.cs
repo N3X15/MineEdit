@@ -32,10 +32,17 @@ namespace MineEdit
         public Vector3i MapMin { get { return new Vector3i(int.MinValue,0,int.MinValue); } }
         public Vector3i MapMax { get { return new Vector3i(int.MaxValue,0,int.MaxValue); } }
 
+        public void Load()
+        {
+            Load(Filename);
+        }
         public void Load(string filename)
         {
             ChunkBlocks.Clear();
-
+            Heightmaps.Clear();
+            CachedOverview.Clear();
+            CurrentBlock = new Vector3i(0, 0, 0);
+            CurrentBlocks = null;
             Filename = filename;
             Folder=Path.GetDirectoryName(filename);
             root = new NbtFile(filename);
@@ -404,7 +411,7 @@ namespace MineEdit
         {
             get
             {
-                return 10000;
+                return 100000000;
             }
             protected set
             {
@@ -416,7 +423,7 @@ namespace MineEdit
         {
             get
             {
-                return 10000;
+                return 100000000;
             }
             protected set
             {
@@ -588,28 +595,29 @@ namespace MineEdit
 
         public void SetBlockAt(Vector3i p, byte id)
         {
-            Int64 CX = p.X / ChunkY;
-            Int64 x = p.X % ChunkY;
+            //Console.WriteLine("{0}", p);
+            int CX = (int)(p.X / (long)ChunkX);
+            int CZ = (int)(p.Y / (long)ChunkY);
 
-            Int64 CZ = p.Z / ChunkX;
-            Int64 z = p.Z % ChunkX;
+            int x = ((int)p.X % ChunkX) & 0xf;
+            int y = ((int)p.Y % ChunkY) & 0xf;
+            int z = (int)p.Z;// % ChunkZ;
 
-            string ci = string.Format("{0},{1}", CX, CZ);
-
-            try
+            if (
+                !Check(x, -1, ChunkX) ||
+                !Check(y, -1, ChunkY) ||
+                !Check(z, -1, ChunkZ))
             {
-                LoadChunk(CX,CZ);
-            }
-            catch(Exception)
-            {
+                //Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
                 return;
             }
-            // To access a specific block from either byte array, use the following algorithm:
-            // Index = x + (y * Depth + z) * Width
-            //int index = x + (y*ChunkDepth+p.Z) * ChunkWidth;
-            // Borrowed from NBTForge
-            //LongWord(fBlocks.Memory) + LongWord((Z * SizeY + Y) * SizeX + X)
-            Int64 index = (z * ChunkZ + p.Y) * ChunkY + x;
+
+
+            // X Y Z    = Me
+            // X Z Y ?  = Notch
+            int index = x << 11 | y << 7 | z;
+
+            string ci = string.Format("{0},{1}", CX, CZ);
 
             LoadChunk(CX, CZ);
 

@@ -38,10 +38,6 @@
             this.mnuBrushHollow = new System.Windows.Forms.ToolStripMenuItem();
             this.tscbBrushSize = new System.Windows.Forms.ToolStripComboBox();
             this.cbViewingStyle = new System.Windows.Forms.ToolStripComboBox();
-            this.tsbUp = new System.Windows.Forms.ToolStripButton();
-            this.tsbDown = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabMap = new System.Windows.Forms.TabPage();
             this.tabInventory = new System.Windows.Forms.TabPage();
@@ -67,11 +63,7 @@
             this.tscbMaterial,
             this.toolStripDropDownButton1,
             this.tscbBrushSize,
-            this.cbViewingStyle,
-            this.tsbUp,
-            this.tsbDown,
-            this.toolStripSeparator1,
-            this.toolStripButton1});
+            this.cbViewingStyle});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(569, 25);
@@ -135,41 +127,6 @@
             this.cbViewingStyle.Name = "cbViewingStyle";
             this.cbViewingStyle.Size = new System.Drawing.Size(121, 25);
             this.cbViewingStyle.SelectedIndexChanged += new System.EventHandler(this.cbViewingStyle_SelectedIndexChanged);
-            // 
-            // tsbUp
-            // 
-            this.tsbUp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbUp.Image = ((System.Drawing.Image)(resources.GetObject("tsbUp.Image")));
-            this.tsbUp.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbUp.Name = "tsbUp";
-            this.tsbUp.Size = new System.Drawing.Size(23, 22);
-            this.tsbUp.Text = "Up";
-            this.tsbUp.Click += new System.EventHandler(this.toolStripButton1_Click);
-            // 
-            // tsbDown
-            // 
-            this.tsbDown.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbDown.Image = ((System.Drawing.Image)(resources.GetObject("tsbDown.Image")));
-            this.tsbDown.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbDown.Name = "tsbDown";
-            this.tsbDown.Size = new System.Drawing.Size(23, 22);
-            this.tsbDown.Text = "tsbDown";
-            this.tsbDown.Click += new System.EventHandler(this.tsbDown_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton1.Text = "toolStripButton1";
-            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click_1);
             // 
             // tabControl1
             // 
@@ -245,10 +202,6 @@
         private System.Windows.Forms.ToolStripMenuItem mnuBrushHollow;
         private System.Windows.Forms.ToolStripComboBox tscbBrushSize;
         private System.Windows.Forms.ToolStripComboBox cbViewingStyle;
-        private System.Windows.Forms.ToolStripButton tsbUp;
-        private System.Windows.Forms.ToolStripButton tsbDown;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabMap;
         private System.Windows.Forms.TabPage tabInventory;

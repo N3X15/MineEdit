@@ -181,7 +181,6 @@ namespace MineEdit
 
         private void chkGridLines_Click(object sender, EventArgs e)
         {
-            chkGridLines.Checked = !chkGridLines.Checked;
             Settings.ShowGridLines = chkGridLines.Checked;
             foreach (Form c in MdiChildren)
             {
@@ -192,6 +191,26 @@ namespace MineEdit
         private void saveToolStripButton_Click(object sender, EventArgs e)
         {
             (ActiveMdiChild as frmMap).Map.Save();
+        }
+
+        private void mnuReload_Click(object sender, EventArgs e)
+        {
+            (ActiveMdiChild as frmMap).Map.Load();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void aboutToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            frmAbout hurp = new frmAbout();
+            hurp.ShowDialog();
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

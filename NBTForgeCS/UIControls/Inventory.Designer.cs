@@ -32,7 +32,6 @@
             this.gbEdit = new System.Windows.Forms.GroupBox();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.tbDamage = new System.Windows.Forms.TrackBar();
             this.label3 = new System.Windows.Forms.Label();
             this.numCount = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
@@ -40,12 +39,13 @@
             this.numSlot = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.lblSlot = new System.Windows.Forms.Label();
+            this.numDamage = new System.Windows.Forms.NumericUpDown();
             this.splitInv.Panel2.SuspendLayout();
             this.splitInv.SuspendLayout();
             this.gbEdit.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbDamage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSlot)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numDamage)).BeginInit();
             this.SuspendLayout();
             // 
             // splitInv
@@ -65,9 +65,9 @@
             // 
             // gbEdit
             // 
+            this.gbEdit.Controls.Add(this.numDamage);
             this.gbEdit.Controls.Add(this.button2);
             this.gbEdit.Controls.Add(this.button1);
-            this.gbEdit.Controls.Add(this.tbDamage);
             this.gbEdit.Controls.Add(this.label3);
             this.gbEdit.Controls.Add(this.numCount);
             this.gbEdit.Controls.Add(this.label2);
@@ -103,22 +103,10 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // tbDamage
-            // 
-            this.tbDamage.LargeChange = 100;
-            this.tbDamage.Location = new System.Drawing.Point(80, 106);
-            this.tbDamage.Maximum = 500;
-            this.tbDamage.Name = "tbDamage";
-            this.tbDamage.Size = new System.Drawing.Size(162, 45);
-            this.tbDamage.SmallChange = 10;
-            this.tbDamage.TabIndex = 7;
-            this.tbDamage.TickFrequency = 100;
-            this.tbDamage.TickStyle = System.Windows.Forms.TickStyle.None;
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(24, 106);
+            this.label3.Location = new System.Drawing.Point(24, 108);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(50, 13);
             this.label3.TabIndex = 6;
@@ -194,6 +182,28 @@
             this.lblSlot.TabIndex = 0;
             this.lblSlot.Text = "Slot:";
             // 
+            // numDamage
+            // 
+            this.numDamage.Location = new System.Drawing.Point(80, 106);
+            this.numDamage.Maximum = new decimal(new int[] {
+            600,
+            0,
+            0,
+            0});
+            this.numDamage.Minimum = new decimal(new int[] {
+            600,
+            0,
+            0,
+            -2147483648});
+            this.numDamage.Name = "numDamage";
+            this.numDamage.Size = new System.Drawing.Size(120, 20);
+            this.numDamage.TabIndex = 10;
+            this.numDamage.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
             // Inventory
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -205,9 +215,9 @@
             this.splitInv.ResumeLayout(false);
             this.gbEdit.ResumeLayout(false);
             this.gbEdit.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbDamage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSlot)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numDamage)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -218,7 +228,6 @@
         private System.Windows.Forms.GroupBox gbEdit;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TrackBar tbDamage;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numCount;
         private System.Windows.Forms.Label label2;
@@ -226,6 +235,7 @@
         private System.Windows.Forms.NumericUpDown numSlot;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblSlot;
+        private System.Windows.Forms.NumericUpDown numDamage;
 
     }
 }

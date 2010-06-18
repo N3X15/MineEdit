@@ -117,7 +117,7 @@ namespace MineEdit
             inv.Refresh();
             cmbType.SelectedItem = Blocks.Get(inv.MyType);
             numCount.Value=inv.Count;
-            tbDamage.Value=inv.Damage;
+            numDamage.Value=inv.Damage;
         }
 
         private void Draw()
@@ -272,7 +272,7 @@ namespace MineEdit
                     if(cmbType.SelectedItem!=null)
                         Stuff[i].MyType = (cmbType.SelectedItem as Block).ID;
                     Stuff[i].Count = (int)numCount.Value;
-                    Stuff[i].Damage = tbDamage.Value;
+                    Stuff[i].Damage = (int)numDamage.Value;
                     Stuff[i].Render();
                     Stuff[i].Refresh();
                 }

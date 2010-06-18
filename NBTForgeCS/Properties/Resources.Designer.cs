@@ -101,5 +101,12 @@ namespace MineEdit.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        internal static System.Drawing.Bitmap LOGOBAR {
+            get {
+                object obj = ResourceManager.GetObject("LOGOBAR", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

@@ -70,6 +70,12 @@
     <Compile Include="dlgChunk.Designer.cs">
       <DependentUpon>dlgChunk.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmAbout.Designer.cs">
+      <DependentUpon>frmAbout.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -113,6 +119,9 @@
     <EmbeddedResource Include="dlgChunk.resx">
       <DependentUpon>dlgChunk.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmAbout.resx">
+      <DependentUpon>frmAbout.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -153,6 +162,7 @@
     <Content Include="blocks.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\LOGOBAR.png" />
     <None Include="Resources\go-bottom.png" />
     <None Include="Resources\go-top.png" />
     <None Include="Resources\go-down.png" />
