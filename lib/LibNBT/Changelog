@@ -1,0 +1,8 @@
+0.1.2
+- Added a GetTagType() function to the tag classes.
+- Fixed saving NbtList tags.
+
+0.1.1
+- Initial release.
+- Modified the tag constructors to be consistant with each other.
+- Changed NbtFile to allow some functions to be overridden.
