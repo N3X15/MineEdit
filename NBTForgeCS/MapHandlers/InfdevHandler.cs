@@ -28,7 +28,7 @@ namespace MineEdit
         byte[] CurrentBlocks;
 
 
-        public Vector3i ChunkScale { get { return new Vector3i(16, 128, 16); } }
+        public Vector3i ChunkScale { get { return new Vector3i(16, 16, 128); } }
         public Vector3i MapMin { get { return new Vector3i(int.MinValue,0,int.MinValue); } }
         public Vector3i MapMax { get { return new Vector3i(int.MaxValue,0,int.MaxValue); } }
 
@@ -47,8 +47,8 @@ namespace MineEdit
         {
             Chunk c = new Chunk();
             long x = chunkpos.X/ChunkScale.X;
-            long z = chunkpos.Z/ChunkScale.Z;
-            c.Filename = GetChunkFilename(x, z);
+            long y = chunkpos.Y/ChunkScale.Y;
+            c.Filename = GetChunkFilename(x, y);
             if(!File.Exists(c.Filename)) return null;
             c.CreationDate = File.GetCreationTime(c.Filename);
             c.Creator = "?";
@@ -59,12 +59,12 @@ namespace MineEdit
                     int h;
                     byte block;
                     int wd;
-                    GetOverview(new Vector3i(_x+(x*ChunkX),_z+(z*ChunkZ),ChunkZ-1), out h, out block, out wd);
+                    GetOverview(new Vector3i(_x+(x*ChunkX),_z+(y*ChunkZ),ChunkZ-1), out h, out block, out wd);
                     if(c.MaxHeight<h) c.MaxHeight=h;
                     if(c.MinHeight<h) c.MinHeight=h;
                 }
             }
-            c.Position = new Vector3i(x, 0, z);
+            c.Position = new Vector3i(x, y, 0);
             return c;
         }
 
@@ -526,16 +526,20 @@ namespace MineEdit
         }
 
         int BlockCount = 0;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        /// TODO: Negative chunks produce all kinds of strange artifacts.
         public byte GetBlockAt(Vector3i p)
         {
             //Console.WriteLine("{0}", p);
-            int CX = (int)p.X / ChunkX;
-            int CZ = (int)p.Y / ChunkY;
-            
-            //Console.WriteLine("Loading from chunk {0},{1}", CX, CZ);
+            int CX = (int)(p.X / (long)ChunkX);
+            int CZ = (int)(p.Y / (long)ChunkY);
 
-            int x = (int)p.X % ChunkX;
-            int y = (int)p.Y % ChunkY;
+            int x = ((int)p.X % ChunkX) & 0xf;
+            int y = ((int)p.Y % ChunkY) & 0xf;
             int z = (int)p.Z;// % ChunkZ;
 
             if (
@@ -550,16 +554,12 @@ namespace MineEdit
 
             // X Y Z    = Me
             // X Z Y ?  = Notch
-            //int index = (x * ChunkZ) + (y * ChunkX * ChunkZ) + z;
             int index = x << 11 | y << 7 | z;
 
-            string ci = string.Format("{0},{1}", CX, CZ);
+            //if (CX == -1)
+            //    Console.WriteLine("Accessing <{0},{1},{2}> of chunk ({3},{4}) - Index {5}/{6} ", x, y, z, CX, CZ, index, ChunkX * ChunkY * ChunkZ);
 
-            //BlockCount++;
-            //BlockCount = BlockCount % 256;
-            //if(BlockCount==0)
-            //  Console.WriteLine("Accessing <{0},{1},{2}> of chunk ({3},{4}) - Index {5}/{6} ", x, y, z, CX, CZ, index, ChunkX*ChunkY*ChunkZ);
-            
+            string ci = string.Format("{0},{1}", CX, CZ);
             //try
             //{
                 if (ChunkBlocks.ContainsKey(ci))

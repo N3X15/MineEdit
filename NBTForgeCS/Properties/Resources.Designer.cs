@@ -59,5 +59,47 @@ namespace MineEdit.Properties {
                 resourceCulture = value;
             }
         }
+        
+        internal static System.Drawing.Bitmap go_bottom {
+            get {
+                object obj = ResourceManager.GetObject("go-bottom", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap go_down {
+            get {
+                object obj = ResourceManager.GetObject("go-down", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap go_next {
+            get {
+                object obj = ResourceManager.GetObject("go-next", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap go_previous {
+            get {
+                object obj = ResourceManager.GetObject("go-previous", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap go_top {
+            get {
+                object obj = ResourceManager.GetObject("go-top", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap go_up {
+            get {
+                object obj = ResourceManager.GetObject("go-up", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

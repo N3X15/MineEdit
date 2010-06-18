@@ -106,7 +106,7 @@ namespace MineEdit
         }
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            mapCtrl.CurrentPosition.Y += e.Delta;
+            mapCtrl.CurrentPosition.Z += e.Delta;
             ClampCZ();
             //Console.WriteLine("Changing Level to "+CZ.ToString());
         }
@@ -148,17 +148,17 @@ namespace MineEdit
 
         private void ClampCZ()
         {
-            if (mapCtrl.CurrentPosition.Y == -1) mapCtrl.CurrentPosition.Y = 127;
-            mapCtrl.CurrentPosition.Y = Math.Abs(mapCtrl.CurrentPosition.Y % _Map.ChunkScale.Y);
+            if (mapCtrl.CurrentPosition.Z == -1) mapCtrl.CurrentPosition.Z = 127;
+            mapCtrl.CurrentPosition.Z = Math.Abs(mapCtrl.CurrentPosition.Z % _Map.ChunkScale.Z);
         }
 
         // Up
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            mapCtrl.CurrentPosition.Y++;
+            mapCtrl.CurrentPosition.Z++;
             ClampCZ();
-            (MdiParent as frmMain).SetStatus("Moved to level " + mapCtrl.CurrentPosition.Y.ToString());
-            Console.WriteLine("Moved to level " + mapCtrl.CurrentPosition.Y.ToString());
+            (MdiParent as frmMain).SetStatus("Moved to level " + mapCtrl.CurrentPosition.Z.ToString());
+            Console.WriteLine("Moved to level " + mapCtrl.CurrentPosition.Z.ToString());
 
             mapCtrl.Render();
             Refresh();
@@ -166,10 +166,10 @@ namespace MineEdit
 
         private void tsbDown_Click(object sender, EventArgs e)
         {
-            mapCtrl.CurrentPosition.Y--;
+            mapCtrl.CurrentPosition.Z--;
             ClampCZ();
-            (MdiParent as frmMain).SetStatus("Moved to level " + mapCtrl.CurrentPosition.Y.ToString());
-            Console.WriteLine("Moved to level " + mapCtrl.CurrentPosition.Y.ToString());
+            (MdiParent as frmMain).SetStatus("Moved to level " + mapCtrl.CurrentPosition.Z.ToString());
+            Console.WriteLine("Moved to level " + mapCtrl.CurrentPosition.Z.ToString());
             mapCtrl.Render();
             Refresh();
         }

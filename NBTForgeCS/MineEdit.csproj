@@ -153,6 +153,12 @@
     <Content Include="blocks.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\go-bottom.png" />
+    <None Include="Resources\go-top.png" />
+    <None Include="Resources\go-down.png" />
+    <None Include="Resources\go-previous.png" />
+    <None Include="Resources\go-next.png" />
+    <None Include="Resources\go-up.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lib\LibNBT\LibNbt.csproj">

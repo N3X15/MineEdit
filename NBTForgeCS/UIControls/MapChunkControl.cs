@@ -37,7 +37,7 @@ namespace MineEdit
             parent=mc;
             AssignedChunk = pos;
             ChunkSize = sz;
-            Console.WriteLine("{0}: Chunk ({1},{2}), origin ({3},{4})", this, pos.X, pos.Y, pos.X * sz.X, pos.Y * sz.Y);
+            Console.WriteLine("{0}: Chunk ({1},{2}), origin ({3},{4}), size {5}", this, pos.X, pos.Y, pos.X * sz.X, pos.Y * sz.Y, sz);
             InitializeComponent();
             Paint += new PaintEventHandler(MapChunkControl_Paint);
         }
@@ -67,11 +67,13 @@ namespace MineEdit
             Drawing = true;
             int w = Width;
             int h = Height;
-            //if (lh == h && lw == w && ly==parent.CurrentPosition.Y) return;
+            //if (lh == h && lw == w && ly==parent.CurrentPosition.Z) return;
             if (w == 0 || h == 0) return;
             bmp = new Bitmap(w,h);
             bool DrawSquares = (parent.ViewingAngle == ViewAngle.XZ);
             Graphics g = Graphics.FromImage((Image)bmp);
+            // No AA.  We WANT pixels :V
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             // Chunk        1,1
             // ChunkSZ      16,16
             // ChunkCoords  16,16
@@ -79,7 +81,7 @@ namespace MineEdit
             {
                 for (int y = 0; y < Height / parent.ZoomLevel; y++)
                 {
-                    Vector3i blockpos = new Vector3i(x, y, parent.CurrentPosition.Y);
+                    Vector3i blockpos = new Vector3i(x, y, parent.CurrentPosition.Z);
                     blockpos.X += AssignedChunk.X * ChunkSize.X;
                     blockpos.Y += AssignedChunk.Y * ChunkSize.Y;
                     
@@ -102,7 +104,7 @@ namespace MineEdit
                 long ox = AssignedChunk.X * (int)parent.ZoomLevel;
                 long oz = AssignedChunk.Y * (int)parent.ZoomLevel;
                 int chunksz = (16 * parent.ZoomLevel);
-                Font f = new Font(FontFamily.GenericSansSerif, 5);
+                Font f = new Font(FontFamily.GenericSansSerif, 7);
                 for (int x = 0; x < w / 2; x++)
                 {
                     if (DrawSquares)
