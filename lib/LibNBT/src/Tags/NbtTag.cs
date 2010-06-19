@@ -10,6 +10,7 @@ namespace LibNbt.Tags
         protected NbtTag() { Name = ""; }
 
         public string Name { get; protected set; }
+        public string Path { get; internal set; }
 
         internal abstract void ReadTag(Stream readStream);
         internal abstract void ReadTag(Stream readStream, bool readName);
@@ -20,6 +21,8 @@ namespace LibNbt.Tags
 
         // WriteData does not write the tag's ID byte or the name
         internal abstract void WriteData(Stream writeStream);
+
+        internal abstract void SaveData(string recipient, object data);
 
         internal virtual NbtTagType GetTagType() { return NbtTagType.TAG_Unknown; }
     }

@@ -314,6 +314,11 @@ namespace MineEdit
 
         }
 
+        private void numDamage_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
 
     }
 }

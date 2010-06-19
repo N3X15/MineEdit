@@ -91,6 +91,7 @@ namespace MineEdit
             if (!BlockList.ContainsKey(b))
             {
                 Console.WriteLine("BlockList does not contain a definition for {0} (0x{0:X2}).", b);
+                return Color.Red;
             }
             return BlockList[b].Color;
         }
@@ -100,8 +101,23 @@ namespace MineEdit
             if (!BlockList.ContainsKey(type))
             {
                 Console.WriteLine("BlockList does not contain a definition for {0} (0x{0:X2}).", type);
+                Block b = new Block();
+                b.Color = Color.Black;
+                b.ID = type;
+                b.Image = GetQuestionMark();
+                b.Name = "[UNKNOWN]";
+                return b;
             }
             return BlockList[type];
+        }
+
+        private static Bitmap GetQuestionMark()
+        {
+            Bitmap bmp = new Bitmap(16,16);
+            Graphics g = Graphics.FromImage(bmp);
+            g.DrawString("?", new Font(FontFamily.GenericSansSerif, 10), Brushes.Red, 0, 0);
+            g.Dispose();
+            return bmp;
         }
     }
 }

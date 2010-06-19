@@ -30,6 +30,7 @@
         {
             this.splitInv = new System.Windows.Forms.SplitContainer();
             this.gbEdit = new System.Windows.Forms.GroupBox();
+            this.numDamage = new System.Windows.Forms.NumericUpDown();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
@@ -39,13 +40,12 @@
             this.numSlot = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.lblSlot = new System.Windows.Forms.Label();
-            this.numDamage = new System.Windows.Forms.NumericUpDown();
             this.splitInv.Panel2.SuspendLayout();
             this.splitInv.SuspendLayout();
             this.gbEdit.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numDamage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSlot)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numDamage)).BeginInit();
             this.SuspendLayout();
             // 
             // splitInv
@@ -83,6 +83,29 @@
             this.gbEdit.TabStop = false;
             this.gbEdit.Text = "Inventory Editor";
             // 
+            // numDamage
+            // 
+            this.numDamage.Location = new System.Drawing.Point(80, 106);
+            this.numDamage.Maximum = new decimal(new int[] {
+            600,
+            0,
+            0,
+            0});
+            this.numDamage.Minimum = new decimal(new int[] {
+            600,
+            0,
+            0,
+            -2147483648});
+            this.numDamage.Name = "numDamage";
+            this.numDamage.Size = new System.Drawing.Size(120, 20);
+            this.numDamage.TabIndex = 10;
+            this.numDamage.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numDamage.ValueChanged += new System.EventHandler(this.numDamage_ValueChanged);
+            // 
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(80, 157);
@@ -116,12 +139,7 @@
             // 
             this.numCount.Location = new System.Drawing.Point(80, 80);
             this.numCount.Maximum = new decimal(new int[] {
-            64,
-            0,
-            0,
-            0});
-            this.numCount.Minimum = new decimal(new int[] {
-            1,
+            255,
             0,
             0,
             0});
@@ -182,28 +200,6 @@
             this.lblSlot.TabIndex = 0;
             this.lblSlot.Text = "Slot:";
             // 
-            // numDamage
-            // 
-            this.numDamage.Location = new System.Drawing.Point(80, 106);
-            this.numDamage.Maximum = new decimal(new int[] {
-            600,
-            0,
-            0,
-            0});
-            this.numDamage.Minimum = new decimal(new int[] {
-            600,
-            0,
-            0,
-            -2147483648});
-            this.numDamage.Name = "numDamage";
-            this.numDamage.Size = new System.Drawing.Size(120, 20);
-            this.numDamage.TabIndex = 10;
-            this.numDamage.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
             // Inventory
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -215,9 +211,9 @@
             this.splitInv.ResumeLayout(false);
             this.gbEdit.ResumeLayout(false);
             this.gbEdit.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numDamage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSlot)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numDamage)).EndInit();
             this.ResumeLayout(false);
 
         }

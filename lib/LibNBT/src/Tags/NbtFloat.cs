@@ -30,6 +30,15 @@ namespace LibNbt.Tags
 			Value = value;
 		}
 
+        internal override void SaveData(string recipient, object data)
+        {
+            if (this.Path == recipient)
+            {
+                Console.WriteLine(recipient);
+                Value = (float)data;
+            }
+        }
+
         internal override void ReadTag(System.IO.Stream readStream) { ReadTag(readStream, true); }
         internal override void ReadTag(System.IO.Stream readStream, bool readName)
         {

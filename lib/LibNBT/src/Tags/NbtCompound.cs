@@ -17,6 +17,7 @@ namespace LibNbt.Tags
         {
             get
             {
+                //Console.WriteLine(name);
                 if (TagCache.ContainsKey(name) &&
                     TagCache[name].Name.Equals(name))
                 {
@@ -60,6 +61,12 @@ namespace LibNbt.Tags
 			TagCache = new Dictionary<string, NbtTag>();
 		}
 
+        internal override void SaveData(string recipient, object data)
+        {
+            foreach (NbtTag t in Tags)
+                t.SaveData(recipient, data);
+        }
+
         internal override void ReadTag(Stream readStream) { ReadTag(readStream, true); }
         internal override void ReadTag(Stream readStream, bool readName)
         {
@@ -86,51 +93,61 @@ namespace LibNbt.Tags
                     case NbtTagType.TAG_Byte:
                         NbtByte nextByte = new NbtByte();
                         nextByte.ReadTag(readStream);
+                        nextByte.Path = this.Path+"/"+nextByte.Name;
                         Tags.Add(nextByte);
                         break;
                     case NbtTagType.TAG_Short:
                         NbtShort nextShort = new NbtShort();
                         nextShort.ReadTag(readStream);
+                        nextShort.Path = this.Path+"/"+nextShort.Name;
                         Tags.Add(nextShort);
                         break;
                     case NbtTagType.TAG_Int:
                         NbtInt nextInt = new NbtInt();
                         nextInt.ReadTag(readStream);
+                        nextInt.Path = this.Path+"/"+nextInt.Name;
                         Tags.Add(nextInt);
                         break;
                     case NbtTagType.TAG_Long:
                         NbtLong nextLong = new NbtLong();
                         nextLong.ReadTag(readStream);
+                        nextLong.Path = this.Path + "/" + nextLong.Name;
                         Tags.Add(nextLong);
                         break;
                     case NbtTagType.TAG_Float:
                         NbtFloat nextFloat = new NbtFloat();
                         nextFloat.ReadTag(readStream);
+                        nextFloat.Path = this.Path+"/"+nextFloat.Name;
                         Tags.Add(nextFloat);
                         break;
                     case NbtTagType.TAG_Double:
                         NbtDouble nextDouble = new NbtDouble();
                         nextDouble.ReadTag(readStream);
+                        nextDouble.Path = this.Path+"/"+nextDouble.Name;
                         Tags.Add(nextDouble);
                         break;
                     case NbtTagType.TAG_Byte_Array:
                         NbtByteArray nextByteArray = new NbtByteArray();
                         nextByteArray.ReadTag(readStream);
+                        nextByteArray.Path = this.Path+"/"+nextByteArray.Name;
                         Tags.Add(nextByteArray);
                         break;
                     case NbtTagType.TAG_String:
                         NbtString nextString = new NbtString();
                         nextString.ReadTag(readStream);
+                        nextString.Path = this.Path+"/"+nextString.Name;
                         Tags.Add(nextString);
                         break;
                     case NbtTagType.TAG_List:
                         NbtList nextList = new NbtList();
                         nextList.ReadTag(readStream);
+                        nextList.Path = this.Path+"/"+nextList.Name;
                         Tags.Add(nextList);
                         break;
                     case NbtTagType.TAG_Compound:
                         NbtCompound nextCompound = new NbtCompound();
                         nextCompound.ReadTag(readStream);
+                        nextCompound.Path = this.Path+"/"+nextCompound.Name;
                         Tags.Add(nextCompound);
                         break;
                     default:

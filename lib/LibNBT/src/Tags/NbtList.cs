@@ -55,51 +55,61 @@ namespace LibNbt.Tags
                     case NbtTagType.TAG_Byte:
                         NbtByte nextByte = new NbtByte();
                         nextByte.ReadTag(readStream, false);
+                        nextByte.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextByte);
                         break;
                     case NbtTagType.TAG_Short:
                         NbtShort nextShort = new NbtShort();
                         nextShort.ReadTag(readStream, false);
+                        nextShort.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextShort);
                         break;
                     case NbtTagType.TAG_Int:
                         NbtInt nextInt = new NbtInt();
                         nextInt.ReadTag(readStream, false);
+                        nextInt.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextInt);
                         break;
                     case NbtTagType.TAG_Long:
                         NbtLong nextLong = new NbtLong();
                         nextLong.ReadTag(readStream, false);
+                        nextLong.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextLong);
                         break;
                     case NbtTagType.TAG_Float:
                         NbtFloat nextFloat = new NbtFloat();
                         nextFloat.ReadTag(readStream, false);
+                        nextFloat.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextFloat);
                         break;
                     case NbtTagType.TAG_Double:
                         NbtDouble nextDouble = new NbtDouble();
                         nextDouble.ReadTag(readStream, false);
+                        nextDouble.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextDouble);
                         break;
                     case NbtTagType.TAG_Byte_Array:
                         NbtByteArray nextByteArray = new NbtByteArray();
                         nextByteArray.ReadTag(readStream, false);
+                        nextByteArray.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextByteArray);
                         break;
                     case NbtTagType.TAG_String:
                         NbtString nextString = new NbtString();
                         nextString.ReadTag(readStream, false);
+                        nextString.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextString);
                         break;
                     case NbtTagType.TAG_List:
                         NbtList nextList = new NbtList();
                         nextList.ReadTag(readStream, false);
+                        nextList.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextList);
                         break;
                     case NbtTagType.TAG_Compound:
                         NbtCompound nextCompound = new NbtCompound();
                         nextCompound.ReadTag(readStream, false);
+                        nextCompound.Path = this.Path+"/"+idx.ToString();
                         Tags.Add(nextCompound);
                         break;
                 }
@@ -151,6 +161,12 @@ namespace LibNbt.Tags
         internal override NbtTagType GetTagType()
         {
             return NbtTagType.TAG_List;
+        }
+
+        internal override void SaveData(string recipient, object data)
+        {
+            foreach (NbtTag t in Tags)
+                t.SaveData(recipient, data);
         }
 
         public override string ToString()

@@ -114,6 +114,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="Vector3d.cs" />
     <Compile Include="Vector3i.cs" />
     <EmbeddedResource Include="dlgChunk.resx">
@@ -162,6 +163,8 @@
     <Content Include="blocks.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\go-home.png" />
+    <None Include="Resources\list-add.png" />
     <None Include="Resources\LOGOBAR.png" />
     <None Include="Resources\go-bottom.png" />
     <None Include="Resources\go-top.png" />

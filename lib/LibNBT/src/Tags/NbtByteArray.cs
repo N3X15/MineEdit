@@ -38,6 +38,17 @@ namespace LibNbt.Tags
 			Buffer.BlockCopy(value, 0, Value, 0, value.Length);
 		}
 
+
+
+        internal override void SaveData(string recipient, object data)
+        {
+            if (this.Path == recipient)
+            {
+                Console.WriteLine(recipient);
+                Value = (byte[])data;
+            }
+        }
+
         internal override void ReadTag(Stream readStream) { ReadTag(readStream, true); }
         internal override void ReadTag(Stream readStream, bool readName)
         {

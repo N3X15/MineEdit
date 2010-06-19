@@ -71,6 +71,14 @@ namespace LibNbt.Tags
             return NbtTagType.TAG_Byte;
         }
 
+        internal override void SaveData(string recipient, object data)
+        {
+            if (this.Path == recipient)
+            {
+                Console.WriteLine(recipient);
+                Value = (byte)data;
+            }
+        }
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

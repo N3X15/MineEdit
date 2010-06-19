@@ -212,5 +212,29 @@ namespace MineEdit
         {
 
         }
+
+        private void tsbHeal_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    (ActiveMdiChild as frmMap).Map.Health = 100;
+                }
+            }
+        }
+
+        private void tsbGoHome_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    (ActiveMdiChild as frmMap).Map.PlayerPos.X = (ActiveMdiChild as frmMap).Map.Spawn.X;
+                    (ActiveMdiChild as frmMap).Map.PlayerPos.Y = (ActiveMdiChild as frmMap).Map.Spawn.Y;
+                    (ActiveMdiChild as frmMap).Map.PlayerPos.Z = (ActiveMdiChild as frmMap).Map.Spawn.Z;
+                }
+            }
+        }
     }
 }

@@ -74,6 +74,13 @@ namespace MineEdit.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap go_home {
+            get {
+                object obj = ResourceManager.GetObject("go-home", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap go_next {
             get {
                 object obj = ResourceManager.GetObject("go-next", resourceCulture);
@@ -98,6 +105,13 @@ namespace MineEdit.Properties {
         internal static System.Drawing.Bitmap go_up {
             get {
                 object obj = ResourceManager.GetObject("go-up", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap list_add {
+            get {
+                object obj = ResourceManager.GetObject("list-add", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

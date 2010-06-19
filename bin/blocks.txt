@@ -66,72 +66,76 @@
 063	063-SignBlock.png			Sign Block
 064	064-DoorBlock.png			Door Block
 065	065-Ladder.png				Ladder
-256	256-IronShovel.png			Iron shovel
-257	257-IronPickaxe.png			Iron pickaxe
-258	258-IronAxe.png				Iron axe
-259	259-FlintAndSteel.png		Flint and steel
-260	260-Apple.png				Apple
-261	261-Bow.png					Bow
-262	262-Arrow.png				Arrow
-263	263-Coal.png				Coal
-264	264-Diamond.png				Diamond
-265	265-IronBar.png				Iron bar
-266	266-GoldBar.png				Gold bar
-267	267-IronSword.png			Iron sword
-268	268-WoodSword.png			Wood sword
-269	269-WoodShovel.png			Wood shovel
-270	270-WoodPickaxe.png			Wood pickaxe
-271	271-WoodAxe.png				Wood axe
-272	272-StoneSword.png			Stone sword
-273	273-StoneShovel.png			Stone shovel
-274	274-StonePickaxe.png		Stone pickaxe
-275	275-StoneAxe.png			Stone axe
-276	276-DiamondSword.png		Diamond sword
-277	277-DiamondShovel.png		Diamond shovel
-278	278-DiamondPickaxe.png		Diamond pickaxe
-279	279-DiamondAxe.png			Diamond axe
-280	280-Stick.png				Stick
-281	281-Bowl.png				Bowl
-282	282-BowlSoup.png			Bowl with soup
-283	283-GoldSword.png			Gold sword
-284	284-GoldShovel.png			Gold shovel
-285	285-GoldPickaxe.png			Gold pickaxe
-286	286-GoldAxe.png				Gold axe
-287	287-String.png				String
-288	288-Feather.png				Feather
-289	289-Gunpowder.png			Gunpowder
-290	290-WoodHoe.png				Wood hoe
-291	291-StoneHoe.png			Stone hoe
-292	292-IronHoe.png				Iron hoe
-293	293-DiamondHoe.png			Diamond hoe
-294	294-GoldHoe.png				Gold hoe
-295	295-Seeds.png				Seeds
-296	296-Wheat.png				Wheat
-297	297-Bread.png				Bread
-298	298-LeatherHelmet.png		Leather helmet
-299	299-LeatherChestplate.png	Leather chestplate
-300	300-LeatherPants.png		Leather pants
-301	301-LeatherBoots.png		Leather boots
-302	302-ChainmailHelmet.png		Chainmail helmet
-303	303-ChainmailChestplate.png	Chainmail chestplate
-304	304-ChainmailPants.png		Chainmail pants
-305	305-ChainmailBoots.png		Chainmail boots
-306	306-IronHelmet.png			Iron helmet
-307	307-IronChestplate.png		Iron chestplate
-308	308-IronPants.png			Iron pants
-309	309-IronBoots.png			Iron boots
-310	310-DiamondHelmet.png		Diamond helmet
-311	311-DiamondChestplate.png	Diamond chestplate
-312	312-DiamondPants.png		Diamond pants
-313	313-DiamondBoots.png		Diamond boots
-314	314-GoldHelmet.png			Gold helmet
-315	315-GoldChestplate.png		Gold chestplate
-316	316-GoldPants.png			Gold pants
-317	317-GoldBoots.png			Gold boots
-318	318-Flint.png				Flint
-319	319-Meat.png				Meat
-320	320-CookedMeat.png			Cooked meat
-321	321-Painting.png			Painting
-322	322-GoldenApple.png			Golden Apple
-323	323-Sign.png				Sign
-324	324-Door.png				Door
+256	256.png						Iron shovel
+257	257.png						Iron pickaxe
+258	258.png						Iron axe
+259	259.png						Flint and steel
+260	260.png						Apple
+261	261.png						Bow
+262	262.png						Arrow
+263	263.png						Coal
+264	264.png						Diamond
+265	265.png						Iron bar
+266	266.png						Gold bar
+267	267.png						Iron sword
+268	268.png						Wood sword
+269	269.png						Wood shovel
+270	270.png						Wood pickaxe
+271	271.png						Wood axe
+272	272.png						Stone sword
+273	273.png						Stone shovel
+274	274.png						Stone pickaxe
+275	275.png						Stone axe
+276	276.png						Diamond sword
+277	277.png						Diamond shovel
+278	278.png						Diamond pickaxe
+279	279.png						Diamond axe
+280	280.png						Stick
+281	281.png						Bowl
+282	282.png						Bowl with soup
+283	283.png						Gold sword
+284	284.png						Gold shovel
+285	285.png						Gold pickaxe
+286	286.png						Gold axe
+287	287.png						String
+288	288.png						Feather
+289	289.png						Gunpowder
+290	290.png						Wood hoe
+291	291.png						Stone hoe
+292	292.png						Iron hoe
+293	293.png						Diamond hoe
+294	294.png						Gold hoe
+295	295.png						Seeds
+296	296.png						Wheat
+297	297.png						Bread
+298	298.png						Leather helmet
+299	299.png						Leather chestplate
+300	300.png						Leather pants
+301	301.png						Leather boots
+302	302.png						Chainmail helmet
+303	303.png						Chainmail chestplate
+304	304.png		Chainmail pants
+305	305.png		Chainmail boots
+306	306.png			Iron helmet
+307	307.png		Iron chestplate
+308	308.png			Iron pants
+309	309.png			Iron boots
+310	310.png		Diamond helmet
+311	311.png	Diamond chestplate
+312	312.png		Diamond pants
+313	313.png		Diamond boots
+314	314.png			Gold helmet
+315	315.png		Gold chestplate
+316	316.png			Gold pants
+317	317.png			Gold boots
+318	318.png				Flint
+319	319.png				Meat
+320	320.png			Cooked meat
+321	321.png			Painting
+322	322.png			Golden Apple
+323	323.png				Sign
+324	324.png				Door
+325	325.png						Empty Bucket
+326	326.png						Water Bucket
+327	327.png						Lava Bucket
+328	328.png						Minecart

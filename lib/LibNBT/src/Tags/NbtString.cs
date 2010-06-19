@@ -23,7 +23,16 @@ namespace LibNbt.Tags
             Name = tagName;
             Value = value;
         }
-		
+
+
+        internal override void SaveData(string recipient, object data)
+        {
+            if (this.Path == recipient)
+            {
+                Console.WriteLine(recipient);
+                Value = (string)data;
+            }
+        }
         internal override void ReadTag(Stream readStream) { ReadTag(readStream, true); }
         internal override void ReadTag(Stream readStream, bool readName)
         {

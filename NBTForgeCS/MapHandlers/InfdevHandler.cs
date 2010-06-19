@@ -443,54 +443,58 @@ namespace MineEdit
             }
         }
 
+        /// <summary>
+        /// -1 = dead?
+        /// 0 = dead
+        /// 20 = full health
+        /// </summary>
         public int Health
         {
             get
             {
                 // /Player/Health;
-                NbtShort h = (NbtShort)((root.RootTag["Player"] as NbtCompound)["Health"]);
+                NbtShort h = (NbtShort)root.GetTag("/Data/Player/Health");
                 return (int)h.Value;
             }
             set
             {
-                NbtShort h = new NbtShort((short)value);
+                // Clamp value to between -1 and 21
+                NbtShort h = new NbtShort((short)Utils.Clamp(value,-1,21));
+                root.SetTag("/Data/Player/Health",h);
+                /*
                 NbtCompound p = (NbtCompound)root.RootTag["Player"];
                 p["Health"] = h;
-                root.RootTag["Player"] = p;
+                root.RootTag["Player"] = p;*/
             }
         }
-
+        // Don't clamp, all sorts of weird shit can be done here.
         public int Air
         {
             get
             {
                 // /Player/Air;
-                NbtShort h = (NbtShort)((root.RootTag["Player"] as NbtCompound)["Air"]);
+                NbtShort h = (NbtShort)root.GetTag("/Data/Player/Air");
                 return (int)h.Value;
             }
             set
             {
                 NbtShort h = new NbtShort((short)value);
-                NbtCompound p = (NbtCompound)root.RootTag["Player"];
-                p["Air"] = h;
-                root.RootTag["Player"] = p;
+                root.SetTag("/Data/Player/Air", h); ;
             }
         }
 
+        // Dunno the range
         public int Fire
         {
             get
             {
-                // /Player/Fire;
-                NbtShort h = (NbtShort)((root.RootTag["Player"] as NbtCompound)["Fire"]);
+                NbtShort h = (NbtShort)root.GetTag("/Data/Player/Fire");
                 return (int)h.Value;
             }
             set
             {
                 NbtShort h = new NbtShort((short)value);
-                NbtCompound p = (NbtCompound)root.RootTag["Player"];
-                p["Fire"] = h;
-                root.RootTag["Player"] = p;
+                root.SetTag("/Data/Player/Fire", h); ;
             }
         }
 
@@ -498,8 +502,7 @@ namespace MineEdit
         {
             get
             {
-                // /Player/Pos/;
-                NbtList h = (NbtList)((root.RootTag["Player"] as NbtCompound)["Pos"]);
+                NbtList h = (NbtList)root.GetTag("/Data/Player/Pos");
                 Vector3d pos = new Vector3d();
                 pos.X = (h[0] as NbtDouble).Value;
                 pos.Y = (h[1] as NbtDouble).Value;
@@ -510,11 +513,9 @@ namespace MineEdit
             {
                 NbtList h = new NbtList("Pos");
                 h.Tags.Add(new NbtDouble(value.X));
-                h.Tags.Add(new NbtDouble(value.Y));
-                h.Tags.Add(new NbtDouble(value.Z));
-                NbtCompound p = (NbtCompound)root.RootTag["Player"];
-                p["Pos"] = h;
-                root.RootTag["Player"] = p;
+                h.Tags.Add(new NbtDouble(Utils.Clamp(value.Y,0,128)));
+                h.Tags.Add(new NbtDouble(value.Z)); 
+                root.SetTag("/Data/Player/Pos", h);
             }
         }
 
@@ -522,13 +523,19 @@ namespace MineEdit
         {
             get
             {
-                return new Vector3i((root.RootTag["SpawnX"] as NbtInt).Value, (root.RootTag["SpawnY"] as NbtInt).Value, (root.RootTag["SpawnZ"] as NbtInt).Value);
+                NbtCompound Data = (NbtCompound)root.GetTag("/Data");
+                return new Vector3i(
+                    (Data["SpawnX"] as NbtInt).Value, 
+                    (Data["SpawnY"] as NbtInt).Value, 
+                    (Data["SpawnZ"] as NbtInt).Value);
             }
             set
             {
-                root.RootTag["SpawnX"] = new NbtInt((int)value.X);
-                root.RootTag["SpawnY"] = new NbtInt((int)value.Y);
-                root.RootTag["SpawnZ"] = new NbtInt((int)value.Z);
+                NbtCompound Player = (NbtCompound)root.GetTag("/Data");
+                Player["SpawnX"] = new NbtInt((int)value.X);
+                Player["SpawnY"] = new NbtInt((int)Utils.Clamp(value.Y, 0, 128));
+                Player["SpawnZ"] = new NbtInt((int)value.Z);
+                root.SetTag("/Data", Player);
             }
         }
 
