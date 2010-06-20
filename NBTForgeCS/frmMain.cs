@@ -236,5 +236,17 @@ namespace MineEdit
                 }
             }
         }
+
+        private void tsbReload_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    (ActiveMdiChild as frmMap).ReloadAll();
+                }
+            }
+
+        }
     }
 }

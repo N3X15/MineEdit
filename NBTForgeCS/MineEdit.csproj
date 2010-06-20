@@ -163,6 +163,7 @@
     <Content Include="blocks.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\view-refresh.png" />
     <None Include="Resources\go-home.png" />
     <None Include="Resources\list-add.png" />
     <None Include="Resources\LOGOBAR.png" />

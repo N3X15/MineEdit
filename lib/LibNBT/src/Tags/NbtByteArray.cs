@@ -8,7 +8,7 @@ namespace LibNbt.Tags
     public class NbtByteArray : NbtTag
     {
         public byte[] Value { get; protected set; }
-		
+        public string TagPath;
 		public byte this[int index]
 		{
 			get { return Value[index]; }
@@ -42,7 +42,7 @@ namespace LibNbt.Tags
 
         internal override void SaveData(string recipient, object data)
         {
-            if (this.Path == recipient)
+            if (TagPath == recipient)
             {
                 Console.WriteLine(recipient);
                 Value = (byte[])data;

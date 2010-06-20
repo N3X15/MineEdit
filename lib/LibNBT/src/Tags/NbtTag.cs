@@ -10,7 +10,6 @@ namespace LibNbt.Tags
         protected NbtTag() { Name = ""; }
 
         public string Name { get; protected set; }
-        public string Path { get; internal set; }
 
         internal abstract void ReadTag(Stream readStream);
         internal abstract void ReadTag(Stream readStream, bool readName);

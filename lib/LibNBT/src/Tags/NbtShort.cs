@@ -8,7 +8,7 @@ namespace LibNbt.Tags
     public class NbtShort : NbtTag
     {
         public short Value { get; protected set; }
-
+        public string TagPath;
         public NbtShort()
         {
             Name = "";
@@ -33,7 +33,7 @@ namespace LibNbt.Tags
 
         internal override void SaveData(string recipient, object data)
         {
-            if (this.Path == recipient)
+            if (TagPath == recipient)
             {
                 Console.WriteLine(recipient);
                 Value = (short)data;

@@ -9,7 +9,7 @@ namespace LibNbt.Tags
     {
         public List<NbtTag> Tags { get; protected set; }
         public NbtTagType Type { get; protected set; }
-		
+        public string TagPath;
 		public NbtTag this[int index]
 		{
 			get { return Tags[index]; }
@@ -55,61 +55,61 @@ namespace LibNbt.Tags
                     case NbtTagType.TAG_Byte:
                         NbtByte nextByte = new NbtByte();
                         nextByte.ReadTag(readStream, false);
-                        nextByte.Path = this.Path+"/"+idx.ToString();
+                        nextByte.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextByte);
                         break;
                     case NbtTagType.TAG_Short:
                         NbtShort nextShort = new NbtShort();
                         nextShort.ReadTag(readStream, false);
-                        nextShort.Path = this.Path+"/"+idx.ToString();
+                        nextShort.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextShort);
                         break;
                     case NbtTagType.TAG_Int:
                         NbtInt nextInt = new NbtInt();
                         nextInt.ReadTag(readStream, false);
-                        nextInt.Path = this.Path+"/"+idx.ToString();
+                        nextInt.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextInt);
                         break;
                     case NbtTagType.TAG_Long:
                         NbtLong nextLong = new NbtLong();
                         nextLong.ReadTag(readStream, false);
-                        nextLong.Path = this.Path+"/"+idx.ToString();
+                        nextLong.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextLong);
                         break;
                     case NbtTagType.TAG_Float:
                         NbtFloat nextFloat = new NbtFloat();
                         nextFloat.ReadTag(readStream, false);
-                        nextFloat.Path = this.Path+"/"+idx.ToString();
+                        nextFloat.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextFloat);
                         break;
                     case NbtTagType.TAG_Double:
                         NbtDouble nextDouble = new NbtDouble();
                         nextDouble.ReadTag(readStream, false);
-                        nextDouble.Path = this.Path+"/"+idx.ToString();
+                        nextDouble.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextDouble);
                         break;
                     case NbtTagType.TAG_Byte_Array:
                         NbtByteArray nextByteArray = new NbtByteArray();
                         nextByteArray.ReadTag(readStream, false);
-                        nextByteArray.Path = this.Path+"/"+idx.ToString();
+                        nextByteArray.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextByteArray);
                         break;
                     case NbtTagType.TAG_String:
                         NbtString nextString = new NbtString();
                         nextString.ReadTag(readStream, false);
-                        nextString.Path = this.Path+"/"+idx.ToString();
+                        nextString.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextString);
                         break;
                     case NbtTagType.TAG_List:
                         NbtList nextList = new NbtList();
                         nextList.ReadTag(readStream, false);
-                        nextList.Path = this.Path+"/"+idx.ToString();
+                        nextList.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextList);
                         break;
                     case NbtTagType.TAG_Compound:
                         NbtCompound nextCompound = new NbtCompound();
                         nextCompound.ReadTag(readStream, false);
-                        nextCompound.Path = this.Path+"/"+idx.ToString();
+                        nextCompound.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextCompound);
                         break;
                 }

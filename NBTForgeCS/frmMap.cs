@@ -85,18 +85,24 @@ namespace MineEdit
                 _Map = value;
                 this.invMain.Map = value;
                 if (_Map != null && !string.IsNullOrEmpty(_Map.Filename))
-                    this.Text = this._Map.Filename;
-                if (_Map != null)
-                {
-                    numHealth.Value = (decimal)_Map.Health;
-                    numFire.Value = (decimal)_Map.Fire;
-                    PlayerPos = _Map.PlayerPos;
-                }
                 mapCtrl.Map = _Map;
+                Reload();
                 Refresh();
             }
         }
 
+        private void Reload()
+        {
+            if (_Map != null)
+            {
+                this.Text = this._Map.Filename;
+                numHealth.Value = (decimal)_Map.Health;
+                numFire.Value = (decimal)_Map.Fire;
+                PlayerPos = _Map.PlayerPos;
+                numAir.Value = _Map.Air;
+                LockApplyCancel();
+            }
+        }
         public Vector3d PlayerPos
         {
             get
@@ -231,18 +237,23 @@ namespace MineEdit
 
         private void cmdHeal_Click(object sender, EventArgs e)
         {
-            _Map.Health = 100; // Eye Dee Kay
+            _Map.Health = 100; // idk what each version uses
+            _Map.Fire = -20;
+            _Map.Air = 300;
+            Reload();
         }
 
         private void cmdSpawn_Click(object sender, EventArgs e)
         {
-            _Map.PlayerPos.X = _Map.Spawn.X;
-            _Map.PlayerPos.Y = _Map.Spawn.Y;
-            _Map.PlayerPos.Z = _Map.Spawn.Z;
+            PlayerPos.X = _Map.Spawn.X;
+            PlayerPos.Y = _Map.Spawn.Y;
+            PlayerPos.Z = _Map.Spawn.Z;
+            Reload();
         }
 
         private void cmdStop_Click(object sender, EventArgs e)
         {
+            
         }
 
         private void cmdApply_Click(object sender, EventArgs e)
@@ -250,7 +261,42 @@ namespace MineEdit
             _Map.Health = (int)numHealth.Value;
             _Map.Fire = (int)numFire.Value;
             _Map.PlayerPos = PlayerPos;
+            _Map.Air = (int)numAir.Value;
+            Reload();
         }
 
+        private void cmdCancel_Click(object sender, EventArgs e)
+        {
+            Reload();
+        }
+
+
+        private void LockApplyCancel()
+        {
+            cmdApply.Enabled = false;
+            cmdCancel.Enabled = false;
+        }
+        private void UnlockApplyCancel(object sender, EventArgs e)
+        {
+            UnlockApplyCancel();
+        }
+
+        private void UnlockApplyCancel()
+        {
+            cmdApply.Enabled = true;
+            cmdCancel.Enabled = true;
+        }
+
+        internal void ReloadAll()
+        {
+            Enabled=false;
+            IMapHandler m = Map;
+            Map = null;
+            mapCtrl.Map = null;
+            m.Load();
+            Map = m;
+            Reload();
+            Enabled=true;
+        }
     }
 }

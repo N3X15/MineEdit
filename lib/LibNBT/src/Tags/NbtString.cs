@@ -8,7 +8,7 @@ namespace LibNbt.Tags
     public class NbtString : NbtTag
     {
         public string Value { get; set; }
-		
+        public string TagPath;
         public NbtString()
         {
             Value = "";
@@ -27,7 +27,7 @@ namespace LibNbt.Tags
 
         internal override void SaveData(string recipient, object data)
         {
-            if (this.Path == recipient)
+            if (TagPath== recipient)
             {
                 Console.WriteLine(recipient);
                 Value = (string)data;

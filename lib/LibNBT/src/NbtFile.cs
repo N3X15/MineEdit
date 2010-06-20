@@ -54,8 +54,8 @@ namespace LibNbt
                             NbtCompound rootCompound = new NbtCompound();
                             try
                             {
+                                rootCompound.TagPath = "";
                                 rootCompound.ReadTag(memStream);
-                                rootCompound.Path = "";
                             }
                             catch (Exception)
                             {
@@ -70,7 +70,7 @@ namespace LibNbt
                     }
                 }
             }
-
+            //Console.WriteLine("{0} loaded.", fileName);
             //ls();
         }
 
@@ -106,7 +106,7 @@ namespace LibNbt
         /// <returns>Item or null</returns>
         public NbtTag GetTag(string path)
         {
-            Console.WriteLine("Reading tag " + path);
+            //Console.WriteLine("Reading tag " + path);
             NbtTag ctag = RootTag;
             string[] p = path.Split(new char[] { '/','\\' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < p.Length; i++)
@@ -120,7 +120,7 @@ namespace LibNbt
                     });
                     if (ntag == null)
                     {
-                        Console.WriteLine("[LibNBT] GetTag(): {0}: can't find tag by the name of {1}", fff.Path, p[i]);
+                        Console.WriteLine("[LibNBT] GetTag(): {0}: can't find tag by the name of {1}", fff.TagPath, p[i]);
                         return null;
                     }
                     ctag = ntag;
@@ -143,7 +143,7 @@ namespace LibNbt
             return ctag;
         }
 
-        public void ls(string path="/")
+        public void ls(string path="")
         {
             NbtTag hurr = GetTag(path);
             if (hurr is NbtCompound)
@@ -152,24 +152,24 @@ namespace LibNbt
                 foreach (NbtTag t in c.Tags)
                 {
                     if (t is NbtCompound || t is NbtList)
-                        ls(Path.Combine(path, t.Name));
+                        ls(path+"/"+t.Name);
                     else
                     {
-                        Console.WriteLine("{0} - {1}", Path.Combine(path, t.Name), t.GetType().Name);
+                        Console.WriteLine("{0} - {1}", path+"/"+t.Name, t.GetType().Name);
                     }
                 }
             }
-            if (hurr is NbtList)
+            else if (hurr is NbtList)
             {
                 NbtList c = (NbtList)hurr;
                 int i = 0;
                 foreach (NbtTag t in c.Tags)
                 {
                     if (t is NbtCompound || t is NbtList)
-                        ls(Path.Combine(path, t.Name));
+                        ls(path + "/" + i.ToString());
                     else
                     {
-                        Console.WriteLine("{0} - {1}", Path.Combine(path, i.ToString()), t.GetType().Name);
+                        Console.WriteLine("{0} - {1}", path+"/"+i.ToString(), t.GetType().Name);
                     }
                     i++;
                 }
@@ -183,8 +183,7 @@ namespace LibNbt
         /// <returns></returns>
         public void SetTag(string path,object t)
         {
-            Console.WriteLine("Writing {0} to tag {1}",path,t);
-            RootTag.SaveData(path, t);
+            throw new NotImplementedException();
         }
 
         public void Dispose()

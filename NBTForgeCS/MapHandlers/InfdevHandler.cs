@@ -149,6 +149,7 @@ namespace MineEdit
                 Console.WriteLine("! {0}", f);
                 return null;
             }
+            //Console.WriteLine("{0},{1} {2}", x, z, f);
             chunk = new NbtFile(f);
             chunk.LoadFile();
             //Console.WriteLine("({0},{1}) Loading {2} layers of {3}", x, z, ChunkZ, f);
@@ -187,7 +188,7 @@ namespace MineEdit
             //Int64 Z = z / 16;
             Int64 fX = x & 0x3f;
             Int64 fZ = z & 0x3f;
-
+            string neg = "r"; // ?
             return 
                 Path.Combine(Folder,
                     Path.Combine(Base36.NumberToBase36(fX),
@@ -196,56 +197,6 @@ namespace MineEdit
                         )
                     )
                 );
-        }
-        private long Base36Decode(string inputString)
-        {
-            string clist = "0123456789abcdefghijklmnopqrstuvwxyz";
-
-            inputString = Reverse(inputString.ToLower());
-            long result = 0;
-            int pos = 0;
-            foreach (char c in inputString)
-            {
-                result += clist.IndexOf(c) * (long)Math.Pow(36, pos);
-                pos++;
-            }
-            return result;
-        }
-
-        private string Base36Encode(long inputNumber)
-        {
-            char[] clist = new char[] { '0', '1', '2', '3', '4',
-                                '5', '6', '7', '8', '9',
-                                'a', 'b', 'c', 'd', 'e',
-                                'f', 'g', 'h', 'i', 'j',
-                                'k', 'l', 'm', 'n', 'o',
-                                'p', 'q', 'r', 's', 't',
-                                'u', 'v', 'w', 'x', 'y',
-                                'z' };
-
-            StringBuilder sb = new StringBuilder();
-            while (inputNumber != 0)
-            {
-                sb.Append(clist[inputNumber % 36]);
-                inputNumber /= 36;
-            }
-            return Reverse(sb.ToString());
-        }
-
-        private string Reverse(string input)
-        {
-            Stack<char> resultStack = new Stack<char>();
-            foreach (char c in input)
-            {
-                resultStack.Push(c);
-            }
-
-            StringBuilder sb = new StringBuilder();
-            while (resultStack.Count > 0)
-            {
-                sb.Append(resultStack.Pop());
-            }
-            return sb.ToString();
         }
         private void SaveChunk(int x, int z,byte[,,] data)
         {
@@ -459,12 +410,16 @@ namespace MineEdit
             set
             {
                 // Clamp value to between -1 and 21
-                NbtShort h = new NbtShort((short)Utils.Clamp(value,-1,21));
-                root.SetTag("/Data/Player/Health",h);
-                /*
-                NbtCompound p = (NbtCompound)root.RootTag["Player"];
-                p["Health"] = h;
-                root.RootTag["Player"] = p;*/
+                NbtShort h = new NbtShort("Health",(short)Utils.Clamp(value,-1,21));
+                //root.SetTag("/Data/Player/Health",h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                NbtShort oh = (NbtShort)Player["Health"];
+                Console.WriteLine("Health: {0}->{1}", oh.Value, h.Value);
+                Player.Tags.Remove(oh);
+                Player.Tags.Add(h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
             }
         }
         // Don't clamp, all sorts of weird shit can be done here.
@@ -478,8 +433,15 @@ namespace MineEdit
             }
             set
             {
-                NbtShort h = new NbtShort((short)value);
-                root.SetTag("/Data/Player/Air", h); ;
+                NbtShort h = new NbtShort("Air",(short)value);
+                //root.SetTag("/Data/Player/Air", h); ;
+
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                Player.Tags.Remove(Player["Air"]);
+                Player.Tags.Add(h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
             }
         }
 
@@ -493,8 +455,14 @@ namespace MineEdit
             }
             set
             {
-                NbtShort h = new NbtShort((short)value);
-                root.SetTag("/Data/Player/Fire", h); ;
+                NbtShort f = new NbtShort("Fire",(short)value);
+                // BROKEN root.SetTag("/Data/Player/Fire", h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                Player.Tags.Remove(Player["Fire"]);
+                Player.Tags.Add(f);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
             }
         }
 
@@ -514,8 +482,14 @@ namespace MineEdit
                 NbtList h = new NbtList("Pos");
                 h.Tags.Add(new NbtDouble(value.X));
                 h.Tags.Add(new NbtDouble(Utils.Clamp(value.Y,0,128)));
-                h.Tags.Add(new NbtDouble(value.Z)); 
-                root.SetTag("/Data/Player/Pos", h);
+                h.Tags.Add(new NbtDouble(value.Z));
+                // BROKEN root.SetTag("/Data/Player/Pos", h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"]; 
+                Player.Tags.Remove(Player["Pos"]);
+                Player.Tags.Add(h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
             }
         }
 
@@ -531,11 +505,17 @@ namespace MineEdit
             }
             set
             {
-                NbtCompound Player = (NbtCompound)root.GetTag("/Data");
-                Player["SpawnX"] = new NbtInt((int)value.X);
-                Player["SpawnY"] = new NbtInt((int)Utils.Clamp(value.Y, 0, 128));
-                Player["SpawnZ"] = new NbtInt((int)value.Z);
-                root.SetTag("/Data", Player);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                Player.Tags.Remove(Player["SpawnX"]);
+                Player.Tags.Remove(Player["SpawnY"]);
+                Player.Tags.Remove(Player["SpawnZ"]);
+                Player.Tags.Add(new NbtInt("SpawnX",(int)value.X));
+                Player.Tags.Add(new NbtInt("SpawnY",(int)Utils.Clamp(value.Y, 0, 128)));
+                Player.Tags.Add(new NbtInt("SpawnZ",(int)value.Z));
+                // BROKEN root.SetTag("/Data/Player", h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
             }
         }
 
@@ -545,7 +525,7 @@ namespace MineEdit
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
-        /// TODO: Negative chunks produce all kinds of strange artifacts.
+        /// TODO: Negative chunks = backwards block loading, need to fix.
         public byte GetBlockAt(Vector3i p)
         {
             //Console.WriteLine("{0}", p);
@@ -555,6 +535,16 @@ namespace MineEdit
             int x = ((int)p.X % ChunkX) & 0xf;
             int y = ((int)p.Y % ChunkY) & 0xf;
             int z = (int)p.Z;// % ChunkZ;
+
+            if (CX < 0)
+            {
+                x = ChunkX - 1 - x;
+                CX-=1;
+            }
+            if (CZ < 0)
+            {
+                y = ChunkY - 1 - y;
+            }
 
             if (
                 !Check(x, -1, ChunkX) || 
@@ -665,9 +655,10 @@ namespace MineEdit
                 failreason = "root.RootTag==null";
                 return false;
             }
-            NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-            NbtCompound Player = (NbtCompound)Data["Player"];
-            NbtList pi = (NbtList)Player["Inventory"];
+            //NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+            //NbtCompound Player = (NbtCompound)Data["Player"];
+            //NbtList pi = (NbtList)Player["Inventory"];
+            NbtList pi = (NbtList)root.GetTag("/Data/Player/Inventory");
             foreach (NbtTag t in pi.Tags)
             {
                 NbtCompound s = (NbtCompound)t;

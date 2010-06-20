@@ -62,56 +62,56 @@ namespace MineEdit.Properties {
         
         internal static System.Drawing.Bitmap go_bottom {
             get {
-                object obj = ResourceManager.GetObject("go-bottom", resourceCulture);
+                object obj = ResourceManager.GetObject("go_bottom", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         internal static System.Drawing.Bitmap go_down {
             get {
-                object obj = ResourceManager.GetObject("go-down", resourceCulture);
+                object obj = ResourceManager.GetObject("go_down", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         internal static System.Drawing.Bitmap go_home {
             get {
-                object obj = ResourceManager.GetObject("go-home", resourceCulture);
+                object obj = ResourceManager.GetObject("go_home", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         internal static System.Drawing.Bitmap go_next {
             get {
-                object obj = ResourceManager.GetObject("go-next", resourceCulture);
+                object obj = ResourceManager.GetObject("go_next", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         internal static System.Drawing.Bitmap go_previous {
             get {
-                object obj = ResourceManager.GetObject("go-previous", resourceCulture);
+                object obj = ResourceManager.GetObject("go_previous", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         internal static System.Drawing.Bitmap go_top {
             get {
-                object obj = ResourceManager.GetObject("go-top", resourceCulture);
+                object obj = ResourceManager.GetObject("go_top", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         internal static System.Drawing.Bitmap go_up {
             get {
-                object obj = ResourceManager.GetObject("go-up", resourceCulture);
+                object obj = ResourceManager.GetObject("go_up", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         internal static System.Drawing.Bitmap list_add {
             get {
-                object obj = ResourceManager.GetObject("list-add", resourceCulture);
+                object obj = ResourceManager.GetObject("list_add", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -119,6 +119,13 @@ namespace MineEdit.Properties {
         internal static System.Drawing.Bitmap LOGOBAR {
             get {
                 object obj = ResourceManager.GetObject("LOGOBAR", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap view_refresh {
+            get {
+                object obj = ResourceManager.GetObject("view-refresh", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -76,7 +76,7 @@
             // btnUp
             // 
             this.btnUp.BackColor = System.Drawing.Color.Transparent;
-            this.btnUp.BackgroundImage = global::MineEdit.Properties.Resources.go_up;
+            this.btnUp.BackgroundImage = global::MineEdit.Properties.Resources.go_down;
             this.btnUp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.btnUp.FlatAppearance.BorderSize = 0;
             this.btnUp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
