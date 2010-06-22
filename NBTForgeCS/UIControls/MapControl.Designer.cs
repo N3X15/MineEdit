@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MapControl));
             this.lblError = new System.Windows.Forms.Label();
             this.btnLeft = new System.Windows.Forms.Button();
             this.btnDown = new System.Windows.Forms.Button();
@@ -48,12 +49,13 @@
             this.lblError.TabIndex = 0;
             this.lblError.Text = "The map in this version of MineEdit is screwy, so editing the terrain has been di" +
                 "sabled.";
+            this.lblError.Visible = false;
             // 
             // btnLeft
             // 
             this.btnLeft.FlatAppearance.BorderSize = 0;
             this.btnLeft.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLeft.Image = global::MineEdit.Properties.Resources.go_previous;
+            this.btnLeft.Image = ((System.Drawing.Image)(resources.GetObject("btnLeft.Image")));
             this.btnLeft.Location = new System.Drawing.Point(64, 163);
             this.btnLeft.Name = "btnLeft";
             this.btnLeft.Size = new System.Drawing.Size(75, 23);
@@ -65,7 +67,7 @@
             // 
             this.btnDown.FlatAppearance.BorderSize = 0;
             this.btnDown.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDown.Image = global::MineEdit.Properties.Resources.go_down;
+            this.btnDown.Image = ((System.Drawing.Image)(resources.GetObject("btnDown.Image")));
             this.btnDown.Location = new System.Drawing.Point(110, 192);
             this.btnDown.Name = "btnDown";
             this.btnDown.Size = new System.Drawing.Size(75, 23);
@@ -76,7 +78,7 @@
             // btnUp
             // 
             this.btnUp.BackColor = System.Drawing.Color.Transparent;
-            this.btnUp.BackgroundImage = global::MineEdit.Properties.Resources.go_down;
+            this.btnUp.BackgroundImage = global::MineEdit.Properties.Resources.go_up;
             this.btnUp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.btnUp.FlatAppearance.BorderSize = 0;
             this.btnUp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -91,7 +93,7 @@
             // 
             this.btnRight.FlatAppearance.BorderSize = 0;
             this.btnRight.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRight.Image = global::MineEdit.Properties.Resources.go_next;
+            this.btnRight.Image = ((System.Drawing.Image)(resources.GetObject("btnRight.Image")));
             this.btnRight.Location = new System.Drawing.Point(158, 163);
             this.btnRight.Name = "btnRight";
             this.btnRight.Size = new System.Drawing.Size(75, 23);
@@ -103,7 +105,7 @@
             // 
             this.btnLyrDown.FlatAppearance.BorderSize = 0;
             this.btnLyrDown.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLyrDown.Image = global::MineEdit.Properties.Resources.go_bottom;
+            this.btnLyrDown.Image = ((System.Drawing.Image)(resources.GetObject("btnLyrDown.Image")));
             this.btnLyrDown.Location = new System.Drawing.Point(239, 192);
             this.btnLyrDown.Name = "btnLyrDown";
             this.btnLyrDown.Size = new System.Drawing.Size(75, 23);
@@ -115,7 +117,7 @@
             // 
             this.btnLyrUp.FlatAppearance.BorderSize = 0;
             this.btnLyrUp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLyrUp.Image = global::MineEdit.Properties.Resources.go_top;
+            this.btnLyrUp.Image = ((System.Drawing.Image)(resources.GetObject("btnLyrUp.Image")));
             this.btnLyrUp.Location = new System.Drawing.Point(239, 134);
             this.btnLyrUp.Name = "btnLyrUp";
             this.btnLyrUp.Size = new System.Drawing.Size(75, 23);
@@ -136,6 +138,7 @@
             this.Controls.Add(this.lblError);
             this.Name = "MapControl";
             this.Size = new System.Drawing.Size(433, 356);
+            this.Load += new System.EventHandler(this.MapControl_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

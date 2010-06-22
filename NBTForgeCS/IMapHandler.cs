@@ -46,5 +46,8 @@ namespace MineEdit
         void GetOverview(Vector3i pos, out int h, out byte block, out int waterdepth);
 
         void Load();
+
+        byte GetBlockIn(long x, long y, Vector3i blockpos);
+        void SetBlockIn(long x, long y, Vector3i blockpos,byte type);
     }
 }

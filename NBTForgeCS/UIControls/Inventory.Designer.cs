@@ -37,15 +37,13 @@
             this.numCount = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.cmbType = new System.Windows.Forms.ComboBox();
-            this.numSlot = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
-            this.lblSlot = new System.Windows.Forms.Label();
+            this.cmdDeleteInv = new System.Windows.Forms.Button();
             this.splitInv.Panel2.SuspendLayout();
             this.splitInv.SuspendLayout();
             this.gbEdit.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numDamage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numSlot)).BeginInit();
             this.SuspendLayout();
             // 
             // splitInv
@@ -65,6 +63,7 @@
             // 
             // gbEdit
             // 
+            this.gbEdit.Controls.Add(this.cmdDeleteInv);
             this.gbEdit.Controls.Add(this.numDamage);
             this.gbEdit.Controls.Add(this.button2);
             this.gbEdit.Controls.Add(this.button1);
@@ -72,9 +71,7 @@
             this.gbEdit.Controls.Add(this.numCount);
             this.gbEdit.Controls.Add(this.label2);
             this.gbEdit.Controls.Add(this.cmbType);
-            this.gbEdit.Controls.Add(this.numSlot);
             this.gbEdit.Controls.Add(this.label1);
-            this.gbEdit.Controls.Add(this.lblSlot);
             this.gbEdit.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbEdit.Location = new System.Drawing.Point(0, 0);
             this.gbEdit.Name = "gbEdit";
@@ -85,7 +82,7 @@
             // 
             // numDamage
             // 
-            this.numDamage.Location = new System.Drawing.Point(80, 106);
+            this.numDamage.Location = new System.Drawing.Point(80, 81);
             this.numDamage.Maximum = new decimal(new int[] {
             600,
             0,
@@ -108,7 +105,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(80, 157);
+            this.button2.Location = new System.Drawing.Point(80, 107);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(120, 23);
             this.button2.TabIndex = 9;
@@ -118,7 +115,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(80, 200);
+            this.button1.Location = new System.Drawing.Point(80, 136);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(120, 23);
             this.button1.TabIndex = 8;
@@ -129,7 +126,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(24, 108);
+            this.label3.Location = new System.Drawing.Point(24, 83);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(50, 13);
             this.label3.TabIndex = 6;
@@ -137,7 +134,7 @@
             // 
             // numCount
             // 
-            this.numCount.Location = new System.Drawing.Point(80, 80);
+            this.numCount.Location = new System.Drawing.Point(80, 55);
             this.numCount.Maximum = new decimal(new int[] {
             255,
             0,
@@ -155,7 +152,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(36, 82);
+            this.label2.Location = new System.Drawing.Point(36, 57);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(38, 13);
             this.label2.TabIndex = 3;
@@ -164,41 +161,30 @@
             // cmbType
             // 
             this.cmbType.FormattingEnabled = true;
-            this.cmbType.Location = new System.Drawing.Point(80, 53);
+            this.cmbType.Location = new System.Drawing.Point(80, 28);
             this.cmbType.Name = "cmbType";
             this.cmbType.Size = new System.Drawing.Size(162, 21);
             this.cmbType.TabIndex = 2;
             this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
             // 
-            // numSlot
-            // 
-            this.numSlot.Location = new System.Drawing.Point(80, 27);
-            this.numSlot.Name = "numSlot";
-            this.numSlot.Size = new System.Drawing.Size(120, 20);
-            this.numSlot.TabIndex = 1;
-            this.numSlot.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 56);
+            this.label1.Location = new System.Drawing.Point(6, 31);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(68, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Object Type:";
             // 
-            // lblSlot
+            // cmdDeleteInv
             // 
-            this.lblSlot.AutoSize = true;
-            this.lblSlot.Location = new System.Drawing.Point(46, 29);
-            this.lblSlot.Name = "lblSlot";
-            this.lblSlot.Size = new System.Drawing.Size(28, 13);
-            this.lblSlot.TabIndex = 0;
-            this.lblSlot.Text = "Slot:";
+            this.cmdDeleteInv.Location = new System.Drawing.Point(80, 165);
+            this.cmdDeleteInv.Name = "cmdDeleteInv";
+            this.cmdDeleteInv.Size = new System.Drawing.Size(120, 23);
+            this.cmdDeleteInv.TabIndex = 11;
+            this.cmdDeleteInv.Text = "Delete Selected";
+            this.cmdDeleteInv.UseVisualStyleBackColor = true;
+            this.cmdDeleteInv.Click += new System.EventHandler(this.cmdDeleteInv_Click);
             // 
             // Inventory
             // 
@@ -213,7 +199,6 @@
             this.gbEdit.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numDamage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numSlot)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -228,10 +213,9 @@
         private System.Windows.Forms.NumericUpDown numCount;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cmbType;
-        private System.Windows.Forms.NumericUpDown numSlot;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label lblSlot;
         private System.Windows.Forms.NumericUpDown numDamage;
+        private System.Windows.Forms.Button cmdDeleteInv;
 
     }
 }

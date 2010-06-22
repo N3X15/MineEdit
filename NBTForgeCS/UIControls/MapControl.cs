@@ -18,7 +18,7 @@ namespace MineEdit
         private ViewAngle _ViewingAngle = ViewAngle.XZ;
         private Dictionary<Vector3i, MapChunkControl> Chunks = new Dictionary<Vector3i, MapChunkControl>();
         private int _ZoomLevel = 8;
-
+        private bool Dragging = false;
         /// <summary>
         /// Currently active brush material.
         /// </summary>
@@ -62,11 +62,14 @@ namespace MineEdit
 
             min.X = Math.Max(min.X, _Map.MapMin.X);
             max.X = Math.Min(max.X, _Map.MapMax.X);
+
             min.Y = Math.Max(min.Y, _Map.MapMin.Y);
             max.Y = Math.Min(max.Y, _Map.MapMax.Y);
+
             min.Z = Math.Max(min.Z, _Map.MapMin.Z);
             max.Z = Math.Min(max.Z, _Map.MapMax.Z);
 
+            Console.WriteLine("DoLayout(): {0} - {1}", min, max);
             Dictionary<Vector3i, MapChunkControl> c = new Dictionary<Vector3i,MapChunkControl>(Chunks);
             foreach (KeyValuePair<Vector3i, MapChunkControl> p in Chunks)
             {
@@ -96,6 +99,10 @@ namespace MineEdit
                     break;
             }
             LayoutControls();
+            foreach (KeyValuePair<Vector3i, MapChunkControl> chunk in Chunks)
+            {
+                chunk.Value.Refresh();
+            }
             Refresh();
         }
 
@@ -125,16 +132,17 @@ namespace MineEdit
                     if (!Chunks.ContainsKey(cc))
                     {
                         MapChunkControl mcc = new MapChunkControl(this, cc, _Map.ChunkScale);
-                        mcc.SetBounds((int)(cc.Y * _Map.ChunkScale.Y), (int)(cc.Z * _Map.ChunkScale.Z), (int)(_Map.ChunkScale.Y), (int)(_Map.ChunkScale.Z));
+                        mcc.SetBounds((int)(cc.Y * _Map.ChunkScale.Y)+6, (int)(cc.Z * _Map.ChunkScale.Z)+6, (int)(_Map.ChunkScale.Y), (int)(_Map.ChunkScale.Z));
                         Controls.Add(mcc);
                         Chunks.Add(cc, mcc);
                     }
                     else
                     {
+                        /*
                         MapChunkControl mcc = Chunks[cc];
-                        mcc.SetBounds((int)(cc.Y * _Map.ChunkScale.Y), (int)(cc.Z * _Map.ChunkScale.Z), (int)(_Map.ChunkScale.Y), (int)(_Map.ChunkScale.Z));
+                        mcc.SetBounds((int)(cc.Y * _Map.ChunkScale.Y)+6, (int)(cc.Z * _Map.ChunkScale.Z)+6, (int)(_Map.ChunkScale.Y), (int)(_Map.ChunkScale.Z));
                         Controls.Add(mcc);
-                        Chunks.Add(cc, mcc);
+                        Chunks.Add(cc, mcc);*/
                     }
                 }
             }
@@ -156,7 +164,7 @@ namespace MineEdit
                     if (!Chunks.ContainsKey(cc))
                     {
                         MapChunkControl mcc = new MapChunkControl(this, cc, _Map.ChunkScale);
-                        mcc.SetBounds((int)(x * _Map.ChunkScale.X)*ZoomLevel, (int)(y * _Map.ChunkScale.Y)*ZoomLevel, (int)(_Map.ChunkScale.X)*ZoomLevel, (int)(_Map.ChunkScale.Y)*ZoomLevel);
+                        mcc.SetBounds((int)(x * _Map.ChunkScale.X)*ZoomLevel+6, (int)(y * _Map.ChunkScale.Y)*ZoomLevel+6, (int)(_Map.ChunkScale.X)*ZoomLevel, (int)(_Map.ChunkScale.Y)*ZoomLevel);
                         //Console.WriteLine("Added chunk to {0},{1}", mcc.Top, mcc.Left);
                         Controls.Add(mcc);
                         Chunks.Add(cc, mcc);
@@ -164,7 +172,7 @@ namespace MineEdit
                     else
                     {
                         MapChunkControl mcc = Chunks[cc];
-                        mcc.SetBounds((int)(x * _Map.ChunkScale.X) * ZoomLevel, (int)(y * _Map.ChunkScale.Y) * ZoomLevel, (int)(_Map.ChunkScale.X) * ZoomLevel, (int)(_Map.ChunkScale.Y) * ZoomLevel);
+                        mcc.SetBounds((int)(x * _Map.ChunkScale.X) * ZoomLevel+6, (int)(y * _Map.ChunkScale.Y) * ZoomLevel+6, (int)(_Map.ChunkScale.X) * ZoomLevel, (int)(_Map.ChunkScale.Y) * ZoomLevel);
                         Controls.Add(mcc);
                         Chunks.Add(cc, mcc);
                     }
@@ -206,7 +214,7 @@ namespace MineEdit
             set
             {
                 _CurrentPosition = value;
-                CurrentPosition.Z = CurrentPosition.Z % _Map.ChunkScale.Z;
+                //CurrentPosition.Z = CurrentPosition.Z % _Map.ChunkScale.Z;
                 DoLayout();
             }
         }
@@ -270,7 +278,7 @@ namespace MineEdit
 
         private void btnUp_Click(object sender, EventArgs e)
         {
-            CurrentPosition.Y += _Map.ChunkScale.Y;
+            CurrentPosition.Y -= _Map.ChunkScale.Y;
             DoLayout();
             Refresh();
         }
@@ -291,7 +299,7 @@ namespace MineEdit
 
         private void btnDown_Click(object sender, EventArgs e)
         {
-            CurrentPosition.Y -= _Map.ChunkScale.Y;
+            CurrentPosition.Y += _Map.ChunkScale.Y;
             DoLayout();
             Refresh();
         }
@@ -308,6 +316,11 @@ namespace MineEdit
             CurrentPosition.Z--;
             DoLayout();
             Refresh();
+        }
+
+        private void MapControl_Load(object sender, EventArgs e)
+        {
+
         }
 
     }

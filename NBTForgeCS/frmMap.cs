@@ -20,20 +20,23 @@ namespace MineEdit
         private int _ZoomLevel=4;
         private IMapHandler _Map = null;
         private string _Filename = "";
-        protected MapControl mapCtrl;
+        //protected MapControl mapCtrl;
         public frmMap()
         {
             InitializeComponent();
+            tabMap.Hide();
+            tclMap.SelectedTab = tabInventory;
+            /*
             mapCtrl = new MapControl();
             tabMap.Controls.Add(mapCtrl);
             mapCtrl.Dock = DockStyle.Fill;
             mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
-
+            */
             SetStyle(ControlStyles.ResizeRedraw, true);
 
             this.ViewingAngle = MineEdit.ViewAngle.XZ;
         }
-
+        /*
         void mapCtrl_MouseDown(object sender, MouseEventArgs e)
         {
 
@@ -61,22 +64,22 @@ namespace MineEdit
                 MenuItem mnuChunkDetails = new MenuItem("Chunk details...");
                 mnuChunkDetails.Click += new EventHandler(mnuChunkDetails_Click);
             }
-        }
+        }*/
 
         void mnuChunkDetails_Click(object sender, EventArgs e)
         {
-            dlgChunk chunk = new dlgChunk(_Map, mapCtrl.SelectedVoxel);
+            //dlgChunk chunk = new dlgChunk(_Map, mapCtrl.SelectedVoxel);
         }
 
         void mnuPlaceEntity_Click(object sender, EventArgs e)
         {
             throw new NotImplementedException();
         }
-
+        /*
         Vector3i GetVoxelFromMouse(int x, int y)
         {
             return _Map.GetMousePos(new Vector3i(x, y, mapCtrl.CurrentPosition.Z), mapCtrl.ZoomLevel, mapCtrl.ViewingAngle);
-        }
+        }*/
         public IMapHandler Map
         {
             get { return _Map; }
@@ -85,7 +88,7 @@ namespace MineEdit
                 _Map = value;
                 this.invMain.Map = value;
                 if (_Map != null && !string.IsNullOrEmpty(_Map.Filename))
-                mapCtrl.Map = _Map;
+                //mapCtrl.Map = _Map;
                 Reload();
                 Refresh();
             }
@@ -102,6 +105,10 @@ namespace MineEdit
                 numAir.Value = _Map.Air;
                 LockApplyCancel();
             }
+        }
+
+        private void AdjustSpinner(ref NumericUpDown numControl, decimal p)
+        {
         }
         public Vector3d PlayerPos
         {
@@ -134,19 +141,20 @@ namespace MineEdit
                     tscbMaterial.Items.Add(k.Value);
             }
         }
+        /*
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             mapCtrl.CurrentPosition.Z += e.Delta;
             ClampCZ();
             //Console.WriteLine("Changing Level to "+CZ.ToString());
-        }
+        }*/
 
-
+        /*
         protected override void OnMouseMove(MouseEventArgs e)
         {
             //this.SelectedVoxel = GetVoxelFromMouse(e.X, e.Y);
             //(this.MdiParent as frmMain).SetStatus("Mouse at <" + SelectedVoxel.X.ToString() + "," + SelectedVoxel.Y.ToString() + "," + SelectedVoxel.Z.ToString() + ">");
-        }
+        }*/
 
         private void cbViewingStyle_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -176,32 +184,33 @@ namespace MineEdit
         {
         }
 
+        /*
         private void ClampCZ()
         {
             if (mapCtrl.CurrentPosition.Z == -1) mapCtrl.CurrentPosition.Z = 127;
             mapCtrl.CurrentPosition.Z = Math.Abs(mapCtrl.CurrentPosition.Z % _Map.ChunkScale.Z);
-        }
+        }*/
 
         // Up
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            mapCtrl.CurrentPosition.Z++;
+            /*mapCtrl.CurrentPosition.Z++;
             ClampCZ();
             (MdiParent as frmMain).SetStatus("Moved to level " + mapCtrl.CurrentPosition.Z.ToString());
             Console.WriteLine("Moved to level " + mapCtrl.CurrentPosition.Z.ToString());
 
             mapCtrl.Render();
-            Refresh();
+            Refresh();*/
         }
 
         private void tsbDown_Click(object sender, EventArgs e)
         {
-            mapCtrl.CurrentPosition.Z--;
+            /*mapCtrl.CurrentPosition.Z--;
             ClampCZ();
             (MdiParent as frmMain).SetStatus("Moved to level " + mapCtrl.CurrentPosition.Z.ToString());
             Console.WriteLine("Moved to level " + mapCtrl.CurrentPosition.Z.ToString());
             mapCtrl.Render();
-            Refresh();
+            Refresh();*/
         }
 
         private void pbox_Click(object sender, EventArgs e)
@@ -216,8 +225,8 @@ namespace MineEdit
 
         private void tscbMaterial_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(tscbMaterial.SelectedItem!=null)
-                mapCtrl.CurrentMaterial=(tscbMaterial.SelectedItem as Block).ID;
+            //if(tscbMaterial.SelectedItem!=null)
+            //    mapCtrl.CurrentMaterial=(tscbMaterial.SelectedItem as Block).ID;
         }
 
         private void dToolStripMenuItem_Click(object sender, EventArgs e)
@@ -238,7 +247,7 @@ namespace MineEdit
         private void cmdHeal_Click(object sender, EventArgs e)
         {
             _Map.Health = 100; // idk what each version uses
-            _Map.Fire = -20;
+            _Map.Fire = -200;
             _Map.Air = 300;
             Reload();
         }
@@ -292,9 +301,19 @@ namespace MineEdit
             Enabled=false;
             IMapHandler m = Map;
             Map = null;
-            mapCtrl.Map = null;
+            /*tabMap.Controls.Remove(mapCtrl);
+            
+            mapCtrl.Dispose();
+            mapCtrl = new MapControl();
+            tabMap.Controls.Add(mapCtrl);
+            mapCtrl.Dock = DockStyle.Fill;
+            mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);*/
+
+            invMain.Reload();
+
             m.Load();
             Map = m;
+            
             Reload();
             Enabled=true;
         }

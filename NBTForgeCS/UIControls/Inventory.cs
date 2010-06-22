@@ -65,6 +65,22 @@ namespace MineEdit
             }
         }
 
+        public void Reload()
+        {
+            ClearInventory();
+            ReadFromMap();
+        }
+
+        private void ClearInventory()
+        {
+            foreach (KeyValuePair<int, InventoryItem> kvp in Stuff)
+            {
+                Controls.Remove(kvp.Value);
+                kvp.Value.Dispose();
+            }
+            Stuff.Clear();
+        }
+
         private void ReadFromMap()
         {
             if (_Map == null) return;
@@ -317,6 +333,23 @@ namespace MineEdit
         private void numDamage_ValueChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void cmdDeleteInv_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < Stuff.Count; i++)
+            {
+                if (Stuff.ContainsKey(i) && Stuff[i].Selected)
+                {
+                    Stuff[i].MyType = 0;
+                    Stuff[i].Count = 0;
+                    Stuff[i].Damage = 0;
+                    Stuff[i].Render();
+                    Stuff[i].Refresh();
+                }
+            }
+            SelectAll(false);
+            Save();
         }
 
 

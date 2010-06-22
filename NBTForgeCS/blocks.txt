@@ -66,6 +66,7 @@
 063	063-SignBlock.png			Sign Block
 064	064-DoorBlock.png			Door Block
 065	065-Ladder.png				Ladder
+066	066.png				Minecart Rail
 256	256.png						Iron shovel
 257	257.png						Iron pickaxe
 258	258.png						Iron axe

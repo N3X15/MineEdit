@@ -416,8 +416,13 @@
             // numFire
             // 
             this.numFire.Location = new System.Drawing.Point(123, 48);
+            this.numFire.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
             this.numFire.Minimum = new decimal(new int[] {
-            21,
+            1000,
             0,
             0,
             -2147483648});

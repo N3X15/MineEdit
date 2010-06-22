@@ -46,7 +46,7 @@ namespace MineEdit
         void MapChunkControl_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            if (bmp != null && LastPos==parent.CurrentPosition)
+            if (bmp != null/* && LastPos==parent.CurrentPosition*/)
                 g.DrawImage(bmp, 0, 0, Width, Height);
             else
             {
@@ -62,6 +62,7 @@ namespace MineEdit
         /// </summary>
         public void Render()
         {
+            Console.WriteLine("[MapChunkControl::Render()] Rendering chunk ({0},{1})...",AssignedChunk.X,AssignedChunk.Y);
             if (Drawing) return;
             if (parent.Map == null) return;
             Drawing = true;
@@ -77,15 +78,13 @@ namespace MineEdit
             // Chunk        1,1
             // ChunkSZ      16,16
             // ChunkCoords  16,16
-            for (int x = 0; x < Width / parent.ZoomLevel; x++)
+            for (int x = 0; x < parent.Map.ChunkScale.X; x++)
             {
-                for (int y = 0; y < Height / parent.ZoomLevel; y++)
+                for (int y = 0; y < parent.Map.ChunkScale.Y; y++)
                 {
                     Vector3i blockpos = new Vector3i(x, y, parent.CurrentPosition.Z);
-                    blockpos.X += AssignedChunk.X * ChunkSize.X;
-                    blockpos.Y += AssignedChunk.Y * ChunkSize.Y;
                     
-                    byte block = parent.Map.GetBlockAt(blockpos);
+                    byte block = parent.Map.GetBlockIn(AssignedChunk.X,AssignedChunk.Y,blockpos);
                     int waterdepth=0;
                     if (block == 0)
                     {
@@ -96,6 +95,8 @@ namespace MineEdit
                         //parent.Map.GetOverview(blockpos, out hurr, out block, out waterdepth);
                     }
                     g.FillRectangle(new SolidBrush(Blocks.GetColor(block)),x*parent.ZoomLevel,y*parent.ZoomLevel,parent.ZoomLevel,parent.ZoomLevel);
+                    if(Settings.ShowGridLines)
+                        g.DrawRectangle(new Pen(Color.Black),x*parent.ZoomLevel,y*parent.ZoomLevel,parent.ZoomLevel,parent.ZoomLevel);
                 }
             }
             Pen fp = new Pen(Color.Black);

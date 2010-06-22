@@ -21,6 +21,7 @@ namespace MineEdit
         private string FilesName;
         private string Folder;
 
+        Dictionary<string, string> ChunkFiles = new Dictionary<string, string>();
         Dictionary<string, byte[]> ChunkBlocks = new Dictionary<string, byte[]>();
         Dictionary<string, short[,]> Heightmaps = new Dictionary<string, short[,]>();
         Dictionary<string, byte[,]> CachedOverview = new Dictionary<string, byte[,]>();
@@ -29,8 +30,8 @@ namespace MineEdit
 
 
         public Vector3i ChunkScale { get { return new Vector3i(16, 16, 128); } }
-        public Vector3i MapMin { get { return new Vector3i(int.MinValue,0,int.MinValue); } }
-        public Vector3i MapMax { get { return new Vector3i(int.MaxValue,0,int.MaxValue); } }
+        public Vector3i MapMin { get { return new Vector3i(int.MinValue,int.MinValue,0); } }
+        public Vector3i MapMax { get { return new Vector3i(int.MaxValue,int.MaxValue,128); } }
 
         public void Load()
         {
@@ -74,7 +75,6 @@ namespace MineEdit
             c.Position = new Vector3i(x, y, 0);
             return c;
         }
-
         public void GetOverview(Vector3i pos, out int h, out byte block, out int waterdepth)
         {
             h = 0;
@@ -140,6 +140,8 @@ namespace MineEdit
                 return null;
             }
             */
+            x = (x < 0) ? x - 2 : x;
+            z = (z < 0) ? z - 2 : z;
             CurrentBlock.X = x;
             CurrentBlock.Z = z;
             string derp;
@@ -155,8 +157,14 @@ namespace MineEdit
             //Console.WriteLine("({0},{1}) Loading {2} layers of {3}", x, z, ChunkZ, f);
             //Console.WriteLine(chunk.RootTag.ToString());
             NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
-            //Console.WriteLine(f);
-
+            /*
+            NbtInt CX = (NbtInt)level["xPos"];
+            NbtInt CZ = (NbtInt)level["zPos"];
+            if (CX.Value != x || CZ.Value != z)
+            {
+                Console.WriteLine("Chunk ({0},{1}) != ({2},{3})",x,z,CX.Value,CZ.Value);
+                return new byte[ChunkX * ChunkY * ChunkZ];
+            }*/
             NbtByteArray tba = (NbtByteArray)level["Blocks"];
             byte[] CurrentChunkBlocks = tba.Value;
             byte bb=0;
@@ -165,8 +173,8 @@ namespace MineEdit
             CurrentBlocks=CurrentChunkBlocks;
             
             string ci = string.Format("{0},{1}", x, z);
-            if (!ChunkBlocks.ContainsKey(ci))
-                ChunkBlocks.Remove(ci);
+            if (ChunkBlocks.ContainsKey(ci))
+                return ChunkBlocks[ci];
             ChunkBlocks.Add(ci, CurrentBlocks);
             Console.WriteLine("Loaded {0} bytes from chunk {1} (biggest byte = 0x{2:X2}).", CurrentBlocks.Length, ci,bb);
             /*StackTrace stack = new StackTrace();
@@ -186,17 +194,18 @@ namespace MineEdit
 
             //Int64 X = x / 16;
             //Int64 Z = z / 16;
-            Int64 fX = x & 0x3f;
-            Int64 fZ = z & 0x3f;
-            string neg = "r"; // ?
-            return 
+            int fX = (int)x & 0x3f;
+            int fZ = (int)z & 0x3f;
+            string f= 
                 Path.Combine(Folder,
-                    Path.Combine(Base36.NumberToBase36(fX),
-                        Path.Combine(Base36.NumberToBase36(fZ),
+                    Path.Combine(Utils.IntToBase(fX,36),
+                        Path.Combine(Utils.IntToBase(fZ,36),
                             string.Format("c.{0}.{1}.dat", Base36.NumberToBase36(x), Base36.NumberToBase36(z))
                         )
                     )
                 );
+            Console.WriteLine("{0},{1} = {2}",x,z,f);
+            return f;
         }
         private void SaveChunk(int x, int z,byte[,,] data)
         {
@@ -529,60 +538,87 @@ namespace MineEdit
         public byte GetBlockAt(Vector3i p)
         {
             //Console.WriteLine("{0}", p);
-            int CX = (int)(p.X / (long)ChunkX);
-            int CZ = (int)(p.Y / (long)ChunkY);
+            //16 = 4 bytes
+            // Let's see if shifting 4 bytes to the right can product the same effect as dividing by 16...
+            int CX = (int)p.X >> 4;// / (long)ChunkX);
+            int CZ = (int)p.Y >> 4;// / (long)ChunkY);
 
-            int x = ((int)p.X % ChunkX) & 0xf;
-            int y = ((int)p.Y % ChunkY) & 0xf;
+            int x = ((int)p.Y % ChunkX) & 0xf;
+            int y = ((int)p.X % ChunkY) & 0xf;
             int z = (int)p.Z;// % ChunkZ;
 
             if (CX < 0)
             {
                 x = ChunkX - 1 - x;
-                CX-=1;
             }
             if (CZ < 0)
             {
                 y = ChunkY - 1 - y;
             }
+            return GetBlockIn(CX,CZ,new Vector3i(x,y,z));
+        }
 
+        public byte GetBlockIn(long CX, long CY, Vector3i pos)
+        {
+            pos = new Vector3i(pos.Y, pos.X, pos.Z);
+            /*
             if (
-                !Check(x, -1, ChunkX) || 
-                !Check(y, -1, ChunkY) || 
-                !Check(z, -1, ChunkZ))
+                !Check(pos.X, -1, ChunkX) ||
+                !Check(pos.Y, -1, ChunkY) ||
+                !Check(pos.Z, -1, ChunkZ))
             {
                 //Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
                 return 0x00;
             }
+             */
 
-
-            // X Y Z    = Me
-            // X Z Y ?  = Notch
-            int index = x << 11 | y << 7 | z;
-
-            //if (CX == -1)
-            //    Console.WriteLine("Accessing <{0},{1},{2}> of chunk ({3},{4}) - Index {5}/{6} ", x, y, z, CX, CZ, index, ChunkX * ChunkY * ChunkZ);
-
-            string ci = string.Format("{0},{1}", CX, CZ);
+            string ci = string.Format("{0},{1}", CX, CY);
             //try
             //{
-                if (ChunkBlocks.ContainsKey(ci))
-                    return ChunkBlocks[ci][index];
+            if (ChunkBlocks.ContainsKey(ci))
+                return ChunkBlocks[ci][pos.X * ChunkZ + pos.Y * ChunkZ * ChunkX + pos.Z];
             //}
             //catch (Exception)
             //{
             //    return 0x00;
             //}
-            byte[] Blox = LoadChunk(CX,CZ);
+            byte[] Blox = LoadChunk(CX, CY);
+
+            if (!ChunkBlocks.ContainsKey(ci))
+                ChunkBlocks.Add(ci, Blox);
 
             try
             {
-                return Blox[index];
+                return Blox[pos.X * ChunkZ + pos.Y * ChunkZ * ChunkX + pos.Z];
             }
             catch (Exception)
             {
                 return 0x00;
             }
+        }
+
+        public void SetBlockIn(long CX, long CY, Vector3i pos, byte type)
+        {
+            pos = new Vector3i(pos.Y, pos.X, pos.Z);
+            /*
+            if (
+                !Check(pos.X, -1, ChunkX) ||
+                !Check(pos.Y, -1, ChunkY) ||
+                !Check(pos.Z, -1, ChunkZ))
+            {
+                //Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
+                return;
+            }*/
+
+            string ci = string.Format("{0},{1}", CX, CY);
+            //try
+            //{
+            if (ChunkBlocks.ContainsKey(ci))
+            {
+                ChunkBlocks[ci][pos.X * ChunkZ + pos.Y * ChunkZ * ChunkX + pos.Z] = type;
+                return;
+            }
+            // Don't mess with unloaded blocks.
         }
 
         private bool Check(long x, long min, long max)
