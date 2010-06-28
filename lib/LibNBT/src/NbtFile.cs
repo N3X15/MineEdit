@@ -71,6 +71,7 @@ namespace LibNbt
                 }
             }
             //Console.WriteLine("{0} loaded.", fileName);
+            //Console.WriteLine(RootTag);
             //ls();
         }
 

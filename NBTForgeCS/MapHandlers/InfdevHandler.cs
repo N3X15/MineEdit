@@ -116,7 +116,7 @@ namespace MineEdit
                     p.Y = ChunkY-(mp.Y / scale);
                     p.Z = mp.Z;
                     break;
-                case ViewAngle.XZ:
+                case ViewAngle.TopDown:
                     p.X = mp.X/scale;
                     p.Y = mp.Y/scale;
                     p.Z = mp.Z; // wut 
@@ -371,7 +371,7 @@ namespace MineEdit
         {
             get
             {
-                return 100000000;
+                return 10000;
             }
             protected set
             {
@@ -383,7 +383,7 @@ namespace MineEdit
         {
             get
             {
-                return 100000000;
+                return 10000;
             }
             protected set
             {
@@ -464,13 +464,32 @@ namespace MineEdit
             }
             set
             {
-                NbtShort f = new NbtShort("Fire",(short)value);
+                NbtShort f = new NbtShort("Fire", (short)value);
                 // BROKEN root.SetTag("/Data/Player/Fire", h);
                 NbtCompound Data = (NbtCompound)root.RootTag["Data"];
                 NbtCompound Player = (NbtCompound)Data["Player"];
                 Player.Tags.Remove(Player["Fire"]);
                 Player.Tags.Add(f);
                 Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
+            }
+        }
+
+        // Dunno the range
+        public int Time
+        {
+            get
+            {
+                NbtLong h = (NbtLong)root.GetTag("/Data/Time");
+                return (int)h.Value;
+            }
+            set
+            {
+                NbtLong f = new NbtLong("Time", (short)value);
+                // BROKEN root.SetTag("/Data/Time", h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                Data.Tags.Remove(Data["Time"]);
+                Data.Tags.Add(f);
                 root.RootTag["Data"] = Data;
             }
         }
@@ -573,10 +592,14 @@ namespace MineEdit
              */
 
             string ci = string.Format("{0},{1}", CX, CY);
+            long i = pos.X * ChunkZ + pos.Y * ChunkZ * ChunkX + pos.Z;
             //try
             //{
             if (ChunkBlocks.ContainsKey(ci))
-                return ChunkBlocks[ci][pos.X * ChunkZ + pos.Y * ChunkZ * ChunkX + pos.Z];
+            {
+                if (ChunkBlocks[ci] == null) return 0x00;
+                return ChunkBlocks[ci][i];
+            }
             //}
             //catch (Exception)
             //{
@@ -589,7 +612,7 @@ namespace MineEdit
 
             try
             {
-                return Blox[pos.X * ChunkZ + pos.Y * ChunkZ * ChunkX + pos.Z];
+                return Blox[i];
             }
             catch (Exception)
             {
@@ -600,15 +623,8 @@ namespace MineEdit
         public void SetBlockIn(long CX, long CY, Vector3i pos, byte type)
         {
             pos = new Vector3i(pos.Y, pos.X, pos.Z);
-            /*
-            if (
-                !Check(pos.X, -1, ChunkX) ||
-                !Check(pos.Y, -1, ChunkY) ||
-                !Check(pos.Z, -1, ChunkZ))
-            {
-                //Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
-                return;
-            }*/
+            // block saving to any negative chunk due to being unreadable.
+            if (CX < 0 || CY < 0) return;
 
             string ci = string.Format("{0},{1}", CX, CY);
             //try

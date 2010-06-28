@@ -9,13 +9,25 @@ using System.Windows.Forms;
 
 namespace MineEdit
 {
-    public partial class MapControl : UserControl
+    public partial class MapControl: UserControl
     {
+        private float mScale = 256; // Size of a region in pixels
+        private float mPixelsPerMeter; // world meters to map pixels
+        private float mObjectMapTPM; // texels per meter on map
+        private float mObjectMapPixels; // Width of object map in pixels
+        private int mDotRadius; // Size of avatar markers
+        private float mTargetPanX;
+        private float mTargetPanY;
+        private float mCurPanX;
+        private float mCurPanY;
+        private bool mUpdateNow;
+        private Vector3d mObjectImageCenterGlobal;
+
         private Vector3i _CurrentPosition = new Vector3i(0, 0, 64);
         private Vector3i _SelectedVoxel = new Vector3i(-1, -1, -1);
         private bool Drawing = false;
         private IMapHandler _Map;
-        private ViewAngle _ViewingAngle = ViewAngle.XZ;
+        private ViewAngle _ViewingAngle = ViewAngle.TopDown;
         private Dictionary<Vector3i, MapChunkControl> Chunks = new Dictionary<Vector3i, MapChunkControl>();
         private int _ZoomLevel = 8;
         private bool Dragging = false;
@@ -31,7 +43,22 @@ namespace MineEdit
             this.BackColor = Color.Black;
 
             Resize += new EventHandler(MapControl_Resize);
+            MouseDown += new MouseEventHandler(MapControl_MouseDown);
             DoLayout();
+        }
+
+        void  MapControl_MouseDown(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case System.Windows.Forms.MouseButtons.Left:
+                    // DoBrush(e.Location);
+                    break;
+                case System.Windows.Forms.MouseButtons.Middle:
+                    this.Cursor = Cursors.Hand;
+                    this.Dragging = true;
+                    break;
+            }
         }
 
         /// <summary>
@@ -91,7 +118,7 @@ namespace MineEdit
                 case ViewAngle.XY:  // Slice N-S?
                     LayoutXY(Sides, min, max);
                     break;
-                case ViewAngle.XZ: // Top Down
+                case ViewAngle.TopDown: // Top Down
                     LayoutTopdown(Sides, min, max);
                     break;
                 case ViewAngle.YZ: // Slice E-W?
@@ -242,7 +269,8 @@ namespace MineEdit
             }
             set
             {
-                _ZoomLevel = Math.Max(1,value);
+                _ZoomLevel = Math.Min(256,value);
+                _ZoomLevel = Math.Max(32, _ZoomLevel);
                 DoLayout();
             }
         }

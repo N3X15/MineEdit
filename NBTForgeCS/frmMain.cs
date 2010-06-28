@@ -190,12 +190,14 @@ namespace MineEdit
 
         private void saveToolStripButton_Click(object sender, EventArgs e)
         {
-            (ActiveMdiChild as frmMap).Map.Save();
+            if(ActiveMdiChild!=null)
+                (ActiveMdiChild as frmMap).Map.Save();
         }
 
         private void mnuReload_Click(object sender, EventArgs e)
         {
-            (ActiveMdiChild as frmMap).Map.Load();
+            if (ActiveMdiChild != null)
+                (ActiveMdiChild as frmMap).Map.Load();
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)

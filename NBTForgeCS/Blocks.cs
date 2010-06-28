@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Net;
 namespace MineEdit
 {
     public class Block
@@ -11,6 +12,7 @@ namespace MineEdit
         public string   Name;
         public Bitmap   Image;
         public Color    Color;
+
         public Block(byte id,string name,Bitmap image,Color color)
         {
             this.ID=id;
@@ -31,16 +33,18 @@ namespace MineEdit
     public static class Blocks
     {
         public static Dictionary<short,Block> BlockList = new Dictionary<short,Block>();
-
+        private static Queue<Block> BlocksToDL = new Queue<Block>();
+        public static string Version = "06282010";
         public static void Init()
         {
             foreach(string line in File.ReadAllLines("blocks.txt"))
             {
-                if (string.IsNullOrEmpty(line)) continue;
+                if (string.IsNullOrEmpty(line)) 
+                    continue;
+                if (line.StartsWith("#")) continue;
                 //Console.WriteLine(line);
                 // dec file color name
                 string[] chunks = line.Split(new string[]{"\t"},StringSplitOptions.RemoveEmptyEntries);
-                if (chunks[0].StartsWith("#")) continue;
 
                 Block b = new Block();
                 short id = short.Parse(chunks[0]);
@@ -50,7 +54,7 @@ namespace MineEdit
                 string if_ = Path.Combine("items", chunks[1]);
                 string af = Path.Combine("blocks","0.png");
 
-                if (id<100 && File.Exists(bf))
+                if (id<255 && File.Exists(bf))
                     b.Image = (Bitmap)Bitmap.FromFile(bf);
                 else if (File.Exists(if_))
                     b.Image = (Bitmap)Bitmap.FromFile(if_);
@@ -62,6 +66,77 @@ namespace MineEdit
             }
         }
 
+        public static void Clear()
+        {
+            BlockList.Clear();
+        }
+
+        public static void Save()
+        {
+            List<string> lolfile = new List<string>();
+            foreach (KeyValuePair<short, Block> p in BlockList)
+            {
+                lolfile.Add(string.Join("\t",new string[] { p.Key.ToString(), p.Key.ToString() + ".png", p.Value.Name }));
+            }
+            File.WriteAllLines("blocks.txt",lolfile.ToArray());
+        }
+        public static void UpdateBlocks()
+        {
+            WebClient wc = new WebClient();
+            string[] derp = wc.DownloadString("http://copy.bplaced.net/mc/blocks/").Split(new string[]{"\n","\r\n"},StringSplitOptions.RemoveEmptyEntries);
+            foreach (string line in derp)
+            {
+                if (line.StartsWith("<img src=\"/mc/icons/"))
+                {
+                    string[] chunks = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    // icon                         HEX  DEC  NAME
+                    //<img src="/mc/icons/0.png"/>    0    0  Air
+                    Block nb = new Block();
+                    nb.ID = short.Parse(chunks[2]);
+                    nb.Name = string.Join(" ", chunks, 3, chunks.Length - 3);
+                    WebClient icondl = new WebClient();
+                    string filename = Path.Combine("blocks", nb.ID.ToString() + ".png");
+                    icondl.DownloadFile(string.Format("http://copy.bplaced.net/mc/icons/{0}.png", nb.ID), filename);
+                    nb.Image = (Bitmap)Image.FromFile(filename);
+                    nb.Color=GetColorFor(nb);
+                }
+            }
+        }
+
+        public static void UpdateItems()
+        {
+            WebClient wc = new WebClient();
+            string[] derp = wc.DownloadString("http://copy.bplaced.net/mc/items/").Split(new string[]{"\n","\r\n"},StringSplitOptions.RemoveEmptyEntries);
+            foreach (string line in derp)
+            {
+                if (line.StartsWith("<img src=\"/mc/icons/"))
+                {
+                    string[] chunks = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    // icon                         HEX  DEC  NAME
+                    //<img src="/mc/icons/0.png"/>    0    0  Air
+                    Block nb = new Block();
+                    nb.ID = short.Parse(chunks[2]);
+                    nb.Name = string.Join(" ", chunks, 3, chunks.Length - 3);
+                    BlocksToDL.Enqueue(nb);
+                }
+            }
+        }
+
+        public static int GetImagesLeft(out string image)
+        {
+            Block nb = BlocksToDL.Dequeue();
+            image = Path.Combine("blocks", nb.ID.ToString() + ".png");
+            if(nb.ID>255)
+                image = Path.Combine("items", nb.ID.ToString() + ".png");
+
+            WebClient icondl = new WebClient();
+            icondl.DownloadFile(string.Format("http://copy.bplaced.net/mc/icons/{0}.png", nb.ID), image);
+            nb.Image = (Bitmap)Image.FromFile(image);
+            nb.Color = GetColorFor(nb);
+
+            BlockList.Add(nb.ID, nb);
+            return BlocksToDL.Count;
+        }
         /// <summary>
         /// Get average color of the image for this block
         /// </summary>

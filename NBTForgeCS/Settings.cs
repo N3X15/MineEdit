@@ -11,5 +11,6 @@ namespace MineEdit
         public static bool ShowGridLines = false;
         public static bool ShowChunks = true;
         public static bool ShowSpawnZone = true;
+        public static float MiniMapScale=0.75f;
     }
 }

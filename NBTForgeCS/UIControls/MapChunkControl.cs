@@ -62,7 +62,7 @@ namespace MineEdit
         /// </summary>
         public void Render()
         {
-            Console.WriteLine("[MapChunkControl::Render()] Rendering chunk ({0},{1})...",AssignedChunk.X,AssignedChunk.Y);
+            Console.WriteLine("[MapChunkControl::Render()] Rendering chunk ({0},{1})...", AssignedChunk.X, AssignedChunk.Y);
             if (Drawing) return;
             if (parent.Map == null) return;
             Drawing = true;
@@ -70,8 +70,8 @@ namespace MineEdit
             int h = Height;
             //if (lh == h && lw == w && ly==parent.CurrentPosition.Z) return;
             if (w == 0 || h == 0) return;
-            bmp = new Bitmap(w,h);
-            bool DrawSquares = (parent.ViewingAngle == ViewAngle.XZ);
+            bmp = new Bitmap(w, h);
+            bool DrawSquares = (parent.ViewingAngle == ViewAngle.TopDown);
             Graphics g = Graphics.FromImage((Image)bmp);
             // No AA.  We WANT pixels :V
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
@@ -83,20 +83,20 @@ namespace MineEdit
                 for (int y = 0; y < parent.Map.ChunkScale.Y; y++)
                 {
                     Vector3i blockpos = new Vector3i(x, y, parent.CurrentPosition.Z);
-                    
-                    byte block = parent.Map.GetBlockIn(AssignedChunk.X,AssignedChunk.Y,blockpos);
-                    int waterdepth=0;
+
+                    byte block = parent.Map.GetBlockIn(AssignedChunk.X, AssignedChunk.Y, blockpos);
+                    int waterdepth = 0;
                     if (block == 0)
                     {
-                       // Console.WriteLine("hurr air");
+                        // Console.WriteLine("hurr air");
                         int hurr;
 
                         // Slow for some reason
                         //parent.Map.GetOverview(blockpos, out hurr, out block, out waterdepth);
                     }
-                    g.FillRectangle(new SolidBrush(Blocks.GetColor(block)),x*parent.ZoomLevel,y*parent.ZoomLevel,parent.ZoomLevel,parent.ZoomLevel);
-                    if(Settings.ShowGridLines)
-                        g.DrawRectangle(new Pen(Color.Black),x*parent.ZoomLevel,y*parent.ZoomLevel,parent.ZoomLevel,parent.ZoomLevel);
+                    g.FillRectangle(new SolidBrush(Blocks.GetColor(block)), x * parent.ZoomLevel, y * parent.ZoomLevel, parent.ZoomLevel, parent.ZoomLevel);
+                    if (Settings.ShowGridLines)
+                        g.DrawRectangle(new Pen(Color.Black), x * parent.ZoomLevel, y * parent.ZoomLevel, parent.ZoomLevel, parent.ZoomLevel);
                 }
             }
             Pen fp = new Pen(Color.Black);
@@ -110,12 +110,12 @@ namespace MineEdit
                 {
                     if (DrawSquares)
                     {
-                         DrawCross(ref g, fp, 0, 0);
-                         g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black,1,1);
+                        DrawCross(ref g, fp, 0, 0);
+                        g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black, 1, 1);
                     }
                     else
                     {
-                        g.DrawRectangle(fp, 0, 0, parent.Map.ChunkScale.X*parent.ZoomLevel, parent.Map.ChunkScale.Y * parent.ZoomLevel);
+                        g.DrawRectangle(fp, 0, 0, parent.Map.ChunkScale.X * parent.ZoomLevel, parent.Map.ChunkScale.Y * parent.ZoomLevel);
                         g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black, 1, 1);
                     }
                 }

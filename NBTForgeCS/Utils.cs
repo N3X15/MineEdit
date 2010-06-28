@@ -155,5 +155,19 @@ namespace MineEdit
             return new String(buf, charPos, (33 - charPos));
         }
         #endregion
+
+        public static float Lerp(float a, float b, float u)
+        {
+            return a + ((b - a) * u);
+        }
+        public static int Lerp(int a, int b, int u)
+        {
+            return a + ((b - a) * u);
+        }
+
+        public static double UnixTimestamp()
+        {
+            return (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
+        }
     }
 }

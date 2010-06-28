@@ -49,5 +49,7 @@ namespace MineEdit
 
         byte GetBlockIn(long x, long y, Vector3i blockpos);
         void SetBlockIn(long x, long y, Vector3i blockpos,byte type);
+
+        int Time { get; set; }
     }
 }

@@ -50,6 +50,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OpenTK, Version=1.0.0.201, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\OpenTK\Binaries\OpenTK\Debug\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK.Compatibility, Version=1.0.0.201, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\OpenTK\Binaries\OpenTK\Debug\OpenTK.Compatibility.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK.GLControl, Version=1.0.0.201, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\OpenTK\Binaries\OpenTK\Debug\OpenTK.GLControl.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -64,12 +76,14 @@
     <Compile Include="Base36.cs" />
     <Compile Include="Blocks.cs" />
     <Compile Include="Chunk.cs" />
+    <Compile Include="CriticalDamp.cs" />
     <Compile Include="dlgChunk.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="dlgChunk.Designer.cs">
       <DependentUpon>dlgChunk.cs</DependentUpon>
     </Compile>
+    <Compile Include="Extensions\_Color.cs" />
     <Compile Include="frmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,7 +102,20 @@
     <Compile Include="frmMap.Designer.cs">
       <DependentUpon>frmMap.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmUpdate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmUpdate.Designer.cs">
+      <DependentUpon>frmUpdate.cs</DependentUpon>
+    </Compile>
     <Compile Include="IMapHandler.cs" />
+    <Compile Include="Texture.cs" />
+    <Compile Include="UIControls\MapControlGL.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControls\MapControlGL.Designer.cs">
+      <DependentUpon>MapControlGL.cs</DependentUpon>
+    </Compile>
     <Compile Include="UIControls\Inventory.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -98,18 +125,18 @@
     <Compile Include="UIControls\InventoryItem.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="UIControls\MapChunkControl.cs">
+    <None Include="UIControls\MapChunkControl.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UIControls\MapChunkControl.Designer.cs">
+    </None>
+    <None Include="UIControls\MapChunkControl.Designer.cs">
       <DependentUpon>MapChunkControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UIControls\MapControl.cs">
+    </None>
+    <None Include="UIControls\MapControl.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UIControls\MapControl.Designer.cs">
+    </None>
+    <None Include="UIControls\MapControl.Designer.cs">
       <DependentUpon>MapControl.cs</DependentUpon>
-    </Compile>
+    </None>
     <Compile Include="MapHandlers\InfdevHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -129,15 +156,21 @@
     <EmbeddedResource Include="frmMap.resx">
       <DependentUpon>frmMap.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmUpdate.resx">
+      <DependentUpon>frmUpdate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControls\MapControlGL.resx">
+      <DependentUpon>MapControlGL.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UIControls\Inventory.resx">
       <DependentUpon>Inventory.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UIControls\MapChunkControl.resx">
+    <None Include="UIControls\MapChunkControl.resx">
       <DependentUpon>MapChunkControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UIControls\MapControl.resx">
+    </None>
+    <None Include="UIControls\MapControl.resx">
       <DependentUpon>MapControl.cs</DependentUpon>
-    </EmbeddedResource>
+    </None>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

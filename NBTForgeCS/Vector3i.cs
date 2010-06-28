@@ -9,7 +9,7 @@ namespace MineEdit
     {
         public Int64 X=0;
         public Int64 Y=0;
-        public Int64 Z=0;
+        public Int64 Z = 0;
 
         public Vector3i(Int64 x, Int64 y, Int64 z)
         {
@@ -17,6 +17,14 @@ namespace MineEdit
             this.X = x;
             this.Y = y;
             this.Z = z;
+        }
+
+        public Vector3i(Vector3d f)
+        {
+            // TODO: Complete member initialization
+            this.X = (long)f.X;
+            this.Y = (long)f.Y;
+            this.Z = (long)f.Z;
         }
 
         public override string ToString()

@@ -12,7 +12,7 @@ namespace MineEdit
     public enum ViewAngle
     {
         XY,
-        XZ,
+        TopDown,
         YZ
     }
     public partial class frmMap : Form
@@ -21,22 +21,28 @@ namespace MineEdit
         private IMapHandler _Map = null;
         private string _Filename = "";
         //protected MapControl mapCtrl;
+        protected MapControlGL mapCtrl;
+        protected Label lblMapDisabled = new Label();
         public frmMap()
         {
             InitializeComponent();
-            tabMap.Hide();
-            tclMap.SelectedTab = tabInventory;
             /*
-            mapCtrl = new MapControl();
+            lblMapDisabled.Text = "Map is completely broken, so it has been disabled for the time being.\n\nNext update should have a redone, albeit slower map.\n\n Sorry.";
+            lblMapDisabled.Dock = DockStyle.Fill;
+            lblMapDisabled.TextAlign = ContentAlignment.TopCenter;
+            tabMap.Controls.Add(lblMapDisabled);
+            tclMap.SelectedTab = tabInventory;
+            */
+            //mapCtrl = new MapControl();
+            mapCtrl = new MapControlGL();
             tabMap.Controls.Add(mapCtrl);
             mapCtrl.Dock = DockStyle.Fill;
             mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
-            */
+
             SetStyle(ControlStyles.ResizeRedraw, true);
 
-            this.ViewingAngle = MineEdit.ViewAngle.XZ;
+            this.ViewingAngle = MineEdit.ViewAngle.TopDown;
         }
-        /*
         void mapCtrl_MouseDown(object sender, MouseEventArgs e)
         {
 
@@ -45,7 +51,7 @@ namespace MineEdit
             Console.WriteLine("MouseDown");
             if (e.Button == MouseButtons.Middle)
             {
-                mapCtrl.CurrentPosition = hurr;
+                mapCtrl.CurrentPosition=hurr;
             }
             if (e.Button == MouseButtons.Left)
             {
@@ -53,7 +59,7 @@ namespace MineEdit
             }
             if (e.Button == MouseButtons.Right)
             {
-                mapCtrl.SelectedVoxel = hurr;
+                //mapCtrl.SelectedVoxel = hurr;
                 MenuItem mnuMap = new MenuItem();
                 
                 MenuItem mnuPlaceEntity = new MenuItem("Place Entity");
@@ -64,7 +70,7 @@ namespace MineEdit
                 MenuItem mnuChunkDetails = new MenuItem("Chunk details...");
                 mnuChunkDetails.Click += new EventHandler(mnuChunkDetails_Click);
             }
-        }*/
+        }
 
         void mnuChunkDetails_Click(object sender, EventArgs e)
         {
@@ -75,11 +81,10 @@ namespace MineEdit
         {
             throw new NotImplementedException();
         }
-        /*
         Vector3i GetVoxelFromMouse(int x, int y)
         {
-            return _Map.GetMousePos(new Vector3i(x, y, mapCtrl.CurrentPosition.Z), mapCtrl.ZoomLevel, mapCtrl.ViewingAngle);
-        }*/
+            return _Map.GetMousePos(new Vector3i(x, y, mapCtrl.CurrentPosition.Z), mapCtrl.ZoomLevel, ViewingAngle);
+        }
         public IMapHandler Map
         {
             get { return _Map; }
@@ -88,7 +93,7 @@ namespace MineEdit
                 _Map = value;
                 this.invMain.Map = value;
                 if (_Map != null && !string.IsNullOrEmpty(_Map.Filename))
-                //mapCtrl.Map = _Map;
+                mapCtrl.Map = _Map;
                 Reload();
                 Refresh();
             }
@@ -104,6 +109,12 @@ namespace MineEdit
                 PlayerPos = _Map.PlayerPos;
                 numAir.Value = _Map.Air;
                 LockApplyCancel();
+
+                numSpawnX.Value = _Map.Spawn.X;
+                numSpawnY.Value = _Map.Spawn.Y;
+                numSpawnZ.Value = _Map.Spawn.Z;
+
+                txtTime.Text = _Map.Time.ToString();
             }
         }
 
@@ -161,7 +172,7 @@ namespace MineEdit
             switch(cbViewingStyle.SelectedIndex)
             {
                 case 0:
-                    ViewingAngle = ViewAngle.XZ;
+                    ViewingAngle = ViewAngle.TopDown;
                     break;
                 case 1:
                     ViewingAngle = ViewAngle.XY;
@@ -183,13 +194,11 @@ namespace MineEdit
         private void pbox_MouseDown(object sender, MouseEventArgs e)
         {
         }
-
-        /*
         private void ClampCZ()
         {
             if (mapCtrl.CurrentPosition.Z == -1) mapCtrl.CurrentPosition.Z = 127;
             mapCtrl.CurrentPosition.Z = Math.Abs(mapCtrl.CurrentPosition.Z % _Map.ChunkScale.Z);
-        }*/
+        }
 
         // Up
         private void toolStripButton1_Click(object sender, EventArgs e)
@@ -226,7 +235,7 @@ namespace MineEdit
         private void tscbMaterial_SelectedIndexChanged(object sender, EventArgs e)
         {
             //if(tscbMaterial.SelectedItem!=null)
-            //    mapCtrl.CurrentMaterial=(tscbMaterial.SelectedItem as Block).ID;
+                //mapCtrl.CurrentMaterial=(tscbMaterial.SelectedItem as Block).ID;
         }
 
         private void dToolStripMenuItem_Click(object sender, EventArgs e)
@@ -301,13 +310,14 @@ namespace MineEdit
             Enabled=false;
             IMapHandler m = Map;
             Map = null;
-            /*tabMap.Controls.Remove(mapCtrl);
+            
+            tabMap.Controls.Remove(mapCtrl);
             
             mapCtrl.Dispose();
-            mapCtrl = new MapControl();
+            mapCtrl = new MapControlGL();
             tabMap.Controls.Add(mapCtrl);
             mapCtrl.Dock = DockStyle.Fill;
-            mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);*/
+            mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
 
             invMain.Reload();
 
@@ -316,6 +326,66 @@ namespace MineEdit
             
             Reload();
             Enabled=true;
+        }
+
+        private void cmdSetSpawnToPos_Click(object sender, EventArgs e)
+        {
+            numSpawnX.Value = (decimal)this.PlayerPos.X;
+            numSpawnY.Value = (decimal)this.PlayerPos.Y;
+            numSpawnZ.Value = (decimal)this.PlayerPos.Z;
+        }
+
+        private void numSpawnX_ValueChanged(object sender, EventArgs e)
+        {
+            SetSpawn();
+        }
+
+        private void SetSpawn()
+        {
+            _Map.Spawn.X = (int)numSpawnX.Value;
+            _Map.Spawn.Y = (int)numSpawnY.Value;
+            _Map.Spawn.Z = (int)numSpawnZ.Value;
+        }
+
+        private void numSpawnY_ValueChanged(object sender, EventArgs e)
+        {
+            SetSpawn();
+        }
+
+        private void numSpawnZ_ValueChanged(object sender, EventArgs e)
+        {
+            SetSpawn();
+        }
+
+        private void txtMinutes_TextChanged(object sender, EventArgs e)
+        {
+            SetTime();
+        }
+
+        private void cmdDay_Click(object sender, EventArgs e)
+        {
+            txtTime.Text = "0";
+        }
+
+        private void cmdNight_Click(object sender, EventArgs e)
+        {
+            txtTime.Text = "12125"; // Beginning of night
+        }
+
+        private void txtSeconds_TextChanged(object sender, EventArgs e)
+        {
+            SetTime();
+        }
+
+        private void SetTime()
+        {
+            try
+            {
+                _Map.Time = int.Parse(txtTime.Text);
+            }
+            catch (Exception)
+            {
+            }
         }
     }
 }

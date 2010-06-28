@@ -61,6 +61,16 @@
             this.label2 = new System.Windows.Forms.Label();
             this.numHealth = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
+            this.tabEnvironment = new System.Windows.Forms.TabPage();
+            this.grpSpawn = new System.Windows.Forms.GroupBox();
+            this.cmdSetSpawnToPos = new System.Windows.Forms.Button();
+            this.numSpawnZ = new System.Windows.Forms.NumericUpDown();
+            this.numSpawnY = new System.Windows.Forms.NumericUpDown();
+            this.numSpawnX = new System.Windows.Forms.NumericUpDown();
+            this.grpTOD = new System.Windows.Forms.GroupBox();
+            this.cmdNight = new System.Windows.Forms.Button();
+            this.txtTime = new System.Windows.Forms.TextBox();
+            this.cmdDay = new System.Windows.Forms.Button();
             this.mapPic = new System.Windows.Forms.PictureBox();
             this.toolStrip1.SuspendLayout();
             this.tclMap.SuspendLayout();
@@ -75,6 +85,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.numAir)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFire)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numHealth)).BeginInit();
+            this.tabEnvironment.SuspendLayout();
+            this.grpSpawn.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numSpawnZ)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numSpawnY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numSpawnX)).BeginInit();
+            this.grpTOD.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mapPic)).BeginInit();
             this.SuspendLayout();
             // 
@@ -154,6 +170,7 @@
             this.tclMap.Controls.Add(this.tabMap);
             this.tclMap.Controls.Add(this.tabInventory);
             this.tclMap.Controls.Add(this.tabPage1);
+            this.tclMap.Controls.Add(this.tabEnvironment);
             this.tclMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tclMap.Location = new System.Drawing.Point(0, 25);
             this.tclMap.Name = "tclMap";
@@ -452,6 +469,11 @@
             // numHealth
             // 
             this.numHealth.Location = new System.Drawing.Point(123, 22);
+            this.numHealth.Maximum = new decimal(new int[] {
+            9999,
+            0,
+            0,
+            0});
             this.numHealth.Name = "numHealth";
             this.numHealth.Size = new System.Drawing.Size(120, 20);
             this.numHealth.TabIndex = 1;
@@ -465,6 +487,136 @@
             this.label1.Size = new System.Drawing.Size(41, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Health:";
+            // 
+            // tabEnvironment
+            // 
+            this.tabEnvironment.Controls.Add(this.grpSpawn);
+            this.tabEnvironment.Controls.Add(this.grpTOD);
+            this.tabEnvironment.Location = new System.Drawing.Point(4, 22);
+            this.tabEnvironment.Name = "tabEnvironment";
+            this.tabEnvironment.Padding = new System.Windows.Forms.Padding(3);
+            this.tabEnvironment.Size = new System.Drawing.Size(561, 292);
+            this.tabEnvironment.TabIndex = 3;
+            this.tabEnvironment.Text = "Environment";
+            this.tabEnvironment.UseVisualStyleBackColor = true;
+            // 
+            // grpSpawn
+            // 
+            this.grpSpawn.Controls.Add(this.cmdSetSpawnToPos);
+            this.grpSpawn.Controls.Add(this.numSpawnZ);
+            this.grpSpawn.Controls.Add(this.numSpawnY);
+            this.grpSpawn.Controls.Add(this.numSpawnX);
+            this.grpSpawn.Location = new System.Drawing.Point(8, 62);
+            this.grpSpawn.Name = "grpSpawn";
+            this.grpSpawn.Size = new System.Drawing.Size(545, 79);
+            this.grpSpawn.TabIndex = 7;
+            this.grpSpawn.TabStop = false;
+            this.grpSpawn.Text = "Spawn";
+            // 
+            // cmdSetSpawnToPos
+            // 
+            this.cmdSetSpawnToPos.Location = new System.Drawing.Point(13, 45);
+            this.cmdSetSpawnToPos.Name = "cmdSetSpawnToPos";
+            this.cmdSetSpawnToPos.Size = new System.Drawing.Size(145, 23);
+            this.cmdSetSpawnToPos.TabIndex = 8;
+            this.cmdSetSpawnToPos.Text = "Set Spawn to Player Pos";
+            this.cmdSetSpawnToPos.UseVisualStyleBackColor = true;
+            this.cmdSetSpawnToPos.Click += new System.EventHandler(this.cmdSetSpawnToPos_Click);
+            // 
+            // numSpawnZ
+            // 
+            this.numSpawnZ.Location = new System.Drawing.Point(265, 19);
+            this.numSpawnZ.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.numSpawnZ.Minimum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            -2147483648});
+            this.numSpawnZ.Name = "numSpawnZ";
+            this.numSpawnZ.Size = new System.Drawing.Size(120, 20);
+            this.numSpawnZ.TabIndex = 7;
+            this.numSpawnZ.ValueChanged += new System.EventHandler(this.numSpawnZ_ValueChanged);
+            // 
+            // numSpawnY
+            // 
+            this.numSpawnY.Location = new System.Drawing.Point(139, 19);
+            this.numSpawnY.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.numSpawnY.Minimum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            -2147483648});
+            this.numSpawnY.Name = "numSpawnY";
+            this.numSpawnY.Size = new System.Drawing.Size(120, 20);
+            this.numSpawnY.TabIndex = 6;
+            this.numSpawnY.ValueChanged += new System.EventHandler(this.numSpawnY_ValueChanged);
+            // 
+            // numSpawnX
+            // 
+            this.numSpawnX.Location = new System.Drawing.Point(13, 19);
+            this.numSpawnX.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.numSpawnX.Minimum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            -2147483648});
+            this.numSpawnX.Name = "numSpawnX";
+            this.numSpawnX.Size = new System.Drawing.Size(120, 20);
+            this.numSpawnX.TabIndex = 5;
+            this.numSpawnX.ValueChanged += new System.EventHandler(this.numSpawnX_ValueChanged);
+            // 
+            // grpTOD
+            // 
+            this.grpTOD.Controls.Add(this.cmdNight);
+            this.grpTOD.Controls.Add(this.txtTime);
+            this.grpTOD.Controls.Add(this.cmdDay);
+            this.grpTOD.Location = new System.Drawing.Point(8, 6);
+            this.grpTOD.Name = "grpTOD";
+            this.grpTOD.Size = new System.Drawing.Size(545, 50);
+            this.grpTOD.TabIndex = 6;
+            this.grpTOD.TabStop = false;
+            this.grpTOD.Text = "Time of Day";
+            // 
+            // cmdNight
+            // 
+            this.cmdNight.Location = new System.Drawing.Point(442, 16);
+            this.cmdNight.Name = "cmdNight";
+            this.cmdNight.Size = new System.Drawing.Size(97, 23);
+            this.cmdNight.TabIndex = 5;
+            this.cmdNight.Text = "Set to Midnight";
+            this.cmdNight.UseVisualStyleBackColor = true;
+            this.cmdNight.Click += new System.EventHandler(this.cmdNight_Click);
+            // 
+            // txtTime
+            // 
+            this.txtTime.Location = new System.Drawing.Point(13, 19);
+            this.txtTime.Name = "txtTime";
+            this.txtTime.Size = new System.Drawing.Size(120, 20);
+            this.txtTime.TabIndex = 2;
+            this.txtTime.Text = "0";
+            this.txtTime.TextChanged += new System.EventHandler(this.txtMinutes_TextChanged);
+            // 
+            // cmdDay
+            // 
+            this.cmdDay.Location = new System.Drawing.Point(339, 16);
+            this.cmdDay.Name = "cmdDay";
+            this.cmdDay.Size = new System.Drawing.Size(97, 23);
+            this.cmdDay.TabIndex = 5;
+            this.cmdDay.Text = "Set to Daytime";
+            this.cmdDay.UseVisualStyleBackColor = true;
+            this.cmdDay.Click += new System.EventHandler(this.cmdDay_Click);
             // 
             // mapPic
             // 
@@ -502,6 +654,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.numAir)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFire)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numHealth)).EndInit();
+            this.tabEnvironment.ResumeLayout(false);
+            this.grpSpawn.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numSpawnZ)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numSpawnY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numSpawnX)).EndInit();
+            this.grpTOD.ResumeLayout(false);
+            this.grpTOD.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mapPic)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -543,6 +702,16 @@
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.NumericUpDown numAir;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TabPage tabEnvironment;
+        private System.Windows.Forms.GroupBox grpSpawn;
+        private System.Windows.Forms.Button cmdSetSpawnToPos;
+        private System.Windows.Forms.NumericUpDown numSpawnZ;
+        private System.Windows.Forms.NumericUpDown numSpawnY;
+        private System.Windows.Forms.NumericUpDown numSpawnX;
+        private System.Windows.Forms.GroupBox grpTOD;
+        private System.Windows.Forms.Button cmdNight;
+        private System.Windows.Forms.TextBox txtTime;
+        private System.Windows.Forms.Button cmdDay;
 
     }
 }

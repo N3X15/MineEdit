@@ -103,5 +103,10 @@ namespace MineEdit
         private void logoPictureBox_Click(object sender, EventArgs e)
         {
         }
+
+        private void textBoxDescription_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
