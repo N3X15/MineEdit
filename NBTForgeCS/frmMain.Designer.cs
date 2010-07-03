@@ -33,7 +33,10 @@
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.browseToMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuQOinfdev = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuReload = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -85,9 +88,11 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.browseToMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuQOinfdev = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuWorld1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWorld2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWorld3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWorld4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWorld5 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -113,7 +118,7 @@
             // 
             this.fileMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolStripMenuItem,
-            this.openToolStripMenuItem,
+            this.mnuOpen,
             this.mnuReload,
             this.toolStripSeparator3,
             this.saveToolStripMenuItem,
@@ -139,18 +144,42 @@
             this.newToolStripMenuItem.Text = "&New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.ShowNewForm);
             // 
-            // openToolStripMenuItem
+            // mnuOpen
             // 
-            this.openToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuOpen.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.browseToMapToolStripMenuItem,
             this.mnuQOinfdev,
             this.toolStripSeparator10});
-            this.openToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripMenuItem.Image")));
-            this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Black;
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.openToolStripMenuItem.Text = "&Open";
+            this.mnuOpen.Image = ((System.Drawing.Image)(resources.GetObject("mnuOpen.Image")));
+            this.mnuOpen.ImageTransparentColor = System.Drawing.Color.Black;
+            this.mnuOpen.Name = "mnuOpen";
+            this.mnuOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.mnuOpen.Size = new System.Drawing.Size(152, 22);
+            this.mnuOpen.Text = "&Open";
+            // 
+            // browseToMapToolStripMenuItem
+            // 
+            this.browseToMapToolStripMenuItem.Name = "browseToMapToolStripMenuItem";
+            this.browseToMapToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.browseToMapToolStripMenuItem.Text = "Browse to map...";
+            this.browseToMapToolStripMenuItem.Click += new System.EventHandler(this.OpenFile);
+            // 
+            // mnuQOinfdev
+            // 
+            this.mnuQOinfdev.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuWorld1,
+            this.mnuWorld2,
+            this.mnuWorld3,
+            this.mnuWorld4,
+            this.mnuWorld5});
+            this.mnuQOinfdev.Name = "mnuQOinfdev";
+            this.mnuQOinfdev.Size = new System.Drawing.Size(162, 22);
+            this.mnuQOinfdev.Text = "QuickOpen...";
+            // 
+            // toolStripSeparator10
+            // 
+            this.toolStripSeparator10.Name = "toolStripSeparator10";
+            this.toolStripSeparator10.Size = new System.Drawing.Size(159, 6);
             // 
             // mnuReload
             // 
@@ -568,23 +597,40 @@
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(0, 17);
             // 
-            // browseToMapToolStripMenuItem
+            // mnuWorld1
             // 
-            this.browseToMapToolStripMenuItem.Name = "browseToMapToolStripMenuItem";
-            this.browseToMapToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
-            this.browseToMapToolStripMenuItem.Text = "Browse to map...";
-            this.browseToMapToolStripMenuItem.Click += new System.EventHandler(this.OpenFile);
+            this.mnuWorld1.Name = "mnuWorld1";
+            this.mnuWorld1.Size = new System.Drawing.Size(152, 22);
+            this.mnuWorld1.Text = "World 1";
+            this.mnuWorld1.Click += new System.EventHandler(this.mnuWorld1_Click);
             // 
-            // mnuQOinfdev
+            // mnuWorld2
             // 
-            this.mnuQOinfdev.Name = "mnuQOinfdev";
-            this.mnuQOinfdev.Size = new System.Drawing.Size(206, 22);
-            this.mnuQOinfdev.Text = "QuickOpen infdev map...";
+            this.mnuWorld2.Name = "mnuWorld2";
+            this.mnuWorld2.Size = new System.Drawing.Size(152, 22);
+            this.mnuWorld2.Text = "World 2";
+            this.mnuWorld2.Click += new System.EventHandler(this.mnuWorld2_Click);
             // 
-            // toolStripSeparator10
+            // mnuWorld3
             // 
-            this.toolStripSeparator10.Name = "toolStripSeparator10";
-            this.toolStripSeparator10.Size = new System.Drawing.Size(203, 6);
+            this.mnuWorld3.Name = "mnuWorld3";
+            this.mnuWorld3.Size = new System.Drawing.Size(152, 22);
+            this.mnuWorld3.Text = "World 3";
+            this.mnuWorld3.Click += new System.EventHandler(this.mnuWorld3_Click);
+            // 
+            // mnuWorld4
+            // 
+            this.mnuWorld4.Name = "mnuWorld4";
+            this.mnuWorld4.Size = new System.Drawing.Size(152, 22);
+            this.mnuWorld4.Text = "World 4";
+            this.mnuWorld4.Click += new System.EventHandler(this.mnuWorld4_Click);
+            // 
+            // mnuWorld5
+            // 
+            this.mnuWorld5.Name = "mnuWorld5";
+            this.mnuWorld5.Size = new System.Drawing.Size(152, 22);
+            this.mnuWorld5.Text = "World 5";
+            this.mnuWorld5.Click += new System.EventHandler(this.mnuWorld5_Click);
             // 
             // frmMain
             // 
@@ -629,7 +675,7 @@
         private System.Windows.Forms.ToolStripMenuItem tileHorizontalToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileMenu;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mnuOpen;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem printToolStripMenuItem;
@@ -670,6 +716,11 @@
         private System.Windows.Forms.ToolStripMenuItem browseToMapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem mnuQOinfdev;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
+        private System.Windows.Forms.ToolStripMenuItem mnuWorld1;
+        private System.Windows.Forms.ToolStripMenuItem mnuWorld2;
+        private System.Windows.Forms.ToolStripMenuItem mnuWorld3;
+        private System.Windows.Forms.ToolStripMenuItem mnuWorld4;
+        private System.Windows.Forms.ToolStripMenuItem mnuWorld5;
     }
 }
 

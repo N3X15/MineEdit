@@ -202,5 +202,15 @@ namespace MineEdit
             g.Dispose();
             return bmp;
         }
+
+        internal static Block Find(string p)
+        {
+            foreach (KeyValuePair<short, Block> b in BlockList)
+            {
+                if (b.Value.Name.StartsWith(p))
+                    return b.Value;
+            }
+            return null;
+        }
     }
 }

@@ -55,7 +55,11 @@ namespace MineEdit
 
         void Render()
         {
-            glControl.MakeCurrent();
+            try
+            {
+                glControl.MakeCurrent();
+            }
+            catch(Exception) { return; }
 
             GL.Clear(ClearBufferMask.ColorBufferBit); 
             GL.MatrixMode(MatrixMode.Projection);
@@ -86,7 +90,7 @@ namespace MineEdit
                     for (int y = 0; y < glControl.Height/Sides.Y; y++)
                     {
                         Vector3i cc = new Vector3i(x+(min.X / _Map.ChunkScale.X), y + (min.Y / _Map.ChunkScale.Y), (CurrentPosition.Z / _Map.ChunkScale.X));
-                        Console.WriteLine(cc);
+                        //Console.WriteLine(cc);
                         OpenTK.Graphics.TextPrinter tp = new OpenTK.Graphics.TextPrinter();
                         tp.Begin();
                         tp.Print(string.Format("({0},{1})", cc.X, cc.Y), Font, Color.White, new RectangleF((glControl.Width / 2) + cc.X, (glControl.Height / 2) + cc.Y, (glControl.Width / 2) + Map.ChunkScale.X, (glControl.Height / 2) + Map.ChunkScale.Y));

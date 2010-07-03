@@ -22,8 +22,8 @@
 35	35.png	Cloth
 37	37.png	Flower
 38	38.png	Rose
-39	39.png	Red mushroom
-40	40.png	Brown mushroom
+39	39.png	Brown mushroom
+40	40.png	Red mushroom
 41	41.png	Gold
 42	42.png	Iron
 43	43.png	Double stair

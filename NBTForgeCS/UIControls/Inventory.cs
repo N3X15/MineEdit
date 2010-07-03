@@ -405,6 +405,26 @@ namespace MineEdit
             Save();
         }
 
+        private void cmbType_TextChanged(object sender, EventArgs e)
+        {
+            
+                short id;
+                if (short.TryParse(cmbType.Text, out id))
+                {
+                    if (Blocks.BlockList.ContainsKey(id))
+                    {
+                        Block b = Blocks.Get(id);
+                        cmbType.SelectedItem = b;
+                    }
+                }
+                else
+                {
+                    Block b = Blocks.Find(cmbType.Text);
+                    if (b == null) return;
+                    cmbType.SelectedItem = b;
+                }
+        }
+
 
     }
 }

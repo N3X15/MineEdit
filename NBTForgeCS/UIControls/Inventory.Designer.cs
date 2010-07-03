@@ -30,6 +30,7 @@
         {
             this.splitInv = new System.Windows.Forms.SplitContainer();
             this.gbEdit = new System.Windows.Forms.GroupBox();
+            this.cmdDeleteInv = new System.Windows.Forms.Button();
             this.numDamage = new System.Windows.Forms.NumericUpDown();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
@@ -38,7 +39,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.cmbType = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.cmdDeleteInv = new System.Windows.Forms.Button();
             this.splitInv.Panel2.SuspendLayout();
             this.splitInv.SuspendLayout();
             this.gbEdit.SuspendLayout();
@@ -79,6 +79,16 @@
             this.gbEdit.TabIndex = 0;
             this.gbEdit.TabStop = false;
             this.gbEdit.Text = "Inventory Editor";
+            // 
+            // cmdDeleteInv
+            // 
+            this.cmdDeleteInv.Location = new System.Drawing.Point(80, 165);
+            this.cmdDeleteInv.Name = "cmdDeleteInv";
+            this.cmdDeleteInv.Size = new System.Drawing.Size(120, 23);
+            this.cmdDeleteInv.TabIndex = 11;
+            this.cmdDeleteInv.Text = "Delete Selected";
+            this.cmdDeleteInv.UseVisualStyleBackColor = true;
+            this.cmdDeleteInv.Click += new System.EventHandler(this.cmdDeleteInv_Click);
             // 
             // numDamage
             // 
@@ -166,6 +176,7 @@
             this.cmbType.Size = new System.Drawing.Size(162, 21);
             this.cmbType.TabIndex = 2;
             this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
+            this.cmbType.TextChanged += new System.EventHandler(this.cmbType_TextChanged);
             // 
             // label1
             // 
@@ -175,16 +186,6 @@
             this.label1.Size = new System.Drawing.Size(68, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Object Type:";
-            // 
-            // cmdDeleteInv
-            // 
-            this.cmdDeleteInv.Location = new System.Drawing.Point(80, 165);
-            this.cmdDeleteInv.Name = "cmdDeleteInv";
-            this.cmdDeleteInv.Size = new System.Drawing.Size(120, 23);
-            this.cmdDeleteInv.TabIndex = 11;
-            this.cmdDeleteInv.Text = "Delete Selected";
-            this.cmdDeleteInv.UseVisualStyleBackColor = true;
-            this.cmdDeleteInv.Click += new System.EventHandler(this.cmdDeleteInv_Click);
             // 
             // Inventory
             // 

@@ -82,6 +82,8 @@ namespace MineEdit
 
                 map.Show();
                 SetMap(mn, map);
+
+                Settings.SetLUF(FileName);
             }
         }
 
@@ -172,8 +174,70 @@ namespace MineEdit
         private void frmMain_Load(object sender, EventArgs e)
         {
             Blocks.Init();
+            Settings.Init();
+            foreach (string luf in Settings.LastUsedFiles)
+            {
+                mnuOpen.DropDownItems.Add(new ToolStripMenuItem(luf, null, new EventHandler(LUF_Click)));
+            }
+            ToolStripMenuItem[] menues = new ToolStripMenuItem[]
+            {
+                mnuWorld1,
+                mnuWorld2,
+                mnuWorld3,
+                mnuWorld4,
+                mnuWorld5,
+            };
+            for (int i = 0; i < 5; i++)
+            {
+                string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                string f = Path.Combine(appdata, string.Format(@".minecraft\saves\World{0}\level.dat",i+1));
+                if(File.Exists(f))
+                {
+                    menues[i].Text=string.Format("World {0} ({1} MB)",i+1,(DirSize(new DirectoryInfo(Path.GetDirectoryName(f)))/1024f)/1024f);
+                } else {
+                    menues[i].Enabled=false;
+                }
+            }
         }
+    public long DirSize(DirectoryInfo d) 
+    {    
+        long Size = 0;    
+        // Add file sizes.
+        FileInfo[] fis = d.GetFiles();
+        foreach (FileInfo fi in fis) 
+        {      
+            Size += fi.Length;    
+        }
+        // Add subdirectory sizes.
+        DirectoryInfo[] dis = d.GetDirectories();
+        foreach (DirectoryInfo di in dis) 
+        {
+            Size += DirSize(di);   
+        }
+        return(Size);  
+    }
 
+        private void LUF_Click(object s, EventArgs derp)
+        {
+            string FileName = (s as ToolStripMenuItem).Text;
+
+
+            IMapHandler mh;
+            if (!GetFileHandler(FileName, out mh))
+            {
+                MessageBox.Show(string.Format("Unable to open file {0}: Unrecognised format", Path.GetFileName(FileName)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            mh.Load(FileName);
+            string mn = NewForm();
+            frmMap map = GetMap(mn);
+            map.Map = mh;
+
+            map.Show();
+            SetMap(mn, map);
+
+            Settings.SetLUF(FileName);
+        }
         public void SetStatus(string p)
         {
             lblStatus.Text = p;
@@ -257,6 +321,55 @@ namespace MineEdit
             {
                 up.ShowDialog();
             }
+        }
+
+        private void mnuWorld1_Click(object sender, EventArgs e)
+        {
+            string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            Open(Path.Combine(appdata, @".minecraft\saves\World1\level.dat"));
+        }
+
+        private void Open(string FileName)
+        {
+            IMapHandler mh;
+            if (!GetFileHandler(FileName, out mh))
+            {
+                MessageBox.Show(string.Format("Unable to open file {0}: Unrecognised format", Path.GetFileName(FileName)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            mh.Load(FileName);
+            string mn = NewForm();
+            frmMap map = GetMap(mn);
+            map.Map = mh;
+
+            map.Show();
+            SetMap(mn, map);
+
+            Settings.SetLUF(FileName);
+        }
+
+        private void mnuWorld2_Click(object sender, EventArgs e)
+        {
+            string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            Open(Path.Combine(appdata, @".minecraft\saves\World2\level.dat"));
+        }
+
+        private void mnuWorld3_Click(object sender, EventArgs e)
+        {
+            string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            Open(Path.Combine(appdata, @".minecraft\saves\World3\level.dat"));
+        }
+
+        private void mnuWorld4_Click(object sender, EventArgs e)
+        {
+            string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            Open(Path.Combine(appdata, @".minecraft\saves\World4\level.dat"));
+        }
+
+        private void mnuWorld5_Click(object sender, EventArgs e)
+        {
+            string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            Open(Path.Combine(appdata, @".minecraft\saves\World5\level.dat"));
         }
     }
 }

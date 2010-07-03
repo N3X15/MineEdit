@@ -21,28 +21,29 @@ namespace MineEdit
         private IMapHandler _Map = null;
         private string _Filename = "";
         //protected MapControl mapCtrl;
-        protected MapControlGL mapCtrl;
+        //protected MapControlGL mapCtrl;
         protected Label lblMapDisabled = new Label();
         public frmMap()
         {
             InitializeComponent();
-            /*
+            
             lblMapDisabled.Text = "Map is completely broken, so it has been disabled for the time being.\n\nNext update should have a redone, albeit slower map.\n\n Sorry.";
             lblMapDisabled.Dock = DockStyle.Fill;
             lblMapDisabled.TextAlign = ContentAlignment.TopCenter;
             tabMap.Controls.Add(lblMapDisabled);
             tclMap.SelectedTab = tabInventory;
-            */
+            
             //mapCtrl = new MapControl();
-            mapCtrl = new MapControlGL();
-            tabMap.Controls.Add(mapCtrl);
-            mapCtrl.Dock = DockStyle.Fill;
-            mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
+           // mapCtrl = new MapControlGL();
+           // tabMap.Controls.Add(mapCtrl);
+            //mapCtrl.Dock = DockStyle.Fill;
+            //mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
 
             SetStyle(ControlStyles.ResizeRedraw, true);
 
             this.ViewingAngle = MineEdit.ViewAngle.TopDown;
         }
+        /*
         void mapCtrl_MouseDown(object sender, MouseEventArgs e)
         {
 
@@ -51,7 +52,7 @@ namespace MineEdit
             Console.WriteLine("MouseDown");
             if (e.Button == MouseButtons.Middle)
             {
-                mapCtrl.CurrentPosition=hurr;
+                //mapCtrl.CurrentPosition=hurr;
             }
             if (e.Button == MouseButtons.Left)
             {
@@ -70,7 +71,7 @@ namespace MineEdit
                 MenuItem mnuChunkDetails = new MenuItem("Chunk details...");
                 mnuChunkDetails.Click += new EventHandler(mnuChunkDetails_Click);
             }
-        }
+        }*/
 
         void mnuChunkDetails_Click(object sender, EventArgs e)
         {
@@ -81,10 +82,11 @@ namespace MineEdit
         {
             throw new NotImplementedException();
         }
-        Vector3i GetVoxelFromMouse(int x, int y)
+        /*Vector3i GetVoxelFromMouse(int x, int y)
         {
-            return _Map.GetMousePos(new Vector3i(x, y, mapCtrl.CurrentPosition.Z), mapCtrl.ZoomLevel, ViewingAngle);
-        }
+            //return _Map.GetMousePos(new Vector3i(x, y, mapCtrl.CurrentPosition.Z), mapCtrl.ZoomLevel, ViewingAngle);
+        }*/
+
         public IMapHandler Map
         {
             get { return _Map; }
@@ -93,7 +95,7 @@ namespace MineEdit
                 _Map = value;
                 this.invMain.Map = value;
                 if (_Map != null && !string.IsNullOrEmpty(_Map.Filename))
-                mapCtrl.Map = _Map;
+                //mapCtrl.Map = _Map;
                 Reload();
                 Refresh();
             }
@@ -194,12 +196,13 @@ namespace MineEdit
         private void pbox_MouseDown(object sender, MouseEventArgs e)
         {
         }
+        /*
         private void ClampCZ()
         {
             if (mapCtrl.CurrentPosition.Z == -1) mapCtrl.CurrentPosition.Z = 127;
             mapCtrl.CurrentPosition.Z = Math.Abs(mapCtrl.CurrentPosition.Z % _Map.ChunkScale.Z);
         }
-
+        */
         // Up
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
