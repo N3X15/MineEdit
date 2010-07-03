@@ -250,5 +250,13 @@ namespace MineEdit
             }
 
         }
+
+        private void mnuUpdate_Click(object sender, EventArgs e)
+        {
+            using (frmUpdate up = new frmUpdate())
+            {
+                up.ShowDialog();
+            }
+        }
     }
 }

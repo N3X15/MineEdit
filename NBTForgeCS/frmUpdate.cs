@@ -19,6 +19,9 @@ namespace MineEdit
 
         private void frmUpdate_Load(object sender, EventArgs e)
         {
+        }
+        private void start()
+        {
             Blocks.Clear();
             lblStatus.Text = "Retrieving blocks...";
             pb.Style = ProgressBarStyle.Marquee;
@@ -30,25 +33,74 @@ namespace MineEdit
             lblStatus.Text = "Downloading images...";
 
             timer.Elapsed += new ElapsedEventHandler(timer_Elapsed);
+            timer.AutoReset = false;
+            timer.Start();
         }
 
+        delegate void hurf(int val);
+        delegate void setstring(string val);
+        public void SetMax(int max)
+        {
+            if (pb.InvokeRequired)
+            {
+                pb.Invoke(new hurf(SetMax), max);
+            }
+            else
+            {
+                pb.Maximum = max;
+            }
+        }
+        public void SetVal(int val)
+        {
+            if (pb.InvokeRequired)
+            {
+                pb.Invoke(new hurf(SetVal), val);
+            }
+            else
+            {
+                pb.Value = val;
+            }
+        }
+        public void SetText(string c)
+        {
+            if (lblStatus.InvokeRequired)
+            {
+                lblStatus.Invoke(new setstring(SetText), c);
+            }
+            else
+            {
+                lblStatus.Text = c;
+            }
+        }
         void timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             bool first = true;
             string derp;
-            int lol = Blocks.GetImagesLeft(out derp);
-            if (first)
+            try
             {
-                pb.Maximum = lol + 1;
-                first = false;
+                int lol = Blocks.GetImagesLeft(out derp);
+                if (first)
+                {
+                    SetMax(lol + 1);
+                    first = false;
+                }
+                SetVal(pb.Maximum-lol);
+                SetText(string.Format("({0}%) {1}", (int)(((float)lol / (float)pb.Maximum) * 100), derp));
+                timer.Start();
             }
-            pb.Value = lol;
-            lblStatus.Text = string.Format("({0}%) {1}", (int)(((float)lol / (float)pb.Maximum) * 100));
-            if (lol == 1)
+            catch(Exception)
             {
+                SetVal(pb.Maximum);
+                SetText("Done.");
                 timer.Stop();
                 Blocks.Save();
             }
+        }
+
+        private void cmdStart_Click(object sender, EventArgs e)
+        {
+            cmdStart.Enabled = false;
+            start();
         }
     }
 }

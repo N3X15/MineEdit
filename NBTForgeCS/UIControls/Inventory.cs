@@ -14,6 +14,7 @@ namespace MineEdit
         public Dictionary<int, InventoryItem> Stuff = new Dictionary<int, InventoryItem>();
 
         private IMapHandler _Map;
+        private int ArmorOffset;
 
         public int Capacity
         {
@@ -55,12 +56,17 @@ namespace MineEdit
             if (_Map == null) return;
 
             _Map.ClearInventory();
-            for (int i = 0; i < Map.InventoryCapacity; i++)
+            for (int i = 0; i < Stuff.Count; i++)
             {
                 InventoryItem item = Stuff[i];
                 if (item.MyType > 0 && item.Count > 0)
                 {
-                    _Map.SetInventory(i, item.MyType, item.Damage, item.Count);
+                    if (i > Map.InventoryCapacity - 1)
+                    {
+                        _Map.SetArmor((Enum.GetValues(typeof(ArmorType)) as ArmorType[])[i - ArmorOffset], item.MyType, item.Damage, item.Count);
+                    }else{
+                        _Map.SetInventory(i, item.MyType, item.Damage, item.Count);
+                    }
                 }
             }
         }
@@ -91,8 +97,7 @@ namespace MineEdit
             {
                 cmbType.Items.Add(k.Value);
             }
-            this.Width = (Columns * 32) + 12;
-            this.Height = ((Capacity / Columns) * 32) + 12;
+            this.splitInv.SplitterDistance= (Columns * 32) + 47;
             Console.WriteLine("Inventory set to ({0},{1}).",Width,Height);
             Stuff.Clear();
             for (int i = 0; i < Map.InventoryCapacity; i++)
@@ -117,6 +122,33 @@ namespace MineEdit
                     inv.Click += new EventHandler(inv_Click);
                     this.splitInv.Panel1.Controls.Add(inv);
                     Stuff.Add(i, inv);
+                    Console.WriteLine("[Inventory] Failed to add #{0} - {1}", i, failreason);
+                }
+            }
+            int invc =ArmorOffset= Stuff.Count;
+            for (int i = 0; i < 4; i++)
+            {
+                short id;
+                int dmg;
+                int count;
+                string failreason;
+                ArmorType at = (Enum.GetValues(typeof(ArmorType)) as ArmorType[])[i];
+                if (_Map.GetArmor(at, out id, out dmg, out count, out failreason))
+                {
+                    InventoryItem inv = new InventoryItem(id, dmg, count);
+                    inv.Render();
+                    inv.Click += new EventHandler(inv_Click);
+                    this.splitInv.Panel1.Controls.Add(inv);
+                    Console.WriteLine("[Inventory] Adding #{0} - {1} {2} @ {3} damage", i, inv.Count, inv.Name, inv.Damage);
+                    Stuff.Add(invc+i, inv);
+                }
+                else
+                {
+                    InventoryItem inv = new InventoryItem(0, 0, 1);
+                    inv.Render();
+                    inv.Click += new EventHandler(inv_Click);
+                    this.splitInv.Panel1.Controls.Add(inv);
+                    Stuff.Add(invc+i, inv);
                     Console.WriteLine("[Inventory] Failed to add #{0} - {1}", i, failreason);
                 }
             }
@@ -160,9 +192,18 @@ namespace MineEdit
              [ | | | | | ]
              
              [ | | | | | ] */
+            for (int i = 0; i < 4; i++)
+            {
+                int x = 6;
+                int y = (i * 32) + 6;
+                if (Stuff.ContainsKey(i+ArmorOffset))
+                {
+                    Stuff[i+ArmorOffset].SetBounds(x, y, 32, 32);
+                }
+            }
             for (int i = 0; i < NumInHand; i++)
             {
-                int x = ((i % Columns) * 32) + 6;
+                int x = ((i % Columns) * 32) + 9 + 32;
                 int y = (((Capacity / NumInHand) - 1) * 32) + 9;
                 if (Stuff.ContainsKey(i))
                 {
@@ -171,7 +212,7 @@ namespace MineEdit
             }
             for (int i = 0; i < Capacity - NumInHand; i++)
             {
-                int x = ((i % Columns) * 32) + 6;
+                int x = ((i % Columns) * 32) + 9 + 32;
                 int y = ((i / Columns) * 32) + 6;
                 if (Stuff.ContainsKey(i))
                 {
@@ -190,7 +231,19 @@ namespace MineEdit
                 int i = x;
                 if (Stuff[i] != null)
                 {
-                    Stuff[i].SetBounds(6 + (x * 32), (4 * 32)+ 9, 32, 32);
+                    Stuff[i].SetBounds(6 + (x * 32), (4 * 32) + 9, 32, 32);
+                }
+            }
+        }
+        private void LayoutArmor()
+        {
+            int r = ((Capacity - NumInHand) / Columns);
+            for (int y=0; y < 4; y++)
+            {
+                int i = y+ArmorOffset;
+                if (Stuff[i] != null)
+                {
+                    Stuff[i].SetBounds(6, (y * 32) + 9, 32, 32);
                 }
             }
         }

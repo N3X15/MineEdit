@@ -5,6 +5,13 @@ using System.Text;
 
 namespace MineEdit
 {
+    public enum ArmorType
+    {
+        Helm,
+        Torso,
+        Legs,
+        Boots
+    }
     public interface IMapHandler
     {
         void Load(string filename);
@@ -32,6 +39,9 @@ namespace MineEdit
         void ClearInventory();
         bool GetInventory(int slot, out short itemID, out int Damage, out int Count, out string failreason);
         bool SetInventory(int slot, short itemID, int Damage, int Count);
+
+        bool GetArmor(ArmorType slot, out short itemID, out int Damage, out int Count, out string failreason);
+        bool SetArmor(ArmorType slot, short itemID, int Damage, int Count);
 
         void Repair();
 

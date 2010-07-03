@@ -59,7 +59,7 @@ namespace MineEdit
                 else if (File.Exists(if_))
                     b.Image = (Bitmap)Bitmap.FromFile(if_);
                 else
-                    b.Image = (Bitmap)Bitmap.FromFile(af);
+                    b.Image = new Bitmap(16,16);
                 b.Color = GetColorFor(b);
                 BlockList.Add(id, b);
                 Console.WriteLine(b);
@@ -68,6 +68,10 @@ namespace MineEdit
 
         public static void Clear()
         {
+            foreach (KeyValuePair<short,Block> br in BlockList)
+            {
+                br.Value.Image.Dispose(); // Reload images
+            }
             BlockList.Clear();
         }
 
@@ -88,17 +92,17 @@ namespace MineEdit
             {
                 if (line.StartsWith("<img src=\"/mc/icons/"))
                 {
+
                     string[] chunks = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    Console.WriteLine(string.Join(", ", chunks));
                     // icon                         HEX  DEC  NAME
                     //<img src="/mc/icons/0.png"/>    0    0  Air
                     Block nb = new Block();
-                    nb.ID = short.Parse(chunks[2]);
-                    nb.Name = string.Join(" ", chunks, 3, chunks.Length - 3);
+                    nb.ID = short.Parse(chunks[3]);
+                    nb.Name = string.Join(" ", chunks, 4, chunks.Length - 4);
                     WebClient icondl = new WebClient();
-                    string filename = Path.Combine("blocks", nb.ID.ToString() + ".png");
-                    icondl.DownloadFile(string.Format("http://copy.bplaced.net/mc/icons/{0}.png", nb.ID), filename);
-                    nb.Image = (Bitmap)Image.FromFile(filename);
-                    nb.Color=GetColorFor(nb);
+
+                    BlocksToDL.Enqueue(nb);
                 }
             }
         }
@@ -115,8 +119,8 @@ namespace MineEdit
                     // icon                         HEX  DEC  NAME
                     //<img src="/mc/icons/0.png"/>    0    0  Air
                     Block nb = new Block();
-                    nb.ID = short.Parse(chunks[2]);
-                    nb.Name = string.Join(" ", chunks, 3, chunks.Length - 3);
+                    nb.ID = short.Parse(chunks[3]);
+                    nb.Name = string.Join(" ", chunks, 4, chunks.Length - 4);
                     BlocksToDL.Enqueue(nb);
                 }
             }
@@ -130,9 +134,13 @@ namespace MineEdit
                 image = Path.Combine("items", nb.ID.ToString() + ".png");
 
             WebClient icondl = new WebClient();
-            icondl.DownloadFile(string.Format("http://copy.bplaced.net/mc/icons/{0}.png", nb.ID), image);
+            string f = string.Format("http://copy.bplaced.net/mc/icons/{0}.png", nb.ID);
+            Console.WriteLine(" * Downloading "+f+"...");
+            icondl.DownloadFile(f, image);
+            Console.WriteLine("Done.");
             nb.Image = (Bitmap)Image.FromFile(image);
             nb.Color = GetColorFor(nb);
+
 
             BlockList.Add(nb.ID, nb);
             return BlocksToDL.Count;

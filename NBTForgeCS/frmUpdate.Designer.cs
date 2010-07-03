@@ -32,6 +32,7 @@
             this.pb = new System.Windows.Forms.ProgressBar();
             this.label1 = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
+            this.cmdStart = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // cmdCancel
@@ -67,9 +68,19 @@
             this.lblStatus.AutoSize = true;
             this.lblStatus.Location = new System.Drawing.Point(29, 26);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(94, 13);
+            this.lblStatus.Size = new System.Drawing.Size(108, 13);
             this.lblStatus.TabIndex = 4;
-            this.lblStatus.Text = "Getting block list...";
+            this.lblStatus.Text = "Click \"Begin\" to start.";
+            // 
+            // cmdStart
+            // 
+            this.cmdStart.Location = new System.Drawing.Point(407, 26);
+            this.cmdStart.Name = "cmdStart";
+            this.cmdStart.Size = new System.Drawing.Size(90, 22);
+            this.cmdStart.TabIndex = 1;
+            this.cmdStart.Text = "Begin";
+            this.cmdStart.UseVisualStyleBackColor = true;
+            this.cmdStart.Click += new System.EventHandler(this.cmdStart_Click);
             // 
             // frmUpdate
             // 
@@ -78,6 +89,7 @@
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pb);
+            this.Controls.Add(this.cmdStart);
             this.Controls.Add(this.cmdCancel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -99,5 +111,6 @@
         private System.Windows.Forms.ProgressBar pb;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.Button cmdStart;
     }
 }

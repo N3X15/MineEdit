@@ -57,11 +57,15 @@ namespace MineEdit
         {
             glControl.MakeCurrent();
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-            GL.MatrixMode(MatrixMode.Modelview);
+            GL.Clear(ClearBufferMask.ColorBufferBit); 
+            GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
+            GL.Ortho(0, Width, Height, 0, -1, 1);
 
             GL.Enable(EnableCap.Texture2D);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha);
+
             if (_Map != null)
             {
                 // Animate panning
@@ -82,42 +86,92 @@ namespace MineEdit
                     for (int y = 0; y < glControl.Height/Sides.Y; y++)
                     {
                         Vector3i cc = new Vector3i(x+(min.X / _Map.ChunkScale.X), y + (min.Y / _Map.ChunkScale.Y), (CurrentPosition.Z / _Map.ChunkScale.X));
-                        //Console.WriteLine(cc);
+                        Console.WriteLine(cc);
+                        OpenTK.Graphics.TextPrinter tp = new OpenTK.Graphics.TextPrinter();
+                        tp.Begin();
+                        tp.Print(string.Format("({0},{1})", cc.X, cc.Y), Font, Color.White, new RectangleF((glControl.Width / 2) + cc.X, (glControl.Height / 2) + cc.Y, (glControl.Width / 2) + Map.ChunkScale.X, (glControl.Height / 2) + Map.ChunkScale.Y));
                         if (!Chunks.ContainsKey(cc))
                         {
                             Bitmap mcc = new Bitmap((int)_Map.ChunkScale.X, (int)_Map.ChunkScale.Y);
                             mcc = (Bitmap)RenderTopdown(cc.X, cc.Y);
                             Chunks.Add(cc, TexUtil.CreateTextureFromBitmap(mcc));
-                            gl_rect_2d((int)cc.X, (int)cc.Y, (int)(cc.X + _Map.ChunkScale.X), (int)(cc.Y + _Map.ChunkScale.Y), Color.Red, true);
+                            gl_rect_2d((int)cc.X, (int)cc.Y, (int)(cc.X + _Map.ChunkScale.X), (int)(cc.Y + _Map.ChunkScale.Y), Color.Black, true);
                         }
                         else
                         {
 
                             gl_rect_2d((int)cc.X, (int)cc.Y, (int)(cc.X + _Map.ChunkScale.X), (int)(cc.Y + _Map.ChunkScale.Y), Color.White, true);
-                            //drawImage((int)(cc.X), (int)(cc.Y), (int)_Map.ChunkScale.X, (int)_Map.ChunkScale.Y, Chunks[cc], Color.White);
+                            drawImage((int)(cc.X), (int)(cc.Y), (int)_Map.ChunkScale.X, (int)_Map.ChunkScale.Y, Chunks[cc], Color.White);
                         }
+                        tp.End();
                     }
                 }
-                //GL.Flush();
+                GL.Flush();
             }
+            GL.Disable(EnableCap.Blend);
             GL.Disable(EnableCap.Texture2D);
             glControl.SwapBuffers();
         }
 
-        private void drawImage(int x, int y, int w, int h, int pic, Color color)
+        private void drawImage(int _x, int _y, int _w, int _h, int pic, Color color)
         {
-            GL.BindTexture(TextureTarget.Texture2D, pic);
+            GL.PushMatrix();
+            {
+                GL.Translate((float)_x, (float)_y, 0f);
+                GL.BindTexture(TextureTarget.Texture2D, pic);
+                GL.Color4(color);
+                //float x = _x / Width;
+                //float y = _y / Height;
+                //float w = _w / Width;
+                //float h = _h / Height;
+                GL.Begin(BeginMode.Quads);
+                {
+                    GL.TexCoord2(0f, 1f); GL.Vertex2(0, _h);
+                    GL.TexCoord2(1f, 1f); GL.Vertex2(_w, 0);
+                    GL.TexCoord2(1f, 0f); GL.Vertex2(_w, _h);
+                    GL.TexCoord2(0f, 0f); GL.Vertex2(0, 0);
+                }
+                GL.End();
+            }
+            GL.PopMatrix();
 
-            GL.Begin(BeginMode.Quads);
-            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(x-w, y+h); // Top left
-            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(x+w, y-h); // Bottom left
-            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(x+w, y+h); // Bottom right
-            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(x-w, y-h); // Top right
-
-            GL.End();
             if (GL.GetError() != ErrorCode.NoError)
                 Console.WriteLine(GL.GetError().ToString());
         }
+
+        //private void gl_draw_image()
+        //{
+        //    glPushMatrix();
+        //    {
+        //        glTranslatef((F32)x, (F32)y, 0.f);
+        //        if( degrees )
+        //        {
+        //            F32 offset_x = F32(width/2);
+        //            F32 offset_y = F32(height/2);
+        //            glTranslatef( offset_x, offset_y, 0.f);
+        //            glRotatef( degrees, 0.f, 0.f, 1.f );
+        //            glTranslatef( -offset_x, -offset_y, 0.f );
+        //        }
+
+        //        image->bind();
+
+        //        glColor4fv(color.mV);
+
+        //        glBegin(GL_QUADS);
+        //        {
+        //            glTexCoord2f(1.f, 1.f);
+        //            glVertex2i(width, height );
+        //            glTexCoord2f(0.f, 1.f);
+        //            glVertex2i(0, height );
+        //            glTexCoord2f(0.f, 0.f);
+        //            glVertex2i(0, 0);
+        //            glTexCoord2f(1.f, 0.f);
+        //            glVertex2i(width, 0);
+        //        }
+        //        glEnd();
+        //    }
+        //    glPopMatrix();
+        //}
         void MapControlTry2_Disposed(object sender, EventArgs e)
         {
         }
@@ -148,8 +202,6 @@ namespace MineEdit
                 Top = Left = 0;
             }
             Vector3i Sides = new Vector3i(_Map.ChunkScale.X * ZoomLevel, _Map.ChunkScale.Y * ZoomLevel, _Map.ChunkScale.Z * ZoomLevel);
-
-
             Vector3i min = new Vector3i(CurrentPosition.X - ((Width / 2) / ZoomLevel), CurrentPosition.Y - ((Height / 2) / ZoomLevel), 0);
             Vector3i max = new Vector3i(CurrentPosition.X + ((Width / 2) / ZoomLevel), CurrentPosition.Y + ((Height / 2) / ZoomLevel), 0);
 
@@ -447,16 +499,15 @@ namespace MineEdit
             int w = glControl.Width;
             int h = glControl.Height;
             GL.Viewport(0, 0, w, h);
-
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            GL.Ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 4.0);
+            GL.Ortho(0.0f, (float)w, 0.0f, (float)h, -1.0f, 1.0f);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+
         }
         void gl_rect_2d(int left, int top, int right, int bottom, bool filled )
         {
-           
- 
-            // Counterclockwise quad will face the viewer
             if( filled )
             {
                 GL.Begin(BeginMode.Quads);
@@ -468,42 +519,15 @@ namespace MineEdit
             }
             else
             {
-                /*
-                if( gGLManager.mATIOffsetVerticalLines )
-                {
-                    // Work around bug in ATI driver: vertical lines are offset by (-1,-1)
-                    glBegin( GL_LINES );
-
-                        // Verticals 
-                        Vertex2(left + 1, top);
-                        Vertex2(left + 1, bottom);
- 
-                        Vertex2(right, bottom);
-                        Vertex2(right, top);
-
-                        // Horizontals
-                        top--;
-                        right--;
-                        Vertex2(left, bottom);
-                        Vertex2(right, bottom);
-
-                        Vertex2(left, top);
-                        Vertex2(right, top);
-                    glEnd();
-                }
-                else
-                {
-                */
-                    top--;
-                    right--;
-                    GL.Begin(BeginMode.LineStrip);
-                        GL.Vertex2(left, top);
-                        GL.Vertex2(left, bottom);
-                        GL.Vertex2(right, bottom);
-                        GL.Vertex2(right, top);
-                        GL.Vertex2(left, top);
-                    GL.End();
-                //}
+                top--;
+                right--;
+                GL.Begin(BeginMode.LineStrip);
+                    GL.Vertex2(left, top);
+                    GL.Vertex2(left, bottom);
+                    GL.Vertex2(right, bottom);
+                    GL.Vertex2(right, top);
+                    GL.Vertex2(left, top);
+                GL.End();
             }
         }
 

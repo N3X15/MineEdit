@@ -310,14 +310,6 @@ namespace MineEdit
             Enabled=false;
             IMapHandler m = Map;
             Map = null;
-            
-            tabMap.Controls.Remove(mapCtrl);
-            
-            mapCtrl.Dispose();
-            mapCtrl = new MapControlGL();
-            tabMap.Controls.Add(mapCtrl);
-            mapCtrl.Dock = DockStyle.Fill;
-            mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
 
             invMain.Reload();
 

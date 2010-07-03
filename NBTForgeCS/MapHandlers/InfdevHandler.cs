@@ -17,7 +17,7 @@ namespace MineEdit
         private const int ChunkZ = 128;
 
         public string Filename {get;set;}
-        public int InventoryCapacity { get { return 9 * 4; } }
+        public int InventoryCapacity { get { return 9*4; } }
         private string FilesName;
         private string Folder;
 
@@ -755,6 +755,50 @@ namespace MineEdit
             return true;
         }
 
+        public bool SetArmor(ArmorType Armor, short itemID, int Damage, int Count)
+        {
+            int slot = 103;
+            switch (Armor)
+            {
+                case ArmorType.Helm:
+                    slot = 103;
+                    break;
+                case ArmorType.Torso:
+                    slot = 104;
+                    break;
+                case ArmorType.Legs:
+                    slot = 105;
+                    break;
+                case ArmorType.Boots:
+                    slot = 106;
+                    break;
+            }
+            return SetInventory(slot, itemID, Damage, Count);
+        }
+
+        public bool GetArmor(ArmorType Armor, out short itemID, out int Damage, out int Count, out string failreason)
+        {
+            int slot = 103;
+            itemID = 0;
+            Damage = 0;
+            Count = 0;
+            switch (Armor)
+            {
+                case ArmorType.Helm:
+                    slot = 103;
+                    break;
+                case ArmorType.Torso:
+                    slot = 104;
+                    break;
+                case ArmorType.Legs:
+                    slot = 105;
+                    break;
+                case ArmorType.Boots:
+                    slot = 106;
+                    break;
+            }
+            return GetInventory(slot, out itemID, out Damage, out Count, out failreason);
+        }
         public void ClearInventory()
         {
             NbtCompound Data = (NbtCompound)root.RootTag["Data"];
