@@ -35,6 +35,7 @@ namespace MineEdit
         public static Dictionary<short,Block> BlockList = new Dictionary<short,Block>();
         private static Queue<Block> BlocksToDL = new Queue<Block>();
         public static string Version = "06282010";
+        public static int TotalImages = 0;
         public static void Init()
         {
             foreach(string line in File.ReadAllLines("blocks.txt"))
@@ -73,6 +74,7 @@ namespace MineEdit
                 br.Value.Image.Dispose(); // Reload images
             }
             BlockList.Clear();
+            TotalImages = 0;
         }
 
         public static void Save()
@@ -94,7 +96,7 @@ namespace MineEdit
                 {
 
                     string[] chunks = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    Console.WriteLine(string.Join(", ", chunks));
+                    //Console.WriteLine(string.Join(", ", chunks));
                     // icon                         HEX  DEC  NAME
                     //<img src="/mc/icons/0.png"/>    0    0  Air
                     Block nb = new Block();
@@ -103,6 +105,7 @@ namespace MineEdit
                     WebClient icondl = new WebClient();
 
                     BlocksToDL.Enqueue(nb);
+                    TotalImages++;
                 }
             }
         }
@@ -122,6 +125,7 @@ namespace MineEdit
                     nb.ID = short.Parse(chunks[3]);
                     nb.Name = string.Join(" ", chunks, 4, chunks.Length - 4);
                     BlocksToDL.Enqueue(nb);
+                    TotalImages++;
                 }
             }
         }

@@ -408,6 +408,13 @@ namespace MineEdit
         private void cmbType_TextChanged(object sender, EventArgs e)
         {
             
+                
+        }
+
+        private void cmbType_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
                 short id;
                 if (short.TryParse(cmbType.Text, out id))
                 {
@@ -423,6 +430,12 @@ namespace MineEdit
                     if (b == null) return;
                     cmbType.SelectedItem = b;
                 }
+            }
+            else
+            {
+                ToolTip t = new ToolTip();
+                t.Show("Enter a block/item ID (0x0A, 10) or the first few characters of a block/item's name and press enter.", this.ParentForm);
+            }
         }
 
 

@@ -29,9 +29,10 @@ namespace MineEdit
 
             lblStatus.Text = "Retrieving items...";
             Blocks.UpdateItems();
-
+            pb.Maximum = Blocks.TotalImages;
             lblStatus.Text = "Downloading images...";
 
+            pb.Style = ProgressBarStyle.Continuous;
             timer.Elapsed += new ElapsedEventHandler(timer_Elapsed);
             timer.AutoReset = false;
             timer.Start();
@@ -74,18 +75,12 @@ namespace MineEdit
         }
         void timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            bool first = true;
             string derp;
             try
             {
                 int lol = Blocks.GetImagesLeft(out derp);
-                if (first)
-                {
-                    SetMax(lol + 1);
-                    first = false;
-                }
                 SetVal(pb.Maximum-lol);
-                SetText(string.Format("({0}%) {1}", (int)(((float)lol / (float)pb.Maximum) * 100), derp));
+                SetText(string.Format("({0}%) {1}", (int)(((float)(pb.Maximum-lol) / (float)pb.Maximum) * 100), derp));
                 timer.Start();
             }
             catch(Exception)

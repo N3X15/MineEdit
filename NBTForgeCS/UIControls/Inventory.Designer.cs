@@ -177,6 +177,7 @@
             this.cmbType.TabIndex = 2;
             this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
             this.cmbType.TextChanged += new System.EventHandler(this.cmbType_TextChanged);
+            this.cmbType.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cmbType_KeyDown);
             // 
             // label1
             // 

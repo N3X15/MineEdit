@@ -27,15 +27,15 @@ namespace MineEdit
         {
             InitializeComponent();
             
-            lblMapDisabled.Text = "Map is completely broken, so it has been disabled for the time being.\n\nNext update should have a redone, albeit slower map.\n\n Sorry.";
+            lblMapDisabled.Text = "Map is completely broken, so it has been disabled for the time being.\n\nIf you'd like to help, please contact me, 'cuz I'm stumped.";
             lblMapDisabled.Dock = DockStyle.Fill;
             lblMapDisabled.TextAlign = ContentAlignment.TopCenter;
             tabMap.Controls.Add(lblMapDisabled);
             tclMap.SelectedTab = tabInventory;
             
             //mapCtrl = new MapControl();
-           // mapCtrl = new MapControlGL();
-           // tabMap.Controls.Add(mapCtrl);
+            //mapCtrl = new MapControlGL();
+            //tabMap.Controls.Add(mapCtrl);
             //mapCtrl.Dock = DockStyle.Fill;
             //mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
 

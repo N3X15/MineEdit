@@ -521,6 +521,9 @@ namespace MineEdit
             }
         }
 
+        /// <summary>
+        /// BROKEN:  infdev currently resets this to 0,64,0
+        /// </summary>
         public Vector3i Spawn
         {
             get
@@ -531,6 +534,7 @@ namespace MineEdit
                     (Data["SpawnY"] as NbtInt).Value, 
                     (Data["SpawnZ"] as NbtInt).Value);
             }
+
             set
             {
                 NbtCompound Data = (NbtCompound)root.RootTag["Data"];
@@ -764,13 +768,13 @@ namespace MineEdit
                     slot = 103;
                     break;
                 case ArmorType.Torso:
-                    slot = 104;
+                    slot = 102;
                     break;
                 case ArmorType.Legs:
-                    slot = 105;
+                    slot = 101;
                     break;
                 case ArmorType.Boots:
-                    slot = 106;
+                    slot = 100;
                     break;
             }
             return SetInventory(slot, itemID, Damage, Count);
@@ -788,13 +792,13 @@ namespace MineEdit
                     slot = 103;
                     break;
                 case ArmorType.Torso:
-                    slot = 104;
+                    slot = 102;
                     break;
                 case ArmorType.Legs:
-                    slot = 105;
+                    slot = 101;
                     break;
                 case ArmorType.Boots:
-                    slot = 106;
+                    slot = 100;
                     break;
             }
             return GetInventory(slot, out itemID, out Damage, out Count, out failreason);
