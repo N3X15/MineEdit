@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Timers;
+using System.Net;
 namespace MineEdit
 {
     public partial class frmUpdate : Form
@@ -23,6 +24,25 @@ namespace MineEdit
         private void start()
         {
             Blocks.Clear();
+
+            lblStatus.Text = "Checking version...";
+
+            WebClient wc = new WebClient();
+            string hurp = wc.DownloadString("http://github.com/N3X15/MineEdit/raw/master/NBTForgeCS/Blocks.cs");
+            foreach (string l in hurp.Split('\n'))
+            {
+                string line=l.Trim();
+                if (line.StartsWith("public static string Version = "))
+                {
+                    string v = line.Substring("public static string Version = ".Length+1, 8);
+                    if (Blocks.Version != v)
+                    {
+                        MessageBox.Show("New version of MineEdit is available.  Please visit the thread to get the newest version.","Update available");
+                        Console.WriteLine("{0} != {1}", v, Blocks.Version);
+                    }
+                }
+
+            }
             lblStatus.Text = "Retrieving blocks...";
             pb.Style = ProgressBarStyle.Marquee;
             Blocks.UpdateBlocks();

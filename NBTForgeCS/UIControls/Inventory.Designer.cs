@@ -52,6 +52,9 @@
             this.splitInv.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitInv.Location = new System.Drawing.Point(0, 0);
             this.splitInv.Name = "splitInv";
+            // 
+            // splitInv.Panel1
+            // 
             this.splitInv.Panel1MinSize = 300;
             // 
             // splitInv.Panel2
@@ -111,7 +114,6 @@
             0,
             0,
             0});
-            this.numDamage.ValueChanged += new System.EventHandler(this.numDamage_ValueChanged);
             // 
             // button2
             // 
@@ -175,8 +177,6 @@
             this.cmbType.Name = "cmbType";
             this.cmbType.Size = new System.Drawing.Size(162, 21);
             this.cmbType.TabIndex = 2;
-            this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
-            this.cmbType.TextChanged += new System.EventHandler(this.cmbType_TextChanged);
             this.cmbType.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cmbType_KeyDown);
             // 
             // label1

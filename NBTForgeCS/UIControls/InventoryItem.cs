@@ -138,6 +138,93 @@ namespace MineEdit
             Img = b.Image;
             _Name = b.Name;
             _Type = type;
+            this.AllowDrop = true;
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.InventoryItem_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.InventoryItem_DragEnter);
+            this.MouseDown += new MouseEventHandler(InventoryItem_MouseDown);
+            this.KeyDown += new KeyEventHandler(InventoryItem_KeyDown);
+            this.KeyUp += new KeyEventHandler(InventoryItem_KeyUp);
+        }
+        bool DoCopy = false;
+        void InventoryItem_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Shift)
+                DoCopy = false;
+        }
+
+        void InventoryItem_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Shift)
+                DoCopy = true;
+        }
+
+        void InventoryItem_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                DoDragDrop(this, DragDropEffects.All);
+                if(!DoCopy)
+                    Empty();
+            }
+        }
+
+        private void Empty()
+        {
+            MyType = 0x00;
+            Count = 0;
+            Damage = 0;
+            Render();
+            Refresh();
+        }
+
+
+        /// <summary>
+        ///  Drag and drop shit
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void InventoryItem_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(InventoryItem)))
+            {
+                if ((e.KeyState & (int)Keys.Shift) == (int)Keys.Shift)
+                {
+                    e.Effect = DragDropEffects.Copy;
+                }
+                else
+                {
+                    e.Effect = DragDropEffects.Move;
+                }
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void InventoryItem_DragDrop(object sender, DragEventArgs e)
+        {
+            InventoryItem old = this;
+            InventoryItem derp = (InventoryItem)e.Data.GetData(typeof(InventoryItem));
+
+            _Name = derp.MyName;
+            _Type = derp.MyType;
+            _Damage = derp.Damage;
+            _Count = derp.Count;
+            Block b = Blocks.Get(0x00);
+            try
+            {
+                b = Blocks.Get(_Type);
+            }
+            catch (Exception) { }
+
+            Img = b.Image;
+            _Name = b.Name;
+
+            Render();
+
+            Refresh();
+            Console.WriteLine("Received data, copying.");
         }
     }
 }

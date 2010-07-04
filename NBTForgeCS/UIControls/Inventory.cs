@@ -138,6 +138,9 @@ namespace MineEdit
                     InventoryItem inv = new InventoryItem(id, dmg, count);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
+                    inv.MouseDown += new MouseEventHandler(inv_MouseDown);
+                    inv.MouseUp += new MouseEventHandler(inv_MouseUp);
+                    inv.MouseLeave += new EventHandler(inv_MouseLeave);
                     this.splitInv.Panel1.Controls.Add(inv);
                     Console.WriteLine("[Inventory] Adding #{0} - {1} {2} @ {3} damage", i, inv.Count, inv.Name, inv.Damage);
                     Stuff.Add(invc+i, inv);
@@ -147,6 +150,9 @@ namespace MineEdit
                     InventoryItem inv = new InventoryItem(0, 0, 1);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
+                    inv.MouseDown += new MouseEventHandler(inv_MouseDown);
+                    inv.MouseUp += new MouseEventHandler(inv_MouseUp);
+                    inv.MouseLeave += new EventHandler(inv_MouseLeave);
                     this.splitInv.Panel1.Controls.Add(inv);
                     Stuff.Add(invc+i, inv);
                     Console.WriteLine("[Inventory] Failed to add #{0} - {1}", i, failreason);
@@ -155,6 +161,30 @@ namespace MineEdit
 
             DoLayout();
             Refresh();
+        }
+
+        void inv_MouseLeave(object sender, EventArgs e)
+        {
+            if (MouseIsDown)
+            {
+                (sender as InventoryItem).DoDragDrop(sender, DragDropEffects.All);
+                (sender as InventoryItem).Count = 0;
+                (sender as InventoryItem).MyType = 0x00;
+                (sender as InventoryItem).Damage = 0;
+                (sender as InventoryItem).Refresh();
+            }
+        }
+
+        void inv_MouseUp(object sender, MouseEventArgs e)
+        {
+            MouseIsDown = false;
+        }
+
+        bool MouseIsDown = false;
+
+        void inv_MouseDown(object sender, MouseEventArgs e)
+        {
+            MouseIsDown = true;
         }
 
         void inv_Click(object sender, EventArgs e)
@@ -377,17 +407,6 @@ namespace MineEdit
             SelectAll(false);
             Save();
         }
-
-        private void cmbType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void numDamage_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void cmdDeleteInv_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < Stuff.Count; i++)
@@ -404,13 +423,6 @@ namespace MineEdit
             SelectAll(false);
             Save();
         }
-
-        private void cmbType_TextChanged(object sender, EventArgs e)
-        {
-            
-                
-        }
-
         private void cmbType_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)

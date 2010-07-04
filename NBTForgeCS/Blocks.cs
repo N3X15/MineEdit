@@ -34,7 +34,7 @@ namespace MineEdit
     {
         public static Dictionary<short,Block> BlockList = new Dictionary<short,Block>();
         private static Queue<Block> BlocksToDL = new Queue<Block>();
-        public static string Version = "06282010";
+        public static string Version = "07042010";
         public static int TotalImages = 0;
         public static void Init()
         {

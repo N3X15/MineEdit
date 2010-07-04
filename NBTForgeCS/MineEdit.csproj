@@ -159,6 +159,9 @@
     <EmbeddedResource Include="frmUpdate.resx">
       <DependentUpon>frmUpdate.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UIControls\InventoryItem.resx">
+      <DependentUpon>InventoryItem.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UIControls\MapControlGL.resx">
       <DependentUpon>MapControlGL.cs</DependentUpon>
     </EmbeddedResource>
