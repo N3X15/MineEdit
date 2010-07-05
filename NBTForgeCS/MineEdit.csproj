@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="Base36.cs" />
     <Compile Include="Blocks.cs" />
+    <Compile Include="Chest.cs" />
     <Compile Include="Chunk.cs" />
     <Compile Include="CriticalDamp.cs" />
     <Compile Include="dlgChunk.cs">
@@ -83,6 +84,9 @@
     <Compile Include="dlgChunk.Designer.cs">
       <DependentUpon>dlgChunk.cs</DependentUpon>
     </Compile>
+    <Compile Include="Entities\FallingSand.cs" />
+    <Compile Include="Entities\Pig.cs" />
+    <Compile Include="Entities\Skeleton.cs" />
     <Compile Include="Extensions\_Color.cs" />
     <Compile Include="frmAbout.cs">
       <SubType>Form</SubType>
@@ -109,7 +113,10 @@
       <DependentUpon>frmUpdate.cs</DependentUpon>
     </Compile>
     <Compile Include="IMapHandler.cs" />
+    <Compile Include="Entity.cs" />
+    <Compile Include="MobSpawner.cs" />
     <Compile Include="Texture.cs" />
+    <Compile Include="TileEntity.cs" />
     <Compile Include="UIControls\MapControlGL.cs">
       <SubType>UserControl</SubType>
     </Compile>

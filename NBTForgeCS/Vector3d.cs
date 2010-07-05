@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LibNbt.Tags;
 
 namespace MineEdit
 {
@@ -19,6 +20,13 @@ namespace MineEdit
             this.X = x;
             this.Y = y;
             this.Z = z;
+        }
+
+        public Vector3d(LibNbt.Tags.NbtList nbtList)
+        {
+            this.X = (nbtList[0] as NbtDouble).Value;
+            this.Y = (nbtList[1] as NbtDouble).Value;
+            this.Z = (nbtList[2] as NbtDouble).Value;
         }
 
         public static Vector3d operator -(Vector3d a, Vector3d b)

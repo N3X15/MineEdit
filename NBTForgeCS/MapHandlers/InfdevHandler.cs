@@ -5,6 +5,7 @@ using System.Text;
 using LibNbt;
 using LibNbt.Tags;
 using System.Diagnostics;
+
 namespace MineEdit
 {
     class InfdevHandler:IMapHandler
@@ -25,6 +26,9 @@ namespace MineEdit
         Dictionary<string, byte[]> ChunkBlocks = new Dictionary<string, byte[]>();
         Dictionary<string, short[,]> Heightmaps = new Dictionary<string, short[,]>();
         Dictionary<string, byte[,]> CachedOverview = new Dictionary<string, byte[,]>();
+        Dictionary<Vector3i, Entity> _Entities = new Dictionary<Vector3i, Entity>();
+        Dictionary<Vector3i, TileEntity> _TileEntities = new Dictionary<Vector3i, TileEntity>();
+
         Vector3i CurrentBlock = new Vector3i(0, 0, 0);
         byte[] CurrentBlocks;
 
@@ -32,7 +36,6 @@ namespace MineEdit
         public Vector3i ChunkScale { get { return new Vector3i(16, 16, 128); } }
         public Vector3i MapMin { get { return new Vector3i(int.MinValue,int.MinValue,0); } }
         public Vector3i MapMax { get { return new Vector3i(int.MaxValue,int.MaxValue,128); } }
-
         public void Load()
         {
             Load(Filename);
@@ -48,7 +51,14 @@ namespace MineEdit
             Folder=Path.GetDirectoryName(filename);
             root = new NbtFile(filename);
             root.LoadFile();
-            LoadChunk(0,0);
+            //LoadChunk(0,0);
+            for (int x = -10; x < 10; x++)
+            {
+                for (int y = -10; y < 10; y++)
+                {
+                    LoadChunk(x, y);
+                }
+            }
         }
 
         public Chunk GetChunkData(Vector3i chunkpos)
@@ -151,20 +161,24 @@ namespace MineEdit
                 Console.WriteLine("! {0}", f);
                 return null;
             }
-            //Console.WriteLine("{0},{1} {2}", x, z, f);
             chunk = new NbtFile(f);
             chunk.LoadFile();
-            //Console.WriteLine("({0},{1}) Loading {2} layers of {3}", x, z, ChunkZ, f);
-            //Console.WriteLine(chunk.RootTag.ToString());
             NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
-            /*
+            
             NbtInt CX = (NbtInt)level["xPos"];
             NbtInt CZ = (NbtInt)level["zPos"];
-            if (CX.Value != x || CZ.Value != z)
+            NbtList TileEntities = (NbtList)level["TileEntities"];
+            if (TileEntities.Tags.Count>0)
             {
-                Console.WriteLine("Chunk ({0},{1}) != ({2},{3})",x,z,CX.Value,CZ.Value);
-                return new byte[ChunkX * ChunkY * ChunkZ];
-            }*/
+                Console.WriteLine("*** Found TileEntities.");
+                LoadTileEnts((int)x,(int)z,TileEntities);
+            }
+            NbtList Entities = (NbtList)level["Entities"];
+            if (Entities.Tags.Count > 0)
+            {
+                Console.WriteLine("*** Found Entities.");
+                LoadEnts(Entities);
+            }
             NbtByteArray tba = (NbtByteArray)level["Blocks"];
             byte[] CurrentChunkBlocks = tba.Value;
             byte bb=0;
@@ -189,6 +203,24 @@ namespace MineEdit
             return CurrentBlocks;
         }
 
+        private void LoadEnts(NbtList ents)
+        {
+            foreach (NbtCompound c in ents.Tags)
+            {
+                Entity hurp = Entity.GetEntity(c);
+                _Entities.Add((Vector3i)hurp.Pos,hurp);
+            }
+        }
+
+        private void LoadTileEnts(int CX,int CY,NbtList ents)
+        {
+            foreach (NbtCompound c in ents.Tags)
+            {
+                TileEntity hurp = TileEntity.GetEntity(CX,CY,(int)ChunkScale.X,c);
+                _TileEntities.Add((Vector3i)hurp.Pos, hurp);
+            }
+        }
+
         private string GetChunkFilename(Int64 x, Int64 z)
         {
 
@@ -204,7 +236,7 @@ namespace MineEdit
                         )
                     )
                 );
-            Console.WriteLine("{0},{1} = {2}",x,z,f);
+            //Console.WriteLine("{0},{1} = {2}",x,z,f);
             return f;
         }
         private void SaveChunk(int x, int z,byte[,,] data)
@@ -519,6 +551,27 @@ namespace MineEdit
                 Data["Player"] = Player;
                 root.RootTag["Data"] = Data;
             }
+        }
+
+        public Dictionary<Vector3i, Entity> Entities
+        {
+            get
+            {
+                return _Entities;
+            }
+        }
+
+        public Dictionary<Vector3i, TileEntity> TileEntities
+        {
+            get
+            {
+                return _TileEntities;
+            }
+        }
+
+        public void SetEntity(Entity e)
+        {
+
         }
 
         /// <summary>
