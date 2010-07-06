@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using LibNbt.Tags;
+using System.Drawing;
 namespace MineEdit
 {
     public class FallingSand:Entity
@@ -16,7 +17,7 @@ namespace MineEdit
         {
             SetBaseStuff(c);
             Tile = (c["Tile"] as NbtByte).Value;
-            OnGround = (c["Tile"] as NbtByte).Value;
+            OnGround = (c["OnGround"] as NbtByte).Value;
         }
 
         public NbtCompound ToNBT()
@@ -35,6 +36,14 @@ namespace MineEdit
         public override string GetID()
         {
             return "FallingSand";
+        }
+
+        public override Image Image
+        {
+            get
+            {
+                return Blocks.Find("Sand").Image;
+            }
         }
     }
 }

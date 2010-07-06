@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace MineEdit
 {
-    class InfdevHandler:IMapHandler
+    public class InfdevHandler:IMapHandler
     {
         NbtFile root = new NbtFile();
         NbtFile chunk = new NbtFile();
@@ -34,6 +34,7 @@ namespace MineEdit
 
 
         public Vector3i ChunkScale { get { return new Vector3i(16, 16, 128); } }
+        public bool HasMultipleChunks { get { return true; } }
         public Vector3i MapMin { get { return new Vector3i(int.MinValue,int.MinValue,0); } }
         public Vector3i MapMax { get { return new Vector3i(int.MaxValue,int.MaxValue,128); } }
         public void Load()
@@ -51,14 +52,7 @@ namespace MineEdit
             Folder=Path.GetDirectoryName(filename);
             root = new NbtFile(filename);
             root.LoadFile();
-            //LoadChunk(0,0);
-            for (int x = -10; x < 10; x++)
-            {
-                for (int y = -10; y < 10; y++)
-                {
-                    LoadChunk(x, y);
-                }
-            }
+            LoadChunk(0,0);
         }
 
         public Chunk GetChunkData(Vector3i chunkpos)
@@ -140,7 +134,7 @@ namespace MineEdit
             return p;
         }
 
-        private byte[] LoadChunk(Int64 x, Int64 z)
+        private byte[] _LoadChunk(Int64 x, Int64 z)
         {
             byte[] CurrentBlocks;
             /*
@@ -161,53 +155,68 @@ namespace MineEdit
                 Console.WriteLine("! {0}", f);
                 return null;
             }
-            chunk = new NbtFile(f);
-            chunk.LoadFile();
-            NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
-            
-            NbtInt CX = (NbtInt)level["xPos"];
-            NbtInt CZ = (NbtInt)level["zPos"];
-            NbtList TileEntities = (NbtList)level["TileEntities"];
-            if (TileEntities.Tags.Count>0)
+            try
             {
-                Console.WriteLine("*** Found TileEntities.");
-                LoadTileEnts((int)x,(int)z,TileEntities);
-            }
-            NbtList Entities = (NbtList)level["Entities"];
-            if (Entities.Tags.Count > 0)
-            {
-                Console.WriteLine("*** Found Entities.");
-                LoadEnts(Entities);
-            }
-            NbtByteArray tba = (NbtByteArray)level["Blocks"];
-            byte[] CurrentChunkBlocks = tba.Value;
-            byte bb=0;
-            foreach (byte b in CurrentChunkBlocks)
-                if (bb < b) bb = b;
-            CurrentBlocks=CurrentChunkBlocks;
-            
-            string ci = string.Format("{0},{1}", x, z);
-            if (ChunkBlocks.ContainsKey(ci))
-                return ChunkBlocks[ci];
-            ChunkBlocks.Add(ci, CurrentBlocks);
-            Console.WriteLine("Loaded {0} bytes from chunk {1} (biggest byte = 0x{2:X2}).", CurrentBlocks.Length, ci,bb);
-            /*StackTrace stack = new StackTrace();
-            StackFrame[] stackFrames = stack.GetFrames();  // get method calls (frames)
+                chunk = new NbtFile(f);
+                chunk.LoadFile();
+                NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
 
-            // write call stack method names
-            foreach (StackFrame stackFrame in stackFrames)
-            {
-                Console.WriteLine(stackFrame.GetMethod());   // write method name
+                NbtInt CX = (NbtInt)level["xPos"];
+                NbtInt CZ = (NbtInt)level["zPos"];
+
+                NbtList TileEntities = (NbtList)level["TileEntities"];
+                if (TileEntities.Tags.Count > 0)
+                {
+                    Console.WriteLine("*** Found TileEntities.");
+                    LoadTileEnts((int)x, (int)z, TileEntities);
+                }
+
+                NbtList Entities = (NbtList)level["Entities"];
+                if (Entities.Tags.Count > 0)
+                {
+                    Console.WriteLine("*** Found Entities.");
+                    LoadEnts((int)x, (int)z, Entities);
+                }
+
+                NbtByteArray tba = (NbtByteArray)level["Blocks"];
+                byte[] CurrentChunkBlocks = tba.Value;
+                byte bb = 0;
+                foreach (byte b in CurrentChunkBlocks)
+                    if (bb < b) bb = b;
+                CurrentBlocks = CurrentChunkBlocks;
+
+                string ci = string.Format("{0},{1}", x, z);
+                if (ChunkBlocks.ContainsKey(ci))
+                    return ChunkBlocks[ci];
+                ChunkBlocks.Add(ci, CurrentBlocks);
+                Console.WriteLine("Loaded {0} bytes from chunk {1} (biggest byte = 0x{2:X2}).", CurrentBlocks.Length, ci, bb);
+                /*StackTrace stack = new StackTrace();
+                StackFrame[] stackFrames = stack.GetFrames();  // get method calls (frames)
+
+                // write call stack method names
+                foreach (StackFrame stackFrame in stackFrames)
+                {
+                    Console.WriteLine(stackFrame.GetMethod());   // write method name
+                }
+                */
+                return CurrentBlocks;
             }
-            */
-            return CurrentBlocks;
+            catch (Exception e)
+            {
+                string err = string.Format(" *** ERROR: Chunk {0},{1} ({2}) failed to load:\n\n{3}", x, z, f, e);
+                Console.WriteLine(err);
+                //System.Windows.Forms.MessageBox.Show(err);
+                return null;
+            }
         }
 
-        private void LoadEnts(NbtList ents)
+        private void LoadEnts(int CX, int CY, NbtList ents)
         {
             foreach (NbtCompound c in ents.Tags)
             {
                 Entity hurp = Entity.GetEntity(c);
+                hurp.Pos.X += (CX*16);
+                hurp.Pos.Y += (CY*16);
                 _Entities.Add((Vector3i)hurp.Pos,hurp);
             }
         }
@@ -662,7 +671,7 @@ namespace MineEdit
             //{
             //    return 0x00;
             //}
-            byte[] Blox = LoadChunk(CX, CY);
+            byte[] Blox = _LoadChunk(CX, CY);
 
             if (!ChunkBlocks.ContainsKey(ci))
                 ChunkBlocks.Add(ci, Blox);
@@ -675,6 +684,11 @@ namespace MineEdit
             {
                 return 0x00;
             }
+        }
+
+        public void LoadChunk(long X, long Y)
+        {
+            byte[] b = _LoadChunk(X, Y);
         }
 
         public void SetBlockIn(long CX, long CY, Vector3i pos, byte type)

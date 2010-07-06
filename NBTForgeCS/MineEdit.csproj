@@ -14,6 +14,7 @@
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -26,7 +27,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -48,6 +48,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.0.0.201, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
@@ -64,7 +65,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -75,7 +75,11 @@
   <ItemGroup>
     <Compile Include="Base36.cs" />
     <Compile Include="Blocks.cs" />
-    <Compile Include="Chest.cs" />
+    <Compile Include="Entities\Creeper.cs" />
+    <Compile Include="Entities\Item.cs" />
+    <Compile Include="Entities\Sheep.cs" />
+    <Compile Include="Entities\LivingEntity.cs" />
+    <Compile Include="TileEntities\Chest.cs" />
     <Compile Include="Chunk.cs" />
     <Compile Include="CriticalDamp.cs" />
     <Compile Include="dlgChunk.cs">
@@ -114,9 +118,27 @@
     </Compile>
     <Compile Include="IMapHandler.cs" />
     <Compile Include="Entity.cs" />
-    <Compile Include="MobSpawner.cs" />
+    <Compile Include="TileEntities\MobSpawner.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="TileEntity.cs" />
+    <Compile Include="UIControls\EntityControls\ItemEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControls\EntityControls\ItemEditor.Designer.cs">
+      <DependentUpon>ItemEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UIControls\EntityEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControls\EntityEditor.Designer.cs">
+      <DependentUpon>EntityEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dlgLoading.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgLoading.Designer.cs">
+      <DependentUpon>dlgLoading.cs</DependentUpon>
+    </Compile>
     <Compile Include="UIControls\MapControlGL.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -166,6 +188,15 @@
     <EmbeddedResource Include="frmUpdate.resx">
       <DependentUpon>frmUpdate.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="dlgLoading.resx">
+      <DependentUpon>dlgLoading.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControls\EntityControls\ItemEditor.resx">
+      <DependentUpon>ItemEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControls\EntityEditor.resx">
+      <DependentUpon>EntityEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UIControls\InventoryItem.resx">
       <DependentUpon>InventoryItem.cs</DependentUpon>
     </EmbeddedResource>
@@ -203,9 +234,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="blocks.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <None Include="Resources\mobzombie.png" />
+    <None Include="Resources\mobspider.png" />
+    <None Include="Resources\mobskeleton.png" />
+    <None Include="Resources\mobsheep.png" />
+    <None Include="Resources\mobpig.png" />
+    <None Include="Resources\mobnotch.png" />
+    <None Include="Resources\mobcreeper.png" />
     <None Include="Resources\view-refresh.png" />
     <None Include="Resources\go-home.png" />
     <None Include="Resources\list-add.png" />
@@ -239,6 +274,12 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\document-save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\document-open.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

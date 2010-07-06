@@ -6,18 +6,18 @@ using System.Drawing;
 
 namespace MineEdit
 {
-    class Skeleton:LivingEntity
+    class Creeper:LivingEntity
     {
         /*
-*** BUG: Unknown entity (ID: Skeleton)
+*** BUG: Unknown entity (ID: Creeper)
 TAG_Compound: 12 entries
 {
-	TAG_String("id"): Skeleton
+	TAG_String("id"): Creeper
 	TAG_List("Pos"): 3 entries
 	{
-		TAG_Double: -84.5
-		TAG_Double: 15.8999999761581
-		TAG_Double: -166.5
+		TAG_Double: 132.5
+		TAG_Double: 28.8999999761581
+		TAG_Double: 126.5
 	}
 	TAG_Short("AttackTime"): 0
 	TAG_List("Motion"): 3 entries
@@ -34,17 +34,16 @@ TAG_Compound: 12 entries
 	TAG_Short("Air"): 300
 	TAG_List("Rotation"): 2 entries
 	{
-		TAG_Float: 196.486
+		TAG_Float: 322.8646
 		TAG_Float: 0
 	}
 	TAG_Short("DeathTime"): 0
-}
-         */
+}*/
 
-        public Skeleton()
+        public Creeper()
         {
         }
-        public Skeleton(NbtCompound c)
+        public Creeper(NbtCompound c)
             :base(c)
         {
         }
@@ -56,19 +55,19 @@ TAG_Compound: 12 entries
         }
         public override string ToString()
         {
-            return "Skeleton";
+            return "Creeper";
         }
 
         public override string GetID()
         {
-            return "Skeleton";
+            return "Creeper";
         }
 
         public override Image Image
         {
             get
             {
-                return Properties.Resources.mobskeleton;
+                return Properties.Resources.mobcreeper;
             }
         }
     }

@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace MineEdit
 {
@@ -225,7 +226,7 @@ namespace MineEdit
             for (int i = 0; i < 4; i++)
             {
                 int x = 6;
-                int y = (i * 32) + 6;
+                int y = (i * 32) + 38;
                 if (Stuff.ContainsKey(i+ArmorOffset))
                 {
                     Stuff[i+ArmorOffset].SetBounds(x, y, 32, 32);
@@ -234,7 +235,7 @@ namespace MineEdit
             for (int i = 0; i < NumInHand; i++)
             {
                 int x = ((i % Columns) * 32) + 9 + 32;
-                int y = (((Capacity / NumInHand) - 1) * 32) + 9;
+                int y = (((Capacity / NumInHand) - 1) * 32) + 41;
                 if (Stuff.ContainsKey(i))
                 {
                     Stuff[i].SetBounds(x, y, 32, 32);
@@ -243,7 +244,7 @@ namespace MineEdit
             for (int i = 0; i < Capacity - NumInHand; i++)
             {
                 int x = ((i % Columns) * 32) + 9 + 32;
-                int y = ((i / Columns) * 32) + 6;
+                int y = ((i / Columns) * 32) + 38;
                 if (Stuff.ContainsKey(i))
                 {
                     Stuff[i + NumInHand].SetBounds(x, y, 32, 32);
@@ -450,6 +451,96 @@ namespace MineEdit
             }
         }
 
+        private void cmbType_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            Rectangle area = e.Bounds;
+            Rectangle iconArea = area;
+            iconArea.Width = 16;
+            if (e.Index >= 0)
+            {
+                e.DrawBackground();
+                Block ent = (Block)cmbType.Items[e.Index];
+
+                // Draw block icon
+                g.DrawImage(ent.Image, iconArea);
+
+                // ID.
+                string idtxt = string.Format("{0:D3} 0x{0:X3}", ent.ID);
+                SizeF idSz = g.MeasureString(idtxt, this.Font);
+                Rectangle idArea = area;
+                idArea.X = iconArea.Right + 3;
+                idArea.Width = (int)idSz.Width + 1;
+                g.DrawString(idtxt, this.Font, new SolidBrush(Color.FromArgb(128, e.ForeColor)), idArea);
+
+                // Block name
+                SizeF entName = g.MeasureString(ent.ToString(), this.Font);
+                Rectangle ctxt = area;
+                ctxt.X = idArea.Right + 3;
+                ctxt.Width = (int)entName.Width + 1;
+                g.DrawString(ent.ToString(), this.Font, new SolidBrush(e.ForeColor), ctxt);
+            }
+        }
+
+        private void cmdSuperRepair_Click(object sender, EventArgs e)
+        {
+
+            for (int i = 0; i < Stuff.Count; i++)
+            {
+                if (Stuff.ContainsKey(i) && Stuff[i].Selected)
+                {
+                    Stuff[i].Damage = -600;
+                    Stuff[i].Render();
+                    Stuff[i].Refresh();
+                }
+            }
+            SelectAll(false);
+            Save();
+        }
+
+        private void splitInv_Panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void tsbSaveTemplate_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "MineEdit Inventory Template|*.mit";
+            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(),"templates"));
+            sfd.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(),"templates");
+            if (sfd.ShowDialog() == DialogResult.Cancel) return;
+            List<string> mit = new List<string>();
+            mit.Add("# MINEEDIT INVENTORY TEMPLATE");
+            mit.Add("# Don't edit this file or you'll mess it up.  Trust me.");
+            for (int i = 0; i < 104;i++ )
+            {
+                if(Stuff.ContainsKey(i))
+                    mit.Add(string.Format("{0}\t{1}\t{2}\t{3}",i,Stuff[i].Count,Stuff[i].MyType,Stuff[i].Damage));
+            }
+            File.WriteAllLines(sfd.FileName,mit.ToArray());
+        }
+
+        private void tsbOpenTemplate_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "MineEdit Inventory Template|*.mit";
+            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "templates"));
+            ofd.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), "templates");
+            if (ofd.ShowDialog() == DialogResult.Cancel) return;
+            if(!File.Exists(ofd.FileName))
+                return;
+            foreach (string ln in File.ReadAllLines(ofd.FileName))
+            {
+                if (ln.StartsWith("#")) continue;
+                string[] chunks = ln.Split('\t');
+                int idx = int.Parse(chunks[0]);
+                Stuff[idx].Count = byte.Parse(chunks[1]);
+                Stuff[idx].MyType = short.Parse(chunks[2]);
+                Stuff[idx].Damage = short.Parse(chunks[3]);
+            }
+            Refresh();
+        }
 
     }
 }

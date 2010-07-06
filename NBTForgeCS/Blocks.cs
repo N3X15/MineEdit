@@ -27,7 +27,7 @@ namespace MineEdit
 
         public override string ToString()
         {
-            return string.Format("0x{0:X2} - {1}",ID,Name);
+            return Name;
         }
     }
     public static class Blocks
@@ -38,6 +38,13 @@ namespace MineEdit
         public static int TotalImages = 0;
         public static void Init()
         {
+            if (!File.Exists("blocks.txt"))
+            {
+                frmUpdate up = new frmUpdate();
+                up.Start();
+                up.ShowDialog();
+                return;
+            }
             foreach(string line in File.ReadAllLines("blocks.txt"))
             {
                 if (string.IsNullOrEmpty(line)) 

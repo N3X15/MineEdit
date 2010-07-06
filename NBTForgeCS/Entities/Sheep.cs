@@ -7,75 +7,72 @@ using System.Drawing;
 namespace MineEdit
 {
     /*
-*** BUG: Unknown entity (ID: Pig)
+*** BUG: Unknown entity (ID: Sheep)
 TAG_Compound: 13 entries
 {
 	TAG_List("Motion"): 3 entries
 	{
 		TAG_Double: 0
-		TAG_Double: -0.08
+		TAG_Double: 0
 		TAG_Double: 0
 	}
-	TAG_Byte("OnGround"): 1
-	TAG_Short("HurtTime"): 6
-	TAG_Short("Health"): 2
+	TAG_Byte("OnGround"): 0
+	TAG_Short("HurtTime"): 0
+	TAG_Short("Health"): 10
 	TAG_Short("Air"): 300
-	TAG_String("id"): Pig
+	TAG_String("id"): Sheep
 	TAG_List("Pos"): 3 entries
 	{
-		TAG_Double: 29.5500000119209
-		TAG_Double: 10
-		TAG_Double: -178.550000011921
+		TAG_Double: 129.5
+		TAG_Double: 82.6499999761581
+		TAG_Double: 125.5
 	}
 	TAG_Short("AttackTime"): 0
-	TAG_Byte("Saddle"): 0
-	TAG_Short("Fire"): -1
+	TAG_Short("Fire"): 0
+	TAG_Byte("Sheared"): 0
 	TAG_Float("FallDistance"): 0
 	TAG_List("Rotation"): 2 entries
 	{
-		TAG_Float: -115.9744
+		TAG_Float: 43.19674
 		TAG_Float: 0
 	}
 	TAG_Short("DeathTime"): 0
 }
      */
-    public class Pig:LivingEntity
+    public class Sheep:LivingEntity
     {
+        public bool Sheared = false;
 
-        //.Pig-only stuff
-        public bool Saddle = false;
-
-        public Pig()
+        public Sheep()
         {
         }
-        public Pig(NbtCompound c)
+        public Sheep(NbtCompound c)
             :base(c)
         {
-            Saddle = (c["Saddle"] as NbtByte).Value==1;
+            Sheared = (c["Sheared"] as NbtByte).Value==1;
         }
 
         public NbtCompound ToNBT()
         {
             NbtCompound c = base.ToNBT();
-            c.Tags.Add(new NbtByte("Saddle", Saddle ? (byte)1:(byte)0));
+            c.Tags.Add(new NbtByte("Sheared", Sheared ? (byte)1:(byte)0));
             return c;
         }
         public override string ToString()
         {
-            return "Pig";
+            return "Sheep";
         }
 
         public override string GetID()
         {
-            return "Pig";
+            return "Sheep";
         }
-
 
         public override Image Image
         {
             get
             {
-                return Properties.Resources.mobpig;
+                return Properties.Resources.mobsheep;
             }
         }
     }

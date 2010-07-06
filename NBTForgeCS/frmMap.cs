@@ -117,6 +117,8 @@ namespace MineEdit
                 numSpawnZ.Value = _Map.Spawn.Z;
 
                 txtTime.Text = _Map.Time.ToString();
+
+                entityEditor1.Load(ref _Map);
             }
         }
 

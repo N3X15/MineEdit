@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using LibNbt.Tags;
+using System.Drawing;
 namespace MineEdit
 {
     public class Entity
@@ -14,6 +15,8 @@ namespace MineEdit
         public NbtTag Rotation;
         private NbtCompound orig;
         private string id;
+        public int ChunkX=0;
+        public int ChunkY=0;
 
         public virtual NbtCompound ToNBT()
         {
@@ -65,7 +68,7 @@ namespace MineEdit
             c.Tags.Add(pos);
             c.Tags.Add(Rotation);
         }
-        public virtual string ToString()
+        public override string ToString()
         {
             return "[UNKNOWN ENTITY: " + id + "]";
         }
@@ -84,11 +87,29 @@ namespace MineEdit
             {
                 case "FallingSand": 
                     return new FallingSand(c);
+                case "Pig":
+                    return new Pig(c);
+                case "Skeleton":
+                    return new Skeleton(c);
+                case "Sheep":
+                    return new Sheep(c);
+                case "Creeper":
+                    return new Creeper(c);
+                case "Item":
+                    return new Item(c);
+                case "Spider":
                 default: 
                     return new Entity(c);
             }
         }
 
         public virtual string GetID() { return "_NULL_"; }
+
+        public virtual Image Image {
+            get
+            {
+                return MineEdit.Properties.Resources.mobpig;
+            }
+        }
     }
 }

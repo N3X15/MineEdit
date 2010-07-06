@@ -229,6 +229,10 @@ namespace MineEdit
                 return;
             }
             mh.Load(FileName);
+
+            dlgLoading load = new dlgLoading(mh);
+            load.ShowDialog();
+
             string mn = NewForm();
             frmMap map = GetMap(mn);
             map.Map = mh;

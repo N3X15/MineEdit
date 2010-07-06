@@ -31,5 +31,13 @@ namespace MineEdit
         {
             return string.Format("<{0},{1},{2}>",X,Y,Z);
         }
+
+        internal static double Distance(Vector3d v1, Vector3d v2)
+        {
+            double x = v1.X - v2.X;
+            double y = v1.Y - v2.Y;
+            double z = v1.Z - v2.Z;
+            return Math.Sqrt(x * x + y * y + z * z);
+        }
     }
 }

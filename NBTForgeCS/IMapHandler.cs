@@ -61,5 +61,12 @@ namespace MineEdit
         void SetBlockIn(long x, long y, Vector3i blockpos,byte type);
 
         int Time { get; set; }
+
+        Dictionary<Vector3i, Entity> Entities {get;}
+        Dictionary<Vector3i, TileEntity> TileEntities { get; }
+
+        bool HasMultipleChunks { get; }
+
+        void LoadChunk(long X, long Y);
     }
 }

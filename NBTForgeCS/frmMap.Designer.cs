@@ -71,6 +71,9 @@
             this.cmdNight = new System.Windows.Forms.Button();
             this.txtTime = new System.Windows.Forms.TextBox();
             this.cmdDay = new System.Windows.Forms.Button();
+            this.tabEnts = new System.Windows.Forms.TabPage();
+            this.entityEditor1 = new MineEdit.EntityEditor();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.mapPic = new System.Windows.Forms.PictureBox();
             this.toolStrip1.SuspendLayout();
             this.tclMap.SuspendLayout();
@@ -91,6 +94,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnX)).BeginInit();
             this.grpTOD.SuspendLayout();
+            this.tabEnts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mapPic)).BeginInit();
             this.SuspendLayout();
             // 
@@ -172,11 +176,13 @@
             this.tclMap.Controls.Add(this.tabInventory);
             this.tclMap.Controls.Add(this.tabPage1);
             this.tclMap.Controls.Add(this.tabEnvironment);
+            this.tclMap.Controls.Add(this.tabEnts);
+            this.tclMap.Controls.Add(this.tabPage2);
             this.tclMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tclMap.Location = new System.Drawing.Point(0, 0);
             this.tclMap.Name = "tclMap";
             this.tclMap.SelectedIndex = 0;
-            this.tclMap.Size = new System.Drawing.Size(569, 343);
+            this.tclMap.Size = new System.Drawing.Size(597, 343);
             this.tclMap.TabIndex = 2;
             // 
             // tabMap
@@ -184,7 +190,7 @@
             this.tabMap.Location = new System.Drawing.Point(4, 22);
             this.tabMap.Name = "tabMap";
             this.tabMap.Padding = new System.Windows.Forms.Padding(3);
-            this.tabMap.Size = new System.Drawing.Size(561, 317);
+            this.tabMap.Size = new System.Drawing.Size(589, 317);
             this.tabMap.TabIndex = 0;
             this.tabMap.Text = "Map";
             this.tabMap.UseVisualStyleBackColor = true;
@@ -195,7 +201,7 @@
             this.tabInventory.Location = new System.Drawing.Point(4, 22);
             this.tabInventory.Name = "tabInventory";
             this.tabInventory.Padding = new System.Windows.Forms.Padding(3);
-            this.tabInventory.Size = new System.Drawing.Size(561, 317);
+            this.tabInventory.Size = new System.Drawing.Size(589, 317);
             this.tabInventory.TabIndex = 1;
             this.tabInventory.Text = "Inventory";
             this.tabInventory.UseVisualStyleBackColor = true;
@@ -206,7 +212,7 @@
             this.invMain.Location = new System.Drawing.Point(3, 3);
             this.invMain.Map = null;
             this.invMain.Name = "invMain";
-            this.invMain.Size = new System.Drawing.Size(555, 286);
+            this.invMain.Size = new System.Drawing.Size(583, 311);
             this.invMain.TabIndex = 0;
             // 
             // tabPage1
@@ -233,7 +239,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(561, 317);
+            this.tabPage1.Size = new System.Drawing.Size(589, 317);
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "Player";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -496,7 +502,7 @@
             this.tabEnvironment.Location = new System.Drawing.Point(4, 22);
             this.tabEnvironment.Name = "tabEnvironment";
             this.tabEnvironment.Padding = new System.Windows.Forms.Padding(3);
-            this.tabEnvironment.Size = new System.Drawing.Size(561, 317);
+            this.tabEnvironment.Size = new System.Drawing.Size(589, 317);
             this.tabEnvironment.TabIndex = 3;
             this.tabEnvironment.Text = "Environment";
             this.tabEnvironment.UseVisualStyleBackColor = true;
@@ -619,12 +625,45 @@
             this.cmdDay.UseVisualStyleBackColor = true;
             this.cmdDay.Click += new System.EventHandler(this.cmdDay_Click);
             // 
+            // tabEnts
+            // 
+            this.tabEnts.Controls.Add(this.entityEditor1);
+            this.tabEnts.Location = new System.Drawing.Point(4, 22);
+            this.tabEnts.Name = "tabEnts";
+            this.tabEnts.Padding = new System.Windows.Forms.Padding(3);
+            this.tabEnts.Size = new System.Drawing.Size(589, 317);
+            this.tabEnts.TabIndex = 4;
+            this.tabEnts.Text = "Entities";
+            this.tabEnts.UseVisualStyleBackColor = true;
+            // 
+            // entityEditor1
+            // 
+            this.entityEditor1.CurrentEntity = null;
+            this.entityEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.entityEditor1.EntityChunk = null;
+            this.entityEditor1.Location = new System.Drawing.Point(3, 3);
+            this.entityEditor1.Name = "entityEditor1";
+            this.entityEditor1.PlayerPos = null;
+            this.entityEditor1.Size = new System.Drawing.Size(583, 311);
+            this.entityEditor1.SpawnPos = null;
+            this.entityEditor1.TabIndex = 0;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(589, 317);
+            this.tabPage2.TabIndex = 5;
+            this.tabPage2.Text = "Tile Entities";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
             // mapPic
             // 
             this.mapPic.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mapPic.Location = new System.Drawing.Point(0, 0);
             this.mapPic.Name = "mapPic";
-            this.mapPic.Size = new System.Drawing.Size(569, 343);
+            this.mapPic.Size = new System.Drawing.Size(597, 343);
             this.mapPic.TabIndex = 0;
             this.mapPic.TabStop = false;
             // 
@@ -632,7 +671,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(569, 343);
+            this.ClientSize = new System.Drawing.Size(597, 343);
             this.Controls.Add(this.tclMap);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.mapPic);
@@ -662,6 +701,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnX)).EndInit();
             this.grpTOD.ResumeLayout(false);
             this.grpTOD.PerformLayout();
+            this.tabEnts.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.mapPic)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -713,6 +753,9 @@
         private System.Windows.Forms.Button cmdNight;
         private System.Windows.Forms.TextBox txtTime;
         private System.Windows.Forms.Button cmdDay;
+        private System.Windows.Forms.TabPage tabEnts;
+        private System.Windows.Forms.TabPage tabPage2;
+        private EntityEditor entityEditor1;
 
     }
 }

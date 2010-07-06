@@ -21,8 +21,9 @@ namespace MineEdit
         private void frmUpdate_Load(object sender, EventArgs e)
         {
         }
-        private void start()
+        public void Start()
         {
+            cmdStart.Enabled = false;
             Blocks.Clear();
 
             lblStatus.Text = "Checking version...";
@@ -109,13 +110,14 @@ namespace MineEdit
                 SetText("Done.");
                 timer.Stop();
                 Blocks.Save();
+                MessageBox.Show("You now need to restart MineEdit.");
+                Environment.Exit(0);
             }
         }
 
         private void cmdStart_Click(object sender, EventArgs e)
         {
-            cmdStart.Enabled = false;
-            start();
+            Start();
         }
     }
 }
