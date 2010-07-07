@@ -42,6 +42,33 @@ namespace MineEdit
             SetStyle(ControlStyles.ResizeRedraw, true);
 
             this.ViewingAngle = MineEdit.ViewAngle.TopDown;
+
+            entityEditor1.EntityModified += new EventHandler(entityEditor1_EntityModified);
+            entityEditor1.EntityDeleted += new EntityEditor.EntityHandler(entityEditor1_EntityDeleted);
+
+            tileEntityEditor1.EntityModified += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityModified);
+            tileEntityEditor1.EntityDeleted += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityDeleted);
+        }
+
+        void tileEntityEditor1_EntityDeleted(TileEntity e)
+        {
+            _Map.RemoveTileEntity(e);
+        }
+
+        void tileEntityEditor1_EntityModified(TileEntity e)
+        {
+            _Map.SetTileEntity(e);
+        }
+
+        void entityEditor1_EntityDeleted(Entity entity)
+        {
+            _Map.RemoveEntity(entity);
+        }
+
+        void entityEditor1_EntityModified(object sender, EventArgs e)
+        {
+            Entity ent = entityEditor1.CurrentEntity;
+            _Map.SetEntity(ent);
         }
         /*
         void mapCtrl_MouseDown(object sender, MouseEventArgs e)
@@ -119,6 +146,7 @@ namespace MineEdit
                 txtTime.Text = _Map.Time.ToString();
 
                 entityEditor1.Load(ref _Map);
+                tileEntityEditor1.Load(ref _Map);
             }
         }
 

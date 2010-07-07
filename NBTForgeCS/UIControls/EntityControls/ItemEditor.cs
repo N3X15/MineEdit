@@ -9,16 +9,24 @@ using System.Windows.Forms;
 
 namespace MineEdit
 {
-    public partial class ItemEditor : UserControl
+    public partial class ItemEditor : UserControl,IEntityEditor
     {
         public Item Item;
 
         event EventHandler ItemChanged;
-        public ItemEditor(Item e)
+        public ItemEditor(Entity e)
         {
             InitializeComponent();
-            this.Item = e;
-            cmbType.SelectedItem = Blocks.Get(e.ItemID);
+
+            cmbType.Items.Clear();
+            cmbType.ValueMember = "ID";
+            cmbType.DisplayMember = "Name";
+            foreach (KeyValuePair<short, Block> k in Blocks.BlockList)
+            {
+                cmbType.Items.Add(k.Value);
+            }
+
+            this.Entity = e;
         }
 
         private void cmbType_DrawItem(object sender, DrawItemEventArgs e)
@@ -55,26 +63,51 @@ namespace MineEdit
         private void cmbType_SelectionChangeCommitted(object sender, EventArgs e)
         {
             this.Item.ItemID = ((Block)cmbType.SelectedItem).ID;
+            if (EntityModified != null)
+                EntityModified(this, EventArgs.Empty);
         }
 
         private void numCount_ValueChanged(object sender, EventArgs e)
         {
             this.Item.Count = (byte)numCount.Value;
+            if (EntityModified != null)
+                EntityModified(this, EventArgs.Empty);
         }
 
         private void numDamage_ValueChanged(object sender, EventArgs e)
         {
             Item.Damage = (short)numDamage.Value;
+            if (EntityModified != null)
+                EntityModified(this, EventArgs.Empty);
         }
 
         private void cmdRepair_Click(object sender, EventArgs e)
         {
             Item.Damage = 0;
+            if (EntityModified != null)
+                EntityModified(this, EventArgs.Empty);
         }
 
         private void cmdSuperRepair_Click(object sender, EventArgs e)
         {
             Item.Damage = -600;
+            if (EntityModified != null)
+                EntityModified(this, EventArgs.Empty);
+        }
+
+        public event EventHandler EntityModified;
+
+        public Entity Entity
+        {
+            get { return Item; }
+            set { 
+                Item = (Item)value;
+                this.SuspendLayout();
+                cmbType.SelectedItem = Blocks.Get(Item.ItemID);
+                numCount.Value = Item.Count;
+                numDamage.Value = Item.Damage;
+                this.ResumeLayout();
+            }
         }
     }
 }

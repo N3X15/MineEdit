@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="Base36.cs" />
     <Compile Include="Blocks.cs" />
+    <Compile Include="Entities\Spider.cs" />
     <Compile Include="Entities\Creeper.cs" />
     <Compile Include="Entities\Item.cs" />
     <Compile Include="Entities\Sheep.cs" />
@@ -121,11 +122,37 @@
     <Compile Include="TileEntities\MobSpawner.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="TileEntity.cs" />
+    <Compile Include="UIControls\TileEntityControls\ChestEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControls\TileEntityControls\ChestEditor.Designer.cs">
+      <DependentUpon>ChestEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UIControls\TileEntityControls\ITileEntityEditor.cs" />
+    <Compile Include="UIControls\TileEntityControls\SpawnerEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControls\TileEntityControls\SpawnerEditor.Designer.cs">
+      <DependentUpon>SpawnerEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UIControls\TileEntityEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControls\TileEntityEditor.Designer.cs">
+      <DependentUpon>TileEntityEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UIControls\EntityControls\IEntityEditor.cs" />
     <Compile Include="UIControls\EntityControls\ItemEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UIControls\EntityControls\ItemEditor.Designer.cs">
       <DependentUpon>ItemEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UIControls\EntityControls\LivingEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControls\EntityControls\LivingEditor.Designer.cs">
+      <DependentUpon>LivingEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="UIControls\EntityEditor.cs">
       <SubType>UserControl</SubType>
@@ -191,8 +218,20 @@
     <EmbeddedResource Include="dlgLoading.resx">
       <DependentUpon>dlgLoading.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UIControls\TileEntityControls\ChestEditor.resx">
+      <DependentUpon>ChestEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControls\TileEntityControls\SpawnerEditor.resx">
+      <DependentUpon>SpawnerEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControls\TileEntityEditor.resx">
+      <DependentUpon>TileEntityEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UIControls\EntityControls\ItemEditor.resx">
       <DependentUpon>ItemEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControls\EntityControls\LivingEditor.resx">
+      <DependentUpon>LivingEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UIControls\EntityEditor.resx">
       <DependentUpon>EntityEditor.cs</DependentUpon>

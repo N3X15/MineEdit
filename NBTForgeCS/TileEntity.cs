@@ -33,6 +33,17 @@ namespace MineEdit
             orig = c;
         }
 
+        public TileEntity(NbtCompound c)
+        {
+            // TODO: Complete member initialization
+            orig = c;
+            Pos = new Vector3i(
+                (c["x"] as NbtInt).Value,
+                (c["y"] as NbtInt).Value,
+                Math.Abs((c["z"] as NbtInt).Value));
+            id = (c["id"] as NbtString).Value;
+        }
+
         internal static TileEntity GetEntity(int CX, int CY, int CS, NbtCompound c)
         {
             switch ((c["id"] as NbtString).Value)
@@ -60,5 +71,9 @@ namespace MineEdit
         {
             return orig;
         }
+
+        public Guid UUID { get; set; }
+
+        public virtual System.Drawing.Image Image { get { return Properties.Resources.mobnotch;} }
     }
 }

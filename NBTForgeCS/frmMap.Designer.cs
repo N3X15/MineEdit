@@ -75,6 +75,7 @@
             this.entityEditor1 = new MineEdit.EntityEditor();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.mapPic = new System.Windows.Forms.PictureBox();
+            this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
             this.toolStrip1.SuspendLayout();
             this.tclMap.SuspendLayout();
             this.tabInventory.SuspendLayout();
@@ -95,6 +96,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnX)).BeginInit();
             this.grpTOD.SuspendLayout();
             this.tabEnts.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mapPic)).BeginInit();
             this.SuspendLayout();
             // 
@@ -650,6 +652,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.tileEntityEditor1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -666,6 +669,18 @@
             this.mapPic.Size = new System.Drawing.Size(597, 343);
             this.mapPic.TabIndex = 0;
             this.mapPic.TabStop = false;
+            // 
+            // tileEntityEditor1
+            // 
+            this.tileEntityEditor1.CurrentEntity = null;
+            this.tileEntityEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tileEntityEditor1.EntityChunk = null;
+            this.tileEntityEditor1.Location = new System.Drawing.Point(3, 3);
+            this.tileEntityEditor1.Name = "tileEntityEditor1";
+            this.tileEntityEditor1.PlayerPos = null;
+            this.tileEntityEditor1.Size = new System.Drawing.Size(583, 311);
+            this.tileEntityEditor1.SpawnPos = null;
+            this.tileEntityEditor1.TabIndex = 0;
             // 
             // frmMap
             // 
@@ -702,6 +717,7 @@
             this.grpTOD.ResumeLayout(false);
             this.grpTOD.PerformLayout();
             this.tabEnts.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.mapPic)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -756,6 +772,7 @@
         private System.Windows.Forms.TabPage tabEnts;
         private System.Windows.Forms.TabPage tabPage2;
         private EntityEditor entityEditor1;
+        private TileEntityEditor tileEntityEditor1;
 
     }
 }

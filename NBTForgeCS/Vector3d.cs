@@ -29,6 +29,14 @@ namespace MineEdit
             this.Z = (nbtList[2] as NbtDouble).Value;
         }
 
+        public Vector3d(double x, double y, double z)
+        {
+            // TODO: Complete member initialization
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+        }
+
         public static Vector3d operator -(Vector3d a, Vector3d b)
         {
             Vector3d derp = new Vector3d();
@@ -50,6 +58,16 @@ namespace MineEdit
         public static explicit operator Vector3i(Vector3d a)
         {
             return new Vector3i((long)a.X, (long)a.Y, (long)a.Z);
+        }
+
+        public static explicit operator Vector3d(Vector3i a)
+        {
+            return new Vector3d(a.X, a.Y, a.Z);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("<{0}, {1}, {2}>", X, Y, Z);
         }
     }
 }

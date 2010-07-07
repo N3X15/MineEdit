@@ -19,6 +19,24 @@ namespace MineEdit
                 Inventory.Add((item["Slot"] as NbtByte).Value, inv);
             }
         }
+        public Chest(LibNbt.Tags.NbtCompound c)
+            : base(c)
+        {
+            for(int i =0;i<54;i++)
+            {
+                try
+                {
+                    NbtCompound item = (NbtCompound)(c["Items"] as NbtList)[i];
+                    InventoryItem inv = new InventoryItem((item["id"] as NbtShort).Value, (item["Damage"] as NbtShort).Value, (item["Count"] as NbtByte).Value);
+                    Inventory.Add((item["Slot"] as NbtByte).Value, inv);
+                }
+                catch (Exception)
+                {
+                    InventoryItem inv = new InventoryItem(0, 0, 0);
+                    Inventory.Add((byte)i, inv);
+                }
+            }
+        }
 
         public override NbtCompound ToNBT()
         {
@@ -38,6 +56,13 @@ namespace MineEdit
             }
             c.Tags.Add(Items);
             return c;
+        }
+
+        public override System.Drawing.Image Image { get { return Blocks.Find("Chest").Image; } }
+
+        public override string ToString()
+        {
+            return "Chest ("+Inventory.Count.ToString()+" items)";
         }
     }
 }

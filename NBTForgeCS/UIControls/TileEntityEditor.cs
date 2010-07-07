@@ -8,25 +8,25 @@ using System.Windows.Forms;
 
 namespace MineEdit
 {
-    public partial class EntityEditor : UserControl
+    public partial class TileEntityEditor : UserControl
     {
-        public event EventHandler EntityModified;
 
-        public delegate void EntityHandler(Entity e);
-        public event EntityHandler EntityDeleted;
-        public event EntityHandler EntityAdded;
+        public delegate void TileEntityHandler(TileEntity e);
+        public event TileEntityHandler EntityDeleted;
+        public event TileEntityHandler EntityAdded;
+        public event TileEntityHandler EntityModified;
         public Vector3i EntityChunk { get; set; }
-        public Entity CurrentEntity { get; set; }
+        public TileEntity CurrentEntity { get; set; }
         public Vector3d PlayerPos { get; set; }
         public Vector3d SpawnPos { get; set; }
 
-        public IEntityEditor editor;
+        public ITileEntityEditor editor;
         private bool PauseEvents;
-        public EntityEditor()
+        public TileEntityEditor()
         {
             InitializeComponent();
-            cmbEntities.DrawMode = DrawMode.OwnerDrawFixed;
-            cmbEntities.DrawItem += new DrawItemEventHandler(cmbEntities_DrawItem);
+            cmbTEntities.DrawMode = DrawMode.OwnerDrawFixed;
+            cmbTEntities.DrawItem += new DrawItemEventHandler(cmbEntities_DrawItem);
             groupBox1.Enabled = false;
 
             numEntPosX.Minimum = decimal.MinValue;
@@ -46,8 +46,8 @@ namespace MineEdit
             if (e.Index >= 0)
             {
                 e.DrawBackground();
-                Entity ent = (Entity)cmbEntities.Items[e.Index];
-                int dist = (int)Vector3i.Distance(ent.Pos,PlayerPos);
+                TileEntity ent = (TileEntity)cmbTEntities.Items[e.Index];
+                int dist = (int)Vector3i.Distance((Vector3d)ent.Pos,PlayerPos);
 
                 // Draw entity icon
                 g.DrawImage(ent.Image,iconArea);
@@ -72,18 +72,18 @@ namespace MineEdit
         public void Load(ref IMapHandler map)
         {
             PlayerPos = map.PlayerPos;
-            List<Entity> LOLSORT = new List<Entity>();
-            foreach (KeyValuePair<Guid, Entity> ent in map.Entities)
+            List<TileEntity> LOLSORT = new List<TileEntity>();
+            foreach (KeyValuePair<Guid, TileEntity> ent in map.TileEntities)
             {
                 LOLSORT.Add(ent.Value);
             }
-            EntityDistanceSorter comp = new EntityDistanceSorter();
-            comp.PlayerPos = PlayerPos;
+            TileEntityDistanceSorter comp = new TileEntityDistanceSorter();
+            comp.PlayerPos = this.PlayerPos;
             LOLSORT.Sort(comp);
-            cmbEntities.Items.Clear();
-            foreach (Entity ent in LOLSORT)
+            cmbTEntities.Items.Clear();
+            foreach (TileEntity ent in LOLSORT)
             {
-                cmbEntities.Items.Add(ent);
+                cmbTEntities.Items.Add(ent);
             }
         }
 
@@ -96,12 +96,12 @@ namespace MineEdit
             PauseEvents = true;
             editor = null;
             spltEnt.Panel2.Controls.Clear();
-            groupBox1.Enabled = (cmbEntities.SelectedItem != null);
-            CurrentEntity = (Entity)cmbEntities.SelectedItem;
+            groupBox1.Enabled = (cmbTEntities.SelectedItem != null);
+            CurrentEntity = (TileEntity)cmbTEntities.SelectedItem;
             if (CurrentEntity != null)
             {
                 Console.WriteLine("Entity {0} selected @ {1} - <{2}, {3}, {4}>", 
-                    CurrentEntity.GetID(), 
+                    CurrentEntity.UUID, 
                     CurrentEntity.Pos,
                     (decimal)CurrentEntity.Pos.X,
                     (decimal)CurrentEntity.Pos.Y,
@@ -110,10 +110,10 @@ namespace MineEdit
                 numEntPosY.Value = Convert.ToDecimal(CurrentEntity.Pos.Y);
                 numEntPosZ.Value = Convert.ToDecimal(CurrentEntity.Pos.Z);
 
-                if (CurrentEntity is LivingEntity)
-                    editor = new LivingEditor(CurrentEntity);
-                else if (CurrentEntity is Item)
-                    editor = new ItemEditor(CurrentEntity);
+                if (CurrentEntity is Chest)
+                    editor = new ChestEditor(CurrentEntity);
+                else if (CurrentEntity is MobSpawner)
+                    editor = new SpawnerEditor(CurrentEntity);
                 else
                 {
                     PauseEvents = false;
@@ -128,7 +128,7 @@ namespace MineEdit
 
         void editor_EntityModified(object sender, EventArgs e)
         {
-            CurrentEntity = editor.Entity;
+            CurrentEntity = editor.TileEntity;
             EntityHasChanged(true);
         }
 
@@ -142,13 +142,13 @@ namespace MineEdit
             if (PauseEvents == true) return;
             if (CurrentEntity == null) return;
             if (!FromEditor && editor != null)
-                editor.Entity = CurrentEntity;
-            CurrentEntity.Pos.X = (double)numEntPosX.Value;
-            CurrentEntity.Pos.Y = (double)numEntPosY.Value;
-            CurrentEntity.Pos.Z = (double)numEntPosZ.Value;
+                editor.TileEntity = CurrentEntity;
+            CurrentEntity.Pos.X = (int)numEntPosX.Value;
+            CurrentEntity.Pos.Y = (int)numEntPosY.Value;
+            CurrentEntity.Pos.Z = (int)numEntPosZ.Value;
 
             if(EntityModified!=null)
-                EntityModified(this, EventArgs.Empty);
+                EntityModified(CurrentEntity);
         }
 
         private void cmdEntToMe_Click(object sender, EventArgs e)
@@ -167,10 +167,10 @@ namespace MineEdit
 
         private void cmdRemoveEntity_Click(object sender, EventArgs e)
         {
-            Entity ent = (Entity)cmbEntities.SelectedItem;
+            TileEntity ent = (TileEntity)cmbTEntities.SelectedItem;
             if (ent != null)
             {
-                cmbEntities.Items.Remove(ent);
+                cmbTEntities.Items.Remove(ent);
                 PauseEvents = true;
                 editor = null;
                 spltEnt.Panel2.Controls.Clear();
@@ -183,19 +183,19 @@ namespace MineEdit
 
                 PauseEvents = false;
                 if(EntityDeleted != null)
-                    EntityDeleted((Entity)ent);
+                    EntityDeleted((TileEntity)ent);
             }
         }
     }
 
-    public class EntityDistanceSorter : Comparer<Entity>
+    public class TileEntityDistanceSorter : Comparer<TileEntity>
     {
         public Vector3d PlayerPos;
 
-        public override int Compare(Entity x, Entity y)
+        public override int Compare(TileEntity x, TileEntity y)
         {
-            double _x = Vector3i.Distance(x.Pos, PlayerPos);
-            double _y = Vector3i.Distance(y.Pos, PlayerPos);
+            double _x = Vector3i.Distance((Vector3d)x.Pos, PlayerPos);
+            double _y = Vector3i.Distance((Vector3d)y.Pos, PlayerPos);
             return _x.CompareTo(_y);
         }
     }

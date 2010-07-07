@@ -26,8 +26,10 @@ namespace MineEdit
         Dictionary<string, byte[]> ChunkBlocks = new Dictionary<string, byte[]>();
         Dictionary<string, short[,]> Heightmaps = new Dictionary<string, short[,]>();
         Dictionary<string, byte[,]> CachedOverview = new Dictionary<string, byte[,]>();
-        Dictionary<Vector3i, Entity> _Entities = new Dictionary<Vector3i, Entity>();
-        Dictionary<Vector3i, TileEntity> _TileEntities = new Dictionary<Vector3i, TileEntity>();
+
+        // Using UUIDs since they're globally unique and native to C#.
+        Dictionary<Guid, Entity> _Entities = new Dictionary<Guid, Entity>();
+        Dictionary<Guid, TileEntity> _TileEntities = new Dictionary<Guid, TileEntity>();
 
         Vector3i CurrentBlock = new Vector3i(0, 0, 0);
         byte[] CurrentBlocks;
@@ -144,8 +146,8 @@ namespace MineEdit
                 return null;
             }
             */
-            x = (x < 0) ? x - 2 : x;
-            z = (z < 0) ? z - 2 : z;
+            //x = (x < 0) ? x - 2 : x;
+            //z = (z < 0) ? z - 2 : z;
             CurrentBlock.X = x;
             CurrentBlock.Z = z;
             string derp;
@@ -189,7 +191,7 @@ namespace MineEdit
                 if (ChunkBlocks.ContainsKey(ci))
                     return ChunkBlocks[ci];
                 ChunkBlocks.Add(ci, CurrentBlocks);
-                Console.WriteLine("Loaded {0} bytes from chunk {1} (biggest byte = 0x{2:X2}).", CurrentBlocks.Length, ci, bb);
+                Console.WriteLine("Loaded {0} bytes from chunk {1} (biggest byte = 0x{2:X2}).", CurrentBlocks.Length, f, bb);
                 /*StackTrace stack = new StackTrace();
                 StackFrame[] stackFrames = stack.GetFrames();  // get method calls (frames)
 
@@ -215,9 +217,10 @@ namespace MineEdit
             foreach (NbtCompound c in ents.Tags)
             {
                 Entity hurp = Entity.GetEntity(c);
-                hurp.Pos.X += (CX*16);
-                hurp.Pos.Y += (CY*16);
-                _Entities.Add((Vector3i)hurp.Pos,hurp);
+                hurp.Pos.X += ((double)CX*16d);
+                hurp.Pos.Y += ((double)CY*16d);
+                hurp.UUID = Guid.NewGuid();
+                _Entities.Add(hurp.UUID,hurp);
             }
         }
 
@@ -226,8 +229,75 @@ namespace MineEdit
             foreach (NbtCompound c in ents.Tags)
             {
                 TileEntity hurp = TileEntity.GetEntity(CX,CY,(int)ChunkScale.X,c);
-                _TileEntities.Add((Vector3i)hurp.Pos, hurp);
+                hurp.UUID = Guid.NewGuid();
+                _TileEntities.Add(hurp.UUID, hurp);
             }
+        }
+        
+        public void SetTileEntity(TileEntity e)
+        {
+            long CX=e.Pos.X/16;
+            long CY=e.Pos.Y/16;
+            string f = GetChunkFilename(CX, CY);
+
+            try
+            {
+                chunk = new NbtFile(f);
+                chunk.LoadFile();
+                NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
+
+                NbtList tents = (NbtList)level["TileEntities"];
+                int found = -1;
+                for(int i = 0;i<tents.Tags.Count;i++)
+                {
+                    TileEntity te = new TileEntity((NbtCompound)tents[i]);
+                    if (te.Pos == e.Pos)
+                    {
+                        found = i;
+                    }
+                }
+                if (found > -1)
+                    tents[found] = e.ToNBT();
+                else
+                    tents.Tags.Add(e.ToNBT());
+
+                level["TileEntities"] = tents;
+                chunk.RootTag["Level"] = level;
+                chunk.SaveFile(f);
+            }
+            catch (Exception) { }
+        }
+
+        public void RemoveTileEntity(TileEntity e)
+        {
+            long CX = e.Pos.X / 16;
+            long CY = e.Pos.Y / 16;
+            string f = GetChunkFilename(CX, CY);
+
+            try
+            {
+                chunk = new NbtFile(f);
+                chunk.LoadFile();
+                NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
+
+                NbtList TileEntities = (NbtList)level["TileEntities"];
+                int found = -1;
+                for (int i = 0; i < TileEntities.Tags.Count; i++)
+                {
+                    TileEntity te = new TileEntity((NbtCompound)TileEntities[i]);
+                    if (te.Pos == e.Pos)
+                    {
+                        found = i;
+                    }
+                }
+                if (found > -1)
+                    TileEntities.Tags.RemoveAt(found);
+
+                level["TileEntities"] = TileEntities;
+                chunk.RootTag["Level"] = level;
+                chunk.SaveFile(f);
+            }
+            catch (Exception) { }
         }
 
         private string GetChunkFilename(Int64 x, Int64 z)
@@ -562,7 +632,7 @@ namespace MineEdit
             }
         }
 
-        public Dictionary<Vector3i, Entity> Entities
+        public Dictionary<Guid, Entity> Entities
         {
             get
             {
@@ -570,7 +640,7 @@ namespace MineEdit
             }
         }
 
-        public Dictionary<Vector3i, TileEntity> TileEntities
+        public Dictionary<Guid, TileEntity> TileEntities
         {
             get
             {
@@ -580,9 +650,98 @@ namespace MineEdit
 
         public void SetEntity(Entity e)
         {
+            Guid ID = e.UUID;
 
+            if (_Entities.ContainsKey(ID))
+                _Entities.Remove(ID);
+            _Entities.Add(ID, e);
+
+            int CX = (int)e.Pos.X / 16;
+            int CY = (int)e.Pos.Y / 16;
+            e.Pos.X = (int)e.Pos.X % 16;
+            e.Pos.Y = (int)e.Pos.Y % 16;
+
+            string f = GetChunkFilename(CX, CY);
+            if (!File.Exists(f))
+            {
+                Console.WriteLine("! {0}", f);
+                return;
+            }
+            try
+            {
+                chunk = new NbtFile(f);
+                chunk.LoadFile();
+                NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
+
+                NbtList ents = (NbtList)level["Entities"];
+                if (e.OrigPos != null)
+                {
+                    NbtCompound dc = null;
+                    foreach (NbtCompound c in ents.Tags)
+                    {
+                        Entity ent = new Entity(c);
+                        if (e.Pos == ent.Pos)
+                        {
+                            dc = c;
+                            break;
+                        }
+                    }
+                    if (dc != null)
+                        ents.Tags.Remove(dc);
+                }
+                ents.Tags.Add(e.ToNBT());
+                level["Entities"] = ents;
+                chunk.RootTag["Level"] = level;
+                chunk.SaveFile(f);
+            }
+            catch (Exception) { }
         }
 
+        public void RemoveEntity(Entity e)
+        {
+            Guid ID = e.UUID;
+            if (_Entities.ContainsKey(ID))
+                _Entities.Remove(ID);
+
+            int CX = (int)e.Pos.X / 16;
+            int CY = (int)e.Pos.Y / 16;
+            e.Pos.X = (int)e.Pos.X % 16;
+            e.Pos.Y = (int)e.Pos.Y % 16;
+
+            string f = GetChunkFilename(CX, CY);
+            if (!File.Exists(f))
+            {
+                Console.WriteLine("! {0}", f);
+                return;
+            }
+            try
+            {
+                chunk = new NbtFile(f);
+                chunk.LoadFile();
+                NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
+
+                NbtList ents = (NbtList)level["Entities"];
+                if (e.OrigPos != null)
+                {
+                    NbtCompound dc = null;
+                    foreach (NbtCompound c in ents.Tags)
+                    {
+                        Entity ent = new Entity(c);
+                        if (e.Pos == ent.Pos)
+                        {
+                            dc = c;
+                            break;
+                        }
+                    }
+                    if (dc != null)
+                        ents.Tags.Remove(dc);
+                }
+                level["Entities"] = ents;
+                chunk.RootTag["Level"] = level;
+                chunk.SaveFile(f);
+            }
+            catch (Exception) { }
+        }
         /// <summary>
         /// BROKEN:  infdev currently resets this to 0,64,0
         /// </summary>

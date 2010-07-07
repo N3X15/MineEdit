@@ -1,6 +1,6 @@
 ﻿namespace MineEdit
 {
-    partial class EntityEditor
+    partial class TileEntityEditor
     {
         /// <summary> 
         /// Required designer variable.
@@ -30,9 +30,9 @@
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.cmdRemoveEntity = new System.Windows.Forms.Button();
-            this.cmdAddEntity = new System.Windows.Forms.Button();
-            this.cmbEntities = new System.Windows.Forms.ComboBox();
+            this.cmdRemoveTEntity = new System.Windows.Forms.Button();
+            this.cmdAddTEntity = new System.Windows.Forms.Button();
+            this.cmbTEntities = new System.Windows.Forms.ComboBox();
             this.spltEnt = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.numEntPosZ = new System.Windows.Forms.NumericUpDown();
@@ -73,42 +73,42 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.cmdRemoveEntity);
-            this.panel1.Controls.Add(this.cmdAddEntity);
-            this.panel1.Controls.Add(this.cmbEntities);
+            this.panel1.Controls.Add(this.cmdRemoveTEntity);
+            this.panel1.Controls.Add(this.cmdAddTEntity);
+            this.panel1.Controls.Add(this.cmbTEntities);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(565, 32);
             this.panel1.TabIndex = 0;
             // 
-            // cmdRemoveEntity
+            // cmdRemoveTEntity
             // 
-            this.cmdRemoveEntity.Location = new System.Drawing.Point(487, 3);
-            this.cmdRemoveEntity.Name = "cmdRemoveEntity";
-            this.cmdRemoveEntity.Size = new System.Drawing.Size(75, 23);
-            this.cmdRemoveEntity.TabIndex = 2;
-            this.cmdRemoveEntity.Text = "Remove";
-            this.cmdRemoveEntity.UseVisualStyleBackColor = true;
-            this.cmdRemoveEntity.Click += new System.EventHandler(this.cmdRemoveEntity_Click);
+            this.cmdRemoveTEntity.Location = new System.Drawing.Point(487, 3);
+            this.cmdRemoveTEntity.Name = "cmdRemoveTEntity";
+            this.cmdRemoveTEntity.Size = new System.Drawing.Size(75, 23);
+            this.cmdRemoveTEntity.TabIndex = 2;
+            this.cmdRemoveTEntity.Text = "Remove";
+            this.cmdRemoveTEntity.UseVisualStyleBackColor = true;
+            this.cmdRemoveTEntity.Click += new System.EventHandler(this.cmdRemoveEntity_Click);
             // 
-            // cmdAddEntity
+            // cmdAddTEntity
             // 
-            this.cmdAddEntity.Location = new System.Drawing.Point(430, 3);
-            this.cmdAddEntity.Name = "cmdAddEntity";
-            this.cmdAddEntity.Size = new System.Drawing.Size(51, 23);
-            this.cmdAddEntity.TabIndex = 1;
-            this.cmdAddEntity.Text = "Add...";
-            this.cmdAddEntity.UseVisualStyleBackColor = true;
+            this.cmdAddTEntity.Location = new System.Drawing.Point(430, 3);
+            this.cmdAddTEntity.Name = "cmdAddTEntity";
+            this.cmdAddTEntity.Size = new System.Drawing.Size(51, 23);
+            this.cmdAddTEntity.TabIndex = 1;
+            this.cmdAddTEntity.Text = "Add...";
+            this.cmdAddTEntity.UseVisualStyleBackColor = true;
             // 
-            // cmbEntities
+            // cmbTEntities
             // 
-            this.cmbEntities.FormattingEnabled = true;
-            this.cmbEntities.Location = new System.Drawing.Point(9, 5);
-            this.cmbEntities.Name = "cmbEntities";
-            this.cmbEntities.Size = new System.Drawing.Size(415, 21);
-            this.cmbEntities.TabIndex = 0;
-            this.cmbEntities.SelectedIndexChanged += new System.EventHandler(this.cmbEntities_SelectedIndexChanged);
+            this.cmbTEntities.FormattingEnabled = true;
+            this.cmbTEntities.Location = new System.Drawing.Point(9, 5);
+            this.cmbTEntities.Name = "cmbTEntities";
+            this.cmbTEntities.Size = new System.Drawing.Size(415, 21);
+            this.cmbTEntities.TabIndex = 0;
+            this.cmbTEntities.SelectedIndexChanged += new System.EventHandler(this.cmbEntities_SelectedIndexChanged);
             // 
             // spltEnt
             // 
@@ -141,7 +141,7 @@
             this.groupBox1.Size = new System.Drawing.Size(214, 393);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Common Entity Properties";
+            this.groupBox1.Text = "Common TileEntity Properties";
             // 
             // numEntPosZ
             // 
@@ -199,12 +199,12 @@
             this.label6.TabIndex = 0;
             this.label6.Text = "Position:";
             // 
-            // EntityEditor
+            // TileEntityEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.splitContainer1);
-            this.Name = "EntityEditor";
+            this.Name = "TileEntityEditor";
             this.Size = new System.Drawing.Size(565, 429);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -225,9 +225,9 @@
 
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button cmdRemoveEntity;
-        private System.Windows.Forms.Button cmdAddEntity;
-        private System.Windows.Forms.ComboBox cmbEntities;
+        private System.Windows.Forms.Button cmdRemoveTEntity;
+        private System.Windows.Forms.Button cmdAddTEntity;
+        private System.Windows.Forms.ComboBox cmbTEntities;
         private System.Windows.Forms.SplitContainer spltEnt;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.NumericUpDown numEntPosZ;

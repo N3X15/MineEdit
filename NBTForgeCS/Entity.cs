@@ -17,6 +17,7 @@ namespace MineEdit
         private string id;
         public int ChunkX=0;
         public int ChunkY=0;
+        public Vector3d OrigPos;
 
         public virtual NbtCompound ToNBT()
         {
@@ -43,7 +44,9 @@ namespace MineEdit
             FallDistance = (c["FallDistance"] as NbtFloat).Value;
             Motion = new Vector3d(c["Motion"] as NbtList);
             Pos = new Vector3d(c["Pos"] as NbtList);
+            Pos = new Vector3d(Pos.X, Pos.Z, Pos.Y);
             Rotation = c["Rotation"];
+            Console.WriteLine("Loaded entity {0} @ {1}", (c["id"] as NbtString).Value, Pos);
         }
 
         internal void Base2NBT(ref NbtCompound c,string _id)
@@ -62,8 +65,8 @@ namespace MineEdit
             NbtList pos = new NbtList("Pos");
             pos.Tags.AddRange(new NbtDouble[]{
                 new NbtDouble(Pos.X),
-                new NbtDouble(Pos.Y),
-                new NbtDouble(Pos.Z)
+                new NbtDouble(Pos.Z),
+                new NbtDouble(Pos.Y)
             });
             c.Tags.Add(pos);
             c.Tags.Add(Rotation);
@@ -111,5 +114,7 @@ namespace MineEdit
                 return MineEdit.Properties.Resources.mobpig;
             }
         }
+
+        public Guid UUID { get; set; }
     }
 }

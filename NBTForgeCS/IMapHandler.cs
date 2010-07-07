@@ -62,11 +62,17 @@ namespace MineEdit
 
         int Time { get; set; }
 
-        Dictionary<Vector3i, Entity> Entities {get;}
-        Dictionary<Vector3i, TileEntity> TileEntities { get; }
+        Dictionary<Guid, Entity> Entities {get;}
+        Dictionary<Guid, TileEntity> TileEntities { get; }
 
         bool HasMultipleChunks { get; }
 
         void LoadChunk(long X, long Y);
+
+        void SetEntity(Entity ent);
+        void RemoveEntity(Entity e);
+
+        void SetTileEntity(TileEntity e);
+        void RemoveTileEntity(TileEntity e);
     }
 }

@@ -25,5 +25,18 @@ namespace MineEdit
             c.Tags.Add(new NbtShort("Delay", Delay));
             return c;
         }
+
+        public override System.Drawing.Image Image
+        {
+            get
+            {
+                return Blocks.Find("Mob spawner").Image;
+            }
+        }
+
+        public override string ToString()
+        {
+            return EntityId+" Spawner";
+        }
     }
 }
