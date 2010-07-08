@@ -17,6 +17,14 @@ namespace MineEdit
             Delay = (c["Delay"] as NbtShort).Value;
         }
 
+        public MobSpawner(int X, int Y, int Z, string EntID, int delay)
+        {
+            // TODO: Complete member initialization
+            this.Pos = new Vector3i(X, Y, Z);
+            this.EntityId = EntID;
+            this.Delay = (short)delay;
+        }
+
         public override NbtCompound ToNBT()
         {
             NbtCompound c = new NbtCompound();

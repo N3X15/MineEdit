@@ -57,11 +57,12 @@ namespace MineEdit
             LoadChunk(0,0);
         }
 
+
         public Chunk GetChunkData(Vector3i chunkpos)
         {
             Chunk c = new Chunk();
-            long x = chunkpos.X/ChunkScale.X;
-            long y = chunkpos.Y/ChunkScale.Y;
+            int x = (int)(chunkpos.X/ChunkScale.X);
+            int y = (int)(chunkpos.Y/ChunkScale.Y);
             c.Filename = GetChunkFilename(x, y);
             if(!File.Exists(c.Filename)) return null;
             c.CreationDate = File.GetCreationTime(c.Filename);
@@ -136,7 +137,7 @@ namespace MineEdit
             return p;
         }
 
-        private byte[] _LoadChunk(Int64 x, Int64 z)
+        private byte[] _LoadChunk(int x, int z)
         {
             byte[] CurrentBlocks;
             /*
@@ -163,9 +164,13 @@ namespace MineEdit
                 chunk.LoadFile();
                 NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
 
-                NbtInt CX = (NbtInt)level["xPos"];
-                NbtInt CZ = (NbtInt)level["zPos"];
+                int CX = (level["xPos"] as NbtInt).Value;
+                int CZ = (level["zPos"] as NbtInt).Value;
 
+                if (CX != x || CZ != z)
+                {
+                    throw new Exception(string.Format("Chunk pos is wrong.  {0}!={1},{2}", f, x, z));
+                }
                 NbtList TileEntities = (NbtList)level["TileEntities"];
                 if (TileEntities.Tags.Count > 0)
                 {
@@ -191,6 +196,30 @@ namespace MineEdit
                 if (ChunkBlocks.ContainsKey(ci))
                     return ChunkBlocks[ci];
                 ChunkBlocks.Add(ci, CurrentBlocks);
+                int c = 0;
+                /*
+                 @TODO: Make Pig spawner converter.
+                for (int Z = 0; Z < ChunkScale.X; Z++)
+                {
+                    for (int Y = 0; Y < ChunkScale.Y; Y++)
+                    {
+                        for (int X = 0; X < ChunkScale.X; X++)
+                        {
+                            long index = X + (Z * ChunkY + Y) * ChunkZ;
+                            byte b = CurrentChunkBlocks[index];
+                            if (b == Blocks.Find("Mob spawner").ID)
+                            {
+                                MobSpawner ms = new MobSpawner(X + (int)(x * ChunkScale.X), Y + (int)(z * ChunkScale.Y), Z, "Pig", 20);
+                                ms.id = "MobSpawner";
+                                ms.UUID = Guid.NewGuid();
+                                _TileEntities.Add(ms.UUID, ms);
+                                c++;
+                            }
+                        }
+                    }
+                }
+                 */
+                //if (c>0)  Console.WriteLine("*** {0} spawners found.", c);
                 Console.WriteLine("Loaded {0} bytes from chunk {1} (biggest byte = 0x{2:X2}).", CurrentBlocks.Length, f, bb);
                 /*StackTrace stack = new StackTrace();
                 StackFrame[] stackFrames = stack.GetFrames();  // get method calls (frames)
@@ -238,7 +267,7 @@ namespace MineEdit
         {
             long CX=e.Pos.X/16;
             long CY=e.Pos.Y/16;
-            string f = GetChunkFilename(CX, CY);
+            string f = GetChunkFilename((int)CX, (int)CY);
 
             try
             {
@@ -272,7 +301,7 @@ namespace MineEdit
         {
             long CX = e.Pos.X / 16;
             long CY = e.Pos.Y / 16;
-            string f = GetChunkFilename(CX, CY);
+            string f = GetChunkFilename((int)CX, (int)CY);
 
             try
             {
@@ -300,18 +329,16 @@ namespace MineEdit
             catch (Exception) { }
         }
 
-        private string GetChunkFilename(Int64 x, Int64 z)
+        private string GetChunkFilename(int x, int z)
         {
-
-            //Int64 X = x / 16;
-            //Int64 Z = z / 16;
-            int fX = (int)x & 0x3f;
-            int fZ = (int)z & 0x3f;
+            string file = "c." + Utils.IntToBase(x, 36) + "." + Utils.IntToBase(z, 36) + ".dat";
+            string dirX = Utils.IntToBase(x & 0x3F, 36);
+            string dirY = Utils.IntToBase(z & 0x3F, 36);
             string f= 
                 Path.Combine(Folder,
-                    Path.Combine(Utils.IntToBase(fX,36),
-                        Path.Combine(Utils.IntToBase(fZ,36),
-                            string.Format("c.{0}.{1}.dat", Base36.NumberToBase36(x), Base36.NumberToBase36(z))
+                    Path.Combine(dirX,
+                        Path.Combine(dirY,
+                            file
                         )
                     )
                 );
@@ -530,12 +557,35 @@ namespace MineEdit
             set
             {
                 // Clamp value to between -1 and 21
-                NbtShort h = new NbtShort("Health",(short)Utils.Clamp(value,-1,21));
+                NbtShort h = new NbtShort("Health", (short)Utils.Clamp(value, -1, 21));
                 //root.SetTag("/Data/Player/Health",h);
                 NbtCompound Data = (NbtCompound)root.RootTag["Data"];
                 NbtCompound Player = (NbtCompound)Data["Player"];
                 NbtShort oh = (NbtShort)Player["Health"];
                 Console.WriteLine("Health: {0}->{1}", oh.Value, h.Value);
+                Player.Tags.Remove(oh);
+                Player.Tags.Add(h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
+            }
+        }
+
+        // Set to 0 to avoid the Laying Down bug.
+        public int HurtTime
+        {
+            get
+            {
+                NbtShort h = (NbtShort)root.GetTag("/Data/Player/HurtTime");
+                return (int)h.Value;
+            }
+            set
+            {
+                // TODO: Find value range.
+                NbtShort h = new NbtShort("HurtTime", (short)/*Utils.Clamp(*/value/*, 0, 21)*/);
+                //root.SetTag("/Data/Player/HurtTime",h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                NbtShort oh = (NbtShort)Player["HurtTime"];
                 Player.Tags.Remove(oh);
                 Player.Tags.Add(h);
                 Data["Player"] = Player;
@@ -614,6 +664,7 @@ namespace MineEdit
                 pos.X = (h[0] as NbtDouble).Value;
                 pos.Y = (h[1] as NbtDouble).Value;
                 pos.Z = (h[2] as NbtDouble).Value;
+                //Console.WriteLine("Player is on chunk {0}.",GetChunkFilename((int)pos.X >> 4,(int)pos.Z >> 4));
                 return pos;
             }
             set
@@ -629,6 +680,7 @@ namespace MineEdit
                 Player.Tags.Add(h);
                 Data["Player"] = Player;
                 root.RootTag["Data"] = Data;
+
             }
         }
 
@@ -790,15 +842,6 @@ namespace MineEdit
             int x = ((int)p.Y % ChunkX) & 0xf;
             int y = ((int)p.X % ChunkY) & 0xf;
             int z = (int)p.Z;// % ChunkZ;
-
-            if (CX < 0)
-            {
-                x = ChunkX - 1 - x;
-            }
-            if (CZ < 0)
-            {
-                y = ChunkY - 1 - y;
-            }
             return GetBlockIn(CX,CZ,new Vector3i(x,y,z));
         }
 
@@ -830,7 +873,7 @@ namespace MineEdit
             //{
             //    return 0x00;
             //}
-            byte[] Blox = _LoadChunk(CX, CY);
+            byte[] Blox = _LoadChunk((int)CX, (int)CY);
 
             if (!ChunkBlocks.ContainsKey(ci))
                 ChunkBlocks.Add(ci, Blox);
@@ -847,7 +890,7 @@ namespace MineEdit
 
         public void LoadChunk(long X, long Y)
         {
-            byte[] b = _LoadChunk(X, Y);
+            byte[] b = _LoadChunk((int)X, (int)Y);
         }
 
         public void SetBlockIn(long CX, long CY, Vector3i pos, byte type)

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Timers;
@@ -17,7 +16,10 @@ namespace MineEdit
         {
             InitializeComponent();
             Map = map;
+            int xo = (int)Map.PlayerPos.X / 16;
+            int yo = (int)Map.PlayerPos.Y / 16;
             pb.Maximum = 400;
+            Text = string.Format("Loading 400 Chunks Around Chunk ({0},{1})", xo, yo);
             time.Elapsed += new ElapsedEventHandler(time_Elapsed);
             time.Start();
         }
@@ -27,13 +29,13 @@ namespace MineEdit
             time.Stop();
             if (Map.HasMultipleChunks)
             {
-                int xo = (int)Map.PlayerPos.X / 16;
-                int yo = (int)Map.PlayerPos.Y / 16;
+                int xo = (int)Map.PlayerPos.X >> 4;
+                int yo = (int)Map.PlayerPos.Z >> 4;
                 for (int x = -10; x < 10; x++)
                 {
                     for (int y = -10; y < 10; y++)
                     {
-                        SetText(string.Format("Chunk ({0},{1})", (xo + x), (yo + y)));
+                        SetText(string.Format("{0}/{1} - Chunk ({2},{3})",(y+10)+((x+10)*20), 400, (xo + x), (yo + y)));
                         SetVal((y + 10) + ((x + 10) * 20));
                         Map.LoadChunk((xo + x), (yo + y));
                         Application.DoEvents();

@@ -42,6 +42,7 @@
             this.tabInventory = new System.Windows.Forms.TabPage();
             this.invMain = new MineEdit.Inventory();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.label6 = new System.Windows.Forms.Label();
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdApply = new System.Windows.Forms.Button();
             this.cmdHeal = new System.Windows.Forms.Button();
@@ -55,7 +56,9 @@
             this.numVelX = new System.Windows.Forms.NumericUpDown();
             this.numPosY = new System.Windows.Forms.NumericUpDown();
             this.numPosX = new System.Windows.Forms.NumericUpDown();
+            this.numHurtTime = new System.Windows.Forms.NumericUpDown();
             this.numAir = new System.Windows.Forms.NumericUpDown();
+            this.lblHurt = new System.Windows.Forms.Label();
             this.numFire = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -74,8 +77,8 @@
             this.tabEnts = new System.Windows.Forms.TabPage();
             this.entityEditor1 = new MineEdit.EntityEditor();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.mapPic = new System.Windows.Forms.PictureBox();
             this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
+            this.mapPic = new System.Windows.Forms.PictureBox();
             this.toolStrip1.SuspendLayout();
             this.tclMap.SuspendLayout();
             this.tabInventory.SuspendLayout();
@@ -86,6 +89,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numVelX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPosY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPosX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numHurtTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAir)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFire)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numHealth)).BeginInit();
@@ -186,6 +190,7 @@
             this.tclMap.SelectedIndex = 0;
             this.tclMap.Size = new System.Drawing.Size(597, 343);
             this.tclMap.TabIndex = 2;
+            this.tclMap.Selected += new System.Windows.Forms.TabControlEventHandler(this.tclMap_Selected);
             // 
             // tabMap
             // 
@@ -219,6 +224,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label6);
             this.tabPage1.Controls.Add(this.cmdCancel);
             this.tabPage1.Controls.Add(this.cmdApply);
             this.tabPage1.Controls.Add(this.cmdHeal);
@@ -232,7 +238,9 @@
             this.tabPage1.Controls.Add(this.numVelX);
             this.tabPage1.Controls.Add(this.numPosY);
             this.tabPage1.Controls.Add(this.numPosX);
+            this.tabPage1.Controls.Add(this.numHurtTime);
             this.tabPage1.Controls.Add(this.numAir);
+            this.tabPage1.Controls.Add(this.lblHurt);
             this.tabPage1.Controls.Add(this.numFire);
             this.tabPage1.Controls.Add(this.label5);
             this.tabPage1.Controls.Add(this.label2);
@@ -246,9 +254,18 @@
             this.tabPage1.Text = "Player";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(249, 102);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(262, 13);
+            this.label6.TabIndex = 11;
+            this.label6.Text = "(Know the value range for this?  Tell me in the thread!)";
+            // 
             // cmdCancel
             // 
-            this.cmdCancel.Location = new System.Drawing.Point(204, 170);
+            this.cmdCancel.Location = new System.Drawing.Point(204, 194);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(75, 23);
             this.cmdCancel.TabIndex = 10;
@@ -258,7 +275,7 @@
             // 
             // cmdApply
             // 
-            this.cmdApply.Location = new System.Drawing.Point(123, 170);
+            this.cmdApply.Location = new System.Drawing.Point(123, 194);
             this.cmdApply.Name = "cmdApply";
             this.cmdApply.Size = new System.Drawing.Size(75, 23);
             this.cmdApply.TabIndex = 10;
@@ -278,7 +295,7 @@
             // 
             // cmdSpawn
             // 
-            this.cmdSpawn.Location = new System.Drawing.Point(501, 115);
+            this.cmdSpawn.Location = new System.Drawing.Point(501, 139);
             this.cmdSpawn.Name = "cmdSpawn";
             this.cmdSpawn.Size = new System.Drawing.Size(54, 23);
             this.cmdSpawn.TabIndex = 8;
@@ -289,7 +306,7 @@
             // cmdStop
             // 
             this.cmdStop.Enabled = false;
-            this.cmdStop.Location = new System.Drawing.Point(501, 141);
+            this.cmdStop.Location = new System.Drawing.Point(501, 165);
             this.cmdStop.Name = "cmdStop";
             this.cmdStop.Size = new System.Drawing.Size(54, 23);
             this.cmdStop.TabIndex = 7;
@@ -300,7 +317,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(70, 146);
+            this.label4.Location = new System.Drawing.Point(70, 170);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(47, 13);
             this.label4.TabIndex = 6;
@@ -309,7 +326,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(70, 120);
+            this.label3.Location = new System.Drawing.Point(70, 144);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(47, 13);
             this.label3.TabIndex = 5;
@@ -318,7 +335,7 @@
             // numVelZ
             // 
             this.numVelZ.Enabled = false;
-            this.numVelZ.Location = new System.Drawing.Point(375, 144);
+            this.numVelZ.Location = new System.Drawing.Point(375, 168);
             this.numVelZ.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -336,7 +353,7 @@
             // 
             // numPosZ
             // 
-            this.numPosZ.Location = new System.Drawing.Point(375, 118);
+            this.numPosZ.Location = new System.Drawing.Point(375, 142);
             this.numPosZ.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -355,7 +372,7 @@
             // numVelY
             // 
             this.numVelY.Enabled = false;
-            this.numVelY.Location = new System.Drawing.Point(249, 144);
+            this.numVelY.Location = new System.Drawing.Point(249, 168);
             this.numVelY.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -374,7 +391,7 @@
             // numVelX
             // 
             this.numVelX.Enabled = false;
-            this.numVelX.Location = new System.Drawing.Point(123, 144);
+            this.numVelX.Location = new System.Drawing.Point(123, 168);
             this.numVelX.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -392,7 +409,7 @@
             // 
             // numPosY
             // 
-            this.numPosY.Location = new System.Drawing.Point(249, 118);
+            this.numPosY.Location = new System.Drawing.Point(249, 142);
             this.numPosY.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -410,7 +427,7 @@
             // 
             // numPosX
             // 
-            this.numPosX.Location = new System.Drawing.Point(123, 118);
+            this.numPosX.Location = new System.Drawing.Point(123, 142);
             this.numPosX.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -426,6 +443,24 @@
             this.numPosX.TabIndex = 4;
             this.numPosX.ValueChanged += new System.EventHandler(this.UnlockApplyCancel);
             // 
+            // numHurtTime
+            // 
+            this.numHurtTime.Location = new System.Drawing.Point(123, 100);
+            this.numHurtTime.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.numHurtTime.Minimum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            -2147483648});
+            this.numHurtTime.Name = "numHurtTime";
+            this.numHurtTime.Size = new System.Drawing.Size(120, 20);
+            this.numHurtTime.TabIndex = 3;
+            this.numHurtTime.ValueChanged += new System.EventHandler(this.UnlockApplyCancel);
+            // 
             // numAir
             // 
             this.numAir.Location = new System.Drawing.Point(123, 74);
@@ -438,6 +473,15 @@
             this.numAir.Size = new System.Drawing.Size(120, 20);
             this.numAir.TabIndex = 3;
             this.numAir.ValueChanged += new System.EventHandler(this.UnlockApplyCancel);
+            // 
+            // lblHurt
+            // 
+            this.lblHurt.AutoSize = true;
+            this.lblHurt.Location = new System.Drawing.Point(64, 102);
+            this.lblHurt.Name = "lblHurt";
+            this.lblHurt.Size = new System.Drawing.Size(53, 13);
+            this.lblHurt.TabIndex = 2;
+            this.lblHurt.Text = "HurtTime:";
             // 
             // numFire
             // 
@@ -661,15 +705,6 @@
             this.tabPage2.Text = "Tile Entities";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // mapPic
-            // 
-            this.mapPic.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mapPic.Location = new System.Drawing.Point(0, 0);
-            this.mapPic.Name = "mapPic";
-            this.mapPic.Size = new System.Drawing.Size(597, 343);
-            this.mapPic.TabIndex = 0;
-            this.mapPic.TabStop = false;
-            // 
             // tileEntityEditor1
             // 
             this.tileEntityEditor1.CurrentEntity = null;
@@ -681,6 +716,15 @@
             this.tileEntityEditor1.Size = new System.Drawing.Size(583, 311);
             this.tileEntityEditor1.SpawnPos = null;
             this.tileEntityEditor1.TabIndex = 0;
+            // 
+            // mapPic
+            // 
+            this.mapPic.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mapPic.Location = new System.Drawing.Point(0, 0);
+            this.mapPic.Name = "mapPic";
+            this.mapPic.Size = new System.Drawing.Size(597, 343);
+            this.mapPic.TabIndex = 0;
+            this.mapPic.TabStop = false;
             // 
             // frmMap
             // 
@@ -706,6 +750,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numVelX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPosY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPosX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numHurtTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAir)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFire)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numHealth)).EndInit();
@@ -773,6 +818,9 @@
         private System.Windows.Forms.TabPage tabPage2;
         private EntityEditor entityEditor1;
         private TileEntityEditor tileEntityEditor1;
+        private System.Windows.Forms.NumericUpDown numHurtTime;
+        private System.Windows.Forms.Label lblHurt;
+        private System.Windows.Forms.Label label6;
 
     }
 }

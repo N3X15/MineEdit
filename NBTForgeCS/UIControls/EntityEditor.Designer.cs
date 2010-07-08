@@ -94,6 +94,7 @@
             // 
             // cmdAddEntity
             // 
+            this.cmdAddEntity.Enabled = false;
             this.cmdAddEntity.Location = new System.Drawing.Point(430, 3);
             this.cmdAddEntity.Name = "cmdAddEntity";
             this.cmdAddEntity.Size = new System.Drawing.Size(51, 23);

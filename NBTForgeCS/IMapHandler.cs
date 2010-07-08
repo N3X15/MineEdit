@@ -74,5 +74,7 @@ namespace MineEdit
 
         void SetTileEntity(TileEntity e);
         void RemoveTileEntity(TileEntity e);
+
+        int HurtTime { get; set; }
     }
 }

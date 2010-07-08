@@ -27,6 +27,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmAbout));
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.logoPictureBox = new System.Windows.Forms.PictureBox();
             this.labelProductName = new System.Windows.Forms.Label();
@@ -126,8 +127,7 @@
             this.textBoxDescription.Size = new System.Drawing.Size(271, 126);
             this.textBoxDescription.TabIndex = 23;
             this.textBoxDescription.TabStop = false;
-            this.textBoxDescription.Text = "BROKEN CRAP\r\n\r\nBROKEN CRAP EVERYWHERE\r\n\r\nUses LibNBT and the Tango iconset. Both " +
-                "are GPL.\r\n\r\nAlso uses OpenTK for the map. I think it\'s BSD-licensed.";
+            this.textBoxDescription.Text = resources.GetString("textBoxDescription.Text");
             this.textBoxDescription.TextChanged += new System.EventHandler(this.textBoxDescription_TextChanged);
             // 
             // okButton

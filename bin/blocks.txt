@@ -52,14 +52,14 @@
 66	66.png	Rails
 67	67.png	Cobblestone stairs
 68	68.png	Sign block top
-69	69.png	Switch
-70	70.png	(Rock plate)
+69	69.png	Lever
+70	70.png	Rock plate
 71	71.png	Iron door block
-72	72.png	(Wood plate)
-73	73.png	(Red ore 1)
-74	74.png	(Red ore 2)
-75	75.png	(Red torch off)
-76	76.png	(Red torch on)
+72	72.png	Wood plate
+73	73.png	Redstone ore (1)
+74	74.png	Redstone ore (2)
+75	75.png	Redstone torch (off)
+76	76.png	Redstone torch (on)
 77	77.png	Button
 256	256.png	Iron shovel
 257	257.png	Iron pickaxe
@@ -136,4 +136,4 @@
 328	328.png	Minecart
 329	329.png	Saddle
 330	330.png	Iron door
-331	331.png	(Red stuff)
+331	331.png	Redstone dust

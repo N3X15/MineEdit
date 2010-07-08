@@ -72,6 +72,11 @@
             // numDelay
             // 
             this.numDelay.Location = new System.Drawing.Point(67, 30);
+            this.numDelay.Maximum = new decimal(new int[] {
+            65000,
+            0,
+            0,
+            0});
             this.numDelay.Name = "numDelay";
             this.numDelay.Size = new System.Drawing.Size(120, 20);
             this.numDelay.TabIndex = 1;

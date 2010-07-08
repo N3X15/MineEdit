@@ -137,6 +137,7 @@ namespace MineEdit
                 numFire.Value = (decimal)_Map.Fire;
                 PlayerPos = _Map.PlayerPos;
                 numAir.Value = _Map.Air;
+                numHurtTime.Value = _Map.HurtTime;
                 LockApplyCancel();
 
                 numSpawnX.Value = _Map.Spawn.X;
@@ -288,9 +289,10 @@ namespace MineEdit
 
         private void cmdHeal_Click(object sender, EventArgs e)
         {
-            _Map.Health = 100; // idk what each version uses
+            _Map.Health = 20; // idk what each version uses
             _Map.Fire = -200;
             _Map.Air = 300;
+            _Map.HurtTime = 0;
             Reload();
         }
 
@@ -313,6 +315,7 @@ namespace MineEdit
             _Map.Fire = (int)numFire.Value;
             _Map.PlayerPos = PlayerPos;
             _Map.Air = (int)numAir.Value;
+            _Map.HurtTime = (int)numHurtTime.Value;
             Reload();
         }
 
@@ -411,6 +414,15 @@ namespace MineEdit
             catch (Exception)
             {
             }
+        }
+
+        private bool tclMapWasSelected = false;
+        private void tclMap_Selected(object sender, TabControlEventArgs e)
+        {
+            if (tclMapWasSelected)
+                return;
+            tclMapWasSelected = true;
+            MessageBox.Show("Just a warning:  Placed pig spawners aren't in the TileEntity list yet (they're a block).  I'll add a converter soon.\n\n  -- Nexypoo","WARNING",MessageBoxButtons.OK,MessageBoxIcon.Warning);
         }
     }
 }
