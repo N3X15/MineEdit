@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using LibNbt.Tags;
 
-namespace MineEdit.TileEntities
+namespace MineEdit
 {
     /*
     *** Unknown TileEntity: Furnace
@@ -35,7 +35,30 @@ namespace MineEdit.TileEntities
         public short CookTime = 0;
 
         public Furnace() {}
+        
+        public Furnace(int CX, int CY, int CS, LibNbt.Tags.NbtCompound c)
+            : base(CX, CY, CS, c)
+        {
+            BurnTime = (c["BurnTime"] as NbtShort).Value;
+            CookTime = (c["CookTime"] as NbtShort).Value;
 
+            for (int i = 0; i < Slots.Length; i++)
+            {
+                    try
+                    {
+                        if ((c["Items"] as NbtList).Tags[i]!=null)
+                        {
+                                NbtCompound cc = (NbtCompound)(c["Items"] as NbtList).Tags[i];
+                                Slots[i] = new InventoryItem(
+                                    (cc["id"] as NbtShort).Value, (cc["Damage"] as NbtShort).Value, (cc["id"] as NbtByte).Value);
+
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+            }
+        }
         public Furnace(NbtCompound c)
             :base(c)
         {

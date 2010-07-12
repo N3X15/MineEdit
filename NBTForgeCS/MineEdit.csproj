@@ -130,6 +130,9 @@
     <Compile Include="TileEntities\MobSpawner.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="TileEntity.cs" />
+    <Compile Include="UIControls\BlockSelector.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UIControls\MobSelector.cs">
       <SubType>Component</SubType>
     </Compile>

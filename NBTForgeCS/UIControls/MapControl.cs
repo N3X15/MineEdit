@@ -133,11 +133,17 @@ namespace MineEdit
             */
 
             btnLyrDown.SetBounds(Width - 23, Height - 23, 22, 22);
+            btnLyrDown.BringToFront();
             btnLyrUp.SetBounds(Width - 23, Height - 67, 22, 22);
+            btnLyrUp.BringToFront();
             btnUp.SetBounds(Width - 73, Height - 67, 22, 22);
+            btnUp.BringToFront();
             btnDown.SetBounds(Width - 73, Height - 23, 22, 22);
+            btnDown.BringToFront();
             btnLeft.SetBounds(Width - 95, Height - 45, 22, 22);
+            btnLeft.BringToFront();
             btnRight.SetBounds(Width - 51, Height - 45, 22, 22);
+            btnRight.BringToFront();
         }
 
         private void LayoutYZ(Vector3i Sides, Vector3i min, Vector3i max)
@@ -198,6 +204,9 @@ namespace MineEdit
                     }
                 }
             }
+
+            int xoffset = -1 * 16;
+            int yoffset = -2 * 16;
             foreach (KeyValuePair<Guid, Entity> k in _Map.Entities)
             {
                 Entity e = k.Value;
@@ -207,6 +216,7 @@ namespace MineEdit
                     float x = (float)e.Pos.X + (float)min.X;
                     float y = (float)e.Pos.Y + (float)min.Y;
                     b.SetBounds((int)y * ZoomLevel - 2, (int)y * ZoomLevel - 2, 16, 16);
+                    b.SetBounds((int)(e.Pos.X - min.X) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y) * ZoomLevel + 6, 16, 16);
                     b.Image = e.Image;
                     b.UseVisualStyleBackColor = true;
                     b.BackColor = Color.Transparent;
@@ -230,7 +240,7 @@ namespace MineEdit
                 if (e.Pos.X > min.X && e.Pos.X < max.X && e.Pos.Y > min.Y && e.Pos.Y < max.Y)
                 {
                     Button b = new Button();
-                    b.SetBounds((int)(e.Pos.X - min.X) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y) * ZoomLevel + 6, 16, 16);
+                    b.SetBounds((int)(e.Pos.X - min.X + xoffset) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y - yoffset) * ZoomLevel + 6, 16, 16);
                     b.Image = e.Image;
                     b.UseVisualStyleBackColor = true;
                     b.BackColor = Color.Transparent;
@@ -345,7 +355,7 @@ namespace MineEdit
             set
             {
                 _ViewingAngle = value;
-                Chunks.Clear();
+                //Chunks.Clear();
                 DoLayout();
             }
         }
@@ -358,7 +368,7 @@ namespace MineEdit
             get { return _Map; }
             set
             {
-                Chunks.Clear();
+                //Chunks.Clear();
                 _Map = value;
                 DoLayout();
                 Render();

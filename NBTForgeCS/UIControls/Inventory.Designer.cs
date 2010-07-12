@@ -33,13 +33,13 @@
             this.cmdDeleteInv = new System.Windows.Forms.Button();
             this.numDamage = new System.Windows.Forms.NumericUpDown();
             this.button2 = new System.Windows.Forms.Button();
+            this.cmdSuperRepair = new System.Windows.Forms.Button();
             this.cmdRepair = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.numCount = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.cmbType = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.cmdSuperRepair = new System.Windows.Forms.Button();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbSaveTemplate = new System.Windows.Forms.ToolStripButton();
             this.tsbOpenTemplate = new System.Windows.Forms.ToolStripButton();
@@ -132,6 +132,16 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // cmdSuperRepair
+            // 
+            this.cmdSuperRepair.Location = new System.Drawing.Point(80, 165);
+            this.cmdSuperRepair.Name = "cmdSuperRepair";
+            this.cmdSuperRepair.Size = new System.Drawing.Size(120, 23);
+            this.cmdSuperRepair.TabIndex = 8;
+            this.cmdSuperRepair.Text = "Super Repair";
+            this.cmdSuperRepair.UseVisualStyleBackColor = true;
+            this.cmdSuperRepair.Click += new System.EventHandler(this.cmdSuperRepair_Click);
+            // 
             // cmdRepair
             // 
             this.cmdRepair.Location = new System.Drawing.Point(80, 136);
@@ -189,6 +199,7 @@
             this.cmbType.Size = new System.Drawing.Size(162, 21);
             this.cmbType.TabIndex = 2;
             this.cmbType.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.cmbType_DrawItem);
+            this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
             this.cmbType.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cmbType_KeyDown);
             // 
             // label1
@@ -199,16 +210,6 @@
             this.label1.Size = new System.Drawing.Size(68, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Object Type:";
-            // 
-            // cmdSuperRepair
-            // 
-            this.cmdSuperRepair.Location = new System.Drawing.Point(80, 165);
-            this.cmdSuperRepair.Name = "cmdSuperRepair";
-            this.cmdSuperRepair.Size = new System.Drawing.Size(120, 23);
-            this.cmdSuperRepair.TabIndex = 8;
-            this.cmdSuperRepair.Text = "Super Repair";
-            this.cmdSuperRepair.UseVisualStyleBackColor = true;
-            this.cmdSuperRepair.Click += new System.EventHandler(this.cmdSuperRepair_Click);
             // 
             // toolStrip1
             // 

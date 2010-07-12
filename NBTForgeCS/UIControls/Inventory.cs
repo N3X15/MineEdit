@@ -542,5 +542,10 @@ namespace MineEdit
             Refresh();
         }
 
+        private void cmbType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }

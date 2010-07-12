@@ -40,7 +40,6 @@
             this.tclMap = new System.Windows.Forms.TabControl();
             this.tabMap = new System.Windows.Forms.TabPage();
             this.tabInventory = new System.Windows.Forms.TabPage();
-            this.invMain = new MineEdit.Inventory();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.label6 = new System.Windows.Forms.Label();
             this.cmdCancel = new System.Windows.Forms.Button();
@@ -65,7 +64,10 @@
             this.numHealth = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.tabEnvironment = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.Replacements = new System.Windows.Forms.ListBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cmdReplaceWaterWithLava = new System.Windows.Forms.Button();
             this.cmdDefrost = new System.Windows.Forms.Button();
             this.chkSnow = new System.Windows.Forms.CheckBox();
             this.grpSpawn = new System.Windows.Forms.GroupBox();
@@ -78,10 +80,19 @@
             this.txtTime = new System.Windows.Forms.TextBox();
             this.cmdDay = new System.Windows.Forms.Button();
             this.tabEnts = new System.Windows.Forms.TabPage();
-            this.entityEditor1 = new MineEdit.EntityEditor();
             this.tabTEnts = new System.Windows.Forms.TabPage();
-            this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
             this.mapPic = new System.Windows.Forms.PictureBox();
+            this.cmdAdd = new System.Windows.Forms.Button();
+            this.cmdRemove = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.cmdClear = new System.Windows.Forms.Button();
+            this.cmdProcess = new System.Windows.Forms.Button();
+            this.invMain = new MineEdit.Inventory();
+            this.blkWith = new MineEdit.BlockSelector();
+            this.blkReplace = new MineEdit.BlockSelector();
+            this.entityEditor1 = new MineEdit.EntityEditor();
+            this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
             this.toolStrip1.SuspendLayout();
             this.tclMap.SuspendLayout();
             this.tabInventory.SuspendLayout();
@@ -97,6 +108,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numFire)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numHealth)).BeginInit();
             this.tabEnvironment.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.grpSpawn.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnZ)).BeginInit();
@@ -192,7 +204,7 @@
             this.tclMap.Location = new System.Drawing.Point(0, 0);
             this.tclMap.Name = "tclMap";
             this.tclMap.SelectedIndex = 0;
-            this.tclMap.Size = new System.Drawing.Size(597, 343);
+            this.tclMap.Size = new System.Drawing.Size(597, 382);
             this.tclMap.TabIndex = 2;
             // 
             // tabMap
@@ -200,7 +212,7 @@
             this.tabMap.Location = new System.Drawing.Point(4, 22);
             this.tabMap.Name = "tabMap";
             this.tabMap.Padding = new System.Windows.Forms.Padding(3);
-            this.tabMap.Size = new System.Drawing.Size(589, 317);
+            this.tabMap.Size = new System.Drawing.Size(589, 356);
             this.tabMap.TabIndex = 0;
             this.tabMap.Text = "Map";
             this.tabMap.UseVisualStyleBackColor = true;
@@ -211,19 +223,10 @@
             this.tabInventory.Location = new System.Drawing.Point(4, 22);
             this.tabInventory.Name = "tabInventory";
             this.tabInventory.Padding = new System.Windows.Forms.Padding(3);
-            this.tabInventory.Size = new System.Drawing.Size(589, 317);
+            this.tabInventory.Size = new System.Drawing.Size(589, 356);
             this.tabInventory.TabIndex = 1;
             this.tabInventory.Text = "Inventory";
             this.tabInventory.UseVisualStyleBackColor = true;
-            // 
-            // invMain
-            // 
-            this.invMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.invMain.Location = new System.Drawing.Point(3, 3);
-            this.invMain.Map = null;
-            this.invMain.Name = "invMain";
-            this.invMain.Size = new System.Drawing.Size(583, 311);
-            this.invMain.TabIndex = 0;
             // 
             // tabPage1
             // 
@@ -252,7 +255,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(589, 317);
+            this.tabPage1.Size = new System.Drawing.Size(589, 356);
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "Player";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -546,27 +549,65 @@
             // 
             // tabEnvironment
             // 
+            this.tabEnvironment.Controls.Add(this.groupBox2);
             this.tabEnvironment.Controls.Add(this.groupBox1);
             this.tabEnvironment.Controls.Add(this.grpSpawn);
             this.tabEnvironment.Controls.Add(this.grpTOD);
             this.tabEnvironment.Location = new System.Drawing.Point(4, 22);
             this.tabEnvironment.Name = "tabEnvironment";
             this.tabEnvironment.Padding = new System.Windows.Forms.Padding(3);
-            this.tabEnvironment.Size = new System.Drawing.Size(589, 317);
+            this.tabEnvironment.Size = new System.Drawing.Size(589, 356);
             this.tabEnvironment.TabIndex = 3;
             this.tabEnvironment.Text = "Environment";
             this.tabEnvironment.UseVisualStyleBackColor = true;
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.cmdProcess);
+            this.groupBox2.Controls.Add(this.blkWith);
+            this.groupBox2.Controls.Add(this.label8);
+            this.groupBox2.Controls.Add(this.blkReplace);
+            this.groupBox2.Controls.Add(this.label7);
+            this.groupBox2.Controls.Add(this.cmdClear);
+            this.groupBox2.Controls.Add(this.cmdRemove);
+            this.groupBox2.Controls.Add(this.cmdAdd);
+            this.groupBox2.Controls.Add(this.Replacements);
+            this.groupBox2.Location = new System.Drawing.Point(8, 229);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(545, 119);
+            this.groupBox2.TabIndex = 9;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Replace blocks globally";
+            // 
+            // Replacements
+            // 
+            this.Replacements.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.Replacements.Location = new System.Drawing.Point(292, 18);
+            this.Replacements.Name = "Replacements";
+            this.Replacements.Size = new System.Drawing.Size(120, 95);
+            this.Replacements.TabIndex = 0;
+            // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.cmdReplaceWaterWithLava);
             this.groupBox1.Controls.Add(this.cmdDefrost);
             this.groupBox1.Controls.Add(this.chkSnow);
             this.groupBox1.Location = new System.Drawing.Point(8, 147);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(545, 100);
+            this.groupBox1.Size = new System.Drawing.Size(545, 76);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Weather Settings";
+            // 
+            // cmdReplaceWaterWithLava
+            // 
+            this.cmdReplaceWaterWithLava.Location = new System.Drawing.Point(160, 44);
+            this.cmdReplaceWaterWithLava.Name = "cmdReplaceWaterWithLava";
+            this.cmdReplaceWaterWithLava.Size = new System.Drawing.Size(119, 23);
+            this.cmdReplaceWaterWithLava.TabIndex = 1;
+            this.cmdReplaceWaterWithLava.Text = "Hell Mode";
+            this.cmdReplaceWaterWithLava.UseVisualStyleBackColor = true;
+            this.cmdReplaceWaterWithLava.Click += new System.EventHandler(this.cmdReplaceWaterWithLava_Click);
             // 
             // cmdDefrost
             // 
@@ -713,10 +754,122 @@
             this.tabEnts.Location = new System.Drawing.Point(4, 22);
             this.tabEnts.Name = "tabEnts";
             this.tabEnts.Padding = new System.Windows.Forms.Padding(3);
-            this.tabEnts.Size = new System.Drawing.Size(589, 317);
+            this.tabEnts.Size = new System.Drawing.Size(589, 356);
             this.tabEnts.TabIndex = 4;
             this.tabEnts.Text = "Entities";
             this.tabEnts.UseVisualStyleBackColor = true;
+            // 
+            // tabTEnts
+            // 
+            this.tabTEnts.Controls.Add(this.tileEntityEditor1);
+            this.tabTEnts.Location = new System.Drawing.Point(4, 22);
+            this.tabTEnts.Name = "tabTEnts";
+            this.tabTEnts.Padding = new System.Windows.Forms.Padding(3);
+            this.tabTEnts.Size = new System.Drawing.Size(589, 356);
+            this.tabTEnts.TabIndex = 5;
+            this.tabTEnts.Text = "Tile Entities";
+            this.tabTEnts.UseVisualStyleBackColor = true;
+            // 
+            // mapPic
+            // 
+            this.mapPic.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mapPic.Location = new System.Drawing.Point(0, 0);
+            this.mapPic.Name = "mapPic";
+            this.mapPic.Size = new System.Drawing.Size(597, 382);
+            this.mapPic.TabIndex = 0;
+            this.mapPic.TabStop = false;
+            // 
+            // cmdAdd
+            // 
+            this.cmdAdd.Location = new System.Drawing.Point(418, 19);
+            this.cmdAdd.Name = "cmdAdd";
+            this.cmdAdd.Size = new System.Drawing.Size(75, 23);
+            this.cmdAdd.TabIndex = 1;
+            this.cmdAdd.Text = "Add";
+            this.cmdAdd.UseVisualStyleBackColor = true;
+            this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
+            // 
+            // cmdRemove
+            // 
+            this.cmdRemove.Location = new System.Drawing.Point(418, 48);
+            this.cmdRemove.Name = "cmdRemove";
+            this.cmdRemove.Size = new System.Drawing.Size(75, 23);
+            this.cmdRemove.TabIndex = 1;
+            this.cmdRemove.Text = "Remove";
+            this.cmdRemove.UseVisualStyleBackColor = true;
+            this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(10, 24);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(50, 13);
+            this.label7.TabIndex = 2;
+            this.label7.Text = "Replace:";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(10, 53);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(32, 13);
+            this.label8.TabIndex = 2;
+            this.label8.Text = "With:";
+            // 
+            // cmdClear
+            // 
+            this.cmdClear.Location = new System.Drawing.Point(418, 77);
+            this.cmdClear.Name = "cmdClear";
+            this.cmdClear.Size = new System.Drawing.Size(75, 23);
+            this.cmdClear.TabIndex = 1;
+            this.cmdClear.Text = "Clear";
+            this.cmdClear.UseVisualStyleBackColor = true;
+            this.cmdClear.Click += new System.EventHandler(this.cmdClear_Click);
+            // 
+            // cmdProcess
+            // 
+            this.cmdProcess.Location = new System.Drawing.Point(211, 77);
+            this.cmdProcess.Name = "cmdProcess";
+            this.cmdProcess.Size = new System.Drawing.Size(75, 23);
+            this.cmdProcess.TabIndex = 4;
+            this.cmdProcess.Text = "REPLACE";
+            this.cmdProcess.UseVisualStyleBackColor = true;
+            this.cmdProcess.Click += new System.EventHandler(this.cmdProcess_Click);
+            // 
+            // invMain
+            // 
+            this.invMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.invMain.Location = new System.Drawing.Point(3, 3);
+            this.invMain.Map = null;
+            this.invMain.Name = "invMain";
+            this.invMain.Size = new System.Drawing.Size(583, 350);
+            this.invMain.TabIndex = 0;
+            this.invMain.Load += new System.EventHandler(this.invMain_Load);
+            // 
+            // blkWith
+            // 
+            this.blkWith.BlocksOnly = true;
+            this.blkWith.DisplayMember = "Name";
+            this.blkWith.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.blkWith.FormattingEnabled = true;
+            this.blkWith.Location = new System.Drawing.Point(66, 50);
+            this.blkWith.Name = "blkWith";
+            this.blkWith.Size = new System.Drawing.Size(220, 21);
+            this.blkWith.TabIndex = 3;
+            this.blkWith.ValueMember = "ID";
+            // 
+            // blkReplace
+            // 
+            this.blkReplace.BlocksOnly = true;
+            this.blkReplace.DisplayMember = "Name";
+            this.blkReplace.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.blkReplace.FormattingEnabled = true;
+            this.blkReplace.Location = new System.Drawing.Point(66, 21);
+            this.blkReplace.Name = "blkReplace";
+            this.blkReplace.Size = new System.Drawing.Size(220, 21);
+            this.blkReplace.TabIndex = 3;
+            this.blkReplace.ValueMember = "ID";
             // 
             // entityEditor1
             // 
@@ -726,20 +879,9 @@
             this.entityEditor1.Location = new System.Drawing.Point(3, 3);
             this.entityEditor1.Name = "entityEditor1";
             this.entityEditor1.PlayerPos = null;
-            this.entityEditor1.Size = new System.Drawing.Size(583, 311);
+            this.entityEditor1.Size = new System.Drawing.Size(583, 350);
             this.entityEditor1.SpawnPos = null;
             this.entityEditor1.TabIndex = 0;
-            // 
-            // tabTEnts
-            // 
-            this.tabTEnts.Controls.Add(this.tileEntityEditor1);
-            this.tabTEnts.Location = new System.Drawing.Point(4, 22);
-            this.tabTEnts.Name = "tabTEnts";
-            this.tabTEnts.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTEnts.Size = new System.Drawing.Size(589, 317);
-            this.tabTEnts.TabIndex = 5;
-            this.tabTEnts.Text = "Tile Entities";
-            this.tabTEnts.UseVisualStyleBackColor = true;
             // 
             // tileEntityEditor1
             // 
@@ -749,24 +891,15 @@
             this.tileEntityEditor1.Location = new System.Drawing.Point(3, 3);
             this.tileEntityEditor1.Name = "tileEntityEditor1";
             this.tileEntityEditor1.PlayerPos = null;
-            this.tileEntityEditor1.Size = new System.Drawing.Size(583, 311);
+            this.tileEntityEditor1.Size = new System.Drawing.Size(583, 350);
             this.tileEntityEditor1.SpawnPos = null;
             this.tileEntityEditor1.TabIndex = 0;
-            // 
-            // mapPic
-            // 
-            this.mapPic.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mapPic.Location = new System.Drawing.Point(0, 0);
-            this.mapPic.Name = "mapPic";
-            this.mapPic.Size = new System.Drawing.Size(597, 343);
-            this.mapPic.TabIndex = 0;
-            this.mapPic.TabStop = false;
             // 
             // frmMap
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(597, 343);
+            this.ClientSize = new System.Drawing.Size(597, 382);
             this.Controls.Add(this.tclMap);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.mapPic);
@@ -791,6 +924,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.numFire)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numHealth)).EndInit();
             this.tabEnvironment.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.grpSpawn.ResumeLayout(false);
@@ -862,6 +997,17 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox chkSnow;
         private System.Windows.Forms.Button cmdDefrost;
+        private System.Windows.Forms.Button cmdReplaceWaterWithLava;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.ListBox Replacements;
+        private BlockSelector blkWith;
+        private System.Windows.Forms.Label label8;
+        private BlockSelector blkReplace;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button cmdRemove;
+        private System.Windows.Forms.Button cmdAdd;
+        private System.Windows.Forms.Button cmdClear;
+        private System.Windows.Forms.Button cmdProcess;
 
     }
 }

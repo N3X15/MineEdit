@@ -55,6 +55,9 @@ namespace MineEdit
                 case "MobSpawner":
                     e = new MobSpawner(CX, CY, CS, c);
                     break;
+                case "Furnace":
+                    e = new Furnace(CX, CY, CS, c);
+                    break;
                 default:
                     Console.WriteLine("*** Unknown TileEntity: {0}", (c["id"] as NbtString).Value);
                     Console.WriteLine(c);

@@ -23,6 +23,7 @@ namespace MineEdit
         // Work towards using THIS.
         //protected MapControlGL mapCtrl;
         protected Label lblMapDisabled = new Label();
+        //Dictionary<byte, byte> Replacements = new Dictionary<byte, byte>();
         public frmMap()
         {
             InitializeComponent();
@@ -33,6 +34,7 @@ namespace MineEdit
             tabMap.Controls.Add(lblMapDisabled);
             tclMap.SelectedTab = tabInventory;
             */
+
             mapCtrl = new MapControl();
             //mapCtrl = new MapControlGL();
             tabMap.Controls.Add(mapCtrl);
@@ -40,8 +42,9 @@ namespace MineEdit
             mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
             mapCtrl.EntityClicked += new MapControl.EntityClickHandler(mapCtrl_EntityClicked);
             mapCtrl.TileEntityClicked += new MapControl.TileEntityClickHandler(mapCtrl_TileEntityClicked);
-            SetStyle(ControlStyles.ResizeRedraw, true);
 
+            Replacements.DrawItem += new DrawItemEventHandler(Replacements_DrawItem);
+            SetStyle(ControlStyles.ResizeRedraw, true);
             this.ViewingAngle = MineEdit.ViewAngle.TopDown;
 
             entityEditor1.EntityModified += new EventHandler(entityEditor1_EntityModified);
@@ -49,6 +52,49 @@ namespace MineEdit
 
             tileEntityEditor1.EntityModified += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityModified);
             tileEntityEditor1.EntityDeleted += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityDeleted);
+        }
+
+        void Replacements_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            Rectangle area = e.Bounds;
+            Rectangle iconArea = area;
+            iconArea.Width = 16;
+            if (e.Index >= 0)
+            {
+                e.DrawBackground();
+                Block enta = Blocks.Get((short)((KeyValuePair<byte, byte>)Replacements.Items[e.Index]).Key);
+                Block entb = Blocks.Get((short)((KeyValuePair<byte, byte>)Replacements.Items[e.Index]).Value);
+
+                // Draw block icon A
+                g.DrawImage(enta.Image, iconArea);
+
+                // Block Name A
+                SizeF idaSz = g.MeasureString(enta.ToString(), this.Font);
+                Rectangle idAreaA = area;
+                idAreaA.X = iconArea.Right + 3;
+                idAreaA.Width = (int)idaSz.Width + 1;
+                g.DrawString(enta.ToString(), this.Font, new SolidBrush(Color.FromArgb(128, e.ForeColor)), idAreaA);
+
+                // Arrow
+                SizeF arrowsz = g.MeasureString("->", this.Font);
+                Rectangle ctxt = area;
+                ctxt.X = idAreaA.Right + 3;
+                ctxt.Width = (int)arrowsz.Width + 1;
+                g.DrawString("->", this.Font, new SolidBrush(e.ForeColor), ctxt);
+
+
+                // Draw block icon B
+                iconArea.X = ctxt.Right + 3;
+                g.DrawImage(entb.Image, iconArea);
+
+                // Block Name B
+                SizeF idbSz = g.MeasureString(entb.ToString(), this.Font);
+                Rectangle idAreaB = area;
+                idAreaB.X = iconArea.Right + 3;
+                idAreaB.Width = (int)idbSz.Width + 1;
+                g.DrawString(entb.ToString(), this.Font, new SolidBrush(Color.FromArgb(128, e.ForeColor)), idAreaB);
+            }
         }
 
         void mapCtrl_TileEntityClicked(TileEntity e)
@@ -135,7 +181,7 @@ namespace MineEdit
                 _Map = value;
                 this.invMain.Map = value;
                 if (_Map != null && !string.IsNullOrEmpty(_Map.Filename))
-                mapCtrl.Map = _Map;
+                    mapCtrl.Map = _Map;
                 Reload();
                 Refresh();
             }
@@ -162,6 +208,7 @@ namespace MineEdit
 
                 entityEditor1.Load(ref _Map);
                 tileEntityEditor1.Load(ref _Map);
+
             }
         }
 
@@ -437,16 +484,15 @@ namespace MineEdit
             (MdiParent as frmMain).tsbStatus.Text = string.Format("Counting chunks ({0})...",NumChunks++);
             Application.DoEvents();
         }
-        private void RemoveColdStuff(long X,long Y)
+        private void ReplaceStuff(long X,long Y)
         {
-            byte lolsnow = 78;
-            byte lolice = 79;
-            byte lolwater = 9;
-            Dictionary<byte, byte> Replacements = new Dictionary<byte, byte>();
-            Replacements.Add(lolsnow, 0);
-            Replacements.Add(lolice, lolwater);
+            Dictionary<byte,byte> durr = new Dictionary<byte,byte>();
+            foreach(KeyValuePair<byte,byte> derp in Replacements.Items)
+            {
+                durr.Add(derp.Key,derp.Value);
+            }
             Application.DoEvents();
-            _Map.ReplaceBlocksIn(X, Y, Replacements);
+            _Map.ReplaceBlocksIn(X, Y, durr);
             /*
             for(int x=0;x<_Map.ChunkScale.X;x++)
             {
@@ -470,7 +516,7 @@ namespace MineEdit
             }
             */
             int hurp = (int)((double)ProcessedChunks / (double)NumChunks) * 100;
-            string durp = string.Format("Defrosting chunk {0} of {1} ({2}%)", ProcessedChunks, NumChunks, hurp);
+            string durp = string.Format("Replacing stuff in chunk {0} of {1} ({2}%)", ProcessedChunks, NumChunks, hurp);
             (MdiParent as frmMain).tsbStatus.Text = durp;
             (MdiParent as frmMain).tsbProgress.Value = ProcessedChunks;
 
@@ -483,8 +529,26 @@ namespace MineEdit
 
         private void ClearSnow()
         {
+            Replacements.Items.Clear();
+            byte lolsnow = 78;
+            byte lolice = 79;
+            byte lolwater = 9;
+            Replacements.Items.Add(new KeyValuePair<byte, byte>(lolsnow, 0));
+            Replacements.Items.Add(new KeyValuePair<byte, byte>(lolice, lolwater));
+            DoReplace();
+        }
+
+        private void DoReplace()
+        {
             
-            DialogResult dr = MessageBox.Show("Are you sure you want to clear all snow? (THIS WILL TAKE A VERY LONG TIME.)", "Clear snow?", MessageBoxButtons.YesNo);
+            this.Enabled = false;
+            string q = "Are you sure you want to do the following replacements:\n\n\t{0}\n\nTHIS WILL TAKE A VERY LONG TIME!";
+            List<string> reps = new List<string>();
+            foreach (KeyValuePair<byte, byte> rep in Replacements.Items)
+            {
+                reps.Add(string.Format("{0} to {1}",Blocks.Get((short)rep.Key).Name,Blocks.Get((short)rep.Value).Name));
+            }
+            DialogResult dr = MessageBox.Show(string.Format(q,string.Join("\n\t",reps.ToArray())), "Clear snow?", MessageBoxButtons.YesNo);
 
             long nchunks = (_Map.MapMax.X - _Map.MapMin.X) * (_Map.MapMax.Y - _Map.MapMin.Y);
 
@@ -500,7 +564,7 @@ namespace MineEdit
                 _Map.ForEachChunk(CountChunks);
                 (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Continuous;
                 (MdiParent as frmMain).tsbProgress.Maximum = NumChunks;
-                _Map.ForEachChunk(RemoveColdStuff);
+                _Map.ForEachChunk(ReplaceStuff);
 
                 (MdiParent as frmMain).tsbStatus.Text = "Saving...";
                 (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Marquee;
@@ -510,8 +574,9 @@ namespace MineEdit
                 (MdiParent as frmMain).tsbStatus.Text = "Ready.";
                 (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Continuous;
                 (MdiParent as frmMain).tsbProgress.Value = 0;
-                MessageBox.Show("Done.", "Defrost complete!");
+                MessageBox.Show("Done.", "Operation complete!");
             }
+            this.Enabled = true;
         }
         private void chkSnow_CheckedChanged(object sender, EventArgs e)
         {
@@ -520,9 +585,50 @@ namespace MineEdit
 
         private void cmdDefrost_Click(object sender, EventArgs e)
         {
-            this.Enabled = false;
             ClearSnow();
-            this.Enabled = true;
+        }
+
+        private void invMain_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cmdAdd_Click(object sender, EventArgs e)
+        {
+            byte a = (byte)(blkReplace.SelectedItem as Block).ID;
+            byte b = (byte)(blkWith.SelectedItem as Block).ID;
+            Replacements.Items.Add(new KeyValuePair<byte, byte>(a, b));
+        }
+
+        private void cmdClear_Click(object sender, EventArgs e)
+        {
+            Replacements.Items.Clear();
+        }
+
+        private void cmdRemove_Click(object sender, EventArgs e)
+        {
+            if (Replacements.SelectedItem != null)
+            {
+                Replacements.Items.Remove(Replacements.SelectedItem);
+            }
+        }
+
+        private void cmdReplaceWaterWithLava_Click(object sender, EventArgs e)
+        {
+            Replacements.Items.Clear();
+            byte lollava = 11;
+            byte lolobsidian = 49;
+            byte lolwater = 9;
+            byte lolsand = 12;
+            Replacements.Items.Add(new KeyValuePair<byte, byte>(lolwater,lollava));
+            Replacements.Items.Add(new KeyValuePair<byte, byte>(lolsand, lolobsidian));
+
+            DoReplace();
+        }
+
+        private void cmdProcess_Click(object sender, EventArgs e)
+        {
+            DoReplace();
         }
     }
 }
