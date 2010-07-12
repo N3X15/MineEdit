@@ -124,6 +124,7 @@ namespace MineEdit
                         g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black, 1, 1);
                     }
                 }
+                /*
                 foreach (KeyValuePair<Guid, Entity> k in parent.Map.Entities)
                 {
                     if (
@@ -134,10 +135,12 @@ namespace MineEdit
                     {
                         int x = (int)k.Value.Pos.X % (int)parent.Map.ChunkScale.X;
                         int y = (int)k.Value.Pos.Y % (int)parent.Map.ChunkScale.Y;
+                        x *= parent.ZoomLevel;
+                        y *= parent.ZoomLevel;
                         DrawCross(ref g, new Pen(Color.Yellow), x, y);
                         g.DrawString(k.Value.ToString(), f, Brushes.Black, x + 1, y + 1);
                     }
-                }
+                }*/
             }
             Drawing = false;
         }
