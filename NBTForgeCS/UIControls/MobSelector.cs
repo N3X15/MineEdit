@@ -9,6 +9,8 @@ namespace MineEdit
     {
         public MobSelector()
         {
+            this.DrawMode = DrawMode.OwnerDrawFixed;
+            Items.Clear();
             Items.Add(new Pig());
             Items.Add(new Skeleton());
             Items.Add(new Creeper());

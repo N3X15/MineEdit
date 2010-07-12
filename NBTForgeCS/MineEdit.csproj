@@ -82,6 +82,7 @@
     <Compile Include="dlgAddEntity.Designer.cs">
       <DependentUpon>dlgAddEntity.cs</DependentUpon>
     </Compile>
+    <Compile Include="Entities\Giant.cs" />
     <Compile Include="Entities\Zombie.cs" />
     <Compile Include="Entities\Spider.cs" />
     <Compile Include="Entities\Creeper.cs" />
