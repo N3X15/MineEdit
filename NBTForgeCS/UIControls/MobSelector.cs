@@ -16,6 +16,7 @@ namespace MineEdit
             Items.Add(new Sheep());
             Items.Add(new Spider());
             Items.Add(new Zombie());
+            Items.Add(new Giant());
         }
         protected override void  OnDrawItem(DrawItemEventArgs e)
         {
