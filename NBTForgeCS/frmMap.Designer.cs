@@ -65,6 +65,9 @@
             this.numHealth = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.tabEnvironment = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cmdDefrost = new System.Windows.Forms.Button();
+            this.chkSnow = new System.Windows.Forms.CheckBox();
             this.grpSpawn = new System.Windows.Forms.GroupBox();
             this.cmdSetSpawnToPos = new System.Windows.Forms.Button();
             this.numSpawnZ = new System.Windows.Forms.NumericUpDown();
@@ -76,7 +79,7 @@
             this.cmdDay = new System.Windows.Forms.Button();
             this.tabEnts = new System.Windows.Forms.TabPage();
             this.entityEditor1 = new MineEdit.EntityEditor();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabTEnts = new System.Windows.Forms.TabPage();
             this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
             this.mapPic = new System.Windows.Forms.PictureBox();
             this.toolStrip1.SuspendLayout();
@@ -94,13 +97,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.numFire)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numHealth)).BeginInit();
             this.tabEnvironment.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.grpSpawn.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnX)).BeginInit();
             this.grpTOD.SuspendLayout();
             this.tabEnts.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            this.tabTEnts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mapPic)).BeginInit();
             this.SuspendLayout();
             // 
@@ -183,14 +187,13 @@
             this.tclMap.Controls.Add(this.tabPage1);
             this.tclMap.Controls.Add(this.tabEnvironment);
             this.tclMap.Controls.Add(this.tabEnts);
-            this.tclMap.Controls.Add(this.tabPage2);
+            this.tclMap.Controls.Add(this.tabTEnts);
             this.tclMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tclMap.Location = new System.Drawing.Point(0, 0);
             this.tclMap.Name = "tclMap";
             this.tclMap.SelectedIndex = 0;
             this.tclMap.Size = new System.Drawing.Size(597, 343);
             this.tclMap.TabIndex = 2;
-            this.tclMap.Selected += new System.Windows.Forms.TabControlEventHandler(this.tclMap_Selected);
             // 
             // tabMap
             // 
@@ -543,6 +546,7 @@
             // 
             // tabEnvironment
             // 
+            this.tabEnvironment.Controls.Add(this.groupBox1);
             this.tabEnvironment.Controls.Add(this.grpSpawn);
             this.tabEnvironment.Controls.Add(this.grpTOD);
             this.tabEnvironment.Location = new System.Drawing.Point(4, 22);
@@ -552,6 +556,38 @@
             this.tabEnvironment.TabIndex = 3;
             this.tabEnvironment.Text = "Environment";
             this.tabEnvironment.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.cmdDefrost);
+            this.groupBox1.Controls.Add(this.chkSnow);
+            this.groupBox1.Location = new System.Drawing.Point(8, 147);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(545, 100);
+            this.groupBox1.TabIndex = 8;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Weather Settings";
+            // 
+            // cmdDefrost
+            // 
+            this.cmdDefrost.Location = new System.Drawing.Point(160, 15);
+            this.cmdDefrost.Name = "cmdDefrost";
+            this.cmdDefrost.Size = new System.Drawing.Size(119, 23);
+            this.cmdDefrost.TabIndex = 1;
+            this.cmdDefrost.Text = "Remove Snow && Ice";
+            this.cmdDefrost.UseVisualStyleBackColor = true;
+            this.cmdDefrost.Click += new System.EventHandler(this.cmdDefrost_Click);
+            // 
+            // chkSnow
+            // 
+            this.chkSnow.AutoSize = true;
+            this.chkSnow.Location = new System.Drawing.Point(13, 19);
+            this.chkSnow.Name = "chkSnow";
+            this.chkSnow.Size = new System.Drawing.Size(141, 17);
+            this.chkSnow.TabIndex = 0;
+            this.chkSnow.Text = "Map is covered in snow.";
+            this.chkSnow.UseVisualStyleBackColor = true;
+            this.chkSnow.CheckedChanged += new System.EventHandler(this.chkSnow_CheckedChanged);
             // 
             // grpSpawn
             // 
@@ -694,16 +730,16 @@
             this.entityEditor1.SpawnPos = null;
             this.entityEditor1.TabIndex = 0;
             // 
-            // tabPage2
+            // tabTEnts
             // 
-            this.tabPage2.Controls.Add(this.tileEntityEditor1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(589, 317);
-            this.tabPage2.TabIndex = 5;
-            this.tabPage2.Text = "Tile Entities";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabTEnts.Controls.Add(this.tileEntityEditor1);
+            this.tabTEnts.Location = new System.Drawing.Point(4, 22);
+            this.tabTEnts.Name = "tabTEnts";
+            this.tabTEnts.Padding = new System.Windows.Forms.Padding(3);
+            this.tabTEnts.Size = new System.Drawing.Size(589, 317);
+            this.tabTEnts.TabIndex = 5;
+            this.tabTEnts.Text = "Tile Entities";
+            this.tabTEnts.UseVisualStyleBackColor = true;
             // 
             // tileEntityEditor1
             // 
@@ -755,6 +791,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.numFire)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numHealth)).EndInit();
             this.tabEnvironment.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.grpSpawn.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnZ)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSpawnY)).EndInit();
@@ -762,7 +800,7 @@
             this.grpTOD.ResumeLayout(false);
             this.grpTOD.PerformLayout();
             this.tabEnts.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
+            this.tabTEnts.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.mapPic)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -815,12 +853,15 @@
         private System.Windows.Forms.TextBox txtTime;
         private System.Windows.Forms.Button cmdDay;
         private System.Windows.Forms.TabPage tabEnts;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabTEnts;
         private EntityEditor entityEditor1;
         private TileEntityEditor tileEntityEditor1;
         private System.Windows.Forms.NumericUpDown numHurtTime;
         private System.Windows.Forms.Label lblHurt;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckBox chkSnow;
+        private System.Windows.Forms.Button cmdDefrost;
 
     }
 }

@@ -61,6 +61,8 @@
 75	75.png	Redstone torch (off)
 76	76.png	Redstone torch (on)
 77	77.png	Button
+78	78.png	Snow
+79	79.png	Ice
 256	256.png	Iron shovel
 257	257.png	Iron pickaxe
 258	258.png	Iron axe

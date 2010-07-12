@@ -35,7 +35,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin-dbg\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -75,6 +75,13 @@
   <ItemGroup>
     <Compile Include="Base36.cs" />
     <Compile Include="Blocks.cs" />
+    <Compile Include="dlgAddEntity.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgAddEntity.Designer.cs">
+      <DependentUpon>dlgAddEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Zombie.cs" />
     <Compile Include="Entities\Spider.cs" />
     <Compile Include="Entities\Creeper.cs" />
     <Compile Include="Entities\Item.cs" />
@@ -119,9 +126,16 @@
     </Compile>
     <Compile Include="IMapHandler.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="TileEntities\Furnace.cs" />
     <Compile Include="TileEntities\MobSpawner.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="TileEntity.cs" />
+    <Compile Include="UIControls\MobSelector.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UIControls\EntitySelector.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UIControls\TileEntityControls\ChestEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -181,18 +195,18 @@
     <Compile Include="UIControls\InventoryItem.cs">
       <SubType>Component</SubType>
     </Compile>
-    <None Include="UIControls\MapChunkControl.cs">
+    <Compile Include="UIControls\MapChunkControl.cs">
       <SubType>UserControl</SubType>
-    </None>
-    <None Include="UIControls\MapChunkControl.Designer.cs">
+    </Compile>
+    <Compile Include="UIControls\MapChunkControl.Designer.cs">
       <DependentUpon>MapChunkControl.cs</DependentUpon>
-    </None>
-    <None Include="UIControls\MapControl.cs">
+    </Compile>
+    <Compile Include="UIControls\MapControl.cs">
       <SubType>UserControl</SubType>
-    </None>
-    <None Include="UIControls\MapControl.Designer.cs">
+    </Compile>
+    <Compile Include="UIControls\MapControl.Designer.cs">
       <DependentUpon>MapControl.cs</DependentUpon>
-    </None>
+    </Compile>
     <Compile Include="MapHandlers\InfdevHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -200,6 +214,9 @@
     <Compile Include="Utils.cs" />
     <Compile Include="Vector3d.cs" />
     <Compile Include="Vector3i.cs" />
+    <EmbeddedResource Include="dlgAddEntity.resx">
+      <DependentUpon>dlgAddEntity.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="dlgChunk.resx">
       <DependentUpon>dlgChunk.cs</DependentUpon>
     </EmbeddedResource>
@@ -245,12 +262,13 @@
     <EmbeddedResource Include="UIControls\Inventory.resx">
       <DependentUpon>Inventory.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="UIControls\MapChunkControl.resx">
+    <EmbeddedResource Include="UIControls\MapChunkControl.resx">
       <DependentUpon>MapChunkControl.cs</DependentUpon>
-    </None>
-    <None Include="UIControls\MapControl.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControls\MapControl.resx">
       <DependentUpon>MapControl.cs</DependentUpon>
-    </None>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

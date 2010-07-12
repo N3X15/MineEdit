@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 
 namespace MineEdit
@@ -76,5 +76,14 @@ namespace MineEdit
         void RemoveTileEntity(TileEntity e);
 
         int HurtTime { get; set; }
+
+        bool Snow { get; set; }
+
+        void ForEachChunk(Chunk.ChunkModifierDelegate cmd);
+
+        void BeginTransaction();
+        void CommitTransaction();
+
+        void ReplaceBlocksIn(long X, long Y, Dictionary<byte, byte> Replacements);
     }
 }

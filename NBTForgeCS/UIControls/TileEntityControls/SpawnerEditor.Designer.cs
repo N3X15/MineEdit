@@ -28,19 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
+            MineEdit.Pig pig1 = new MineEdit.Pig();
+            MineEdit.Skeleton skeleton1 = new MineEdit.Skeleton();
+            MineEdit.Creeper creeper1 = new MineEdit.Creeper();
+            MineEdit.FallingSand fallingSand1 = new MineEdit.FallingSand();
+            MineEdit.Sheep sheep1 = new MineEdit.Sheep();
+            MineEdit.Spider spider1 = new MineEdit.Spider();
+            MineEdit.Zombie zombie1 = new MineEdit.Zombie();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.cmbMob = new System.Windows.Forms.ComboBox();
             this.numDelay = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
+            this.cmbMob = new MineEdit.MobSelector();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numDelay)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.cmbMob);
+            this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.numDelay);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -59,15 +66,6 @@
             this.label2.Size = new System.Drawing.Size(31, 13);
             this.label2.TabIndex = 3;
             this.label2.Text = "Mob:";
-            // 
-            // cmbMob
-            // 
-            this.cmbMob.FormattingEnabled = true;
-            this.cmbMob.Location = new System.Drawing.Point(67, 56);
-            this.cmbMob.Name = "cmbMob";
-            this.cmbMob.Size = new System.Drawing.Size(120, 21);
-            this.cmbMob.TabIndex = 2;
-            this.cmbMob.SelectedIndexChanged += new System.EventHandler(this.cmbMob_SelectedIndexChanged);
             // 
             // numDelay
             // 
@@ -91,6 +89,29 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Delay:";
             // 
+            // cmbMob
+            // 
+            this.cmbMob.FormattingEnabled = true;
+            pig1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
+            skeleton1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
+            creeper1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
+            fallingSand1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
+            sheep1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
+            spider1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
+            zombie1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
+            this.cmbMob.Items.AddRange(new object[] {
+            pig1,
+            skeleton1,
+            creeper1,
+            fallingSand1,
+            sheep1,
+            spider1,
+            zombie1});
+            this.cmbMob.Location = new System.Drawing.Point(67, 56);
+            this.cmbMob.Name = "cmbMob";
+            this.cmbMob.Size = new System.Drawing.Size(121, 21);
+            this.cmbMob.TabIndex = 4;
+            // 
             // SpawnerEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -111,6 +132,6 @@
         private System.Windows.Forms.NumericUpDown numDelay;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox cmbMob;
+        private MobSelector cmbMob;
     }
 }

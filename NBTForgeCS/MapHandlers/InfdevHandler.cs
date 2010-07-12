@@ -26,6 +26,7 @@ namespace MineEdit
         Dictionary<string, byte[]> ChunkBlocks = new Dictionary<string, byte[]>();
         Dictionary<string, short[,]> Heightmaps = new Dictionary<string, short[,]>();
         Dictionary<string, byte[,]> CachedOverview = new Dictionary<string, byte[,]>();
+        List<string> ChangedChunks = new List<string>();
 
         // Using UUIDs since they're globally unique and native to C#.
         Dictionary<Guid, Entity> _Entities = new Dictionary<Guid, Entity>();
@@ -37,8 +38,262 @@ namespace MineEdit
 
         public Vector3i ChunkScale { get { return new Vector3i(16, 16, 128); } }
         public bool HasMultipleChunks { get { return true; } }
-        public Vector3i MapMin { get { return new Vector3i(int.MinValue,int.MinValue,0); } }
-        public Vector3i MapMax { get { return new Vector3i(int.MaxValue,int.MaxValue,128); } }
+        //public Vector3i MapMin { get { return new Vector3i(int.MinValue, int.MinValue, 0); } }
+        //public Vector3i MapMax { get { return new Vector3i(int.MaxValue, int.MaxValue, 128); } }
+        public Vector3i MapMin { get { return new Vector3i(-1000, -1000, 0); } }
+        public Vector3i MapMax { get { return new Vector3i(1000, 1000, 127); } }
+
+        /// <summary>
+        /// BROKEN:  infdev currently resets this to 0,64,0
+        /// </summary>
+        public Vector3i Spawn
+        {
+            get
+            {
+                NbtCompound Data = (NbtCompound)root.GetTag("/Data");
+                return new Vector3i(
+                    (Data["SpawnX"] as NbtInt).Value,
+                    (Data["SpawnY"] as NbtInt).Value,
+                    (Data["SpawnZ"] as NbtInt).Value);
+            }
+
+            set
+            {
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                Player.Tags.Remove(Player["SpawnX"]);
+                Player.Tags.Remove(Player["SpawnY"]);
+                Player.Tags.Remove(Player["SpawnZ"]);
+                Player.Tags.Add(new NbtInt("SpawnX", (int)value.X));
+                Player.Tags.Add(new NbtInt("SpawnY", (int)Utils.Clamp(value.Y, 0, 128)));
+                Player.Tags.Add(new NbtInt("SpawnZ", (int)value.Z));
+                // BROKEN root.SetTag("/Data/Player", h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
+            }
+        }
+
+
+
+        public int Height
+        {
+            get
+            {
+                return 10000;
+            }
+            protected set
+            {
+                return;
+            }
+        }
+
+        public int Width
+        {
+            get
+            {
+                return 10000;
+            }
+            protected set
+            {
+                return;
+            }
+        }
+
+        public int Depth
+        {
+            get
+            {
+                return 128;
+            }
+            protected set
+            {
+                return;
+            }
+        }
+
+        /// <summary>
+        /// -1 = dead?
+        /// 0 = dead
+        /// 20 = full health
+        /// </summary>
+        public int Health
+        {
+            get
+            {
+                // /Player/Health;
+                NbtShort h = (NbtShort)root.GetTag("/Data/Player/Health");
+                return (int)h.Value;
+            }
+            set
+            {
+                // Clamp value to between -1 and 21
+                NbtShort h = new NbtShort("Health", (short)Utils.Clamp(value, -1, 21));
+                //root.SetTag("/Data/Player/Health",h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                NbtShort oh = (NbtShort)Player["Health"];
+                Console.WriteLine("Health: {0}->{1}", oh.Value, h.Value);
+                Player.Tags.Remove(oh);
+                Player.Tags.Add(h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
+            }
+        }
+
+        // Set to 0 to avoid the Laying Down bug.
+        public int HurtTime
+        {
+            get
+            {
+                NbtShort h = (NbtShort)root.GetTag("/Data/Player/HurtTime");
+                return (int)h.Value;
+            }
+            set
+            {
+                // TODO: Find value range.
+                NbtShort h = new NbtShort("HurtTime", (short)/*Utils.Clamp(*/value/*, 0, 21)*/);
+                //root.SetTag("/Data/Player/HurtTime",h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                NbtShort oh = (NbtShort)Player["HurtTime"];
+                Player.Tags.Remove(oh);
+                Player.Tags.Add(h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
+            }
+        }
+        // Don't clamp, all sorts of weird shit can be done here.
+        public int Air
+        {
+            get
+            {
+                // /Player/Air;
+                NbtShort h = (NbtShort)root.GetTag("/Data/Player/Air");
+                return (int)h.Value;
+            }
+            set
+            {
+                NbtShort h = new NbtShort("Air", (short)value);
+                //root.SetTag("/Data/Player/Air", h); ;
+
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                Player.Tags.Remove(Player["Air"]);
+                Player.Tags.Add(h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
+            }
+        }
+
+        // Dunno the range
+        public int Fire
+        {
+            get
+            {
+                NbtShort h = (NbtShort)root.GetTag("/Data/Player/Fire");
+                return (int)h.Value;
+            }
+            set
+            {
+                NbtShort f = new NbtShort("Fire", (short)value);
+                // BROKEN root.SetTag("/Data/Player/Fire", h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                Player.Tags.Remove(Player["Fire"]);
+                Player.Tags.Add(f);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
+            }
+        }
+
+        // Dunno the range
+        public int Time
+        {
+            get
+            {
+                NbtLong h = (NbtLong)root.GetTag("/Data/Time");
+                return (int)h.Value;
+            }
+            set
+            {
+                NbtLong f = new NbtLong("Time", (short)value);
+                // BROKEN root.SetTag("/Data/Time", h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                Data.Tags.Remove(Data["Time"]);
+                Data.Tags.Add(f);
+                root.RootTag["Data"] = Data;
+            }
+        }
+
+        public Vector3d PlayerPos
+        {
+            get
+            {
+                NbtList h = (NbtList)root.GetTag("/Data/Player/Pos");
+                Vector3d pos = new Vector3d();
+                pos.X = (h[0] as NbtDouble).Value;
+                pos.Y = (h[1] as NbtDouble).Value;
+                pos.Z = (h[2] as NbtDouble).Value;
+                //Console.WriteLine("Player is on chunk {0}.",GetChunkFilename((int)pos.X >> 4,(int)pos.Z >> 4));
+                return pos;
+            }
+            set
+            {
+                NbtList h = new NbtList("Pos");
+                h.Tags.Add(new NbtDouble(value.X));
+                h.Tags.Add(new NbtDouble(Utils.Clamp(value.Y, 0, 128)));
+                h.Tags.Add(new NbtDouble(value.Z));
+                // BROKEN root.SetTag("/Data/Player/Pos", h);
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                NbtCompound Player = (NbtCompound)Data["Player"];
+                Player.Tags.Remove(Player["Pos"]);
+                Player.Tags.Add(h);
+                Data["Player"] = Player;
+                root.RootTag["Data"] = Data;
+
+            }
+        }
+
+        public Dictionary<Guid, Entity> Entities
+        {
+            get
+            {
+                return _Entities;
+            }
+        }
+
+        public Dictionary<Guid, TileEntity> TileEntities
+        {
+            get
+            {
+                return _TileEntities;
+            }
+        }
+
+        public bool Snow
+        {
+            get
+            {
+                NbtByte SnowCovered = (NbtByte)root.GetTag("/Data/SnowCovered");
+                if (SnowCovered == null) return false;
+                return SnowCovered.Value == (byte)1;
+            }
+            set
+            {
+                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                try
+                {
+                    Data.Tags.Remove(Data["SnowCovered"]);
+                }
+                catch (Exception) { }
+                byte v = 0;
+                if (value == true) v = 1;
+                Console.WriteLine("Map is now {0}.", (value) ? "covered in snow" : "normal");
+                Data.Tags.Add(new NbtByte("SnowCovered",v));
+                root.RootTag["Data"] = Data;
+            }
+        }
+
         public void Load()
         {
             Load(Filename);
@@ -87,16 +342,15 @@ namespace MineEdit
             h = 0;
             block = 0;
             waterdepth = 0;
+            int CX = (int)pos.X >> 4;// / (long)ChunkX);
+            int CY = (int)pos.Y >> 4;// / (long)ChunkY);
 
-            int CX = (int)pos.X / ChunkX;
-            int CY = (int)pos.Y / ChunkY;
-
-            int x = (int)pos.X % ChunkX;
-            int y = (int)pos.Y % ChunkY;
-            int zs = (int)pos.Z % ChunkZ;
+            int x = (int)pos.Y;
+            int y = (int)pos.X;
+            //int z = (int)pos.Z;// % ChunkZ;
             string ci = string.Format("{0},{1}", CX, CY);
 
-            for (int z = zs; z > 0; z++)
+            for (int z = (int)pos.Z; z > 0; ++z)
             {
                 byte b = GetBlockAt(new Vector3i(x, y, z));
                 if (b == 8 || b == 9 || b == 52)
@@ -221,15 +475,6 @@ namespace MineEdit
                  */
                 //if (c>0)  Console.WriteLine("*** {0} spawners found.", c);
                 Console.WriteLine("Loaded {0} bytes from chunk {1} (biggest byte = 0x{2:X2}).", CurrentBlocks.Length, f, bb);
-                /*StackTrace stack = new StackTrace();
-                StackFrame[] stackFrames = stack.GetFrames();  // get method calls (frames)
-
-                // write call stack method names
-                foreach (StackFrame stackFrame in stackFrames)
-                {
-                    Console.WriteLine(stackFrame.GetMethod());   // write method name
-                }
-                */
                 return CurrentBlocks;
             }
             catch (Exception e)
@@ -246,8 +491,8 @@ namespace MineEdit
             foreach (NbtCompound c in ents.Tags)
             {
                 Entity hurp = Entity.GetEntity(c);
-                hurp.Pos.X += ((double)CX*16d);
-                hurp.Pos.Y += ((double)CY*16d);
+                //hurp.Pos.X += ((double)CX*16d);
+                //hurp.Pos.Y += ((double)CY*16d);
                 hurp.UUID = Guid.NewGuid();
                 _Entities.Add(hurp.UUID,hurp);
             }
@@ -345,7 +590,7 @@ namespace MineEdit
             //Console.WriteLine("{0},{1} = {2}",x,z,f);
             return f;
         }
-        private void SaveChunk(int x, int z,byte[,,] data)
+        private void SaveChunk(int x, int z)
         {
 
             string f = GetChunkFilename(x, z);
@@ -354,132 +599,22 @@ namespace MineEdit
                 Console.WriteLine("! {0}", f);
                 return;
             }
-            chunk= new NbtFile(f);
-            Console.WriteLine(f);
+            NbtFile c = new NbtFile(f);
+            c.LoadFile();
+            Console.WriteLine("Saving "+f);
 
-            NbtCompound Level = new NbtCompound("Level");
-            bool found = false;
-            byte[] lolblocks=new byte[ChunkX*ChunkY*ChunkZ];
-            for(int _x=0;_x<ChunkX;_x++)
-            {
-                for(int _y=0;_y<ChunkY;_y++)
-                {
-                    for(int _z=0;_z<ChunkY;_z++)
-                    {
-                        long index = _x + (_z * ChunkY + _y) * ChunkZ;
-                        lolblocks[index]=data[_x,_y,_z];
-                    }
-                }
-            }
-            Level["Blocks"] = new NbtByteArray("Blocks",lolblocks);
-            if (found)
-            {
-                chunk.RootTag.Tags[0] = Level;
-                chunk.SaveFile(f);
-            }
+            NbtCompound Level = (NbtCompound)c.RootTag["Level"];
+            string ci = string.Format("{0},{1}", x, z);
+            byte[] lolblocks = ChunkBlocks[ci];
+            Level.Tags.Remove(Level["Blocks"]);
+            Level.Tags.Add(new NbtByteArray("Blocks", lolblocks));
+            c.RootTag["Level"] = Level;
+            c.SaveFile(f);
         }
 
         public bool IsMyFiletype(string f)
         {
             return Path.GetFileName(f).Equals("level.dat");
-        }
-            //Convert number in string representation from base:from to base:to. 
-        //Return result as a string
-        public static String BaseConv(int from, int to, String s)
-        {
-            //Return error if input is empty
-            if (String.IsNullOrEmpty(s))
-            {
-                return ("Error: Nothing in Input String");
-            }
-            //only allow uppercase input characters in string
-            s = s.ToUpper();
-        
-            //only do base 2 to base 36 (digit represented by characters 0-Z)"
-            if (from <= 2 || from >= 36 || to <= 2 || to >= 36) 
-		    { return ("Base requested outside range"); }
-        
-            //convert string to an array of integer digits representing number in base:from
-            int il = s.Length;
-            int[] fs = new int[il];
-            int k = 0;
-            for (int i = s.Length - 1; i >= 0; i--)
-            {
-                if (s[i] >= '0' && s[i] <= '9') { fs[k++] = (int)(s[i] - '0'); }
-                else
-                {
-                    if (s[i] >= 'A' && s[i] <= 'Z') { fs[k++] = 10 + (int)(s[i] - 'A'); }
-                    else
-                    { return ("Error: Input string must only contain any of 0-9 or A-Z"); } //only allow 0-9 A-Z characters
-                }
-            }
-        
-            //check the input for digits that exceed the allowable for base:from
-            foreach(int i in fs)
-            {
-                if (i >= from) { return ("Error: Not a valid number for this input base"); }
-            }
-        
-            //find how many digits the output needs
-            int ol = il * (from / to+1);
-            int[] ts = new int[ol+10]; //assign accumulation array
-            int[] cums = new int[ol+10]; //assign the result array
-            ts[0] = 1; //initialize array with number 1 
-        
-            //evaluate the output
-            for (int i = 0; i < il; i++) //for each input digit
-            {
-                for (int j = 0; j < ol; j++) //add the input digit 
-				    // times (base:to from^i) to the output cumulator
-                {
-                    cums[j] += ts[j] * fs[i];
-                    int temp = cums[j];
-                    int rem = 0;
-                    int ip = j;
-                    do // fix up any remainders in base:to
-                    {
-                        rem = temp / to;
-                        cums[ip] = temp-rem*to; ip++;
-                        cums[ip] += rem;
-                        temp = cums[ip];
-                    }
-                    while (temp >=to);
-                }
-            
-                //calculate the next power from^i) in base:to format
-                for (int j = 0; j < ol; j++)
-                {
-                    ts[j] = ts[j] * from;
-                } 
-                for(int j=0;j<ol;j++) //check for any remainders
-                {
-                    int temp = ts[j];
-                    int rem = 0;
-                    int ip = j;
-                    do  //fix up any remainders
-                    {
-                        rem = temp / to;
-                        ts[ip] = temp - rem * to; ip++;
-                        ts[ip] += rem;
-                        temp = ts[ip];
-                    }
-                    while (temp >= to);
-                }
-            }
-        
-            //convert the output to string format (digits 0,to-1 converted to 0-Z characters) 
-            String sout = String.Empty; //initialize output string
-            bool first = false; //leading zero flag
-            for (int i = ol ; i >= 0; i--)
-            {
-                if (cums[i] != 0) { first = true; }
-                if (!first) { continue; }
-                if (cums[i] < 10) { sout += (char)(cums[i] + '0'); }
-                else { sout += (char)(cums[i] + 'A'-10); }
-            }
-            if (String.IsNullOrEmpty(sout)) { return "0"; } //input was zero, return 0
-            //return the converted string
-            return sout;
         }
 
         public bool Save()
@@ -504,202 +639,6 @@ namespace MineEdit
             root.SaveFile(filename);
             return true;
         }
-
-        public int Height
-        {
-            get
-            {
-                return 10000;
-            }
-            protected set
-            {
-                return;
-            }
-        }
-
-        public int Width
-        {
-            get
-            {
-                return 10000;
-            }
-            protected set
-            {
-                return;
-            }
-        }
-
-        public int Depth
-        {
-            get
-            {
-                return 128;
-            }
-            protected set
-            {
-                return;
-            }
-        }
-
-        /// <summary>
-        /// -1 = dead?
-        /// 0 = dead
-        /// 20 = full health
-        /// </summary>
-        public int Health
-        {
-            get
-            {
-                // /Player/Health;
-                NbtShort h = (NbtShort)root.GetTag("/Data/Player/Health");
-                return (int)h.Value;
-            }
-            set
-            {
-                // Clamp value to between -1 and 21
-                NbtShort h = new NbtShort("Health", (short)Utils.Clamp(value, -1, 21));
-                //root.SetTag("/Data/Player/Health",h);
-                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-                NbtCompound Player = (NbtCompound)Data["Player"];
-                NbtShort oh = (NbtShort)Player["Health"];
-                Console.WriteLine("Health: {0}->{1}", oh.Value, h.Value);
-                Player.Tags.Remove(oh);
-                Player.Tags.Add(h);
-                Data["Player"] = Player;
-                root.RootTag["Data"] = Data;
-            }
-        }
-
-        // Set to 0 to avoid the Laying Down bug.
-        public int HurtTime
-        {
-            get
-            {
-                NbtShort h = (NbtShort)root.GetTag("/Data/Player/HurtTime");
-                return (int)h.Value;
-            }
-            set
-            {
-                // TODO: Find value range.
-                NbtShort h = new NbtShort("HurtTime", (short)/*Utils.Clamp(*/value/*, 0, 21)*/);
-                //root.SetTag("/Data/Player/HurtTime",h);
-                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-                NbtCompound Player = (NbtCompound)Data["Player"];
-                NbtShort oh = (NbtShort)Player["HurtTime"];
-                Player.Tags.Remove(oh);
-                Player.Tags.Add(h);
-                Data["Player"] = Player;
-                root.RootTag["Data"] = Data;
-            }
-        }
-        // Don't clamp, all sorts of weird shit can be done here.
-        public int Air
-        {
-            get
-            {
-                // /Player/Air;
-                NbtShort h = (NbtShort)root.GetTag("/Data/Player/Air");
-                return (int)h.Value;
-            }
-            set
-            {
-                NbtShort h = new NbtShort("Air",(short)value);
-                //root.SetTag("/Data/Player/Air", h); ;
-
-                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-                NbtCompound Player = (NbtCompound)Data["Player"];
-                Player.Tags.Remove(Player["Air"]);
-                Player.Tags.Add(h);
-                Data["Player"] = Player;
-                root.RootTag["Data"] = Data;
-            }
-        }
-
-        // Dunno the range
-        public int Fire
-        {
-            get
-            {
-                NbtShort h = (NbtShort)root.GetTag("/Data/Player/Fire");
-                return (int)h.Value;
-            }
-            set
-            {
-                NbtShort f = new NbtShort("Fire", (short)value);
-                // BROKEN root.SetTag("/Data/Player/Fire", h);
-                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-                NbtCompound Player = (NbtCompound)Data["Player"];
-                Player.Tags.Remove(Player["Fire"]);
-                Player.Tags.Add(f);
-                Data["Player"] = Player;
-                root.RootTag["Data"] = Data;
-            }
-        }
-
-        // Dunno the range
-        public int Time
-        {
-            get
-            {
-                NbtLong h = (NbtLong)root.GetTag("/Data/Time");
-                return (int)h.Value;
-            }
-            set
-            {
-                NbtLong f = new NbtLong("Time", (short)value);
-                // BROKEN root.SetTag("/Data/Time", h);
-                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-                Data.Tags.Remove(Data["Time"]);
-                Data.Tags.Add(f);
-                root.RootTag["Data"] = Data;
-            }
-        }
-
-        public Vector3d PlayerPos
-        {
-            get
-            {
-                NbtList h = (NbtList)root.GetTag("/Data/Player/Pos");
-                Vector3d pos = new Vector3d();
-                pos.X = (h[0] as NbtDouble).Value;
-                pos.Y = (h[1] as NbtDouble).Value;
-                pos.Z = (h[2] as NbtDouble).Value;
-                //Console.WriteLine("Player is on chunk {0}.",GetChunkFilename((int)pos.X >> 4,(int)pos.Z >> 4));
-                return pos;
-            }
-            set
-            {
-                NbtList h = new NbtList("Pos");
-                h.Tags.Add(new NbtDouble(value.X));
-                h.Tags.Add(new NbtDouble(Utils.Clamp(value.Y,0,128)));
-                h.Tags.Add(new NbtDouble(value.Z));
-                // BROKEN root.SetTag("/Data/Player/Pos", h);
-                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-                NbtCompound Player = (NbtCompound)Data["Player"]; 
-                Player.Tags.Remove(Player["Pos"]);
-                Player.Tags.Add(h);
-                Data["Player"] = Player;
-                root.RootTag["Data"] = Data;
-
-            }
-        }
-
-        public Dictionary<Guid, Entity> Entities
-        {
-            get
-            {
-                return _Entities;
-            }
-        }
-
-        public Dictionary<Guid, TileEntity> TileEntities
-        {
-            get
-            {
-                return _TileEntities;
-            }
-        }
-
         public void SetEntity(Entity e)
         {
             Guid ID = e.UUID;
@@ -794,37 +733,8 @@ namespace MineEdit
             }
             catch (Exception) { }
         }
-        /// <summary>
-        /// BROKEN:  infdev currently resets this to 0,64,0
-        /// </summary>
-        public Vector3i Spawn
-        {
-            get
-            {
-                NbtCompound Data = (NbtCompound)root.GetTag("/Data");
-                return new Vector3i(
-                    (Data["SpawnX"] as NbtInt).Value, 
-                    (Data["SpawnY"] as NbtInt).Value, 
-                    (Data["SpawnZ"] as NbtInt).Value);
-            }
-
-            set
-            {
-                NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-                NbtCompound Player = (NbtCompound)Data["Player"];
-                Player.Tags.Remove(Player["SpawnX"]);
-                Player.Tags.Remove(Player["SpawnY"]);
-                Player.Tags.Remove(Player["SpawnZ"]);
-                Player.Tags.Add(new NbtInt("SpawnX",(int)value.X));
-                Player.Tags.Add(new NbtInt("SpawnY",(int)Utils.Clamp(value.Y, 0, 128)));
-                Player.Tags.Add(new NbtInt("SpawnZ",(int)value.Z));
-                // BROKEN root.SetTag("/Data/Player", h);
-                Data["Player"] = Player;
-                root.RootTag["Data"] = Data;
-            }
-        }
-
         int BlockCount = 0;
+        private bool InTransaction;
         /// <summary>
         /// 
         /// </summary>
@@ -839,12 +749,37 @@ namespace MineEdit
             int CX = (int)p.X >> 4;// / (long)ChunkX);
             int CZ = (int)p.Y >> 4;// / (long)ChunkY);
 
-            int x = ((int)p.Y % ChunkX) & 0xf;
-            int y = ((int)p.X % ChunkY) & 0xf;
+            int x = ((int)p.Y % ChunkY) & 0xf;
+            int y = ((int)p.X % ChunkX) & 0xf;
             int z = (int)p.Z;// % ChunkZ;
             return GetBlockIn(CX,CZ,new Vector3i(x,y,z));
         }
 
+        private int GetBlockIndex(int x, int y, int z)
+        {
+            return x * ChunkZ + y * ChunkZ * ChunkX + z;
+            //return (x << 11 | z << 7 | y);
+        }
+
+        public void ReplaceBlocksIn(long X, long Y, Dictionary<byte, byte> Replacements)
+        {
+            byte[] blocks = _LoadChunk((int)X, (int)Y);
+            bool bu=false;
+            for(int i = 0;i<blocks.Length;i++)
+            {
+                if (Replacements.ContainsKey(blocks[i]))
+                {
+                    blocks[i] = Replacements[blocks[i]];
+                    bu=true;
+                }
+            }
+            if(!bu) return;
+            string ci = string.Format("{0},{1}", X, Y);
+            if (ChunkBlocks.ContainsKey(ci))
+                ChunkBlocks[ci]=blocks;
+            if(!ChangedChunks.Contains(ci))
+                ChangedChunks.Add(ci);
+        }
         public byte GetBlockIn(long CX, long CY, Vector3i pos)
         {
             pos = new Vector3i(pos.Y, pos.X, pos.Z);
@@ -860,7 +795,7 @@ namespace MineEdit
              */
 
             string ci = string.Format("{0},{1}", CX, CY);
-            long i = pos.X * ChunkZ + pos.Y * ChunkZ * ChunkX + pos.Z;
+            int i = GetBlockIndex((int)pos.X, (int)pos.Y, (int)pos.Z);
             //try
             //{
             if (ChunkBlocks.ContainsKey(ci))
@@ -904,7 +839,7 @@ namespace MineEdit
             //{
             if (ChunkBlocks.ContainsKey(ci))
             {
-                ChunkBlocks[ci][pos.X * ChunkZ + pos.Y * ChunkZ * ChunkX + pos.Z] = type;
+                ChunkBlocks[ci][GetBlockIndex((int)pos.X,(int)pos.Y,(int)pos.Z)] = type;
                 return;
             }
             // Don't mess with unloaded blocks.
@@ -915,14 +850,31 @@ namespace MineEdit
             return (x > min && x < max);
         }
 
+        public void BeginTransaction()
+        {
+            InTransaction = true;
+            ChangedChunks.Clear();
+            Console.WriteLine("BEGIN TRANSACTION");
+        }
+        public void CommitTransaction()
+        {
+            Console.WriteLine("{0} chunks changed.", ChangedChunks.Count);
+            foreach (string v in ChangedChunks)
+            {
+                string[] chunks = v.Split(',');
+                SaveChunk(int.Parse(chunks[0]), int.Parse(chunks[1]));
+            }
+            Console.WriteLine("COMMIT TRANSACTION");
+            InTransaction = false;
+        }
         public void SetBlockAt(Vector3i p, byte id)
         {
             //Console.WriteLine("{0}", p);
-            int CX = (int)(p.X / (long)ChunkX);
-            int CZ = (int)(p.Y / (long)ChunkY);
+            int CX = (int)p.X >> 4;// / (long)ChunkX);
+            int CZ = (int)p.Y >> 4;// / (long)ChunkY);
 
-            int x = ((int)p.X % ChunkX) & 0xf;
-            int y = ((int)p.Y % ChunkY) & 0xf;
+            int x = ((int)p.Y % ChunkX) & 0xf;
+            int y = ((int)p.X % ChunkY) & 0xf;
             int z = (int)p.Z;// % ChunkZ;
 
             if (
@@ -933,19 +885,17 @@ namespace MineEdit
                 //Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
                 return;
             }
-
-
-            // X Y Z    = Me
-            // X Z Y ?  = Notch
-            int index = x << 11 | y << 7 | z;
-
             string ci = string.Format("{0},{1}", CX, CZ);
-
-            LoadChunk(CX, CZ);
-
-            if(!ChunkBlocks.ContainsKey(ci))
-               ChunkBlocks.Add(ci,CurrentBlocks);
-            ChunkBlocks[ci]=CurrentBlocks;
+            if (!ChunkBlocks.ContainsKey(ci))
+                ChunkBlocks.Add(ci, new byte[ChunkX * ChunkY * ChunkZ]);
+            byte[] b = ChunkBlocks[ci];
+            b[GetBlockIndex(x,y,z)]=id;
+            ChunkBlocks[ci] = b;
+            if (!ChangedChunks.Contains(ci))
+            {
+                ChangedChunks.Add(ci);
+                Console.WriteLine(ci+" has changed");
+            }
         }
 
         public int InventoryColumns
@@ -1084,6 +1034,33 @@ namespace MineEdit
         public void Repair()
         {
             throw new NotImplementedException();
+        }
+        public void ForEachChunk(Chunk.ChunkModifierDelegate cmd)
+        {
+            string[] dirsX = Directory.GetDirectories(Folder);
+            foreach (string dirX in dirsX)
+            {
+                //Console.WriteLine(dirX);
+                string[] dirsY = Directory.GetDirectories(dirX);
+                foreach(string dirY in dirsY)
+                {
+                    //Console.WriteLine(dirY);
+                    string[] files = Directory.GetFiles(dirY);
+                    foreach (string file in files)
+                    {
+                        //Console.WriteLine(file);
+                        //Console.WriteLine(Path.GetExtension(file));
+                        if (Path.GetExtension(file) == "dat") continue;
+                        NbtFile f = new NbtFile(file);
+                        f.LoadFile();
+                        NbtCompound Level = (NbtCompound)f.RootTag["Level"];
+                        long x = (Level["xPos"] as NbtInt).Value;
+                        long y = (Level["zPos"] as NbtInt).Value;
+                        f.Dispose();
+                        cmd(x, y);
+                    }
+                }
+            }
         }
     }
 }

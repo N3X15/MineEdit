@@ -36,6 +36,11 @@
             this.mnuOpen = new System.Windows.Forms.ToolStripMenuItem();
             this.browseToMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuQOinfdev = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWorld1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWorld2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWorld3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWorld4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuWorld5 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuReload = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
@@ -88,11 +93,8 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.mnuWorld1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuWorld2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuWorld3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuWorld4 = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuWorld5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsbProgress = new System.Windows.Forms.ToolStripProgressBar();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -140,7 +142,7 @@
             this.newToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Black;
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.newToolStripMenuItem.Text = "&New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.ShowNewForm);
             // 
@@ -154,7 +156,7 @@
             this.mnuOpen.ImageTransparentColor = System.Drawing.Color.Black;
             this.mnuOpen.Name = "mnuOpen";
             this.mnuOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.mnuOpen.Size = new System.Drawing.Size(152, 22);
+            this.mnuOpen.Size = new System.Drawing.Size(151, 22);
             this.mnuOpen.Text = "&Open";
             // 
             // browseToMapToolStripMenuItem
@@ -176,6 +178,41 @@
             this.mnuQOinfdev.Size = new System.Drawing.Size(162, 22);
             this.mnuQOinfdev.Text = "QuickOpen...";
             // 
+            // mnuWorld1
+            // 
+            this.mnuWorld1.Name = "mnuWorld1";
+            this.mnuWorld1.Size = new System.Drawing.Size(115, 22);
+            this.mnuWorld1.Text = "World 1";
+            this.mnuWorld1.Click += new System.EventHandler(this.mnuWorld1_Click);
+            // 
+            // mnuWorld2
+            // 
+            this.mnuWorld2.Name = "mnuWorld2";
+            this.mnuWorld2.Size = new System.Drawing.Size(115, 22);
+            this.mnuWorld2.Text = "World 2";
+            this.mnuWorld2.Click += new System.EventHandler(this.mnuWorld2_Click);
+            // 
+            // mnuWorld3
+            // 
+            this.mnuWorld3.Name = "mnuWorld3";
+            this.mnuWorld3.Size = new System.Drawing.Size(115, 22);
+            this.mnuWorld3.Text = "World 3";
+            this.mnuWorld3.Click += new System.EventHandler(this.mnuWorld3_Click);
+            // 
+            // mnuWorld4
+            // 
+            this.mnuWorld4.Name = "mnuWorld4";
+            this.mnuWorld4.Size = new System.Drawing.Size(115, 22);
+            this.mnuWorld4.Text = "World 4";
+            this.mnuWorld4.Click += new System.EventHandler(this.mnuWorld4_Click);
+            // 
+            // mnuWorld5
+            // 
+            this.mnuWorld5.Name = "mnuWorld5";
+            this.mnuWorld5.Size = new System.Drawing.Size(115, 22);
+            this.mnuWorld5.Text = "World 5";
+            this.mnuWorld5.Click += new System.EventHandler(this.mnuWorld5_Click);
+            // 
             // toolStripSeparator10
             // 
             this.toolStripSeparator10.Name = "toolStripSeparator10";
@@ -186,14 +223,14 @@
             this.mnuReload.Image = global::MineEdit.Properties.Resources.view_refresh;
             this.mnuReload.Name = "mnuReload";
             this.mnuReload.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
-            this.mnuReload.Size = new System.Drawing.Size(152, 22);
+            this.mnuReload.Size = new System.Drawing.Size(151, 22);
             this.mnuReload.Text = "Reload";
             this.mnuReload.Click += new System.EventHandler(this.tsbReload_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(148, 6);
             // 
             // saveToolStripMenuItem
             // 
@@ -201,21 +238,21 @@
             this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Black;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.saveToolStripMenuItem.Text = "&Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripButton_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.saveAsToolStripMenuItem.Text = "Save &As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(148, 6);
             // 
             // printToolStripMenuItem
             // 
@@ -223,7 +260,7 @@
             this.printToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Black;
             this.printToolStripMenuItem.Name = "printToolStripMenuItem";
             this.printToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
-            this.printToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.printToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.printToolStripMenuItem.Text = "&Print";
             // 
             // printPreviewToolStripMenuItem
@@ -231,24 +268,24 @@
             this.printPreviewToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("printPreviewToolStripMenuItem.Image")));
             this.printPreviewToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Black;
             this.printPreviewToolStripMenuItem.Name = "printPreviewToolStripMenuItem";
-            this.printPreviewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.printPreviewToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.printPreviewToolStripMenuItem.Text = "Print Pre&view";
             // 
             // printSetupToolStripMenuItem
             // 
             this.printSetupToolStripMenuItem.Name = "printSetupToolStripMenuItem";
-            this.printSetupToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.printSetupToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.printSetupToolStripMenuItem.Text = "Print Setup";
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(148, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolsStripMenuItem_Click);
             // 
@@ -585,7 +622,9 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.lblStatus});
+            this.lblStatus,
+            this.tsbStatus,
+            this.tsbProgress});
             this.statusStrip.Location = new System.Drawing.Point(0, 431);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(632, 22);
@@ -597,40 +636,16 @@
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(0, 17);
             // 
-            // mnuWorld1
+            // tsbStatus
             // 
-            this.mnuWorld1.Name = "mnuWorld1";
-            this.mnuWorld1.Size = new System.Drawing.Size(152, 22);
-            this.mnuWorld1.Text = "World 1";
-            this.mnuWorld1.Click += new System.EventHandler(this.mnuWorld1_Click);
+            this.tsbStatus.Name = "tsbStatus";
+            this.tsbStatus.Size = new System.Drawing.Size(51, 17);
+            this.tsbStatus.Text = "Waiting.";
             // 
-            // mnuWorld2
+            // tsbProgress
             // 
-            this.mnuWorld2.Name = "mnuWorld2";
-            this.mnuWorld2.Size = new System.Drawing.Size(152, 22);
-            this.mnuWorld2.Text = "World 2";
-            this.mnuWorld2.Click += new System.EventHandler(this.mnuWorld2_Click);
-            // 
-            // mnuWorld3
-            // 
-            this.mnuWorld3.Name = "mnuWorld3";
-            this.mnuWorld3.Size = new System.Drawing.Size(152, 22);
-            this.mnuWorld3.Text = "World 3";
-            this.mnuWorld3.Click += new System.EventHandler(this.mnuWorld3_Click);
-            // 
-            // mnuWorld4
-            // 
-            this.mnuWorld4.Name = "mnuWorld4";
-            this.mnuWorld4.Size = new System.Drawing.Size(152, 22);
-            this.mnuWorld4.Text = "World 4";
-            this.mnuWorld4.Click += new System.EventHandler(this.mnuWorld4_Click);
-            // 
-            // mnuWorld5
-            // 
-            this.mnuWorld5.Name = "mnuWorld5";
-            this.mnuWorld5.Size = new System.Drawing.Size(152, 22);
-            this.mnuWorld5.Text = "World 5";
-            this.mnuWorld5.Click += new System.EventHandler(this.mnuWorld5_Click);
+            this.tsbProgress.Name = "tsbProgress";
+            this.tsbProgress.Size = new System.Drawing.Size(100, 16);
             // 
             // frmMain
             // 
@@ -660,7 +675,6 @@
 
         private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStrip toolStrip;
-        private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
@@ -721,6 +735,9 @@
         private System.Windows.Forms.ToolStripMenuItem mnuWorld3;
         private System.Windows.Forms.ToolStripMenuItem mnuWorld4;
         private System.Windows.Forms.ToolStripMenuItem mnuWorld5;
+        public System.Windows.Forms.StatusStrip statusStrip;
+        public System.Windows.Forms.ToolStripStatusLabel tsbStatus;
+        public System.Windows.Forms.ToolStripProgressBar tsbProgress;
     }
 }
 

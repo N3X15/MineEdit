@@ -44,7 +44,12 @@ namespace MineEdit
             FallDistance = (c["FallDistance"] as NbtFloat).Value;
             Motion = new Vector3d(c["Motion"] as NbtList);
             Pos = new Vector3d(c["Pos"] as NbtList);
-            Pos = new Vector3d(Pos.X, Pos.Z, Pos.Y);
+            /*
+            $pos[0] = floor($pos[0] / 32);
+            $pos[1] = floor($pos[1] / 32);
+            $pos[2] = floor($pos[2] / 32);
+             */
+            Pos = new Vector3d(Pos.X/32, Pos.Z/32, Pos.Y/32);
             Rotation = c["Rotation"];
             Console.WriteLine("Loaded entity {0} @ {1}", (c["id"] as NbtString).Value, Pos);
         }
@@ -101,6 +106,9 @@ namespace MineEdit
                 case "Item":
                     return new Item(c);
                 case "Spider":
+                    return new Spider(c);
+                case "Zombie":
+                    return new Zombie(c);
                 default: 
                     return new Entity(c);
             }

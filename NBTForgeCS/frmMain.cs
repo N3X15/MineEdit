@@ -198,6 +198,11 @@ namespace MineEdit
                     menues[i].Enabled=false;
                 }
             }
+#if DEBUG
+            Text = string.Format("MineEdit - v.{0} (DEBUG)", Blocks.Version);
+#else
+            Text = string.Format("MineEdit - v.{0}", Blocks.Version);
+#endif
         }
     public long DirSize(DirectoryInfo d) 
     {    
@@ -221,26 +226,7 @@ namespace MineEdit
         {
             string FileName = (s as ToolStripMenuItem).Text;
 
-
-            IMapHandler mh;
-            if (!GetFileHandler(FileName, out mh))
-            {
-                MessageBox.Show(string.Format("Unable to open file {0}: Unrecognised format", Path.GetFileName(FileName)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            mh.Load(FileName);
-
-            dlgLoading load = new dlgLoading(mh);
-            load.ShowDialog();
-
-            string mn = NewForm();
-            frmMap map = GetMap(mn);
-            map.Map = mh;
-
-            map.Show();
-            SetMap(mn, map);
-
-            Settings.SetLUF(FileName);
+            Open(FileName);
         }
         public void SetStatus(string p)
         {
@@ -335,6 +321,8 @@ namespace MineEdit
 
         private void Open(string FileName)
         {
+
+
             IMapHandler mh;
             if (!GetFileHandler(FileName, out mh))
             {
@@ -342,6 +330,10 @@ namespace MineEdit
                 return;
             }
             mh.Load(FileName);
+
+            dlgLoading load = new dlgLoading(mh);
+            load.ShowDialog();
+
             string mn = NewForm();
             frmMap map = GetMap(mn);
             map.Map = mh;

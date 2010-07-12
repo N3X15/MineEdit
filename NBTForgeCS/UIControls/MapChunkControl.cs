@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
-using System.Linq;
+
 using System.Text;
 using System.Windows.Forms;
 
@@ -62,7 +62,7 @@ namespace MineEdit
         /// </summary>
         public void Render()
         {
-            Console.WriteLine("[MapChunkControl::Render()] Rendering chunk ({0},{1})...", AssignedChunk.X, AssignedChunk.Y);
+            //Console.WriteLine("[MapChunkControl::Render()] Rendering chunk ({0},{1})...", AssignedChunk.X, AssignedChunk.Y);
             if (Drawing) return;
             if (parent.Map == null) return;
             Drawing = true;
@@ -75,6 +75,7 @@ namespace MineEdit
             Graphics g = Graphics.FromImage((Image)bmp);
             // No AA.  We WANT pixels :V
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
             // Chunk        1,1
             // ChunkSZ      16,16
             // ChunkCoords  16,16
@@ -85,14 +86,18 @@ namespace MineEdit
                     Vector3i blockpos = new Vector3i(x, y, parent.CurrentPosition.Z);
 
                     byte block = parent.Map.GetBlockIn(AssignedChunk.X, AssignedChunk.Y, blockpos);
+
                     int waterdepth = 0;
                     if (block == 0)
                     {
+                        Vector3i bp = blockpos;
+                        bp.X += parent.CurrentPosition.X + (x >> 4);
+                        bp.Y += parent.CurrentPosition.Y + (y >> 4);
                         // Console.WriteLine("hurr air");
                         int hurr;
 
-                        // Slow for some reason
-                        //parent.Map.GetOverview(blockpos, out hurr, out block, out waterdepth);
+                        // BROKEN for some reason (?!)
+                        //parent.Map.GetOverview(bp, out hurr, out block, out waterdepth);
                     }
                     g.FillRectangle(new SolidBrush(Blocks.GetColor(block)), x * parent.ZoomLevel, y * parent.ZoomLevel, parent.ZoomLevel, parent.ZoomLevel);
                     if (Settings.ShowGridLines)
@@ -117,6 +122,20 @@ namespace MineEdit
                     {
                         g.DrawRectangle(fp, 0, 0, parent.Map.ChunkScale.X * parent.ZoomLevel, parent.Map.ChunkScale.Y * parent.ZoomLevel);
                         g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black, 1, 1);
+                    }
+                }
+                foreach (KeyValuePair<Guid, Entity> k in parent.Map.Entities)
+                {
+                    if (
+                        k.Value.Pos.X > (AssignedChunk.X * 16) &&
+                        k.Value.Pos.X < (AssignedChunk.X * 16) + 16 &&
+                        k.Value.Pos.Y > (AssignedChunk.Y * 16) &&
+                        k.Value.Pos.Y < (AssignedChunk.Y * 16) + 16)
+                    {
+                        int x = (int)k.Value.Pos.X % (int)parent.Map.ChunkScale.X;
+                        int y = (int)k.Value.Pos.Y % (int)parent.Map.ChunkScale.Y;
+                        DrawCross(ref g, new Pen(Color.Yellow), x, y);
+                        g.DrawString(k.Value.ToString(), f, Brushes.Black, x + 1, y + 1);
                     }
                 }
             }

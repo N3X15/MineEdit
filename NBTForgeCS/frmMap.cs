@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
+
 using System.Text;
 using System.Windows.Forms;
 
@@ -17,28 +17,29 @@ namespace MineEdit
     }
     public partial class frmMap : Form
     {
-        private int _ZoomLevel=4;
         private IMapHandler _Map = null;
-        private string _Filename = "";
-        //protected MapControl mapCtrl;
+        // Use this TEMPORARILY.
+        protected MapControl mapCtrl;
+        // Work towards using THIS.
         //protected MapControlGL mapCtrl;
         protected Label lblMapDisabled = new Label();
         public frmMap()
         {
             InitializeComponent();
-            
+            /*
             lblMapDisabled.Text = "Map is completely broken, so it has been disabled for the time being.\n\nIf you'd like to help, please contact me, 'cuz I'm stumped.";
             lblMapDisabled.Dock = DockStyle.Fill;
             lblMapDisabled.TextAlign = ContentAlignment.TopCenter;
             tabMap.Controls.Add(lblMapDisabled);
             tclMap.SelectedTab = tabInventory;
-            
-            //mapCtrl = new MapControl();
+            */
+            mapCtrl = new MapControl();
             //mapCtrl = new MapControlGL();
-            //tabMap.Controls.Add(mapCtrl);
-            //mapCtrl.Dock = DockStyle.Fill;
-            //mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
-
+            tabMap.Controls.Add(mapCtrl);
+            mapCtrl.Dock = DockStyle.Fill;
+            mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
+            mapCtrl.EntityClicked += new MapControl.EntityClickHandler(mapCtrl_EntityClicked);
+            mapCtrl.TileEntityClicked += new MapControl.TileEntityClickHandler(mapCtrl_TileEntityClicked);
             SetStyle(ControlStyles.ResizeRedraw, true);
 
             this.ViewingAngle = MineEdit.ViewAngle.TopDown;
@@ -48,6 +49,18 @@ namespace MineEdit
 
             tileEntityEditor1.EntityModified += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityModified);
             tileEntityEditor1.EntityDeleted += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityDeleted);
+        }
+
+        void mapCtrl_TileEntityClicked(TileEntity e)
+        {
+            tileEntityEditor1.SetSelectedTEnt(e);
+            tclMap.SelectedTab=tabTEnts;
+        }
+
+        void mapCtrl_EntityClicked(Entity e)
+        {
+            entityEditor1.SetSelectedEnt(e);
+            tclMap.SelectedTab=tabEnts;
         }
 
         void tileEntityEditor1_EntityDeleted(TileEntity e)
@@ -70,7 +83,7 @@ namespace MineEdit
             Entity ent = entityEditor1.CurrentEntity;
             _Map.SetEntity(ent);
         }
-        /*
+        
         void mapCtrl_MouseDown(object sender, MouseEventArgs e)
         {
 
@@ -98,21 +111,21 @@ namespace MineEdit
                 MenuItem mnuChunkDetails = new MenuItem("Chunk details...");
                 mnuChunkDetails.Click += new EventHandler(mnuChunkDetails_Click);
             }
-        }*/
+        }
 
         void mnuChunkDetails_Click(object sender, EventArgs e)
         {
-            //dlgChunk chunk = new dlgChunk(_Map, mapCtrl.SelectedVoxel);
+            dlgChunk chunk = new dlgChunk(_Map, mapCtrl.SelectedVoxel);
         }
 
         void mnuPlaceEntity_Click(object sender, EventArgs e)
         {
             throw new NotImplementedException();
         }
-        /*Vector3i GetVoxelFromMouse(int x, int y)
+        Vector3i GetVoxelFromMouse(int x, int y)
         {
-            //return _Map.GetMousePos(new Vector3i(x, y, mapCtrl.CurrentPosition.Z), mapCtrl.ZoomLevel, ViewingAngle);
-        }*/
+            return _Map.GetMousePos(new Vector3i(x, y, mapCtrl.CurrentPosition.Z), mapCtrl.ZoomLevel, ViewingAngle);
+        }
 
         public IMapHandler Map
         {
@@ -122,7 +135,7 @@ namespace MineEdit
                 _Map = value;
                 this.invMain.Map = value;
                 if (_Map != null && !string.IsNullOrEmpty(_Map.Filename))
-                //mapCtrl.Map = _Map;
+                mapCtrl.Map = _Map;
                 Reload();
                 Refresh();
             }
@@ -145,6 +158,7 @@ namespace MineEdit
                 numSpawnZ.Value = _Map.Spawn.Z;
 
                 txtTime.Text = _Map.Time.ToString();
+                chkSnow.Checked = _Map.Snow;
 
                 entityEditor1.Load(ref _Map);
                 tileEntityEditor1.Load(ref _Map);
@@ -176,6 +190,7 @@ namespace MineEdit
 
         private void frmMap_Load(object sender, EventArgs e)
         {
+            MessageBox.Show("Just a warning:  Placed pig spawners aren't in the TileEntity list yet (they're a block).  I'll add a converter soon.\n\n  -- Nexypoo", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             this.cbViewingStyle.SelectedIndex = 0;
 
             tscbMaterial.Items.Clear();
@@ -185,20 +200,18 @@ namespace MineEdit
                     tscbMaterial.Items.Add(k.Value);
             }
         }
-        /*
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            mapCtrl.CurrentPosition.Z += e.Delta;
-            ClampCZ();
+            //mapCtrl.CurrentPosition.Z += e.Delta;
+            //ClampCZ();
             //Console.WriteLine("Changing Level to "+CZ.ToString());
-        }*/
+        }
 
-        /*
         protected override void OnMouseMove(MouseEventArgs e)
         {
             //this.SelectedVoxel = GetVoxelFromMouse(e.X, e.Y);
             //(this.MdiParent as frmMain).SetStatus("Mouse at <" + SelectedVoxel.X.ToString() + "," + SelectedVoxel.Y.ToString() + "," + SelectedVoxel.Z.ToString() + ">");
-        }*/
+        }
 
         private void cbViewingStyle_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -227,13 +240,13 @@ namespace MineEdit
         private void pbox_MouseDown(object sender, MouseEventArgs e)
         {
         }
-        /*
+        
         private void ClampCZ()
         {
             if (mapCtrl.CurrentPosition.Z == -1) mapCtrl.CurrentPosition.Z = 127;
             mapCtrl.CurrentPosition.Z = Math.Abs(mapCtrl.CurrentPosition.Z % _Map.ChunkScale.Z);
         }
-        */
+        
         // Up
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
@@ -415,14 +428,101 @@ namespace MineEdit
             {
             }
         }
+        public int NumChunks = 0;
+        public int ProcessedChunks = 0;
 
-        private bool tclMapWasSelected = false;
-        private void tclMap_Selected(object sender, TabControlEventArgs e)
+        int lastpct = 0;
+        private void CountChunks(long X, long Y)
         {
-            if (tclMapWasSelected)
-                return;
-            tclMapWasSelected = true;
-            MessageBox.Show("Just a warning:  Placed pig spawners aren't in the TileEntity list yet (they're a block).  I'll add a converter soon.\n\n  -- Nexypoo","WARNING",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+            (MdiParent as frmMain).tsbStatus.Text = string.Format("Counting chunks ({0})...",NumChunks++);
+            Application.DoEvents();
+        }
+        private void RemoveColdStuff(long X,long Y)
+        {
+            byte lolsnow = 78;
+            byte lolice = 79;
+            byte lolwater = 9;
+            Dictionary<byte, byte> Replacements = new Dictionary<byte, byte>();
+            Replacements.Add(lolsnow, 0);
+            Replacements.Add(lolice, lolwater);
+            Application.DoEvents();
+            _Map.ReplaceBlocksIn(X, Y, Replacements);
+            /*
+            for(int x=0;x<_Map.ChunkScale.X;x++)
+            {
+                for(int y=0;y<_Map.ChunkScale.Y;y++)
+                {
+                    for(int z=0;z<_Map.ChunkScale.Z;z++)
+                    {
+                        byte block=_Map.GetBlockAt(new Vector3i(x+(_Map.ChunkScale.X*X), y+(_Map.ChunkScale.Y*Y), z));  
+
+                        if (block== lolsnow)
+                            block = 0;
+                        else if (block == lolice)
+                            block = lolwater;
+                        else 
+                            continue;
+
+                        _Map.SetBlockAt(new Vector3i(x + (_Map.ChunkScale.X * X), y + (_Map.ChunkScale.Y * Y), z), block);
+
+                    }
+                }
+            }
+            */
+            int hurp = (int)((double)ProcessedChunks / (double)NumChunks) * 100;
+            string durp = string.Format("Defrosting chunk {0} of {1} ({2}%)", ProcessedChunks, NumChunks, hurp);
+            (MdiParent as frmMain).tsbStatus.Text = durp;
+            (MdiParent as frmMain).tsbProgress.Value = ProcessedChunks;
+
+            if (hurp - lastpct > 0)
+                Console.WriteLine(durp);
+
+            lastpct = hurp;
+            ++ProcessedChunks;
+        }
+
+        private void ClearSnow()
+        {
+            
+            DialogResult dr = MessageBox.Show("Are you sure you want to clear all snow? (THIS WILL TAKE A VERY LONG TIME.)", "Clear snow?", MessageBoxButtons.YesNo);
+
+            long nchunks = (_Map.MapMax.X - _Map.MapMin.X) * (_Map.MapMax.Y - _Map.MapMin.Y);
+
+            if (dr == DialogResult.Yes)
+            {
+
+                (MdiParent as frmMain).tsbStatus.Text = "Counting chunks...";
+                (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Marquee;
+                (MdiParent as frmMain).tsbProgress.Value = 0;
+                NumChunks = 0;
+                ProcessedChunks = 0;
+                _Map.BeginTransaction();
+                _Map.ForEachChunk(CountChunks);
+                (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Continuous;
+                (MdiParent as frmMain).tsbProgress.Maximum = NumChunks;
+                _Map.ForEachChunk(RemoveColdStuff);
+
+                (MdiParent as frmMain).tsbStatus.Text = "Saving...";
+                (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Marquee;
+                (MdiParent as frmMain).tsbProgress.Value = 0;
+                _Map.CommitTransaction();
+
+                (MdiParent as frmMain).tsbStatus.Text = "Ready.";
+                (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Continuous;
+                (MdiParent as frmMain).tsbProgress.Value = 0;
+                MessageBox.Show("Done.", "Defrost complete!");
+            }
+        }
+        private void chkSnow_CheckedChanged(object sender, EventArgs e)
+        {
+            _Map.Snow = chkSnow.Checked;
+        }
+
+        private void cmdDefrost_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            ClearSnow();
+            this.Enabled = true;
         }
     }
 }

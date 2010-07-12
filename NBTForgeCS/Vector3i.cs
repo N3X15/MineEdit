@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 
 namespace MineEdit
@@ -25,6 +25,14 @@ namespace MineEdit
             this.X = (long)f.X;
             this.Y = (long)f.Y;
             this.Z = (long)f.Z;
+        }
+
+        public static Vector3i operator +(Vector3i a, Vector3i b)
+        {
+            a.X += b.X;
+            a.Y += b.Y;
+            a.Z += b.Z;
+            return a;
         }
 
         public override string ToString()

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using LibNbt.Tags;
 
@@ -27,8 +27,8 @@ namespace MineEdit
         {
             Pos = new Vector3i(
                 (c["x"] as NbtInt).Value + (CX * CS),
-                (c["y"] as NbtInt).Value + (CY * CS),
-                Math.Abs((c["z"] as NbtInt).Value));
+                (c["z"] as NbtInt).Value + (CY * CS),
+                Math.Abs((c["y"] as NbtInt).Value));
             id = (c["id"] as NbtString).Value;
             orig = c;
         }
@@ -46,17 +46,23 @@ namespace MineEdit
 
         internal static TileEntity GetEntity(int CX, int CY, int CS, NbtCompound c)
         {
+            TileEntity e;
             switch ((c["id"] as NbtString).Value)
             {
                 case "Chest":
-                    return new Chest(CX,CY,CS,c);
+                    e = new Chest(CX,CY,CS,c);
+                    break;
                 case "MobSpawner":
-                    return new MobSpawner(CX, CY, CS, c);
+                    e = new MobSpawner(CX, CY, CS, c);
+                    break;
                 default:
                     Console.WriteLine("*** Unknown TileEntity: {0}", (c["id"] as NbtString).Value);
                     Console.WriteLine(c);
                     return new TileEntity(CX, CY, CS, c);
             }
+
+            Console.WriteLine("Loaded {1} @ {0}", e,e.Pos);
+            return e;
         }
 
         public void Base2NBT(ref NbtCompound c)

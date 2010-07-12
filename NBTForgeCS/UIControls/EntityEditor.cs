@@ -186,6 +186,11 @@ namespace MineEdit
                     EntityDeleted((Entity)ent);
             }
         }
+
+        internal void SetSelectedEnt(Entity e)
+        {
+            cmbEntities.SelectedItem = e;
+        }
     }
 
     public class EntityDistanceSorter : Comparer<Entity>

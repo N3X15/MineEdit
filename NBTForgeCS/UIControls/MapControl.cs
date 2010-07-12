@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
-using System.Linq;
+
 using System.Text;
 using System.Windows.Forms;
 
@@ -11,17 +11,11 @@ namespace MineEdit
 {
     public partial class MapControl: UserControl
     {
-        private float mScale = 256; // Size of a region in pixels
-        private float mPixelsPerMeter; // world meters to map pixels
-        private float mObjectMapTPM; // texels per meter on map
-        private float mObjectMapPixels; // Width of object map in pixels
-        private int mDotRadius; // Size of avatar markers
-        private float mTargetPanX;
-        private float mTargetPanY;
-        private float mCurPanX;
-        private float mCurPanY;
-        private bool mUpdateNow;
-        private Vector3d mObjectImageCenterGlobal;
+        public delegate void EntityClickHandler(Entity e);
+        public delegate void TileEntityClickHandler(TileEntity e);
+
+        public event EntityClickHandler EntityClicked;
+        public event TileEntityClickHandler TileEntityClicked;
 
         private Vector3i _CurrentPosition = new Vector3i(0, 0, 64);
         private Vector3i _SelectedVoxel = new Vector3i(-1, -1, -1);
@@ -29,6 +23,7 @@ namespace MineEdit
         private IMapHandler _Map;
         private ViewAngle _ViewingAngle = ViewAngle.TopDown;
         private Dictionary<Vector3i, MapChunkControl> Chunks = new Dictionary<Vector3i, MapChunkControl>();
+        private List<Button> EntityControls = new List<Button>();
         private int _ZoomLevel = 8;
         private bool Dragging = false;
         /// <summary>
@@ -96,22 +91,18 @@ namespace MineEdit
             min.Z = Math.Max(min.Z, _Map.MapMin.Z);
             max.Z = Math.Min(max.Z, _Map.MapMax.Z);
 
-            Console.WriteLine("DoLayout(): {0} - {1}", min, max);
-            Dictionary<Vector3i, MapChunkControl> c = new Dictionary<Vector3i,MapChunkControl>(Chunks);
-            foreach (KeyValuePair<Vector3i, MapChunkControl> p in Chunks)
+            //Console.WriteLine("DoLayout(): {0} - {1}", min, max);
+            foreach (KeyValuePair<Vector3i, MapChunkControl> k in Chunks)
             {
-                if (p.Key.X > max.X / _Map.ChunkScale.X ||
-                    p.Key.X < min.X / _Map.ChunkScale.X ||
-                    p.Key.Y > max.Y / _Map.ChunkScale.Y ||
-                    p.Key.Y < min.Y / _Map.ChunkScale.Y ||
-                    p.Key.Z > max.Z / _Map.ChunkScale.Z ||
-                    p.Key.Z < min.Z / _Map.ChunkScale.Z)
-                {
-                    c.Remove(p.Key);
-                    Controls.Remove(p.Value);
-                }
+                Controls.Remove(k.Value);
             }
-            Chunks = c;
+            Chunks.Clear();
+
+            foreach (Button b in EntityControls)
+            {
+                Controls.Remove(b);
+            }
+            EntityControls.Clear();
 
             switch (ViewingAngle)
             {
@@ -151,11 +142,12 @@ namespace MineEdit
 
         private void LayoutYZ(Vector3i Sides, Vector3i min, Vector3i max)
         {
-            for (int y = 0; y < Width/Sides.Y; y++)
+            Console.WriteLine("long y = {0}; y < {1}; y += {2}", min.Y / Sides.Y, max.Y / Sides.Y, _Map.ChunkScale.Y / Sides.Y);
+            for (long y = min.Y / Sides.Y; y < max.Y / Sides.Y; y += _Map.ChunkScale.Y / Sides.Y)
             {
-                for (int z = 0; z < Height/Sides.Z; z++)
+                for (long x = min.X / Sides.X; x < max.X / Sides.X; x += _Map.ChunkScale.X/Sides.X)
                 {
-                    Vector3i cc = new Vector3i((min.X / _Map.ChunkScale.X), y + (min.Y / _Map.ChunkScale.Y), z+(CurrentPosition.Z / _Map.ChunkScale.X));
+                    Vector3i cc = new Vector3i(x+(min.X / _Map.ChunkScale.X), y + (min.Y / _Map.ChunkScale.Y), (CurrentPosition.Z / _Map.ChunkScale.X));
                     if (!Chunks.ContainsKey(cc))
                     {
                         MapChunkControl mcc = new MapChunkControl(this, cc, _Map.ChunkScale);
@@ -191,6 +183,7 @@ namespace MineEdit
                     if (!Chunks.ContainsKey(cc))
                     {
                         MapChunkControl mcc = new MapChunkControl(this, cc, _Map.ChunkScale);
+                        mcc.SendToBack();
                         mcc.SetBounds((int)(x * _Map.ChunkScale.X)*ZoomLevel+6, (int)(y * _Map.ChunkScale.Y)*ZoomLevel+6, (int)(_Map.ChunkScale.X)*ZoomLevel, (int)(_Map.ChunkScale.Y)*ZoomLevel);
                         //Console.WriteLine("Added chunk to {0},{1}", mcc.Top, mcc.Left);
                         Controls.Add(mcc);
@@ -205,6 +198,74 @@ namespace MineEdit
                     }
                 }
             }
+            foreach (KeyValuePair<Guid, Entity> k in _Map.Entities)
+            {
+                Entity e = k.Value;
+                if (e.Pos.X > min.X && e.Pos.X < max.X && e.Pos.Y > min.Y && e.Pos.Y < max.Y)
+                {
+                    Button b = new Button();
+                    float x = (float)e.Pos.X + (float)min.X;
+                    float y = (float)e.Pos.Y + (float)min.Y;
+                    b.SetBounds((int)y * ZoomLevel - 2, (int)y * ZoomLevel - 2, 16, 16);
+                    b.Image = e.Image;
+                    b.UseVisualStyleBackColor = true;
+                    b.BackColor = Color.Transparent;
+                    b.FlatStyle = FlatStyle.Flat;
+                    b.ImageAlign = ContentAlignment.MiddleCenter;
+                    b.FlatAppearance.BorderSize = 1;
+                    b.FlatAppearance.BorderColor = Color.Black;
+                    b.FlatAppearance.MouseOverBackColor = Color.Transparent;
+                    b.Click += new EventHandler(OnEntityClicked);
+                    b.Tag = e;
+                    Controls.Add(b);
+                    EntityControls.Add(b);
+                    b.Show();
+                    b.BringToFront();
+                    Console.WriteLine("{0} {1} added to pos {2},{3}", e, e.UUID, b.Top, b.Left);
+                }
+            }
+            foreach (KeyValuePair<Guid, TileEntity> k in _Map.TileEntities)
+            {
+                TileEntity e = k.Value;
+                if (e.Pos.X > min.X && e.Pos.X < max.X && e.Pos.Y > min.Y && e.Pos.Y < max.Y)
+                {
+                    Button b = new Button();
+                    b.SetBounds((int)(e.Pos.X - min.X) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y) * ZoomLevel + 6, 16, 16);
+                    b.Image = e.Image;
+                    b.UseVisualStyleBackColor = true;
+                    b.BackColor = Color.Transparent;
+                    b.FlatStyle = FlatStyle.Flat;
+                    b.ImageAlign = ContentAlignment.MiddleCenter;
+                    b.FlatAppearance.BorderSize = 1;
+                    b.FlatAppearance.BorderColor = Color.Black;
+                    b.FlatAppearance.MouseOverBackColor = Color.Transparent;
+                    b.Click += new EventHandler(OnTileEntityClicked);
+                    b.Tag = e;
+                    Controls.Add(b);
+                    EntityControls.Add(b);
+                    b.Show();
+                    b.BringToFront();
+                    Console.WriteLine("{0} {1} added to pos {2},{3}", e, e.UUID, b.Top, b.Left);
+                }
+            }
+        }
+
+        void OnTileEntityClicked(object sender, EventArgs e)
+        {
+            if (TileEntityClicked != null)
+                TileEntityClicked((TileEntity)(sender as Button).Tag);
+        }
+
+        void OnEntityClicked(object sender, EventArgs e)
+        {
+            if (EntityClicked != null)
+                EntityClicked((Entity)(sender as Button).Tag);
+        }
+
+        // Entity button clicked.
+        void b_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void LayoutXY(Vector3i Sides, Vector3i min, Vector3i max)

@@ -7,6 +7,8 @@ namespace MineEdit
 {
     public class Chunk
     {
+        public delegate void ChunkModifierDelegate(long x, long y);
+
         public Vector3i Position = new Vector3i(0,0,0);
         public Vector3i Size = new Vector3i(0,0,0);
         public string Filename = "";
