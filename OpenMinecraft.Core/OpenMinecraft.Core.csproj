@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{14924795-C5DF-4F6D-A0D1-B9B5B92C855D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OpenMinecraft</RootNamespace>
+    <AssemblyName>OpenMinecraft.Core</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Blocks.cs" />
+    <Compile Include="Chunk.cs" />
+    <Compile Include="Entities\Creeper.cs" />
+    <Compile Include="Entities\FallingSand.cs" />
+    <Compile Include="Entities\Giant.cs" />
+    <Compile Include="Entities\Item.cs" />
+    <Compile Include="Entities\LivingEntity.cs" />
+    <Compile Include="Entities\MobIcons.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MobIcons.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Pig.cs" />
+    <Compile Include="Entities\Sheep.cs" />
+    <Compile Include="Entities\Skeleton.cs" />
+    <Compile Include="Entities\Spider.cs" />
+    <Compile Include="Entities\Zombie.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Extensions\_Color.cs" />
+    <Compile Include="frmUpdate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmUpdate.Designer.cs">
+      <DependentUpon>frmUpdate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="IMapHandler.cs" />
+    <Compile Include="InventoryCollection.cs" />
+    <Compile Include="InventoryItem.cs" />
+    <Compile Include="MapHandlers\InfdevHandler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TileEntities\Chest.cs" />
+    <Compile Include="TileEntities\Furnace.cs" />
+    <Compile Include="TileEntities\Icons\TileEntities.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TileEntities.resx</DependentUpon>
+    </Compile>
+    <Compile Include="TileEntities\MobSpawner.cs" />
+    <Compile Include="TileEntities\TileEntity.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="Vector3d.cs" />
+    <Compile Include="Vector3i.cs" />
+    <Compile Include="ViewAngle.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lib\LibNBT\LibNbt.csproj">
+      <Project>{4488498D-976D-4DA3-BF72-109531AF0488}</Project>
+      <Name>LibNbt</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Entities\MobIcons.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MobIcons.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmUpdate.resx">
+      <DependentUpon>frmUpdate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TileEntities\Icons\TileEntities.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>TileEntities.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\52.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\54.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\61.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\0.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mobcreeper.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mobnotch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mobpig.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mobsheep.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mobskeleton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mobspider.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mobzombie.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

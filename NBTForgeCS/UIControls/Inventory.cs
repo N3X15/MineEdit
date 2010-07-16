@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
+using System.Windows.Forms;
+using OpenMinecraft;
 
 namespace MineEdit
 {
     public partial class Inventory : UserControl
     {
-        public Dictionary<int, InventoryItem> Stuff = new Dictionary<int, InventoryItem>();
+        public Dictionary<int, InventoryItemControl> Stuff = new Dictionary<int, InventoryItemControl>();
 
         private IMapHandler _Map;
         private int ArmorOffset;
@@ -59,7 +56,7 @@ namespace MineEdit
             _Map.ClearInventory();
             for (int i = 0; i < Stuff.Count; i++)
             {
-                InventoryItem item = Stuff[i];
+                InventoryItemControl item = Stuff[i];
                 if (item.MyType > 0 && item.Count > 0)
                 {
                     if (i > Map.InventoryCapacity - 1)
@@ -80,7 +77,7 @@ namespace MineEdit
 
         private void ClearInventory()
         {
-            foreach (KeyValuePair<int, InventoryItem> kvp in Stuff)
+            foreach (KeyValuePair<int, InventoryItemControl> kvp in Stuff)
             {
                 Controls.Remove(kvp.Value);
                 kvp.Value.Dispose();
@@ -104,12 +101,12 @@ namespace MineEdit
             for (int i = 0; i < Map.InventoryCapacity; i++)
             {
                 short id;
-                int dmg;
-                int count;
+                short dmg;
+                byte count;
                 string failreason;
                 if (_Map.GetInventory(i, out id, out dmg, out count, out failreason))
                 {
-                    InventoryItem inv = new InventoryItem(id, dmg, count);
+                    InventoryItemControl inv = new InventoryItemControl(id, dmg, count);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
                     this.splitInv.Panel1.Controls.Add(inv);
@@ -118,7 +115,7 @@ namespace MineEdit
                 }
                 else
                 {
-                    InventoryItem inv = new InventoryItem(0, 0, 1);
+                    InventoryItemControl inv = new InventoryItemControl(0, 0, 1);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
                     this.splitInv.Panel1.Controls.Add(inv);
@@ -130,13 +127,13 @@ namespace MineEdit
             for (int i = 0; i < 4; i++)
             {
                 short id;
-                int dmg;
-                int count;
+                short dmg;
+                byte count;
                 string failreason;
                 ArmorType at = (Enum.GetValues(typeof(ArmorType)) as ArmorType[])[i];
                 if (_Map.GetArmor(at, out id, out dmg, out count, out failreason))
                 {
-                    InventoryItem inv = new InventoryItem(id, dmg, count);
+                    InventoryItemControl inv = new InventoryItemControl(id, dmg, count);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
                     inv.MouseDown += new MouseEventHandler(inv_MouseDown);
@@ -148,7 +145,7 @@ namespace MineEdit
                 }
                 else
                 {
-                    InventoryItem inv = new InventoryItem(0, 0, 1);
+                    InventoryItemControl inv = new InventoryItemControl(0, 0, 1);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
                     inv.MouseDown += new MouseEventHandler(inv_MouseDown);
@@ -168,11 +165,11 @@ namespace MineEdit
         {
             if (MouseIsDown)
             {
-                (sender as InventoryItem).DoDragDrop(sender, DragDropEffects.All);
-                (sender as InventoryItem).Count = 0;
-                (sender as InventoryItem).MyType = 0x00;
-                (sender as InventoryItem).Damage = 0;
-                (sender as InventoryItem).Refresh();
+                (sender as InventoryItemControl).DoDragDrop(sender, DragDropEffects.All);
+                (sender as InventoryItemControl).Count = 0;
+                (sender as InventoryItemControl).MyType = 0x00;
+                (sender as InventoryItemControl).Damage = 0;
+                (sender as InventoryItemControl).Refresh();
             }
         }
 
@@ -190,7 +187,7 @@ namespace MineEdit
 
         void inv_Click(object sender, EventArgs e)
         {
-            InventoryItem inv = (InventoryItem)sender;
+            InventoryItemControl inv = (InventoryItemControl)sender;
             inv.Selected = !inv.Selected;
             inv.Render(); 
             inv.Refresh();
@@ -371,8 +368,8 @@ namespace MineEdit
                 {
                     if(cmbType.SelectedItem!=null)
                         Stuff[i].MyType = (cmbType.SelectedItem as Block).ID;
-                    Stuff[i].Count = (int)numCount.Value;
-                    Stuff[i].Damage = (int)numDamage.Value;
+                    Stuff[i].Count = (byte)numCount.Value;
+                    Stuff[i].Damage =  Utils.Clamp((short)numDamage.Value,(short)-9999,(short)9999);
                     Stuff[i].Render();
                     Stuff[i].Refresh();
                 }

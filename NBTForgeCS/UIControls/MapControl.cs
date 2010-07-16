@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-
-using System.Text;
 using System.Windows.Forms;
+using OpenMinecraft;
+using OpenMinecraft.Entities;
+using OpenMinecraft.TileEntities;
 
 namespace MineEdit
 {
@@ -17,7 +16,7 @@ namespace MineEdit
         public event EntityClickHandler EntityClicked;
         public event TileEntityClickHandler TileEntityClicked;
 
-        private Vector3i _CurrentPosition = new Vector3i(0, 0, 64);
+        private Vector3i _CurrentPosition = new Vector3i(0, 0, 127);
         private Vector3i _SelectedVoxel = new Vector3i(-1, -1, -1);
         private bool Drawing = false;
         private IMapHandler _Map;
@@ -106,13 +105,13 @@ namespace MineEdit
 
             switch (ViewingAngle)
             {
-                case ViewAngle.XY:  // Slice N-S?
+                case ViewAngle.FrontSlice:  // Slice N-S?
                     LayoutXY(Sides, min, max);
                     break;
                 case ViewAngle.TopDown: // Top Down
                     LayoutTopdown(Sides, min, max);
                     break;
-                case ViewAngle.YZ: // Slice E-W?
+                case ViewAngle.SideSlice: // Slice E-W?
                     LayoutYZ(Sides, min, max);
                     break;
             }
@@ -189,6 +188,7 @@ namespace MineEdit
                     if (!Chunks.ContainsKey(cc))
                     {
                         MapChunkControl mcc = new MapChunkControl(this, cc, _Map.ChunkScale);
+                        mcc.MouseClick += new MouseEventHandler(ChunkRightClicked);
                         mcc.SendToBack();
                         mcc.SetBounds((int)(x * _Map.ChunkScale.X)*ZoomLevel+6, (int)(y * _Map.ChunkScale.Y)*ZoomLevel+6, (int)(_Map.ChunkScale.X)*ZoomLevel, (int)(_Map.ChunkScale.Y)*ZoomLevel);
                         //Console.WriteLine("Added chunk to {0},{1}", mcc.Top, mcc.Left);
@@ -215,7 +215,7 @@ namespace MineEdit
                     Button b = new Button();
                     float x = (float)e.Pos.X + (float)min.X;
                     float y = (float)e.Pos.Y + (float)min.Y;
-                    b.SetBounds((int)y * ZoomLevel - 2, (int)y * ZoomLevel - 2, 16, 16);
+                    //b.SetBounds((int)y * ZoomLevel - 2, (int)y * ZoomLevel - 2, 16, 16);
                     b.SetBounds((int)(e.Pos.X - min.X) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y) * ZoomLevel + 6, 16, 16);
                     b.Image = e.Image;
                     b.UseVisualStyleBackColor = true;
@@ -257,6 +257,16 @@ namespace MineEdit
                     b.BringToFront();
                     Console.WriteLine("{0} {1} added to pos {2},{3}", e, e.UUID, b.Top, b.Left);
                 }
+            }
+        }
+
+        void ChunkRightClicked(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                MapChunkControl mcc = (MapChunkControl)sender;
+                dlgChunk chunkdlg = new dlgChunk(_Map, mcc.AssignedChunk);
+                chunkdlg.ShowDialog();
             }
         }
 
@@ -415,11 +425,6 @@ namespace MineEdit
             CurrentPosition.Z--;
             DoLayout();
             Refresh();
-        }
-
-        private void MapControl_Load(object sender, EventArgs e)
-        {
-
         }
 
     }

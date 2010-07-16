@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Text;
 using System.Drawing;
+using OpenMinecraft;
 
 namespace MineEdit
 {

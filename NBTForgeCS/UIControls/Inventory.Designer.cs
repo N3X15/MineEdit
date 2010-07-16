@@ -43,6 +43,8 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbSaveTemplate = new System.Windows.Forms.ToolStripButton();
             this.tsbOpenTemplate = new System.Windows.Forms.ToolStripButton();
+            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.splitInv.Panel2.SuspendLayout();
             this.splitInv.SuspendLayout();
             this.gbEdit.SuspendLayout();
@@ -104,12 +106,12 @@
             // 
             this.numDamage.Location = new System.Drawing.Point(80, 81);
             this.numDamage.Maximum = new decimal(new int[] {
-            600,
+            9999,
             0,
             0,
             0});
             this.numDamage.Minimum = new decimal(new int[] {
-            600,
+            9999,
             0,
             0,
             -2147483648});
@@ -214,6 +216,8 @@
             // toolStrip1
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripLabel1,
+            this.toolStripSeparator1,
             this.tsbSaveTemplate,
             this.tsbOpenTemplate});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
@@ -241,6 +245,17 @@
             this.tsbOpenTemplate.Size = new System.Drawing.Size(23, 22);
             this.tsbOpenTemplate.Text = "Open Template";
             this.tsbOpenTemplate.Click += new System.EventHandler(this.tsbOpenTemplate_Click);
+            // 
+            // toolStripLabel1
+            // 
+            this.toolStripLabel1.Name = "toolStripLabel1";
+            this.toolStripLabel1.Size = new System.Drawing.Size(89, 22);
+            this.toolStripLabel1.Text = "Template Tools";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
             // Inventory
             // 
@@ -280,6 +295,8 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbSaveTemplate;
         private System.Windows.Forms.ToolStripButton tsbOpenTemplate;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 
     }
 }

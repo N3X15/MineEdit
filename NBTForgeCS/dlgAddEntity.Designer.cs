@@ -28,13 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            MineEdit.Pig pig1 = new MineEdit.Pig();
-            MineEdit.Skeleton skeleton1 = new MineEdit.Skeleton();
-            MineEdit.Creeper creeper1 = new MineEdit.Creeper();
-            MineEdit.FallingSand fallingSand1 = new MineEdit.FallingSand();
-            MineEdit.Sheep sheep1 = new MineEdit.Sheep();
-            MineEdit.Spider spider1 = new MineEdit.Spider();
-            MineEdit.Zombie zombie1 = new MineEdit.Zombie();
             this.mobSelector1 = new MineEdit.MobSelector();
             this.numPosX = new System.Windows.Forms.NumericUpDown();
             this.numPosY = new System.Windows.Forms.NumericUpDown();
@@ -53,21 +46,6 @@
             // mobSelector1
             // 
             this.mobSelector1.FormattingEnabled = true;
-            pig1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            skeleton1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            creeper1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            fallingSand1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            sheep1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            spider1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            zombie1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            this.mobSelector1.Items.AddRange(new object[] {
-            pig1,
-            skeleton1,
-            creeper1,
-            fallingSand1,
-            sheep1,
-            spider1,
-            zombie1});
             this.mobSelector1.Location = new System.Drawing.Point(12, 25);
             this.mobSelector1.Name = "mobSelector1";
             this.mobSelector1.Size = new System.Drawing.Size(146, 21);

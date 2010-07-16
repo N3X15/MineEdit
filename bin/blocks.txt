@@ -38,7 +38,7 @@
 52	52.png	Mob spawner
 53	53.png	Wood stairs
 54	54.png	Chest
-55	55.png	(Red wire)
+55	55.png	Redstone dust
 56	56.png	Diamond ore
 57	57.png	Diamond
 58	58.png	Workbench
@@ -63,6 +63,8 @@
 77	77.png	Button
 78	78.png	Snow
 79	79.png	Ice
+80	80.png	Snow block
+81	81.png	Cactus
 256	256.png	Iron shovel
 257	257.png	Iron pickaxe
 258	258.png	Iron axe
@@ -139,3 +141,5 @@
 329	329.png	Saddle
 330	330.png	Iron door
 331	331.png	Redstone dust
+332	332.png	Snowball
+333	333.png	Boat

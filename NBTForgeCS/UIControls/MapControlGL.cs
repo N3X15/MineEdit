@@ -11,6 +11,7 @@ using OpenTK.Platform;
 using OpenTK;
 using System.Drawing.Imaging;
 using TexLib;
+using OpenMinecraft;
 namespace MineEdit
 {
     public partial class MapControlGL : UserControl
@@ -237,13 +238,13 @@ namespace MineEdit
 
             switch (ViewingAngle)
             {
-                case ViewAngle.XY:  // Slice N-S?
+                case ViewAngle.FrontSlice:  // Slice N-S?
                     LayoutXY(Sides, min, max);
                     break;
                 case ViewAngle.TopDown: // Top Down
                     //LayoutTopdown(Sides, min, max);
                     break;
-                case ViewAngle.YZ: // Slice E-W?
+                case ViewAngle.SideSlice: // Slice E-W?
                     LayoutYZ(Sides, min, max);
                     break;
             }

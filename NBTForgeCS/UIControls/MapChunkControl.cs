@@ -6,11 +6,13 @@ using System.Data;
 
 using System.Text;
 using System.Windows.Forms;
+using OpenMinecraft;
 
 namespace MineEdit
 {
     public partial class MapChunkControl : UserControl
     {
+        public IMapHandler Map;
         MapControl parent;
         bool Drawing = false;
 
@@ -26,6 +28,11 @@ namespace MineEdit
         Bitmap bmp;
         int lh = 1, lw = 1, ly=0;
 
+        public MapChunkControl()
+        {
+
+        }
+
         /// <summary>
         /// Initialize and set up events for this MapChunk.
         /// </summary>
@@ -35,9 +42,10 @@ namespace MineEdit
         public MapChunkControl(MapControl mc,Vector3i pos,Vector3i sz)
         {
             parent=mc;
+            Map = parent.Map;
             AssignedChunk = pos;
             ChunkSize = sz;
-            Console.WriteLine("{0}: Chunk ({1},{2}), origin ({3},{4}), size {5}", this, pos.X, pos.Y, pos.X * sz.X, pos.Y * sz.Y, sz);
+            //Console.WriteLine("{0}: Chunk ({1},{2}), origin ({3},{4}), size {5}", this, pos.X, pos.Y, pos.X * sz.X, pos.Y * sz.Y, sz);
             InitializeComponent();
             Paint += new PaintEventHandler(MapChunkControl_Paint);
         }
@@ -46,6 +54,12 @@ namespace MineEdit
         void MapChunkControl_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
+            if (parent == null)
+            {
+                g.FillRectangle(Brushes.Blue, 0, 0, Width - 1, Height - 1);
+                g.DrawString("[ NO PARENT! ]", new Font(FontFamily.GenericSansSerif, 7), Brushes.White, 2, 2);
+                return;
+            }
             if (bmp != null/* && LastPos==parent.CurrentPosition*/)
                 g.DrawImage(bmp, 0, 0, Width, Height);
             else
@@ -54,7 +68,8 @@ namespace MineEdit
                 g.DrawString("[ Loading ]", new Font(FontFamily.GenericSansSerif, 7), Brushes.White, 2, 2);
                 Render();
             }
-            LastPos = parent.CurrentPosition;
+            if(parent!=null)
+                LastPos = parent.CurrentPosition;
         }
 
         /// <summary>
@@ -63,15 +78,26 @@ namespace MineEdit
         public void Render()
         {
             //Console.WriteLine("[MapChunkControl::Render()] Rendering chunk ({0},{1})...", AssignedChunk.X, AssignedChunk.Y);
-            if (Drawing) return;
-            if (parent.Map == null) return;
+            if (Drawing)
+            {
+                Console.WriteLine("Drawing, aborting render.");
+                return;
+            }
+            if (Map == null)
+            {
+                Console.WriteLine("parent.Map = null");
+                return;
+            }
             Drawing = true;
             int w = Width;
             int h = Height;
             //if (lh == h && lw == w && ly==parent.CurrentPosition.Z) return;
-            if (w == 0 || h == 0) return;
+            if (w == 0 || h == 0) 
+                return;
             bmp = new Bitmap(w, h);
-            bool DrawSquares = (parent.ViewingAngle == ViewAngle.TopDown);
+            bool DrawSquares=true;
+            if(parent!=null)
+                DrawSquares=(parent.ViewingAngle == ViewAngle.TopDown);
             Graphics g = Graphics.FromImage((Image)bmp);
             // No AA.  We WANT pixels :V
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
@@ -79,49 +105,97 @@ namespace MineEdit
             // Chunk        1,1
             // ChunkSZ      16,16
             // ChunkCoords  16,16
-            for (int x = 0; x < parent.Map.ChunkScale.X; x++)
+            int z = 128;
+            int zoom = 8;
+            if (parent != null)
             {
-                for (int y = 0; y < parent.Map.ChunkScale.Y; y++)
+                z = (int)parent.CurrentPosition.Z;
+                zoom = parent.ZoomLevel;
+            }
+            for (int x = 0; x < Map.ChunkScale.X; x++)
+            {
+                for (int y = 0; y < Map.ChunkScale.Y; y++)
                 {
-                    Vector3i blockpos = new Vector3i(x, y, parent.CurrentPosition.Z);
+                    Vector3i blockpos = new Vector3i(x, y, z);
 
-                    byte block = parent.Map.GetBlockIn(AssignedChunk.X, AssignedChunk.Y, blockpos);
+                    byte block = Map.GetBlockIn(AssignedChunk.X, AssignedChunk.Y, blockpos);
 
                     int waterdepth = 0;
+                    int bh = 0;
+                    Color c = Blocks.GetColor(block);
+                    Color shadow = Color.Transparent;
                     if (block == 0)
                     {
                         Vector3i bp = blockpos;
-                        bp.X += parent.CurrentPosition.X + (x >> 4);
-                        bp.Y += parent.CurrentPosition.Y + (y >> 4);
+                        //bp.X += Map.CurrentPosition.X + (x >> 4);
+                        //bp.Y += Map.CurrentPosition.Y + (y >> 4);
                         // Console.WriteLine("hurr air");
-                        int hurr;
 
                         // BROKEN for some reason (?!)
-                        //parent.Map.GetOverview(bp, out hurr, out block, out waterdepth);
+                        parent.Map.GetOverview((int)AssignedChunk.X,(int)AssignedChunk.Y,blockpos, out bh, out block, out waterdepth);
+
+                        c = Blocks.GetColor(block);
+                        // Water translucency
+                        if (waterdepth > 0)
+                        {
+                            if (waterdepth > 15)
+                                waterdepth = 15;
+                            float pct = ((float)waterdepth / 15f) * 100f;
+                            Color wc = Color.Blue;
+                            c = Color.FromArgb(
+                                Utils.Lerp(c.R, wc.R, (int)pct),
+                                Utils.Lerp(c.G, wc.G, (int)pct),
+                                Utils.Lerp(c.B, wc.B, (int)pct));
+                        }
+
+                        // Height (TODO: Replace with lighting?)
+                        // 128-50 = 
+                        bh = (int)parent.CurrentPosition.Z - bh;
+                        if (bh > 0)
+                        {
+                            //if (bh > 5)
+                            //    bh = 5;
+                            float pct = ((float)bh / 128f) * 100f;
+                            Color wc = Color.Black;
+                            //shadow = Color.FromArgb((int)pct, Color.Black);
+                            c = Color.FromArgb(
+                                Utils.Lerp(c.R, 0, (int)pct),
+                                Utils.Lerp(c.G, 0, (int)pct),
+                                Utils.Lerp(c.B, 0, (int)pct));
+                            //Console.WriteLine("{0}h = {1}% opacity shadow",bh,pct);
+                        }
+                        shadow = Color.FromArgb(128, Color.Black);
                     }
-                    g.FillRectangle(new SolidBrush(Blocks.GetColor(block)), x * parent.ZoomLevel, y * parent.ZoomLevel, parent.ZoomLevel, parent.ZoomLevel);
+                    g.FillRectangle(new SolidBrush(c), x * zoom, y * zoom, zoom, zoom);
+                    //g.FillRectangle(new SolidBrush(shadow), x * zoom, y * zoom, zoom, zoom);
+                    //g.DrawString(bh.ToString(), new Font(FontFamily.GenericSansSerif, 5), Brushes.Blue, new PointF((float)(x * zoom), (float)(y * zoom)));
+                    if (Settings.ShowWaterDepth && waterdepth > 0)
+                        g.DrawString(waterdepth.ToString(), new Font(FontFamily.GenericSansSerif, 5), Brushes.Blue, new PointF((float)(x * zoom), (float)(y * zoom)));
                     if (Settings.ShowGridLines)
-                        g.DrawRectangle(new Pen(Color.Black), x * parent.ZoomLevel, y * parent.ZoomLevel, parent.ZoomLevel, parent.ZoomLevel);
+                        g.DrawRectangle(new Pen(Color.Black), x * zoom, y * zoom, zoom, zoom);
                 }
             }
             Pen fp = new Pen(Color.Black);
             if (Settings.ShowChunks)
             {
-                long ox = AssignedChunk.X * (int)parent.ZoomLevel;
-                long oz = AssignedChunk.Y * (int)parent.ZoomLevel;
-                int chunksz = (16 * parent.ZoomLevel);
-                Font f = new Font(FontFamily.GenericSansSerif, 7);
+                long ox = AssignedChunk.X * (int)zoom;
+                long oz = AssignedChunk.Y * (int)zoom;
+                int chunksz = (16 * zoom);
+                Font f = new Font(FontFamily.GenericSansSerif, 7,FontStyle.Bold);
                 for (int x = 0; x < w / 2; x++)
                 {
                     if (DrawSquares)
                     {
-                        DrawCross(ref g, fp, 0, 0);
-                        g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black, 1, 1);
+                        DrawCross(ref g, Pens.Black, 1, 1);
+                        DrawCross(ref g, Pens.White, 0, 0);
+                        g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black, 2, 2);
+                        g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.White, 1, 1);
                     }
                     else
                     {
-                        g.DrawRectangle(fp, 0, 0, parent.Map.ChunkScale.X * parent.ZoomLevel, parent.Map.ChunkScale.Y * parent.ZoomLevel);
-                        g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black, 1, 1);
+                        g.DrawRectangle(fp, 0, 0, Map.ChunkScale.X * zoom, Map.ChunkScale.Y * zoom);
+                        g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.Black, 2, 2);
+                        g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.White, 1, 1);
                     }
                 }
                 /*
@@ -159,11 +233,6 @@ namespace MineEdit
         private void DrawBlock(ref Bitmap bmp, int x, int y, Color c)
         {
             bmp.SetPixel(x, y, c);
-        }
-
-        private void MapChunkControl_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }

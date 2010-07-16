@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using OpenMinecraft;
 
 namespace MineEdit
 {
@@ -75,6 +76,7 @@ namespace MineEdit
                     MessageBox.Show(string.Format("Unable to open file {0}: Unrecognised format",Path.GetFileName(FileName)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                mh.CorruptChunk += new CorruptChunkHandler(OnCorruptChunk);
                 mh.Load(FileName);
                 string mn = NewForm();
                 frmMap map = GetMap(mn);
@@ -84,6 +86,16 @@ namespace MineEdit
                 SetMap(mn, map);
 
                 Settings.SetLUF(FileName);
+            }
+        }
+
+        void OnCorruptChunk(string error, string file)
+        {
+            DialogResult dr = MessageBox.Show("A chunk is corrupt.  Would you like to delete and regenerate it?\n\n"+error, "Corrupt chunk!", MessageBoxButtons.YesNo);
+            if (dr == DialogResult.Yes)
+            {
+                File.Delete(file);
+                MessageBox.Show(file + " deleted!");
             }
         }
 
@@ -175,6 +187,10 @@ namespace MineEdit
         {
             Blocks.Init();
             Settings.Init();
+
+            chkGridLines.Checked = Settings.ShowGridLines;
+            chkWaterDepth.Checked = Settings.ShowWaterDepth;
+
             foreach (string luf in Settings.LastUsedFiles)
             {
                 mnuOpen.DropDownItems.Add(new ToolStripMenuItem(luf, null, new EventHandler(LUF_Click)));
@@ -366,6 +382,97 @@ namespace MineEdit
         {
             string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             Open(Path.Combine(appdata, @".minecraft\saves\World5\level.dat"));
+        }
+
+        private void randomSeedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    long random = (ActiveMdiChild as frmMap).Map.RandomSeed;
+                    SaveFileDialog sfd = new SaveFileDialog();
+                    sfd.Filter="Random Seed File|*.rnd|Any file|*.*";
+                    DialogResult dr = sfd.ShowDialog();
+                    if (dr == System.Windows.Forms.DialogResult.OK)
+                    {
+                        File.WriteAllText(sfd.FileName, random.ToString());
+                        MessageBox.Show("Saved.");
+                    }
+                }
+            }
+        }
+
+        private void randomSeedToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    OpenFileDialog sfd = new OpenFileDialog();
+                    sfd.Filter = "Random Seed File|*.rnd|Any file|*.*";
+                    DialogResult dr = sfd.ShowDialog();
+                    if (dr == System.Windows.Forms.DialogResult.OK)
+                    {
+                        long random;
+                        if(!long.TryParse(File.ReadAllText(sfd.FileName),out random))
+                        {
+                            MessageBox.Show("Use a valid Random Seed File (all it can contain is the random seed value).");
+                            return;
+                        }
+                        (ActiveMdiChild as frmMap).Map.RandomSeed = random;
+                        (ActiveMdiChild as frmMap).Map.Save();
+                        DialogResult dr2 = MessageBox.Show("Would you also like to REMOVE ALL CHUNKS?  This will allow you to regenerate the entire map, but it will REMOVE ALL CHANGES APPLIED TO THE MAP.", "Regenerate?", MessageBoxButtons.YesNo);
+                        if (dr2 == System.Windows.Forms.DialogResult.Yes)
+                        {
+                            int NumChunks=0;
+                            tsbStatus.Text="Counting chunks...";
+                            tsbProgress.Style = ProgressBarStyle.Marquee;
+                            (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate (long x,long y){
+                                ++NumChunks;
+                                Application.DoEvents();
+                            }));
+                            
+                            tsbStatus.Text="Counting chunks...";
+                            tsbProgress.Style = ProgressBarStyle.Continuous;
+                            tsbProgress.Maximum = NumChunks;
+                            tsbProgress.Value = 0;
+                            (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate (long x,long y){
+                                Chunk c = (ActiveMdiChild as frmMap).Map.GetChunkData(new Vector3i(x,y,0));
+                                if(c==null) return;
+                                File.Delete(c.Filename);
+                                tsbStatus.Text = string.Format("Deleted chunk ({0},{1})...",x,y);
+                                ++tsbProgress.Value;
+                                Application.DoEvents();
+                            }));
+
+                            ResetStatus();
+                            MessageBox.Show("Done.");
+                        }
+                    }
+                }
+            }
+        }
+
+        public void ResetStatus()
+        {
+            tsbStatus.Text = "Ready.";
+            tsbProgress.Style = ProgressBarStyle.Continuous;
+            tsbProgress.Maximum = 100;
+            tsbProgress.Value = 0;
+        }
+
+        private void waterDepthToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Settings.ShowWaterDepth = chkWaterDepth.Checked;
+
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    (ActiveMdiChild as frmMap).Refresh();
+                }
+            }
         }
     }
 }

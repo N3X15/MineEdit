@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System;
 using System.Drawing;
+using OpenMinecraft;
+using OpenMinecraft.Entities;
 
 namespace MineEdit
 {

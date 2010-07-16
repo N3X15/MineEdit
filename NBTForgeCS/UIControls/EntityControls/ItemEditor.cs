@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-
-using System.Text;
 using System.Windows.Forms;
-
+using OpenMinecraft;
+using OpenMinecraft.Entities;
 namespace MineEdit
 {
     public partial class ItemEditor : UserControl,IEntityEditor
     {
         public Item Item;
-
-        event EventHandler ItemChanged;
         public ItemEditor(Entity e)
         {
             InitializeComponent();

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Timers;
+using OpenMinecraft;
 namespace MineEdit
 {
     public partial class dlgLoading : Form

@@ -28,13 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            MineEdit.Pig pig1 = new MineEdit.Pig();
-            MineEdit.Skeleton skeleton1 = new MineEdit.Skeleton();
-            MineEdit.Creeper creeper1 = new MineEdit.Creeper();
-            MineEdit.FallingSand fallingSand1 = new MineEdit.FallingSand();
-            MineEdit.Sheep sheep1 = new MineEdit.Sheep();
-            MineEdit.Spider spider1 = new MineEdit.Spider();
-            MineEdit.Zombie zombie1 = new MineEdit.Zombie();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
             this.numDelay = new System.Windows.Forms.NumericUpDown();
@@ -92,21 +85,6 @@
             // cmbMob
             // 
             this.cmbMob.FormattingEnabled = true;
-            pig1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            skeleton1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            creeper1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            fallingSand1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            sheep1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            spider1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            zombie1.UUID = new System.Guid("00000000-0000-0000-0000-000000000000");
-            this.cmbMob.Items.AddRange(new object[] {
-            pig1,
-            skeleton1,
-            creeper1,
-            fallingSand1,
-            sheep1,
-            spider1,
-            zombie1});
             this.cmbMob.Location = new System.Drawing.Point(67, 56);
             this.cmbMob.Name = "cmbMob";
             this.cmbMob.Size = new System.Drawing.Size(121, 21);

@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MapControlGL));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MapControl));
             this.lblError = new System.Windows.Forms.Label();
             this.btnLeft = new System.Windows.Forms.Button();
             this.btnDown = new System.Windows.Forms.Button();
@@ -138,7 +138,6 @@
             this.Controls.Add(this.lblError);
             this.Name = "MapControl";
             this.Size = new System.Drawing.Size(433, 356);
-            this.Load += new System.EventHandler(this.MapControl_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

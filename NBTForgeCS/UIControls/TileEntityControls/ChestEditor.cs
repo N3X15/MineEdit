@@ -1,21 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
+using System.Windows.Forms;
+using OpenMinecraft;
+using OpenMinecraft.TileEntities;
 
 namespace MineEdit
 {
     public partial class ChestEditor : UserControl,ITileEntityEditor
     {
         private Chest Chest;
+        private InventoryItemControl[] InvControls = new InventoryItemControl[54];
+
         public ChestEditor(TileEntity e)
         {
             Chest = (Chest)e;
             InitializeComponent();
+            for(byte i=0;i<54;i++)
+            {
+                InvControls[i] = new InventoryItemControl(i,ref Chest.Inventory);
+                InvControls[i].Click += new EventHandler(inv_Click);
+                InvControls[i].Changed += new InventoryItemControl.ChangedHandler(ChestEditor_Changed);
+            }
             DoLayout();
             cmbType.DrawMode = DrawMode.OwnerDrawFixed;
             cmbType.DrawItem +=new DrawItemEventHandler(cmbType_DrawItem);
@@ -28,6 +35,12 @@ namespace MineEdit
             }
         }
 
+        void ChestEditor_Changed()
+        {
+            if(EntityModified!=null)
+                EntityModified(this,EventArgs.Empty);
+        }
+
         public void Reload()
         {
             //ClearInventory();
@@ -37,10 +50,15 @@ namespace MineEdit
 
         private void ClearInventory()
         {
-            foreach (KeyValuePair<byte, InventoryItem> kvp in Chest.Inventory)
+            List<InventoryItemControl> inv = new List<InventoryItemControl>();
+            foreach (InventoryItemControl c in Controls)
             {
-                Controls.Remove(kvp.Value);
-                kvp.Value.Dispose();
+                inv.Add(c);
+            }
+            foreach (InventoryItemControl c in inv)
+            {
+                Controls.Remove(c);
+                c.Dispose();
             }
             Chest.Inventory.Clear();
         }
@@ -50,25 +68,14 @@ namespace MineEdit
         {
             // 6x9
             // 54 max
-            for (int i = 0; i < 54; i++)
+            for (byte i = 0; i < 54; i++)
             {
                 int x = ((i % 9) * 32) + 9;
                 int y = ((i / 9) * 32) + 9 + 32;
-                if (Chest.Inventory.ContainsKey((byte)i))
-                {
-                    Chest.Inventory[(byte)i].Render();
-                    Chest.Inventory[(byte)i].Click += new EventHandler(inv_Click);
-                    splitInv.Panel1.Controls.Add(Chest.Inventory[(byte)i]);
-                    Chest.Inventory[(byte)i].SetBounds(x, y, 32, 32);
-                }
-                else
-                {
-                    Chest.Inventory[(byte)i] = new InventoryItem(0, 0, 0);
-                    Chest.Inventory[(byte)i].Render();
-                    Chest.Inventory[(byte)i].Click += new EventHandler(inv_Click);
-                    splitInv.Panel1.Controls.Add(Chest.Inventory[(byte)i]);
-                    Chest.Inventory[(byte)i].SetBounds(x, y, 32, 32);
-                }
+                InvControls[i].Render();
+                if(!splitInv.Panel1.Controls.Contains(InvControls[i]))
+                    splitInv.Panel1.Controls.Add(InvControls[i]);
+                InvControls[i].SetBounds(x, y, 32, 32);
             }
         }
 
@@ -76,7 +83,7 @@ namespace MineEdit
 
         void inv_Click(object sender, EventArgs e)
         {
-            InventoryItem inv = (InventoryItem)sender;
+            InventoryItemControl inv = (InventoryItemControl)sender;
             inv.Selected = !inv.Selected;
             inv.Render();
             inv.Refresh();
@@ -95,14 +102,15 @@ namespace MineEdit
         {
             for (byte i = 0; i < Chest.Inventory.Count; i++)
             {
-                if (Chest.Inventory.ContainsKey(i) && Chest.Inventory[i].Selected)
+                if (Chest.Inventory.ContainsKey(i) && InvControls[i].Selected)
                 {
+                    InventoryItem itm = Chest.Inventory[i];
                     if (cmbType.SelectedItem != null)
-                        Chest.Inventory[i].MyType = (cmbType.SelectedItem as Block).ID;
-                    Chest.Inventory[i].Count = (int)numCount.Value;
-                    Chest.Inventory[i].Damage = (int)numDamage.Value;
-                    Chest.Inventory[i].Render();
-                    Chest.Inventory[i].Refresh();
+                        itm.ID = (cmbType.SelectedItem as Block).ID;
+                    itm.Count = (byte)numCount.Value;
+                    itm.Damage = (short)numDamage.Value;
+                    Chest.Inventory.Add(itm.Slot,itm);
+                    InvControls[i].Refresh();
                 }
             }
             SelectAll(false);
@@ -113,11 +121,11 @@ namespace MineEdit
         {
             for (byte i = 0; i < Chest.Inventory.Count; i++)
             {
-                if (Chest.Inventory.ContainsKey(i) && Chest.Inventory[i].MyType != 0)
+                if (Chest.Inventory.ContainsKey(i) && Chest.Inventory[i].ID != 0)
                 {
-                    Chest.Inventory[i].Selected = on;
-                    Chest.Inventory[i].Render();
-                    Chest.Inventory[i].Refresh();
+                    InvControls[i].Selected = on;
+                    InvControls[i].Render();
+                    InvControls[i].Refresh();
                 }
             }
         }
@@ -126,11 +134,13 @@ namespace MineEdit
         {
             for (byte i = 0; i < Chest.Inventory.Count; i++)
             {
-                if (Chest.Inventory.ContainsKey(i) && Chest.Inventory[i].Selected)
+                if (Chest.Inventory.ContainsKey(i) && InvControls[i].Selected)
                 {
-                    Chest.Inventory[i].Damage = 0;
-                    Chest.Inventory[i].Render();
-                    Chest.Inventory[i].Refresh();
+                    InventoryItem inv = Chest.Inventory[i];
+                    inv.Damage = 0;
+                    Chest.Inventory[i] = inv;
+                    InvControls[i].Render();
+                    InvControls[i].Refresh();
                 }
             }
             SelectAll(false);
@@ -140,13 +150,14 @@ namespace MineEdit
         {
             for (byte i = 0; i < Chest.Inventory.Count; i++)
             {
-                if (Chest.Inventory.ContainsKey(i) && Chest.Inventory[i].Selected)
+                if (Chest.Inventory.ContainsKey(i) && InvControls[i].Selected)
                 {
-                    Chest.Inventory[i].MyType = 0;
-                    Chest.Inventory[i].Count = 0;
-                    Chest.Inventory[i].Damage = 0;
-                    Chest.Inventory[i].Render();
-                    Chest.Inventory[i].Refresh();
+                    InventoryItem inv = Chest.Inventory[i];
+                    inv.ID = 0;
+                    inv.Count = 0;
+                    inv.Damage = 0;
+                    Chest.Inventory[i] = inv;
+                    InvControls[i].Refresh();
                 }
             }
             SelectAll(false);
@@ -215,11 +226,12 @@ namespace MineEdit
 
             for (byte i = 0; i < Chest.Inventory.Count; i++)
             {
-                if (Chest.Inventory.ContainsKey(i) && Chest.Inventory[i].Selected)
+                if (Chest.Inventory.ContainsKey(i) && InvControls[i].Selected)
                 {
-                    Chest.Inventory[i].Damage = -600;
-                    Chest.Inventory[i].Render();
-                    Chest.Inventory[i].Refresh();
+                    InventoryItem inv = Chest.Inventory[i];
+                    inv.Damage = -600;
+                    Chest.Inventory[i] = inv;
+                    InvControls[i].Refresh();
                 }
             }
             SelectAll(false);
@@ -239,11 +251,13 @@ namespace MineEdit
             for (byte i = 0; i < 54; i++)
             {
                 if (Chest.Inventory.ContainsKey(i))
-                    mit.Add(string.Format("{0}\t{1}\t{2}\t{3}", 
-                        i, 
-                        Chest.Inventory[i].Count, 
-                        Chest.Inventory[i].MyType,
+                {
+                    mit.Add(string.Format("{0}\t{1}\t{2}\t{3}",
+                        i,
+                        Chest.Inventory[i].Count,
+                        Chest.Inventory[i].ID,
                         Chest.Inventory[i].Damage));
+                }
             }
             File.WriteAllLines(sfd.FileName, mit.ToArray());
         }
@@ -262,9 +276,11 @@ namespace MineEdit
                 if (ln.StartsWith("#")) continue;
                 string[] chunks = ln.Split('\t');
                 byte idx = byte.Parse(chunks[0]);
-                Chest.Inventory[idx].Count = byte.Parse(chunks[1]);
-                Chest.Inventory[idx].MyType = short.Parse(chunks[2]);
-                Chest.Inventory[idx].Damage = short.Parse(chunks[3]);
+                InventoryItem inv = Chest.Inventory[idx];
+                inv.Count = byte.Parse(chunks[1]);
+                inv.ID = short.Parse(chunks[2]);
+                inv.Damage = short.Parse(chunks[3]);
+                Chest.Inventory[idx] = inv;
             }
             Refresh();
         }

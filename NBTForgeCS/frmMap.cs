@@ -6,15 +6,11 @@ using System.Drawing;
 
 using System.Text;
 using System.Windows.Forms;
-
+using OpenMinecraft;
+using OpenMinecraft.Entities;
+using OpenMinecraft.TileEntities;
 namespace MineEdit
 {
-    public enum ViewAngle
-    {
-        XY,
-        TopDown,
-        YZ
-    }
     public partial class frmMap : Form
     {
         private IMapHandler _Map = null;
@@ -45,15 +41,15 @@ namespace MineEdit
 
             Replacements.DrawItem += new DrawItemEventHandler(Replacements_DrawItem);
             SetStyle(ControlStyles.ResizeRedraw, true);
-            this.ViewingAngle = MineEdit.ViewAngle.TopDown;
+            this.ViewingAngle = ViewAngle.TopDown;
 
             entityEditor1.EntityModified += new EventHandler(entityEditor1_EntityModified);
             entityEditor1.EntityDeleted += new EntityEditor.EntityHandler(entityEditor1_EntityDeleted);
 
             tileEntityEditor1.EntityModified += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityModified);
             tileEntityEditor1.EntityDeleted += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityDeleted);
-        }
 
+        }
         void Replacements_DrawItem(object sender, DrawItemEventArgs e)
         {
             Graphics g = e.Graphics;
@@ -268,10 +264,10 @@ namespace MineEdit
                     ViewingAngle = ViewAngle.TopDown;
                     break;
                 case 1:
-                    ViewingAngle = ViewAngle.XY;
+                    ViewingAngle = ViewAngle.FrontSlice;
                     break;
                 case 2:
-                    ViewingAngle = ViewAngle.YZ;
+                    ViewingAngle = ViewAngle.SideSlice;
                     break;
             }
             Console.WriteLine("Viewing angle updated to " + ViewingAngle.ToString());
