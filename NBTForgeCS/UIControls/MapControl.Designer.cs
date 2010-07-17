@@ -36,6 +36,8 @@
             this.btnRight = new System.Windows.Forms.Button();
             this.btnLyrDown = new System.Windows.Forms.Button();
             this.btnLyrUp = new System.Windows.Forms.Button();
+            this.numZ = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.numZ)).BeginInit();
             this.SuspendLayout();
             // 
             // lblError
@@ -125,10 +127,24 @@
             this.btnLyrUp.UseVisualStyleBackColor = true;
             this.btnLyrUp.Click += new System.EventHandler(this.btnLyrUp_Click);
             // 
+            // numZ
+            // 
+            this.numZ.Location = new System.Drawing.Point(262, 163);
+            this.numZ.Maximum = new decimal(new int[] {
+            128,
+            0,
+            0,
+            0});
+            this.numZ.Name = "numZ";
+            this.numZ.Size = new System.Drawing.Size(38, 20);
+            this.numZ.TabIndex = 5;
+            this.numZ.ValueChanged += new System.EventHandler(this.numZ_ValueChanged);
+            // 
             // MapControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.numZ);
             this.Controls.Add(this.btnRight);
             this.Controls.Add(this.btnLyrUp);
             this.Controls.Add(this.btnUp);
@@ -138,6 +154,8 @@
             this.Controls.Add(this.lblError);
             this.Name = "MapControl";
             this.Size = new System.Drawing.Size(433, 356);
+            this.Load += new System.EventHandler(this.MapControl_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.numZ)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -152,5 +170,6 @@
         private System.Windows.Forms.Button btnRight;
         private System.Windows.Forms.Button btnLyrDown;
         private System.Windows.Forms.Button btnLyrUp;
+        private System.Windows.Forms.NumericUpDown numZ;
     }
 }

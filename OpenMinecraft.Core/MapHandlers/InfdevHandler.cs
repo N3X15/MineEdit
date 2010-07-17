@@ -621,7 +621,7 @@ namespace OpenMinecraft
             }
             NbtFile c = new NbtFile(f);
             c.LoadFile();
-            Console.WriteLine("Saving "+f);
+            //Console.WriteLine("Saving "+f);
 
             NbtCompound Level = (NbtCompound)c.RootTag["Level"];
             string ci = string.Format("{0},{1}", x, z);

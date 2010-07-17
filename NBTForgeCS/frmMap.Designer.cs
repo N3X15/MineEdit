@@ -40,7 +40,6 @@
             this.tclMap = new System.Windows.Forms.TabControl();
             this.tabMap = new System.Windows.Forms.TabPage();
             this.tabInventory = new System.Windows.Forms.TabPage();
-            this.invMain = new MineEdit.Inventory();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.label6 = new System.Windows.Forms.Label();
             this.cmdCancel = new System.Windows.Forms.Button();
@@ -67,9 +66,7 @@
             this.tabEnvironment = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cmdProcess = new System.Windows.Forms.Button();
-            this.blkWith = new MineEdit.BlockSelector();
             this.label8 = new System.Windows.Forms.Label();
-            this.blkReplace = new MineEdit.BlockSelector();
             this.label7 = new System.Windows.Forms.Label();
             this.cmdClear = new System.Windows.Forms.Button();
             this.cmdRemove = new System.Windows.Forms.Button();
@@ -89,10 +86,13 @@
             this.txtTime = new System.Windows.Forms.TextBox();
             this.cmdDay = new System.Windows.Forms.Button();
             this.tabEnts = new System.Windows.Forms.TabPage();
-            this.entityEditor1 = new MineEdit.EntityEditor();
             this.tabTEnts = new System.Windows.Forms.TabPage();
-            this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
             this.mapPic = new System.Windows.Forms.PictureBox();
+            this.invMain = new MineEdit.Inventory();
+            this.blkWith = new MineEdit.BlockSelector();
+            this.blkReplace = new MineEdit.BlockSelector();
+            this.entityEditor1 = new MineEdit.EntityEditor();
+            this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
             this.toolStrip1.SuspendLayout();
             this.tclMap.SuspendLayout();
             this.tabInventory.SuspendLayout();
@@ -227,16 +227,6 @@
             this.tabInventory.TabIndex = 1;
             this.tabInventory.Text = "Inventory";
             this.tabInventory.UseVisualStyleBackColor = true;
-            // 
-            // invMain
-            // 
-            this.invMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.invMain.Location = new System.Drawing.Point(3, 3);
-            this.invMain.Map = null;
-            this.invMain.Name = "invMain";
-            this.invMain.Size = new System.Drawing.Size(583, 350);
-            this.invMain.TabIndex = 0;
-            this.invMain.Load += new System.EventHandler(this.invMain_Load);
             // 
             // tabPage1
             // 
@@ -481,7 +471,7 @@
             // 
             this.numAir.Location = new System.Drawing.Point(123, 74);
             this.numAir.Maximum = new decimal(new int[] {
-            300,
+            9999,
             0,
             0,
             0});
@@ -503,7 +493,7 @@
             // 
             this.numFire.Location = new System.Drawing.Point(123, 48);
             this.numFire.Maximum = new decimal(new int[] {
-            1000,
+            9999,
             0,
             0,
             0});
@@ -559,6 +549,7 @@
             // 
             // tabEnvironment
             // 
+            this.tabEnvironment.AutoScroll = true;
             this.tabEnvironment.Controls.Add(this.groupBox2);
             this.tabEnvironment.Controls.Add(this.groupBox1);
             this.tabEnvironment.Controls.Add(this.grpSpawn);
@@ -599,18 +590,6 @@
             this.cmdProcess.UseVisualStyleBackColor = true;
             this.cmdProcess.Click += new System.EventHandler(this.cmdProcess_Click);
             // 
-            // blkWith
-            // 
-            this.blkWith.BlocksOnly = true;
-            this.blkWith.DisplayMember = "Name";
-            this.blkWith.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.blkWith.FormattingEnabled = true;
-            this.blkWith.Location = new System.Drawing.Point(66, 50);
-            this.blkWith.Name = "blkWith";
-            this.blkWith.Size = new System.Drawing.Size(220, 21);
-            this.blkWith.TabIndex = 3;
-            this.blkWith.ValueMember = "ID";
-            // 
             // label8
             // 
             this.label8.AutoSize = true;
@@ -619,18 +598,6 @@
             this.label8.Size = new System.Drawing.Size(32, 13);
             this.label8.TabIndex = 2;
             this.label8.Text = "With:";
-            // 
-            // blkReplace
-            // 
-            this.blkReplace.BlocksOnly = true;
-            this.blkReplace.DisplayMember = "Name";
-            this.blkReplace.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.blkReplace.FormattingEnabled = true;
-            this.blkReplace.Location = new System.Drawing.Point(66, 21);
-            this.blkReplace.Name = "blkReplace";
-            this.blkReplace.Size = new System.Drawing.Size(220, 21);
-            this.blkReplace.TabIndex = 3;
-            this.blkReplace.ValueMember = "ID";
             // 
             // label7
             // 
@@ -643,7 +610,7 @@
             // 
             // cmdClear
             // 
-            this.cmdClear.Location = new System.Drawing.Point(418, 77);
+            this.cmdClear.Location = new System.Drawing.Point(458, 77);
             this.cmdClear.Name = "cmdClear";
             this.cmdClear.Size = new System.Drawing.Size(75, 23);
             this.cmdClear.TabIndex = 1;
@@ -653,7 +620,7 @@
             // 
             // cmdRemove
             // 
-            this.cmdRemove.Location = new System.Drawing.Point(418, 48);
+            this.cmdRemove.Location = new System.Drawing.Point(458, 48);
             this.cmdRemove.Name = "cmdRemove";
             this.cmdRemove.Size = new System.Drawing.Size(75, 23);
             this.cmdRemove.TabIndex = 1;
@@ -663,7 +630,7 @@
             // 
             // cmdAdd
             // 
-            this.cmdAdd.Location = new System.Drawing.Point(418, 19);
+            this.cmdAdd.Location = new System.Drawing.Point(458, 19);
             this.cmdAdd.Name = "cmdAdd";
             this.cmdAdd.Size = new System.Drawing.Size(75, 23);
             this.cmdAdd.TabIndex = 1;
@@ -676,7 +643,7 @@
             this.Replacements.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.Replacements.Location = new System.Drawing.Point(292, 18);
             this.Replacements.Name = "Replacements";
-            this.Replacements.Size = new System.Drawing.Size(120, 95);
+            this.Replacements.Size = new System.Drawing.Size(160, 95);
             this.Replacements.TabIndex = 0;
             // 
             // groupBox1
@@ -851,6 +818,60 @@
             this.tabEnts.Text = "Entities";
             this.tabEnts.UseVisualStyleBackColor = true;
             // 
+            // tabTEnts
+            // 
+            this.tabTEnts.Controls.Add(this.tileEntityEditor1);
+            this.tabTEnts.Location = new System.Drawing.Point(4, 22);
+            this.tabTEnts.Name = "tabTEnts";
+            this.tabTEnts.Padding = new System.Windows.Forms.Padding(3);
+            this.tabTEnts.Size = new System.Drawing.Size(589, 356);
+            this.tabTEnts.TabIndex = 5;
+            this.tabTEnts.Text = "Tile Entities";
+            this.tabTEnts.UseVisualStyleBackColor = true;
+            // 
+            // mapPic
+            // 
+            this.mapPic.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mapPic.Location = new System.Drawing.Point(0, 0);
+            this.mapPic.Name = "mapPic";
+            this.mapPic.Size = new System.Drawing.Size(597, 382);
+            this.mapPic.TabIndex = 0;
+            this.mapPic.TabStop = false;
+            // 
+            // invMain
+            // 
+            this.invMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.invMain.Location = new System.Drawing.Point(3, 3);
+            this.invMain.Map = null;
+            this.invMain.Name = "invMain";
+            this.invMain.Size = new System.Drawing.Size(583, 350);
+            this.invMain.TabIndex = 0;
+            this.invMain.Load += new System.EventHandler(this.invMain_Load);
+            // 
+            // blkWith
+            // 
+            this.blkWith.BlocksOnly = true;
+            this.blkWith.DisplayMember = "Name";
+            this.blkWith.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.blkWith.FormattingEnabled = true;
+            this.blkWith.Location = new System.Drawing.Point(66, 50);
+            this.blkWith.Name = "blkWith";
+            this.blkWith.Size = new System.Drawing.Size(220, 21);
+            this.blkWith.TabIndex = 3;
+            this.blkWith.ValueMember = "ID";
+            // 
+            // blkReplace
+            // 
+            this.blkReplace.BlocksOnly = true;
+            this.blkReplace.DisplayMember = "Name";
+            this.blkReplace.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.blkReplace.FormattingEnabled = true;
+            this.blkReplace.Location = new System.Drawing.Point(66, 21);
+            this.blkReplace.Name = "blkReplace";
+            this.blkReplace.Size = new System.Drawing.Size(220, 21);
+            this.blkReplace.TabIndex = 3;
+            this.blkReplace.ValueMember = "ID";
+            // 
             // entityEditor1
             // 
             this.entityEditor1.CurrentEntity = null;
@@ -863,17 +884,6 @@
             this.entityEditor1.SpawnPos = null;
             this.entityEditor1.TabIndex = 0;
             // 
-            // tabTEnts
-            // 
-            this.tabTEnts.Controls.Add(this.tileEntityEditor1);
-            this.tabTEnts.Location = new System.Drawing.Point(4, 22);
-            this.tabTEnts.Name = "tabTEnts";
-            this.tabTEnts.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTEnts.Size = new System.Drawing.Size(589, 356);
-            this.tabTEnts.TabIndex = 5;
-            this.tabTEnts.Text = "Tile Entities";
-            this.tabTEnts.UseVisualStyleBackColor = true;
-            // 
             // tileEntityEditor1
             // 
             this.tileEntityEditor1.CurrentEntity = null;
@@ -885,15 +895,6 @@
             this.tileEntityEditor1.Size = new System.Drawing.Size(583, 350);
             this.tileEntityEditor1.SpawnPos = null;
             this.tileEntityEditor1.TabIndex = 0;
-            // 
-            // mapPic
-            // 
-            this.mapPic.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mapPic.Location = new System.Drawing.Point(0, 0);
-            this.mapPic.Name = "mapPic";
-            this.mapPic.Size = new System.Drawing.Size(597, 382);
-            this.mapPic.TabIndex = 0;
-            this.mapPic.TabStop = false;
             // 
             // frmMap
             // 

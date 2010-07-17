@@ -164,7 +164,26 @@ namespace MineEdit
                                 Utils.Lerp(c.B, 0, (int)pct));
                             //Console.WriteLine("{0}h = {1}% opacity shadow",bh,pct);
                         }
-                        shadow = Color.FromArgb(128, Color.Black);
+                    }
+                    Vector3i bgpos = new Vector3i(
+                        x + (AssignedChunk.X * Map.ChunkScale.X),    
+                        y + (AssignedChunk.Y * Map.ChunkScale.Y),    
+                        z
+                    );
+                    if (parent != null)
+                    {
+                        Color selcol = Color.Orange;
+                        int points = 0;
+                        if (bgpos.X == parent.SelectedVoxel.X) points++;
+                        if (bgpos.Y == parent.SelectedVoxel.Y) points++;
+                        if(points>0)
+                        {
+                            float pct = ((float)points / 3f) * 100f;
+                            c = Color.FromArgb(
+                                Utils.Lerp(c.R, selcol.R, (int)pct),
+                                Utils.Lerp(c.G, selcol.G, (int)pct),
+                                Utils.Lerp(c.B, selcol.B, (int)pct));
+                        }
                     }
                     g.FillRectangle(new SolidBrush(c), x * zoom, y * zoom, zoom, zoom);
                     //g.FillRectangle(new SolidBrush(shadow), x * zoom, y * zoom, zoom, zoom);
@@ -172,7 +191,12 @@ namespace MineEdit
                     if (Settings.ShowWaterDepth && waterdepth > 0)
                         g.DrawString(waterdepth.ToString(), new Font(FontFamily.GenericSansSerif, 5), Brushes.Blue, new PointF((float)(x * zoom), (float)(y * zoom)));
                     if (Settings.ShowGridLines)
-                        g.DrawRectangle(new Pen(Color.Black), x * zoom, y * zoom, zoom, zoom);
+                    {
+                        if (parent != null && bgpos == parent.SelectedVoxel)
+                            g.DrawRectangle(new Pen(Color.Orange), x * zoom, y * zoom, zoom, zoom);
+                        else
+                            g.DrawRectangle(new Pen(Color.Black), x * zoom, y * zoom, zoom, zoom);
+                    }
                 }
             }
             Pen fp = new Pen(Color.Black);

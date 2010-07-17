@@ -28,7 +28,7 @@ namespace MineEdit
         /// <summary>
         /// Currently active brush material.
         /// </summary>
-        public short CurrentMaterial = 0;
+        public byte CurrentMaterial = 0;
 
         public MapControl()
         {
@@ -126,8 +126,9 @@ namespace MineEdit
         private void LayoutControls()
         {
             /*        v-- 6px border
+                        
                 [U]    [LU]
-             [L]   [R]
+             [L]   [R] [Z ]
                 [D]    [LD]
             */
 
@@ -135,14 +136,16 @@ namespace MineEdit
             btnLyrDown.BringToFront();
             btnLyrUp.SetBounds(Width - 23, Height - 67, 22, 22);
             btnLyrUp.BringToFront();
-            btnUp.SetBounds(Width - 73, Height - 67, 22, 22);
+            btnUp.SetBounds(Width - 73-22, Height - 67, 22, 22);
             btnUp.BringToFront();
-            btnDown.SetBounds(Width - 73, Height - 23, 22, 22);
+            btnDown.SetBounds(Width - 73-22, Height - 23, 22, 22);
             btnDown.BringToFront();
-            btnLeft.SetBounds(Width - 95, Height - 45, 22, 22);
+            btnLeft.SetBounds(Width - 95-22, Height - 45, 22, 22);
             btnLeft.BringToFront();
-            btnRight.SetBounds(Width - 51, Height - 45, 22, 22);
+            btnRight.SetBounds(Width - 51-22, Height - 45, 22, 22);
             btnRight.BringToFront();
+            numZ.SetBounds(Width - 45, Height - 45, 44, 22);
+            numZ.BringToFront();
         }
 
         private void LayoutYZ(Vector3i Sides, Vector3i min, Vector3i max)
@@ -262,11 +265,52 @@ namespace MineEdit
 
         void ChunkRightClicked(object sender, MouseEventArgs e)
         {
+            MapChunkControl mcc = (MapChunkControl)sender;
+            SelectedVoxel = new Vector3i(
+                CurrentPosition.X + (e.X / _ZoomLevel) + (mcc.AssignedChunk.X * _Map.ChunkScale.X),
+                CurrentPosition.Y + (e.Y / _ZoomLevel) + (mcc.AssignedChunk.Y * _Map.ChunkScale.Y),
+                CurrentPosition.Z);
+            if (e.Button == MouseButtons.Left)
+            {
+                Vector3i bp = new Vector3i(e.X/ZoomLevel,e.Y/ZoomLevel,CurrentPosition.Z);
+                _Map.SetBlockIn(mcc.AssignedChunk.X,mcc.AssignedChunk.Y,bp,CurrentMaterial);
+            }
             if (e.Button == MouseButtons.Right)
             {
-                MapChunkControl mcc = (MapChunkControl)sender;
-                dlgChunk chunkdlg = new dlgChunk(_Map, mcc.AssignedChunk);
-                chunkdlg.ShowDialog();
+                Vector3i bp = new Vector3i(e.X/ZoomLevel,e.Y/ZoomLevel,CurrentPosition.Z);
+                byte bid = _Map.GetBlockIn(mcc.AssignedChunk.X,mcc.AssignedChunk.Y,bp);
+                Block b = Blocks.Get(bid);
+                ContextMenu cmnu = new System.Windows.Forms.ContextMenu();
+                cmnu.MenuItems.AddRange(new MenuItem[]{
+                    new MenuItem("What's this?",new EventHandler(delegate(object s,EventArgs ea){
+                        MessageBox.Show("That is a(n) " + b.ToString() + " block.");
+                    })),
+                    new MenuItem("Remove this.",new EventHandler(delegate(object s,EventArgs ea){
+                        _Map.SetBlockIn(mcc.AssignedChunk.X, mcc.AssignedChunk.Y, bp, 0x00);
+                        mcc.Render();
+                        mcc.Refresh();
+                    })),
+                    new MenuItem("-"),                    
+                    new MenuItem("Replace..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
+                    new MenuItem("Paint..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
+                    new MenuItem("Generate..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
+                    new MenuItem("-"),
+                    new MenuItem("Delete Chunk...",new EventHandler(delegate(object s,EventArgs ea){
+                        Chunk c = _Map.GetChunkData(mcc.AssignedChunk);
+                        c.Delete();
+                        mcc.Render();
+                        mcc.Refresh();
+                    })),
+                    new MenuItem("Refresh",new EventHandler(delegate(object s,EventArgs ea){
+                        mcc.Render();
+                        mcc.Refresh();
+                    })),
+                    new MenuItem("Chunk Properties...",new EventHandler(delegate(object s,EventArgs ea){
+                        dlgChunk chunkdlg = new dlgChunk(_Map, mcc.AssignedChunk);
+                        chunkdlg.ShowDialog();
+                    })),
+                });
+                cmnu.Show(mcc, new Point(0, 0));
             }
         }
 
@@ -322,7 +366,8 @@ namespace MineEdit
             set
             {
                 _CurrentPosition = value;
-                //CurrentPosition.Z = CurrentPosition.Z % _Map.ChunkScale.Z;
+                _CurrentPosition.Z = Utils.Clamp(_CurrentPosition.Z, 0, _Map.ChunkScale.Z-1);
+                numZ.Value = _CurrentPosition.Z;
                 DoLayout();
             }
         }
@@ -425,6 +470,18 @@ namespace MineEdit
             CurrentPosition.Z--;
             DoLayout();
             Refresh();
+        }
+
+        private void numZ_ValueChanged(object sender, EventArgs e)
+        {
+            _CurrentPosition.Z = (int)numZ.Value;
+            DoLayout();
+            Refresh();
+        }
+
+        private void MapControl_Load(object sender, EventArgs e)
+        {
+
         }
 
     }

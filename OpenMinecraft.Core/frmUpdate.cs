@@ -27,7 +27,7 @@ namespace OpenMinecraft
             lblStatus.Text = "Checking version...";
 
             WebClient wc = new WebClient();
-            string hurp = wc.DownloadString("http://github.com/N3X15/MineEdit/raw/master/NBTForgeCS/Blocks.cs");
+            string hurp = wc.DownloadString("http://github.com/N3X15/MineEdit/raw/master/OpenMinecraft.Core/Blocks.cs");
             foreach (string l in hurp.Split('\n'))
             {
                 string line=l.Trim();

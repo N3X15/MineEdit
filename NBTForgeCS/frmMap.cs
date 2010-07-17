@@ -188,11 +188,11 @@ namespace MineEdit
             if (_Map != null)
             {
                 this.Text = this._Map.Filename;
-                numHealth.Value = (decimal)_Map.Health;
-                numFire.Value = (decimal)_Map.Fire;
+                numHealth.Value = (decimal)Utils.Clamp(_Map.Health,0,9999);
+                numFire.Value = (decimal)Utils.Clamp(_Map.Fire,-200,900);
                 PlayerPos = _Map.PlayerPos;
-                numAir.Value = _Map.Air;
-                numHurtTime.Value = _Map.HurtTime;
+                numAir.Value = Utils.Clamp(_Map.Air,0,9999);
+                numHurtTime.Value = Utils.Clamp(_Map.HurtTime,0,9999);
                 LockApplyCancel();
 
                 numSpawnX.Value = _Map.Spawn.X;
