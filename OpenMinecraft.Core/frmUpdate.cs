@@ -25,22 +25,10 @@ namespace OpenMinecraft
             Blocks.Clear();
 
             lblStatus.Text = "Checking version...";
-
-            WebClient wc = new WebClient();
-            string hurp = wc.DownloadString("http://github.com/N3X15/MineEdit/raw/master/OpenMinecraft.Core/Blocks.cs");
-            foreach (string l in hurp.Split('\n'))
+            if (!Blocks.CheckForUpdates())
             {
-                string line=l.Trim();
-                if (line.StartsWith("public static string Version = "))
-                {
-                    string v = line.Substring("public static string Version = ".Length+1, 8);
-                    if (Blocks.Version != v)
-                    {
-                        MessageBox.Show("New version of MineEdit is available.  Please visit the thread to get the newest version.","Update available");
-                        Console.WriteLine("{0} != {1}", v, Blocks.Version);
-                    }
-                }
-
+                MessageBox.Show("New version of MineEdit is available.  Please visit the thread to get the newest version.", "Update available");
+                System.Diagnostics.Process.Start("http://github.com/N3X15/MineEdit/downloads/");
             }
             lblStatus.Text = "Retrieving blocks...";
             pb.Style = ProgressBarStyle.Marquee;

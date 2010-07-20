@@ -33,7 +33,6 @@ namespace OpenMinecraft
         public Block()
         {
         }
-
         public override string ToString()
         {
             return Name;
@@ -60,6 +59,7 @@ namespace OpenMinecraft
         /// Total images for download.
         /// </summary>
         public static int TotalImages = 0;
+        public static byte Water=9;
 
         /// <summary>
         /// Load blocks, update if needed.
@@ -102,6 +102,35 @@ namespace OpenMinecraft
                 Console.WriteLine(b);
 #endif
             }
+        }
+
+        public static bool CheckForUpdates()
+        {
+            WebClient wc = new WebClient();
+            string hurp;
+            try
+            {
+                hurp = wc.DownloadString("http://github.com/N3X15/MineEdit/raw/master/OpenMinecraft.Core/Blocks.cs");
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+            foreach (string l in hurp.Split('\n'))
+            {
+                string line = l.Trim();
+                if (line.StartsWith("public static string Version = "))
+                {
+                    string v = line.Substring("public static string Version = ".Length + 1, 8);
+                    if (Blocks.Version != v)
+                    {
+                        Console.WriteLine("{0} != {1}", v, Blocks.Version);
+                        return false;
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>

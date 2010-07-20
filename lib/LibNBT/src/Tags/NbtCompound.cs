@@ -209,7 +209,51 @@ namespace LibNbt.Tags
 
         public void Add(string k, bool v)
         {
-            Tags.Add(new NbtByte(k, (v) ? (byte)1 : (byte)0));
+            if (TagCache.ContainsKey(k))
+            {
+                Tags.Remove(TagCache[k]);
+                TagCache.Remove(k);
+            }
+            NbtTag derp = new NbtByte(k, (v) ? (byte)1 : (byte)0);
+            Tags.Add(derp);
+            TagCache.Add(k, derp);
+        }
+
+        public void Add(string k, long v)
+        {
+            if (TagCache.ContainsKey(k))
+            {
+                Tags.Remove(TagCache[k]);
+                TagCache.Remove(k);
+            }
+            NbtTag derp = new NbtLong(k, v);
+            Tags.Add(derp);
+            TagCache.Add(k, derp);
+        }
+
+        public void Add(string k, byte[] v)
+        {
+            if (TagCache.ContainsKey(k))
+            {
+                Tags.Remove(TagCache[k]);
+                TagCache.Remove(k);
+            }
+            NbtTag derp = new NbtByteArray(k, v);
+            Tags.Add(derp);
+            TagCache.Add(k, derp);
+        }
+
+        public void Add(string k, NbtCompound v)
+        {
+            if (TagCache.ContainsKey(k))
+            {
+                Tags.Remove(TagCache[k]);
+                TagCache.Remove(k);
+            }
+            v.Name = k;
+            NbtTag derp = v;
+            Tags.Add(derp);
+            TagCache.Add(k, derp);
         }
     }
 }

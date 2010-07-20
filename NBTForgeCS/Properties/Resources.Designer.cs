@@ -137,6 +137,13 @@ namespace MineEdit.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap MineEdit {
+            get {
+                object obj = ResourceManager.GetObject("MineEdit", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap mobcreeper {
             get {
                 object obj = ResourceManager.GetObject("mobcreeper", resourceCulture);

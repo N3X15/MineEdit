@@ -24,9 +24,9 @@ namespace OpenMinecraft.TileEntities
         public TileEntity(int CX,int CY,int CS,NbtCompound c)
         {
             Pos = new Vector3i(
-                (c["x"] as NbtInt).Value + (CX * CS),
-                (c["z"] as NbtInt).Value + (CY * CS),
-                Math.Abs((c["y"] as NbtInt).Value));
+                c["x"].asInt(),
+                c["z"].asInt(),
+                c["y"].asInt());
             id = (c["id"] as NbtString).Value;
             orig = c;
         }
@@ -39,9 +39,9 @@ namespace OpenMinecraft.TileEntities
         {
             orig = c;
             Pos = new Vector3i(
-                (c["x"] as NbtInt).Value,
-                (c["y"] as NbtInt).Value,
-                Math.Abs((c["z"] as NbtInt).Value));
+                c["x"].asInt(),
+                c["z"].asInt(),
+                c["y"].asInt());
             id = (c["id"] as NbtString).Value;
         }
 
@@ -84,9 +84,9 @@ namespace OpenMinecraft.TileEntities
         public void Base2NBT(ref NbtCompound c)
         {
             c.Tags.Add(new NbtString("id", id));
-            c.Tags.Add(new NbtInt("x", (int)Pos.X / 16));
+            c.Tags.Add(new NbtInt("x", (int)Pos.X));
             c.Tags.Add(new NbtInt("y", (int)Pos.Z));
-            c.Tags.Add(new NbtInt("z", (int)Pos.Y / 16));
+            c.Tags.Add(new NbtInt("z", (int)Pos.Y));
         }
 
         public virtual NbtCompound ToNBT()

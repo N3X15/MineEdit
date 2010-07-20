@@ -15,6 +15,8 @@ namespace MineEdit
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            frmSplash splash = new frmSplash();
+            splash.ShowDialog();
             Application.Run(new frmMain());
         }
     }

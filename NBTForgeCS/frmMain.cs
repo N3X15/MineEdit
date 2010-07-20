@@ -18,6 +18,7 @@ namespace MineEdit
         public frmMain()
         {
             InitializeComponent();
+            Console.WriteLine("Loading /game/ handler.");
             FileHandlers.Add(new InfdevHandler()); // infdev
         }
 
@@ -185,15 +186,15 @@ namespace MineEdit
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            Blocks.Init();
-            Settings.Init();
+            Console.WriteLine("frmMain loaded.");
 
             chkGridLines.Checked = Settings.ShowGridLines;
             chkWaterDepth.Checked = Settings.ShowWaterDepth;
-
             foreach (string luf in Settings.LastUsedFiles)
             {
-                mnuOpen.DropDownItems.Add(new ToolStripMenuItem(luf, null, new EventHandler(LUF_Click)));
+                ToolStripMenuItem mnui = new ToolStripMenuItem(luf, null, new EventHandler(LUF_Click));
+                //mnui.Enabled=false;
+                mnuOpen.DropDownItems.Add(mnui);
             }
             ToolStripMenuItem[] menues = new ToolStripMenuItem[]
             {
@@ -203,40 +204,20 @@ namespace MineEdit
                 mnuWorld4,
                 mnuWorld5,
             };
-            for (int i = 0; i < 5; i++)
+            foreach (KeyValuePair<short, float> w in Settings.Worlds)
             {
-                string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                string f = Path.Combine(appdata, string.Format(@".minecraft\saves\World{0}\level.dat",i+1));
-                if(File.Exists(f))
-                {
-                    menues[i].Text=string.Format("World {0} ({1} MB)",i+1,(DirSize(new DirectoryInfo(Path.GetDirectoryName(f)))/1024f)/1024f);
-                } else {
-                    menues[i].Enabled=false;
-                }
+                menues[w.Key].Enabled = true;
+                menues[w.Key].Text = string.Format("World {0} ({1} MB)", w.Key+1, w.Value);
             }
+            openToolStripButton.DropDownItems.Add(new ToolStripMenuItem("Browse...",null,new EventHandler(OpenFile)));
+            openToolStripButton.DropDownItems.Add(new ToolStripSeparator());
+            openToolStripButton.DropDownItems.AddRange(menues);
 #if DEBUG
             Text = string.Format("MineEdit - v.{0} (DEBUG)", Blocks.Version);
 #else
             Text = string.Format("MineEdit - v.{0}", Blocks.Version);
 #endif
         }
-    public long DirSize(DirectoryInfo d) 
-    {    
-        long Size = 0;    
-        // Add file sizes.
-        FileInfo[] fis = d.GetFiles();
-        foreach (FileInfo fi in fis) 
-        {      
-            Size += fi.Length;    
-        }
-        // Add subdirectory sizes.
-        DirectoryInfo[] dis = d.GetDirectories();
-        foreach (DirectoryInfo di in dis) 
-        {
-            Size += DirSize(di);   
-        }
-        return(Size);  
-    }
 
         private void LUF_Click(object s, EventArgs derp)
         {
@@ -438,7 +419,7 @@ namespace MineEdit
                             tsbProgress.Maximum = NumChunks;
                             tsbProgress.Value = 0;
                             (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate (long x,long y){
-                                Chunk c = (ActiveMdiChild as frmMap).Map.GetChunkData(new Vector3i(x,y,0));
+                                Chunk c = (ActiveMdiChild as frmMap).Map.GetChunk(x,y);
                                 if(c==null) return;
                                 File.Delete(c.Filename);
                                 tsbStatus.Text = string.Format("Deleted chunk ({0},{1})...",x,y);

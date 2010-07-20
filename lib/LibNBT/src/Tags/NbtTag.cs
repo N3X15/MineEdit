@@ -48,5 +48,20 @@ namespace LibNbt.Tags
         {
             return (this as NbtByte).Value == (byte)1;
         }
+
+        public int asInt()
+        {
+            return (this as NbtInt).Value;
+        }
+
+        public NbtCompound asCompound()
+        {
+            return (this as NbtCompound);
+        }
+
+        public byte[] asBytes()
+        {
+            return (this as NbtByteArray).Value;
+        }
     }
 }

@@ -341,7 +341,7 @@ namespace MineEdit
             {
                 for (int y = 0; y < _Map.ChunkScale.Y; y++)
                 {
-                    byte block = Map.GetBlockIn(X, Y, new Vector3i(x, y, CurrentPosition.Z));
+                    byte block = Map.GetChunk(X, Y).Blocks[x, y, CurrentPosition.Z];
                     Color color = Color.White;
                     if (block == 0)
                     {

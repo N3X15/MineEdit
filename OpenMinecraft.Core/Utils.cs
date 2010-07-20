@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using System.Text;
+using System.IO;
 
 namespace OpenMinecraft
 {
@@ -168,6 +169,23 @@ namespace OpenMinecraft
         public static double UnixTimestamp()
         {
             return (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
+        }
+        public static long DirSize(DirectoryInfo d)
+        {
+            long Size = 0;
+            // Add file sizes.
+            FileInfo[] fis = d.GetFiles();
+            foreach (FileInfo fi in fis)
+            {
+                Size += fi.Length;
+            }
+            // Add subdirectory sizes.
+            DirectoryInfo[] dis = d.GetDirectories();
+            foreach (DirectoryInfo di in dis)
+            {
+                Size += DirSize(di);
+            }
+            return (Size);
         }
     }
 }

@@ -219,7 +219,7 @@ namespace MineEdit
                     float x = (float)e.Pos.X + (float)min.X;
                     float y = (float)e.Pos.Y + (float)min.Y;
                     //b.SetBounds((int)y * ZoomLevel - 2, (int)y * ZoomLevel - 2, 16, 16);
-                    b.SetBounds((int)(e.Pos.X - min.X) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y) * ZoomLevel + 6, 16, 16);
+                    b.SetBounds((int)(e.Pos.X - min.X) * ZoomLevel/* + 6*/, (int)(e.Pos.Y - min.Y) * ZoomLevel/* + 6*/, 16, 16);
                     b.Image = e.Image;
                     b.UseVisualStyleBackColor = true;
                     b.BackColor = Color.Transparent;
@@ -243,7 +243,7 @@ namespace MineEdit
                 if (e.Pos.X > min.X && e.Pos.X < max.X && e.Pos.Y > min.Y && e.Pos.Y < max.Y)
                 {
                     Button b = new Button();
-                    b.SetBounds((int)(e.Pos.X - min.X + xoffset) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y - yoffset) * ZoomLevel + 6, 16, 16);
+                    b.SetBounds((int)(e.Pos.X - min.X/* + xoffset*/) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y/* - yoffset*/) * ZoomLevel + 6, 16, 16);
                     b.Image = e.Image;
                     b.UseVisualStyleBackColor = true;
                     b.BackColor = Color.Transparent;
@@ -273,12 +273,14 @@ namespace MineEdit
             if (e.Button == MouseButtons.Left)
             {
                 Vector3i bp = new Vector3i(e.X/ZoomLevel,e.Y/ZoomLevel,CurrentPosition.Z);
-                _Map.SetBlockIn(mcc.AssignedChunk.X,mcc.AssignedChunk.Y,bp,CurrentMaterial);
+                Chunk c = _Map.GetChunk(mcc.AssignedChunk.X,mcc.AssignedChunk.Y);
+                c.Blocks[bp.X,bp.Y,bp.Z] =CurrentMaterial;
+                c.Save();
             }
             if (e.Button == MouseButtons.Right)
             {
                 Vector3i bp = new Vector3i(e.X/ZoomLevel,e.Y/ZoomLevel,CurrentPosition.Z);
-                byte bid = _Map.GetBlockIn(mcc.AssignedChunk.X,mcc.AssignedChunk.Y,bp);
+                byte bid = _Map.GetChunk(mcc.AssignedChunk).GetBlock(bp);
                 Block b = Blocks.Get(bid);
                 ContextMenu cmnu = new System.Windows.Forms.ContextMenu();
                 cmnu.MenuItems.AddRange(new MenuItem[]{
@@ -286,7 +288,8 @@ namespace MineEdit
                         MessageBox.Show("That is a(n) " + b.ToString() + " block.");
                     })),
                     new MenuItem("Remove this.",new EventHandler(delegate(object s,EventArgs ea){
-                        _Map.SetBlockIn(mcc.AssignedChunk.X, mcc.AssignedChunk.Y, bp, 0x00);
+                        Chunk c = _Map.GetChunk(mcc.AssignedChunk);
+                        c.SetBlock(bp,0x00);
                         mcc.Render();
                         mcc.Refresh();
                     })),
@@ -296,7 +299,7 @@ namespace MineEdit
                     new MenuItem("Generate..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
                     new MenuItem("-"),
                     new MenuItem("Delete Chunk...",new EventHandler(delegate(object s,EventArgs ea){
-                        Chunk c = _Map.GetChunkData(mcc.AssignedChunk);
+                        Chunk c = _Map.GetChunk(mcc.AssignedChunk);
                         c.Delete();
                         mcc.Render();
                         mcc.Refresh();

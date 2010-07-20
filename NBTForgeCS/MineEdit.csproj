@@ -74,6 +74,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Blocks.cs" />
     <Compile Include="dlgAddEntity.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -104,6 +105,12 @@
     </Compile>
     <Compile Include="frmMap.Designer.cs">
       <DependentUpon>frmMap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmSplash.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmSplash.Designer.cs">
+      <DependentUpon>frmSplash.cs</DependentUpon>
     </Compile>
     <Compile Include="Texture.cs" />
     <Compile Include="UIControls\BlockSelector.cs">
@@ -206,6 +213,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="dlgLoading.resx">
       <DependentUpon>dlgLoading.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmSplash.resx">
+      <DependentUpon>frmSplash.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UIControls\TileEntityControls\ChestEditor.resx">
       <DependentUpon>ChestEditor.cs</DependentUpon>
@@ -315,6 +325,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\document-open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MineEdit.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

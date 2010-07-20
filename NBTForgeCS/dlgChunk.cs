@@ -32,7 +32,7 @@ namespace MineEdit
 
         void Reload()
         {
-            MyChunk = Map.GetChunkData(ChunkPos);
+            MyChunk = Map.GetChunk(ChunkPos);
             if (MyChunk == null) return;
             txtChunkCoords.Text = string.Format("({0},{1})", ChunkPos.X, ChunkPos.Y);
             txtChunkFile.Text = MyChunk.Filename;

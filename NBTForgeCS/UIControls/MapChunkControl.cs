@@ -26,6 +26,7 @@ namespace MineEdit
         /// </summary>
         public Vector3i ChunkSize = new Vector3i(0, 0, 0);
         Bitmap bmp;
+        Chunk MyChunk;
         int lh = 1, lw = 1, ly=0;
 
         public MapChunkControl()
@@ -45,6 +46,7 @@ namespace MineEdit
             Map = parent.Map;
             AssignedChunk = pos;
             ChunkSize = sz;
+            MyChunk = Map.GetChunk(AssignedChunk);
             //Console.WriteLine("{0}: Chunk ({1},{2}), origin ({3},{4}), size {5}", this, pos.X, pos.Y, pos.X * sz.X, pos.Y * sz.Y, sz);
             InitializeComponent();
             Paint += new PaintEventHandler(MapChunkControl_Paint);
@@ -107,6 +109,7 @@ namespace MineEdit
             // ChunkCoords  16,16
             int z = 128;
             int zoom = 8;
+            Color wc = Blocks.GetColor(9);
             if (parent != null)
             {
                 z = (int)parent.CurrentPosition.Z;
@@ -118,7 +121,7 @@ namespace MineEdit
                 {
                     Vector3i blockpos = new Vector3i(x, y, z);
 
-                    byte block = Map.GetBlockIn(AssignedChunk.X, AssignedChunk.Y, blockpos);
+                    byte block = MyChunk.Blocks[x,y,z];
 
                     int waterdepth = 0;
                     int bh = 0;
@@ -132,7 +135,7 @@ namespace MineEdit
                         // Console.WriteLine("hurr air");
 
                         // BROKEN for some reason (?!)
-                        parent.Map.GetOverview((int)AssignedChunk.X,(int)AssignedChunk.Y,blockpos, out bh, out block, out waterdepth);
+                        MyChunk.GetOverview(blockpos, out bh, out block, out waterdepth);
 
                         c = Blocks.GetColor(block);
                         // Water translucency
@@ -141,7 +144,6 @@ namespace MineEdit
                             if (waterdepth > 15)
                                 waterdepth = 15;
                             float pct = ((float)waterdepth / 15f) * 100f;
-                            Color wc = Color.Blue;
                             c = Color.FromArgb(
                                 Utils.Lerp(c.R, wc.R, (int)pct),
                                 Utils.Lerp(c.G, wc.G, (int)pct),
@@ -156,7 +158,6 @@ namespace MineEdit
                             //if (bh > 5)
                             //    bh = 5;
                             float pct = ((float)bh / 128f) * 100f;
-                            Color wc = Color.Black;
                             //shadow = Color.FromArgb((int)pct, Color.Black);
                             c = Color.FromArgb(
                                 Utils.Lerp(c.R, 0, (int)pct),

@@ -14,6 +14,9 @@ namespace MineEdit
         private static bool _ShowChunks = true;
         private static bool _ShowMapIcons = true;
         private static bool _ShowWaterDepth = false;
+        // Just for ease of loading.
+        public static Dictionary<short, float> Worlds = new Dictionary<short, float>();
+
         public static bool ShowGridLines
         {
             get
@@ -70,7 +73,8 @@ namespace MineEdit
             {
                 foreach (string f in File.ReadAllLines(".luf"))
                 {
-                    LastUsedFiles.Push(f);
+                    if(File.Exists(f))
+                        LastUsedFiles.Push(f);
                 }
             }
             if (File.Exists(".settings"))

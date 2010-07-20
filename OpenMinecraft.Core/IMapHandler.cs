@@ -37,9 +37,6 @@ namespace OpenMinecraft
         string Filename { get; set; }
         Vector3d PlayerPos {get;set;}
         Vector3i Spawn {get;set;}
-        
-        byte GetBlockAt(Vector3i p);
-        void SetBlockAt(Vector3i p, byte id);
 
         void ClearInventory();
         bool GetInventory(int slot, out short itemID, out short Damage, out byte Count, out string failreason);
@@ -61,9 +58,6 @@ namespace OpenMinecraft
         void GetOverview(int CX,int CY, Vector3i pos, out int h, out byte block, out int waterdepth);
 
         void Load();
-
-        byte GetBlockIn(long x, long y, Vector3i blockpos);
-        void SetBlockIn(long x, long y, Vector3i blockpos,byte type);
 
         int Time { get; set; }
 
@@ -91,8 +85,14 @@ namespace OpenMinecraft
 
         void ReplaceBlocksIn(long X, long Y, Dictionary<byte, byte> Replacements);
 
-        Chunk GetChunkData(Vector3i ChunkPos);
+        Chunk GetChunk(Vector3i ChunkPos);
+        Chunk GetChunk(long x, long y);
 
         long RandomSeed { get; set; }
+
+        void Generate(string gen, long X, long Y);
+
+        void SaveChunk(Chunk chunk);
+        void ChunkModified(long x, long y);
     }
 }
