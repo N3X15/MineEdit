@@ -67,6 +67,9 @@ namespace OpenMinecraft.TileEntities
                 case "Furnace":
                     e = new Furnace(CX, CY, CS, c);
                     break;
+                case "Sign":
+                    e = new Sign(CX, CY, CS, c);
+                    break;
                 default:
 #if DEBUG
                     Console.WriteLine("*** Unknown TileEntity: {0}", (c["id"] as NbtString).Value);

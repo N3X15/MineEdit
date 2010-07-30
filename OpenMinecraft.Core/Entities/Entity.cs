@@ -4,22 +4,28 @@ using System.Text;
 using LibNbt.Tags;
 using System.Drawing;
 using System.IO;
+using System.ComponentModel;
 
 namespace OpenMinecraft.Entities
 {
     public class Entity
     {
-        public Vector3d Pos = new Vector3d();
-        public Vector3d Motion = new Vector3d();
-        public short Air = 300;
-        public short Fire = 0;
-        public float FallDistance = 0f;
+        public Vector3d Pos;
+        public Vector3d Motion;
+
+        [Category("Entity"),Description("Amount of air this creature has left"),DefaultValue(300)]
+        public short Air { get; set; }
+        [Category("Entity"), Description("OH GOD I'M ON FIRE"), DefaultValue(-20)]
+        public short Fire { get; set; }
+        [Category("Entity"), Description("OH GOD I'M FALLING")]
+        public float FallDistance { get; set; }
         public NbtTag Rotation;
         private NbtCompound orig;
         private string id;
         public int ChunkX=0;
         public int ChunkY=0;
         public Vector3d OrigPos;
+        public Guid UUID;
 
         public virtual NbtCompound ToNBT()
         {
@@ -34,6 +40,7 @@ namespace OpenMinecraft.Entities
         {
             orig = c;
             id = (orig["id"] as NbtString).Value;
+            SetBaseStuff(c);
 #if DEBUG
             Console.WriteLine("*** BUG: Unknown entity (ID: {0})",id);
             Console.WriteLine(orig);
@@ -102,6 +109,8 @@ namespace OpenMinecraft.Entities
                     return new Spider(c);
                 case "Zombie":
                     return new Zombie(c);
+                case "Slime":
+                    return new Slime(c);
                 default: 
                     return new Entity(c);
             }
@@ -109,6 +118,7 @@ namespace OpenMinecraft.Entities
 
         public virtual string GetID() { return "_NULL_"; }
 
+        [Browsable(false)]
         public virtual Image Image {
             get
             {
@@ -116,6 +126,19 @@ namespace OpenMinecraft.Entities
             }
         }
 
-        public Guid UUID { get; set; }
+        internal static string GetRandomMonsterID(Random r)
+        {
+            string[] mobids = new string[]{
+                "Pig", // Just to throw people off :V
+                "Sheep",
+                "Skeleton",
+                "Creeper",
+                "Spider",
+                "Zombie",
+                "Slime"
+            };
+            int i = r.Next(0, mobids.Length-1);
+            return mobids[i];
+        }
     }
 }

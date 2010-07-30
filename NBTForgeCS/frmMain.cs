@@ -406,29 +406,47 @@ namespace MineEdit
                         DialogResult dr2 = MessageBox.Show("Would you also like to REMOVE ALL CHUNKS?  This will allow you to regenerate the entire map, but it will REMOVE ALL CHANGES APPLIED TO THE MAP.", "Regenerate?", MessageBoxButtons.YesNo);
                         if (dr2 == System.Windows.Forms.DialogResult.Yes)
                         {
-                            int NumChunks=0;
-                            tsbStatus.Text="Counting chunks...";
-                            tsbProgress.Style = ProgressBarStyle.Marquee;
-                            (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate (long x,long y){
-                                ++NumChunks;
-                                Application.DoEvents();
-                            }));
-                            
-                            tsbStatus.Text="Counting chunks...";
-                            tsbProgress.Style = ProgressBarStyle.Continuous;
-                            tsbProgress.Maximum = NumChunks;
-                            tsbProgress.Value = 0;
-                            (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate (long x,long y){
-                                Chunk c = (ActiveMdiChild as frmMap).Map.GetChunk(x,y);
-                                if(c==null) return;
-                                File.Delete(c.Filename);
-                                tsbStatus.Text = string.Format("Deleted chunk ({0},{1})...",x,y);
-                                ++tsbProgress.Value;
-                                Application.DoEvents();
-                            }));
+                            dlgLongTask dlt = new dlgLongTask();
+                            dlt.Start(delegate()
+                            {
+                                int NumChunks = 0;
+                                dlt.SetMarquees(true, true);
+                                dlt.VocabSubtask = "Chunk";
+                                dlt.VocabSubtasks = "Chunks";
+                                dlt.Title = "Removing chunks.";
+                                dlt.Subtitle = "This will take a while.  Go take a break.";
+                                dlt.CurrentSubtask = "Counting chunks (0)...";
+                                dlt.CurrentTask = "Calculating how long this might take...";
+                                (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate(long x, long y)
+                                {
+                                    if (dlt.STOP) return;
+                                    ++NumChunks;
+                                    dlt.CurrentSubtask = "Counting chunks ("+NumChunks.ToString()+" so far)...";
+                                }));
 
-                            ResetStatus();
-                            MessageBox.Show("Done.");
+                                dlt.SetMarquees(false, false);
+                                dlt.CurrentTask = "Replacing stuff in chunks...";
+                                dlt.TasksComplete = 0;
+                                dlt.TasksTotal = NumChunks;
+                                dlt.SubtasksTotal = 2;
+                                (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate(long x, long y)
+                                {
+                                    if (dlt.STOP) return;
+                                    dlt.CurrentTask = string.Format("Deleting chunk ({0},{1})...", x, y); 
+                                    dlt.CurrentSubtask = string.Format("Loading chunk ({0},{1})...", x, y);
+                                    dlt.SubtasksComplete = 0;
+                                    Chunk c = (ActiveMdiChild as frmMap).Map.GetChunk(x, y);
+                                    if (c == null) return;
+                                    dlt.CurrentSubtask = string.Format("Deleting chunk ({0},{1})...", x, y);
+                                    dlt.SubtasksComplete = 1;
+                                    File.Delete(c.Filename);
+                                    dlt.SubtasksComplete = 2;
+                                    ++dlt.TasksComplete;
+                                }));
+                                dlt.Done();
+                                MessageBox.Show("Done.");
+                            });
+                            dlt.ShowDialog();
                         }
                     }
                 }
@@ -452,6 +470,142 @@ namespace MineEdit
                 if ((ActiveMdiChild as frmMap).Map != null)
                 {
                     (ActiveMdiChild as frmMap).Refresh();
+                }
+            }
+        }
+
+        private void fixLavalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    (ActiveMdiChild as frmMap).FixLava();
+                }
+            }
+        }
+
+        private void generateTerrainToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    DialogResult dr = MessageBox.Show("This will DELETE FUCKING EVERYTHING. ARE YOU SURE?", "ARE YOU NUTS", MessageBoxButtons.YesNo);
+                    if (dr == DialogResult.No)
+                    {
+                        ResetStatus();
+                        return;
+                    }
+                    dlgTerrainGen terragen = new dlgTerrainGen((ActiveMdiChild as frmMap).Map);
+                    if(terragen.ShowDialog() == DialogResult.Cancel)
+                    {
+                        ResetStatus();
+                        return;
+                    }
+                    IMapGenerator mg = (IMapGenerator)terragen.pgMapGen.SelectedObject;
+                    (ActiveMdiChild as frmMap).Map.Generator = mg;
+                    dlgLongTask dlt = new dlgLongTask();
+                    dlt.Start(delegate()
+                    {
+                        int NumChunks = 0;
+                        dlt.SetMarquees(true, true);
+                        dlt.VocabSubtask = "Chunk";
+                        dlt.VocabSubtasks = "Chunks";
+                        dlt.Title = "Generating chunks.";
+                        dlt.Subtitle = "This will take a while.  Go take a break.";
+                        dlt.CurrentSubtask = "Counting chunks (0)...";
+                        dlt.CurrentTask = "Calculating how long this might take...";
+                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
+                        {
+                            if (dlt.STOP) return;
+                            ++NumChunks;
+                            dlt.CurrentSubtask = string.Format("Counting chunks ({0})...", NumChunks);
+                        });
+
+                        dlt.SetMarquees(false, false);
+                        dlt.CurrentTask = "Replacing stuff in chunks...";
+                        dlt.TasksComplete = 0;
+                        dlt.TasksTotal = NumChunks;
+                        dlt.SubtasksTotal = 1;
+                        int tfa=0;
+                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
+                        {
+                            if (dlt.STOP) return;
+                            dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Y); 
+                            dlt.CurrentTask = "Generating chunks...";
+                            dlt.SubtasksComplete = 0;
+
+                            (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y);
+                            dlt.SubtasksComplete = 1;
+                            dlt.TasksComplete++;
+                        });
+                        dlt.Done();
+                        MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
+                    });
+                    dlt.ShowDialog();
+                }
+            }
+        }
+
+        protected void GenChunk(long X, long Y)
+        {
+            (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y);
+        }
+
+        private void recalcLightingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    Profiler profSky = new Profiler("Sky Lighting");
+                    Profiler profBlock = new Profiler("Block Lighting");
+                    tsbStatus.Text = "Waiting for user response lol";
+                    DialogResult dr = MessageBox.Show("MineEdit will recalculate both Block and Sky lighting.  This will be godawfully slow.  Are you sure you want to do this?", "DO YOU HAVE THE PATIENCE", MessageBoxButtons.YesNo);
+                    if (dr == DialogResult.No)
+                    {
+                        ResetStatus();
+                        return;
+                    }
+                    //(ActiveMdiChild as frmMap).Enabled = false;
+                    int NumChunks = 0;
+                    tsbProgress.Style = ProgressBarStyle.Marquee;
+                    (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
+                    {
+                        ++NumChunks;
+                        tsbStatus.Text = string.Format("Counting chunks... ({0})", NumChunks);
+                        Application.DoEvents();
+                    });
+                    tsbProgress.Style = ProgressBarStyle.Continuous;
+                    tsbProgress.Maximum = NumChunks;
+                    int NumGenned = 0;
+                    int NumSkipped = 0;
+                    (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
+                    {
+                        Chunk c = (ActiveMdiChild as frmMap).Map.GetChunk(X, Y);
+                        if (c == null)
+                        {
+                            ++NumSkipped;
+                            return;
+                        }
+                        profSky.Start();
+                        c.RecalculateLighting(true);
+                        profSky.Stop();
+                        profBlock.Start();
+                        c.RecalculateLighting(false);
+                        profBlock.Stop();
+                        c.Save();
+                        tsbStatus.Text = string.Format("Recalculating lighting... ({0}/{1}, {2} skipped)", NumGenned++, NumChunks, NumSkipped);
+                        tsbProgress.Value = NumGenned;
+                        Application.DoEvents();
+                    });
+                    Console.WriteLine(profSky.ToString());
+                    Console.WriteLine(profBlock.ToString());
+                    MessageBox.Show("Lighting regenerated.\n\n\t" + profSky.ToString() + "\n\t" + profSky.ToString() + "\n\t " + NumGenned.ToString() + " blocks processed\n\t" + NumSkipped.ToString() + " blocks skipped.", "Report");
+                    //(ActiveMdiChild as frmMap).Enabled = true;
+                    (ActiveMdiChild as frmMap).ReloadAll();
+                    ResetStatus();
                 }
             }
         }

@@ -38,6 +38,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numPosX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPosY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPosZ)).BeginInit();
@@ -45,6 +46,7 @@
             // 
             // mobSelector1
             // 
+            this.mobSelector1.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.mobSelector1.FormattingEnabled = true;
             this.mobSelector1.Location = new System.Drawing.Point(12, 25);
             this.mobSelector1.Name = "mobSelector1";
@@ -156,11 +158,21 @@
             this.label4.TabIndex = 6;
             this.label4.Text = "Z:";
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(20, 62);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(270, 13);
+            this.label5.TabIndex = 7;
+            this.label5.Text = "Note:  Minecraft uses X,Z,Y, and MineEdit uses X,Y,Z.  ";
+            // 
             // dlgAddEntity
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(460, 92);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -198,6 +210,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
 
     }
 }

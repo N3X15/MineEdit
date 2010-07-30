@@ -90,9 +90,11 @@ namespace OpenMinecraft
 
         long RandomSeed { get; set; }
 
-        void Generate(string gen, long X, long Y);
-
         void SaveChunk(Chunk chunk);
         void ChunkModified(long x, long y);
+
+        Chunk NewChunk(long X, long Y);
+        IMapGenerator Generator { get; set; }
+        void Generate(IMapHandler mh, long X, long Y);
     }
 }

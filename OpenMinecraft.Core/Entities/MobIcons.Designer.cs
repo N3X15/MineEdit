@@ -95,6 +95,13 @@ namespace OpenMinecraft.Entities {
             }
         }
         
+        internal static System.Drawing.Bitmap mobslime {
+            get {
+                object obj = ResourceManager.GetObject("mobslime", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap mobspider {
             get {
                 object obj = ResourceManager.GetObject("mobspider", resourceCulture);

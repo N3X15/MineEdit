@@ -73,6 +73,7 @@ namespace OpenMinecraft
                 up.ShowDialog();
                 return;
             }
+            MapGenerators.Init();
             foreach(string line in File.ReadAllLines("blocks.txt"))
             {
                 if (string.IsNullOrEmpty(line)) 

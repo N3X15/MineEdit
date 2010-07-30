@@ -27,7 +27,7 @@
 41	41.png	Gold
 42	42.png	Iron
 43	43.png	Double stair
-44	44.png	Stone slab
+44	44.png	Stair
 45	45.png	Brick
 46	46.png	TNT
 47	47.png	Bookshelf
@@ -65,6 +65,8 @@
 79	79.png	Ice
 80	80.png	Snow block
 81	81.png	Cactus
+82	82.png	Clay block
+83	83.png	Bamboo block
 256	256.png	Iron shovel
 257	257.png	Iron pickaxe
 258	258.png	Iron axe
@@ -143,3 +145,11 @@
 331	331.png	Redstone dust
 332	332.png	Snowball
 333	333.png	Boat
+334	334.png	Leather
+335	335.png	Milk bucket
+336	336.png	Brick
+337	337.png	Clay
+338	338.png	Bamboo
+339	339.png	Paper
+340	340.png	Book
+341	341.png	Slime orb

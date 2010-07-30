@@ -5,7 +5,6 @@ using LibNbt;
 using LibNbt.Tags;
 using OpenMinecraft.Entities;
 using OpenMinecraft.TileEntities;
-using OpenMinecraft.MapGenerators;
 
 namespace OpenMinecraft
 {
@@ -320,14 +319,27 @@ namespace OpenMinecraft
         }
         public void Load(string filename)
         {
-            Chunks.Clear();
-            CurrentBlock = new Vector3i(0, 0, 0);
-            CurrentBlocks = null;
-            Filename = filename;
-            Folder=Path.GetDirectoryName(filename);
-            root = new NbtFile(filename);
-            root.LoadFile();
-            LoadChunk(0,0);
+            try
+            {
+                Chunks.Clear();
+                CurrentBlock = new Vector3i(0, 0, 0);
+                CurrentBlocks = null;
+                Filename = filename;
+                Folder = Path.GetDirectoryName(filename);
+                root = new NbtFile(filename);
+                root.LoadFile();
+            }
+            catch (Exception)
+            {
+                System.Windows.Forms.DialogResult dr = System.Windows.Forms.MessageBox.Show("Your level.dat is broken. Copying over level.dat_old...","ERROR",System.Windows.Forms.MessageBoxButtons.OKCancel);
+                if (dr == System.Windows.Forms.DialogResult.OK)
+                {
+                    File.Copy(Path.ChangeExtension(filename, "dat_old"), filename);
+                    Load(filename);
+                }
+                else return;
+            }
+            LoadChunk(0, 0);
         }
 
 
@@ -387,7 +399,7 @@ namespace OpenMinecraft
             return p;
         }
 
-        private byte[,,] DecompressLighting(byte[] databuffer)
+        private byte[, ,] DecompressLightmap(byte[] databuffer)
         {
             byte[, ,] blocks = new byte[ChunkX, ChunkY, ChunkZ];
             for (int x = 0; x < 16; x++)
@@ -396,18 +408,26 @@ namespace OpenMinecraft
                 {
                     for (int z = 0; z < 128; z++)
                     {
-
-                        int half = x * 64 + y * 64 * 16 + z / 2;
-                        int l;
-                        if (z % 2 == 0)
-                            l = (int)databuffer[half] % 16;
-                        else
-                            l = (int)databuffer[half] / 16;
-                        blocks[x, y, z]=(byte)l;
+                        blocks[x,y,z]=(byte)DecompressLight(databuffer, x, y, z);
                     }
                 }
             }
             return blocks;
+        }
+        private byte[] CompressLightmap(byte[,,] blocks)
+        {
+            byte[] databuffer = new byte[16384];
+            for (int x = 0; x < 16; x++)
+            {
+                for (int y = 0; y < 16; y++)
+                {
+                    for (int z = 0; z < 128; z++)
+                    {
+                        CompressLight(ref databuffer, x, y, z, blocks[x, y, z]);
+                    }
+                }
+            }
+            return databuffer;
         }
 
         private Chunk _LoadChunk(int x, int z)
@@ -440,15 +460,6 @@ namespace OpenMinecraft
             {
                 chunk = new NbtFile(c.Filename);
                 chunk.LoadFile();
-            }
-            catch (Exception e)
-            {
-                string err = string.Format(" *** ERROR: Chunk {0},{1} ({2}) failed to load:\n\n{3}", x, z, c.Filename, e);
-                Console.WriteLine(err);
-                if(CorruptChunk!=null)
-                    CorruptChunk(err, c.Filename);
-                return null;
-            }
 
             NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
 
@@ -464,24 +475,19 @@ namespace OpenMinecraft
             if (TileEntities.Tags.Count > 0)
             {
                 //Console.WriteLine("*** Found TileEntities.");
-                LoadTileEnts((int)x, (int)z, TileEntities);
+                LoadTileEnts(ref c, (int)x, (int)z, TileEntities);
             }
 
             NbtList Entities = (NbtList)level["Entities"];
             if (Entities.Tags.Count > 0)
             {
                 //Console.WriteLine("*** Found Entities.");
-                LoadEnts((int)x, (int)z, Entities);
+                LoadEnts(ref c, (int)x, (int)z, Entities);
             }
 
             // Blocks
             c.Blocks = DecompressBlocks(level["Blocks"].asBytes());
 
-            // Block Lighting
-            c.BlockLight = DecompressLighting(level["BlockLight"].asBytes());
-
-            // Sky Lighting
-            c.SkyLight = DecompressLighting(level["SkyLight"].asBytes());
 
             c.Loading = false;
             c.UpdateOverview();
@@ -515,6 +521,15 @@ namespace OpenMinecraft
             //if (c>0)  Console.WriteLine("*** {0} spawners found.", c);
             //Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
             return c;
+            }
+            catch (Exception e)
+            {
+                string err = string.Format(" *** ERROR: Chunk {0},{1} ({2}) failed to load:\n\n{3}", x, z, c.Filename, e);
+                Console.WriteLine(err);
+                if (CorruptChunk != null)
+                    CorruptChunk(err, c.Filename);
+                return null;
+            }
         }
 
         private byte[, ,] DecompressBlocks(byte[] p)
@@ -533,7 +548,7 @@ namespace OpenMinecraft
             return NewBlocks;
         }
 
-        private void LoadEnts(int CX, int CY, NbtList ents)
+        private void LoadEnts(ref Chunk cnk, int CX, int CY, NbtList ents)
         {
             foreach (NbtCompound c in ents.Tags)
             {
@@ -541,11 +556,12 @@ namespace OpenMinecraft
                 //hurp.Pos.X += ((double)CX*16d);
                 //hurp.Pos.Y += ((double)CY*16d);
                 hurp.UUID = Guid.NewGuid();
-                _Entities.Add(hurp.UUID,hurp);
+                cnk.Entities.Add(hurp.UUID, hurp);
+                _Entities.Add(hurp.UUID, hurp);
             }
         }
 
-        private void LoadTileEnts(int CX,int CY,NbtList ents)
+        private void LoadTileEnts(ref Chunk cnk, int CX,int CY,NbtList ents)
         {
             foreach (NbtCompound c in ents.Tags)
             {
@@ -652,21 +668,25 @@ namespace OpenMinecraft
             SaveChunk(c);
         }
 
-        public Chunk GetChunk(int x, int z, bool GenerateNewChunkIfNeeded=true)
+        public Chunk GetChunk(int x, int z, bool GenerateNewChunkIfNeeded=false)
         {
             string id = x.ToString() + "," + z.ToString();
             Chunk c;
             if (!Chunks.TryGetValue(id, out c))
             {
+                if(File.Exists(GetChunkFilename(x,z)))
+                    return _LoadChunk(x, z);
                 if (GenerateNewChunkIfNeeded)
                 {
-                    Generate(GeneratorAlgorithm, x, z);
+                    int fa;
+                    Generate(this, x, z);
                     return GetChunk(x, z);
                 }
                 return null;
             }
             return c;
         }
+
         public void SaveChunk(Chunk cnk)
         {
             NbtFile c = new NbtFile(cnk.Filename);
@@ -678,43 +698,62 @@ namespace OpenMinecraft
             Level.Tags.Remove(Level["Blocks"]);
 
             // BLOCKS /////////////////////////////////////////////////////
-            byte[] blocks = new byte[ChunkX*ChunkY*ChunkZ];
-            for(int X = 0;X < ChunkX;X++)
+            byte[] blocks = new byte[ChunkX * ChunkY * ChunkZ];
+            for (int X = 0; X < ChunkX; X++)
             {
-                for(int Y = 0;Y < ChunkY;Y++)
+                for (int Y = 0; Y < ChunkY; Y++)
                 {
-                    for(int Z = 0;Z < ChunkZ;Z++)
-                        blocks[GetBlockIndex(X,Y,Z)] = cnk.Blocks[X,Y,Z];
+                    for (int Z = 0; Z < ChunkZ; Z++)
+                    {
+                        blocks[GetBlockIndex(X, Y, Z)] = cnk.Blocks[X, Y, Z];
+                    }
                 }
             }
             Level.Tags.Add(new NbtByteArray("Blocks", blocks));
             blocks = null;
 
             // LIGHTING ///////////////////////////////////////////////////
-            byte[] lighting = new byte[ChunkX * ChunkY * ChunkZ];
-            for (int X = 0; X < ChunkX; X++)
-            {
-                for (int Y = 0; Y < ChunkY; Y++)
-                {
-                    for (int Z = 0; Z < ChunkZ; Z++)
-                        lighting[GetBlockIndex(X, Y, Z)] = cnk.SkyLight[X, Y, Z];
-                }
-            }
-            Level.Tags.Add(new NbtByteArray("SkyLight", lighting));
+            //byte[] lighting = CompressLightmap(cnk.SkyLight);
+            Level.Tags.Add(new NbtByteArray("SkyLight", new byte[16384]));
 
-            lighting = new byte[ChunkX * ChunkY * ChunkZ];
-            for (int X = 0; X < ChunkX; X++)
+            //lighting = CompressLightmap(cnk.BlockLight);
+            Level.Tags.Add(new NbtByteArray("BlockLight", new byte[16384]));
+
+            // HEIGHTMAP (Needed for lighting).
+            byte[] hm = new byte[256];
+            for (int x = 0; x < 16; x++)
             {
-                for (int Y = 0; Y < ChunkY; Y++)
+                for (int y = 0; y < 16; y++)
                 {
-                    for (int Z = 0; Z < ChunkZ; Z++)
-                        lighting[GetBlockIndex(X, Y, Z)] = cnk.BlockLight[X, Y, Z];
+                    hm[y + (x * 16)] = (byte)cnk.HeightMap[x, y];
                 }
             }
-            Level.Tags.Add(new NbtByteArray("BlockLight", lighting));
+
+            NbtList ents = new NbtList("Entities");
+            // ENTITIES ///////////////////////////////////////////////////
+            foreach (KeyValuePair<Guid, Entity> ent in cnk.Entities)
+            {
+                ents.Tags.Add(ent.Value.ToNBT());
+            }
+            Level.Tags.Add(ents);
+
+            NbtList tents = new NbtList("TileEntities");
+            // TILE ENTITIES //////////////////////////////////////////////
+            foreach (KeyValuePair<Guid, TileEntity> tent in cnk.TileEntities)
+            {
+                ents.Tags.Add(tent.Value.ToNBT());
+            }
+            Level.Tags.Add(tents);
 
             c.RootTag["Level"] = Level;
-            c.SaveFile(cnk.Filename);
+            //try
+            //{
+                c.SaveFile(cnk.Filename);
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e);
+            //}
         }
 
         public bool IsMyFiletype(string f)
@@ -765,30 +804,11 @@ namespace OpenMinecraft
             }
             try
             {
-                chunk = new NbtFile(f);
-                chunk.LoadFile();
-                NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
-
-                NbtList ents = (NbtList)level["Entities"];
-                if (e.OrigPos != null)
-                {
-                    NbtCompound dc = null;
-                    foreach (NbtCompound c in ents.Tags)
-                    {
-                        Entity ent = new Entity(c);
-                        if (e.Pos == ent.Pos)
-                        {
-                            dc = c;
-                            break;
-                        }
-                    }
-                    if (dc != null)
-                        ents.Tags.Remove(dc);
-                }
-                ents.Tags.Add(e.ToNBT());
-                level["Entities"] = ents;
-                chunk.RootTag["Level"] = level;
-                chunk.SaveFile(f);
+                Chunk c = GetChunk(CX, CY);
+                if (c.Entities.ContainsKey(e.UUID))
+                    c.Entities.Remove(e.UUID);
+                c.Entities.Add(e.UUID, e);
+                c.Save();
             }
             catch (Exception) { }
         }
@@ -843,38 +863,152 @@ namespace OpenMinecraft
 
         private int GetBlockIndex(int x, int y, int z)
         {
-            //return x * ChunkZ + y * ChunkZ * ChunkX + z;
             return y * ChunkZ + x * ChunkZ * ChunkX + z;
-            //return (x << 11 | z << 7 | y);
         }
 
-        public void Generate(string gen, long X, long Y)
+        public virtual int ExpandFluids(byte fluidID)
         {
-            NbtCompound c = NewChunk(X,Y);
-            NbtCompound Level = c["Level"].asCompound();
-            byte[,,] newblocks = MapGenerator.Get(gen,RandomSeed).Generate(X,Y,ChunkScale);
-            byte[] blocks = new byte[ChunkX*ChunkY*ChunkZ];
-            for(int x = 0;x<ChunkX;x++)
-                for(int y = 0;y<ChunkY;y++)
-                    for(int z = 0;z<ChunkZ;z++)
-                        blocks[GetBlockIndex(x,y,z)]=newblocks[x,y,z];
-            Level.Add("Blocks", blocks);
+            int bc = 0; // Whether the water map has changed.
+            int xm = (int)ChunkScale.X - 1;
+            int ym = (int)ChunkScale.Y - 1;
+            int zm = (int)ChunkScale.Z - 1;
+            UnloadChunks();
+            ForEachChunk(delegate(long X, long Y)
+            {
+                Chunk c = GetChunk(X, Y);
+                byte[, ,] b = c.Blocks;
+                for (int _z = 0; _z < (int)ChunkScale.Z; _z++)
+                {
+                    for (int _x = 0; _x < (int)ChunkScale.X; _x++)
+                    {
+                        for (int _y = 0; _y < (int)ChunkScale.Y; _y++)
+                        {
+                            int x = _x + (int)(X * ChunkScale.X);
+                            int y = _y + (int)(Y * ChunkScale.Y); 
+                            int z = _z;
+                            bool w = false;
+                            // If this block is air, and a block in any neighborly position except downwards is fluidID...
+                            if (GetBlockAt(x, y, z) == 0)
+                            {
+                                if (GetBlockAt(x + 1, y, z) == fluidID)
+                                    w = true;
+                                else if (GetBlockAt(x - 1, y, z) == fluidID)
+                                    w = true;
+                                else if (GetBlockAt(x, y + 1, z) == fluidID)
+                                    w = true;
+                                else if (GetBlockAt(x, y - 1, z) == fluidID)
+                                    w = true;
+                                else if (GetBlockAt(x, y, z + 1) == fluidID)
+                                    w = true;
+
+                                if (w)
+                                {
+                                    b[_x, _y, _z] = fluidID; ++bc;
+                                }
+                            }
+                        }
+                    }
+                }
+                c.Blocks = b;
+                SaveChunk(c);
+            });
+            //Console.WriteLine("MapGenerator::ExpandFluids({0}): Added {1} fluid blocks.", fluidID, bc);
+            return bc;
         }
 
-        public NbtCompound NewChunk(long X, long Y)
+        private byte GetBlockAt(int px, int py, int z)
+        {
+            int X = px/16;
+            int Y = py/16;
+
+            int x = px-(X*(int)ChunkScale.X);
+            int y = py-(Y*(int)ChunkScale.Y);
+
+            return GetChunk(X, Y).Blocks[x, y, z];
+        }
+
+        private void UnloadChunks()
+        {
+            Chunks.Clear();
+            ChangedChunks.Clear();
+        }
+        public void Generate(IMapHandler mh, long X, long Y)
+        {
+            string lockfile = Path.ChangeExtension(GetChunkFilename((int)X,(int)Y), "genlock");
+            if (!_Generator.NoPreservation)
+            {
+                if (File.Exists(lockfile))
+                    return;
+            }
+            else
+            {
+                if (File.Exists(lockfile))
+                    File.Delete(lockfile);
+            }
+            Chunk _c = mh.NewChunk(X, Y);
+            byte[,,] b = _Generator.Generate(ref mh, X, Y);
+            if (b == null) return;
+            /*
+            try
+            {
+                //Console.WriteLine("{0} blocks of stone post-generation.", GetBlockNumbers(b)[1]);
+            }
+            catch (Exception) { }
+            */
+            _Generator.AddTrees(ref b, (int)X, (int)Y, (int)ChunkScale.Z);
+            while (_Generator.ExpandFluids(ChunkScale, ref b, 09) != 0) ;
+            while (_Generator.ExpandFluids(ChunkScale, ref b, 11) != 0) ;
+            _c.Blocks = b;
+            _c.UpdateOverview();
+            //_c.SkyLight=Utils.RecalcLighting(_c,true);
+            //_c.BlockLight=Utils.RecalcLighting(_c,false);
+            _c.Save();
+            File.WriteAllText(lockfile, "");
+        }
+
+        private Dictionary<byte,int> GetBlockNumbers(byte[, ,] b)
+        {
+            Dictionary<byte, int> BlockCount = new Dictionary<byte, int>();
+            for (int x = 0; x < ChunkScale.X; x++)
+            {
+                for (int y = 0; y < ChunkScale.Y; y++)
+                {
+                    for (int z = 0; z < ChunkScale.Z; z++)
+                    {
+                        byte blk = b[x, y, z];
+                        if (!BlockCount.ContainsKey(blk))
+                            BlockCount.Add(blk, 0);
+                        ++BlockCount[blk];
+                    }
+                }
+            }
+            return BlockCount;
+        }
+
+        public Chunk NewChunk(long X, long Y)
+        {
+            NbtCompound c = NewNBTChunk(X, Y);
+            NbtFile cf = new NbtFile(GetChunkFilename((int)X, (int)Y));
+            cf.RootTag = c;
+            cf.SaveFile(GetChunkFilename((int)X, (int)Y));
+
+            return GetChunk(X, Y);
+        }
+
+        protected NbtCompound NewNBTChunk(long X, long Y)
         {
             NbtCompound Level = new NbtCompound("Level");
-            Level.Add("TerrainPopulated", false);
-            Level.Add("xPos", X);
-            Level.Add("zPos", Y);
+            Level.Add("TerrainPopulated", false); // Don't add ores, y/n? Usually get better performance with true on first load.
+            Level.Add("xPos", (int)X);
+            Level.Add("zPos", (int)Y);
             Level.Add("LastUpdate", 0); // idk what the format is, not going to decompile.
-            Level.Add("BlockLight",  new byte[16384]);
-            Level.Add("Blocks",      new byte[ChunkX*ChunkY*ChunkZ]);
-            Level.Add("Data", new byte[16384]);
-            Level.Add("HeightMap", new byte[256]);
-            Level.Add("SkyLight", new byte[16384]);
-            Level.Add("Entities", new NbtCompound());
-            Level.Add("TileEntities", new NbtCompound());
+            Level.Add("BlockLight",     new byte[16384]);
+            Level.Add("Blocks",         new byte[32768]);
+            Level.Add("Data",           new byte[16384]);
+            Level.Add("HeightMap",      new byte[256]);
+            Level.Add("SkyLight",       new byte[16384]);
+            Level.Add("Entities",       new NbtList("Entities"));
+            Level.Add("TileEntities",   new NbtList("TileEntities"));
 
             NbtCompound Chunk = new NbtCompound("_ROOT_");
             Chunk.Tags.Add(Level);
@@ -884,7 +1018,7 @@ namespace OpenMinecraft
         public void ReplaceBlocksIn(long X, long Y, Dictionary<byte, byte> Replacements)
         {
             if (Replacements == null) return;
-            Chunk c = _LoadChunk((int)X, (int)Y);
+            Chunk c = GetChunk((int)X, (int)Y);
             if (c == null) return;
 
             bool bu=false;
@@ -909,9 +1043,43 @@ namespace OpenMinecraft
                 Chunks.Remove(ci);
             }
             Chunks.Add(ci,c);
-            if(!ChangedChunks.Contains(ci))
-                ChangedChunks.Add(ci);
+            //if(!ChangedChunks.Contains(ci))
+            //    ChangedChunks.Add(ci);
+
+            c.Save();
         }
+
+        /// <summary>
+        /// Decompress lighting data from the tiny array that is used for lighting.
+        /// </summary>
+        /// <param name="lightdata">Compressed lighting bytearray (from /Level/{BlockLight,SkyLight})</param>
+        /// <param name="x">XCoord</param>
+        /// <param name="y">YCoord</param>
+        /// <param name="z">ZCoord</param>
+        /// <returns>Lighting value at this position</returns>
+        public int DecompressLight(byte[] lightdata, int x, int y, int z)
+        {
+            // Get uncompressed block ID.
+            int uncompressedindex = GetBlockIndex(x, y, z); // y * ChunkZ + x * ChunkZ * ChunkX + z;
+            int compressedindex = uncompressedindex / 2;
+            int whichhalf = uncompressedindex % 2;
+            if (whichhalf == 0)
+                return lightdata[compressedindex] & 0xf;
+            else
+                return lightdata[compressedindex] / 16 & 0xf;
+        }
+
+        public void CompressLight(ref byte[] lightdata, int x, int y, int z, int val)
+        {
+            int uncompressedindex = GetBlockIndex(x, y, z);
+            int compressedindex = uncompressedindex / 2;
+            int whichhalf = uncompressedindex % 2;
+            if (whichhalf == 0)
+                lightdata[compressedindex] = (byte)(lightdata[compressedindex] & 0xf0 | val & 0xf);
+            else
+                lightdata[compressedindex] = (byte)(lightdata[compressedindex] & 0xf | (val & 0xf) * 16);
+        }
+
         public byte GetBlockIn(long CX, long CY, Vector3i pos)
         {
             pos = new Vector3i(pos.Y, pos.X, pos.Z);
@@ -1183,6 +1351,7 @@ namespace OpenMinecraft
                         //Console.WriteLine(file);
                         //Console.WriteLine(Path.GetExtension(file));
                         if (Path.GetExtension(file) == "dat") continue;
+                        if (file.EndsWith(".genlock")) continue;
                         NbtFile f = new NbtFile(file);
                         f.LoadFile();
                         NbtCompound Level = (NbtCompound)f.RootTag["Level"];
@@ -1195,7 +1364,25 @@ namespace OpenMinecraft
             }
         }
 
-        public string GeneratorAlgorithm { get; set; }
+        IMapGenerator _Generator = new DefaultMapGenerator(0);
+        public IMapGenerator Generator
+        {
+            get
+            {
+                return _Generator;
+            }
+            set
+            {
+                _Generator = value;
+                SaveMapGenerator();
+            }
+        }
+
+        private void SaveMapGenerator()
+        {
+            File.WriteAllText(_Generator.GetType().Name,Path.Combine(Folder,"mapgen.id"));
+            _Generator.Save(Folder);
+        }
 
         public void ChunkModified(long x, long y)
         {

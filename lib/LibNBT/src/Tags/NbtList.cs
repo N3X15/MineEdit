@@ -135,6 +135,7 @@ namespace LibNbt.Tags
             // to make sure all elements are that type.
             if (Tags.Count > 0)
             {
+                if (Tags[0] == null) return;
                 NbtTagType listType = Tags[0].GetTagType();
                 foreach(NbtTag tag in Tags)
                 {

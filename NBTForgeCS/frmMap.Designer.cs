@@ -632,6 +632,7 @@
             this.blkReplace.Size = new System.Drawing.Size(220, 21);
             this.blkReplace.TabIndex = 3;
             this.blkReplace.ValueMember = "ID";
+            this.blkReplace.SelectedIndexChanged += new System.EventHandler(this.blkReplace_SelectedIndexChanged);
             // 
             // label7
             // 
@@ -679,6 +680,7 @@
             this.Replacements.Name = "Replacements";
             this.Replacements.Size = new System.Drawing.Size(160, 95);
             this.Replacements.TabIndex = 0;
+            this.Replacements.SelectedIndexChanged += new System.EventHandler(this.Replacements_SelectedIndexChanged);
             // 
             // groupBox1
             // 

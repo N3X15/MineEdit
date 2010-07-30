@@ -231,6 +231,18 @@ namespace LibNbt.Tags
             TagCache.Add(k, derp);
         }
 
+        public void Add(string k, int v)
+        {
+            if (TagCache.ContainsKey(k))
+            {
+                Tags.Remove(TagCache[k]);
+                TagCache.Remove(k);
+            }
+            NbtTag derp = new NbtInt(k, v);
+            Tags.Add(derp);
+            TagCache.Add(k, derp);
+        }
+
         public void Add(string k, byte[] v)
         {
             if (TagCache.ContainsKey(k))
@@ -252,6 +264,43 @@ namespace LibNbt.Tags
             }
             v.Name = k;
             NbtTag derp = v;
+            Tags.Add(derp);
+            TagCache.Add(k, derp);
+        }
+
+        public void Add(string k, string v)
+        {
+            if (TagCache.ContainsKey(k))
+            {
+                Tags.Remove(TagCache[k]);
+                TagCache.Remove(k);
+            }
+            NbtTag derp = new NbtString(k,v);
+            Tags.Add(derp);
+            TagCache.Add(k, derp);
+        }
+
+        public void Add(string k, NbtList v)
+        {
+            if (TagCache.ContainsKey(k))
+            {
+                Tags.Remove(TagCache[k]);
+                TagCache.Remove(k);
+            }
+            //v.Name = k;
+            NbtTag derp = v;
+            Tags.Add(derp);
+            TagCache.Add(k, derp);
+        }
+
+        public void Add(string k, double v)
+        {
+            if (TagCache.ContainsKey(k))
+            {
+                Tags.Remove(TagCache[k]);
+                TagCache.Remove(k);
+            }
+            NbtTag derp = new NbtDouble(k, v);
             Tags.Add(derp);
             TagCache.Add(k, derp);
         }

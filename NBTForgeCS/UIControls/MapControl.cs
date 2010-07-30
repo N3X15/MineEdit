@@ -207,9 +207,7 @@ namespace MineEdit
                     }
                 }
             }
-
-            int xoffset = -1 * 16;
-            int yoffset = -2 * 16;
+            /*
             foreach (KeyValuePair<Guid, Entity> k in _Map.Entities)
             {
                 Entity e = k.Value;
@@ -219,7 +217,7 @@ namespace MineEdit
                     float x = (float)e.Pos.X + (float)min.X;
                     float y = (float)e.Pos.Y + (float)min.Y;
                     //b.SetBounds((int)y * ZoomLevel - 2, (int)y * ZoomLevel - 2, 16, 16);
-                    b.SetBounds((int)(e.Pos.X - min.X) * ZoomLevel/* + 6*/, (int)(e.Pos.Y - min.Y) * ZoomLevel/* + 6*/, 16, 16);
+                    b.SetBounds((int)(e.Pos.X - min.X) * ZoomLevel, (int)(e.Pos.Y - min.Y) * ZoomLevel, 16, 16);
                     b.Image = e.Image;
                     b.UseVisualStyleBackColor = true;
                     b.BackColor = Color.Transparent;
@@ -243,7 +241,7 @@ namespace MineEdit
                 if (e.Pos.X > min.X && e.Pos.X < max.X && e.Pos.Y > min.Y && e.Pos.Y < max.Y)
                 {
                     Button b = new Button();
-                    b.SetBounds((int)(e.Pos.X - min.X/* + xoffset*/) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y/* - yoffset*/) * ZoomLevel + 6, 16, 16);
+                    b.SetBounds((int)(e.Pos.X - min.X) * ZoomLevel + 6, (int)(e.Pos.Y - min.Y) * ZoomLevel + 6, 16, 16);
                     b.Image = e.Image;
                     b.UseVisualStyleBackColor = true;
                     b.BackColor = Color.Transparent;
@@ -260,7 +258,7 @@ namespace MineEdit
                     b.BringToFront();
                     Console.WriteLine("{0} {1} added to pos {2},{3}", e, e.UUID, b.Top, b.Left);
                 }
-            }
+            }*/
         }
 
         void ChunkRightClicked(object sender, MouseEventArgs e)
@@ -274,21 +272,26 @@ namespace MineEdit
             {
                 Vector3i bp = new Vector3i(e.X/ZoomLevel,e.Y/ZoomLevel,CurrentPosition.Z);
                 Chunk c = _Map.GetChunk(mcc.AssignedChunk.X,mcc.AssignedChunk.Y);
+                if (c == null) return;
                 c.Blocks[bp.X,bp.Y,bp.Z] =CurrentMaterial;
                 c.Save();
             }
             if (e.Button == MouseButtons.Right)
             {
                 Vector3i bp = new Vector3i(e.X/ZoomLevel,e.Y/ZoomLevel,CurrentPosition.Z);
-                byte bid = _Map.GetChunk(mcc.AssignedChunk).GetBlock(bp);
-                Block b = Blocks.Get(bid);
+                Chunk c = _Map.GetChunk(mcc.AssignedChunk);
+                Block b = Blocks.Get(0);
+                if (c != null)
+                {
+                    byte bid = c.GetBlock(bp);
+                    b = Blocks.Get(bid);
+                }
                 ContextMenu cmnu = new System.Windows.Forms.ContextMenu();
                 cmnu.MenuItems.AddRange(new MenuItem[]{
                     new MenuItem("What's this?",new EventHandler(delegate(object s,EventArgs ea){
                         MessageBox.Show("That is a(n) " + b.ToString() + " block.");
                     })),
                     new MenuItem("Remove this.",new EventHandler(delegate(object s,EventArgs ea){
-                        Chunk c = _Map.GetChunk(mcc.AssignedChunk);
                         c.SetBlock(bp,0x00);
                         mcc.Render();
                         mcc.Refresh();
@@ -296,10 +299,16 @@ namespace MineEdit
                     new MenuItem("-"),                    
                     new MenuItem("Replace..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
                     new MenuItem("Paint..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
-                    new MenuItem("Generate..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
+                    new MenuItem("Generate...",new EventHandler(delegate(object s,EventArgs ea){
+                        int fa;
+                        Map.Generate(Map, mcc.AssignedChunk.X,mcc.AssignedChunk.Y);
+                        Map.LoadChunk(mcc.AssignedChunk.X, mcc.AssignedChunk.Y);
+                        mcc.Render();
+                        mcc.Refresh();
+                    })),
                     new MenuItem("-"),
                     new MenuItem("Delete Chunk...",new EventHandler(delegate(object s,EventArgs ea){
-                        Chunk c = _Map.GetChunk(mcc.AssignedChunk);
+                        Map.LoadChunk(mcc.AssignedChunk.X, mcc.AssignedChunk.Y);
                         c.Delete();
                         mcc.Render();
                         mcc.Refresh();
@@ -327,6 +336,12 @@ namespace MineEdit
         {
             if (EntityClicked != null)
                 EntityClicked((Entity)(sender as Button).Tag);
+        }
+
+        public void SelectEntity(Guid e)
+        {
+            if (EntityClicked != null)
+                EntityClicked(_Map.Entities[e]);
         }
 
         // Entity button clicked.
@@ -428,6 +443,7 @@ namespace MineEdit
             {
                 //Chunks.Clear();
                 _Map = value;
+                CurrentPosition=(Vector3i)_Map.PlayerPos;
                 DoLayout();
                 Render();
             }
@@ -487,5 +503,11 @@ namespace MineEdit
 
         }
 
+
+        internal void SelectTileEntity(Guid lol)
+        {
+            if (TileEntityClicked != null)
+                TileEntityClicked(_Map.TileEntities[lol]);
+        }
     }
 }

@@ -3,11 +3,14 @@ using System.Collections.Generic;
 
 using System.Text;
 using System.IO;
+using OpenMinecraft.TileEntities;
+using OpenMinecraft.Entities;
 
 namespace OpenMinecraft
 {
     public static class Utils
     {
+        const int MinWaterToBeConsideredUnderground = 10;
         #region Clamp
         /// <summary>
         /// Ensure value is between min and max.
@@ -157,7 +160,12 @@ namespace OpenMinecraft
         }
         #endregion
 
+        #region Linear Interpolation
         public static float Lerp(float a, float b, float u)
+        {
+            return a + ((b - a) * u);
+        }
+        public static double Lerp(double a, double b, double u)
         {
             return a + ((b - a) * u);
         }
@@ -165,10 +173,259 @@ namespace OpenMinecraft
         {
             return (int)((float)a + (((float)b - (float)a) * ((float)u/100f)));
         }
+        #endregion
 
         public static double UnixTimestamp()
         {
             return (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
+        }
+
+        #region Trees
+        // All of this shit is a fixed version of all the tree stuff in NBTForge.
+        // Thank you NBTForge for giving me eyes and a legal version of the block reading algoryithm. :V
+        // (Also trees.)
+        public static void GrowTree(ref byte[, ,] b, Random r, int x, int y, int z)
+        {
+            int h = r.Next(6, 8);
+            GrowTreeFoliage(ref b, r, x, y, z, h);
+            GrowTreeTrunk(ref b, r, x, y, z, h);
+        }
+        static void GrowTreeTrunk(ref byte[,,] b, Random r, int x, int y, int z, int height)
+        {
+            if (
+                z + height > b.GetLength(2) - 1 ||
+                x + 2 > b.GetLength(0) - 1 ||
+                y + 2 > b.GetLength(1) - 1)
+                return;
+            if (
+                z - height < 0 ||
+                x - 2 < 0 ||
+                y - 2 < 0)
+                return;
+            for(int i=0;i<height;i++)
+	            b[x,y,z+i]=17;
+        }
+        // From NBTForge.
+        static void GrowTreeFoliage(ref byte[, ,] b, Random r, int x, int y, int _z, int height)
+        {
+            _z = _z + height - 1;
+            if (
+                _z + 2 > b.GetLength(2) - 1 ||
+                x + 2 > b.GetLength(0) - 1 ||
+                y + 2 > b.GetLength(1) - 1)
+                return;
+            if (
+                _z - 2 < 0 ||
+                x - 2 < 0 ||
+                y - 2 < 0)
+                return;
+            /*
+             Note, foliage will disintegrate if there is no foliage below, or
+	        if there is no "log" block within range 2 (square) at the same level or
+	        one level below
+             */
+	        int astart = _z - 2;
+	        int aend = _z + 2;
+	        int rad;
+            for (int z = astart; z < aend; z++)
+            {
+                if (z > astart + 1)
+                    rad = 1;
+                else
+                    rad = 2;
+                for (int xoff = -rad; xoff < rad + 1; xoff++)
+                {
+                    for (int yoff = -rad; yoff < rad + 1; yoff++)
+                    {
+                        for (int zoff = -rad; zoff < rad + 1; zoff++)
+                        {
+                            if (//Math.Abs(xoff) == Math.Abs(zoff)
+                               Math.Abs(xoff) <= rad ||
+                               Math.Abs(yoff) <= rad
+                            )
+                            {
+                                b[x + xoff, y + yoff, z] = 18;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+#endregion
+
+        public static bool CheckForTreeSpace(ref byte[, ,] b, int x, int y, int z)
+        {
+            return false;
+        }
+        
+        #region Dungeons
+        public static int DungeonSizeX = 2; // Air blocks
+        public static int DungeonSizeY = 3; // Air blocks
+        public static int DungeonSizeZ = 3;
+        public static bool CheckForDungeonSpace(byte[,,] b, int x, int y, int z)
+        {
+            Vector3i pos=new Vector3i(x,y,z);
+            Vector3i size = new Vector3i((DungeonSizeX+1)*2+1,(DungeonSizeY+1)*2+1,DungeonSizeZ+1);
+            if (!ObjectIsInChunk(b, pos, size))
+            {
+                //Console.WriteLine("Object is not in chunk.");
+                return false;
+            }
+            if (!ObjectIsCompletelyUnderground(b, pos, size))
+            {
+                //Console.WriteLine("Object is not underground.");
+                return false;
+            }
+            return true;
+        }
+        public static void MakeDungeonWalls(ref byte[, ,] b, Random r, Vector3i position, Vector3i size)
+        {
+            for (int x = (int)(position.X - (size.X / 2)); x < (position.X + (size.X / 2)); x++)
+            {
+                for (int y = (int)(position.Y - (size.Y / 2)); y < (position.Y + (size.Y / 2)); y++)
+                {
+                    for (int z = (int)(position.Z - (size.Z / 2)); z < (position.Z + (size.Z / 2)); z++)
+                    {
+                        if (
+                            x == position.X - size.X || x == (position.X + size.X) - 1 ||
+                            y == position.Y - size.Y || y == (position.Y + size.Y) - 1 ||
+                            z == position.Z - size.Z || z == (position.Z + size.Z) - 1)
+                        {
+                            b[x, y, z] = (r.Next(0, 1) == 1) ? (byte)4 : (byte)48;
+                        }
+                    }
+                }
+            }
+        }
+        public static void FillRect(ref byte[, ,] b, byte blk, Vector3i position, Vector3i size)
+        {
+            for (int x = (int)(position.X - (size.X/2)); x < (position.X + (size.X/2)); x++)
+            {
+                for (int y = (int)(position.Y - (size.Y/2)); y < (position.Y + (size.Y/2)); y++)
+                {
+                    for (int z = (int)(position.Z - (size.Z/2)); z < (position.Z + (size.Z/2)); z++)
+                    {
+                        try
+                        {
+                            b[x, y, z] = blk;
+                        }
+                        catch (Exception) { }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gen a dungeon
+        /// </summary>
+        /// <param name="CX">Chunk X pos</param>
+        /// <param name="CY">Chunk Y pos</param>
+        /// <param name="CH">Chunk Horizontal Scale</param>
+        /// <param name="b"></param>
+        /// <param name="mh"></param>
+        /// <param name="r"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
+        public static bool MakeDungeon(int CX, int CY, ref byte[, ,] b, ref IMapHandler mh, Random r)
+        {
+
+            int CH = (int)mh.ChunkScale.X;
+            int CV = (int)mh.ChunkScale.Z;
+            int x = r.Next(0+DungeonSizeX-1, CH-DungeonSizeX+1);
+            int y = r.Next(0+DungeonSizeY-1, CH-DungeonSizeY+1);
+            int z = r.Next(0+DungeonSizeZ-1, CV-DungeonSizeZ+1);
+            
+            Vector3i position = new Vector3i(x,y,z);
+            //Console.WriteLine("Creating dungeon in {0}...", position);
+            if (!CheckForDungeonSpace(b, x, y, z)) return false;
+            Vector3i size = new Vector3i((DungeonSizeX*2)+1,(DungeonSizeY*2)+1,(DungeonSizeZ*2)+1);
+            FillRect(ref b, 0, position, size);
+            MakeDungeonWalls(ref b, r, position, size);
+            mh.SetTileEntity(new MobSpawner(x+(int)(CX*CH), y+(int)(CY*CH), z-DungeonSizeZ+1, Entity.GetRandomMonsterID(r), 20));
+            b[x, y, z - DungeonSizeZ + 1]=52;
+            return true;
+        }
+#endregion
+
+        private static bool ObjectIsInChunk(byte[, ,] b, Vector3i position, Vector3i size)
+        {
+            int ChunkX = b.GetLength(0);
+            int ChunkY = b.GetLength(1);
+            int ChunkZ = b.GetLength(2);
+            if ((position.X - (size.X/2)) < 0 ||
+                (position.Y - (size.Y/2)) < 0 ||
+                (position.Z - (size.Z/2)) < 0)
+            {
+                Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkY, ChunkZ);
+                return false;
+            }
+
+            if ((position.X + (size.X/2)) > ChunkX - 1 ||
+                (position.Y + (size.Y/2)) > ChunkY - 1 ||
+                (position.Z + (size.Z/2)) > ChunkZ - 1)
+            {
+                Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkY, ChunkZ);
+                return false;
+            }
+                
+                Console.WriteLine("Object with size {0} @ {1} is within the chunk of size {2},{3},{4}",position,size,ChunkX,ChunkY,ChunkZ);
+            return true;
+        }
+
+        private static bool ObjectIsIntersectingWithGround(byte[, ,] b, Vector3i position, Vector3i size)
+        {
+            int ChunkX = b.GetLength(0);
+            int ChunkY = b.GetLength(1);
+            int ChunkZ = b.GetLength(2);
+
+            for (int x = (int)(position.X - (size.X / 2)); x < (position.X + (size.X / 2)); x++)
+            {
+                for (int y = (int)(position.Y - (size.Y/2)); y < (position.Y + (size.Y/2)); y++)
+                {
+                    for (int z = (int)(position.Z - (size.Z/2)); z < (position.Z + (size.Z/2)); z++)
+                    {
+                        if (b[x, y, z] == 8 || b[x, y, z] == 9)
+                        {
+                            continue;
+                        }
+                        if (b[x, y, z] != 0)
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static bool ObjectIsCompletelyUnderground(byte[, ,] b, Vector3i position, Vector3i size)
+        {
+            int ChunkX = b.GetLength(0);
+            int ChunkY = b.GetLength(1);
+            int ChunkZ = b.GetLength(2);
+            for (int x = (int)(position.X - (size.X/2)); x < (position.X + (size.X/2)); x++)
+            {
+                for (int y = (int)(position.Y - (size.Y/2)); y < (position.Y + (size.Y/2)); y++)
+                {
+                    int wd = 0;
+                    bool IsUndergroundSoFar=false;
+                    for (int z = ChunkZ-1; z > (position.Z + (size.Z/2)); z--)
+                    {
+                        if (b[x, y, z] == 8 || b[x, y, z] == 9)
+                        {
+                            wd++;
+                            continue;
+                        }
+                        if (b[x, y, z] != 0)
+                        {
+                            IsUndergroundSoFar = true;
+                        }
+                    }
+                    if (!IsUndergroundSoFar && wd<MinWaterToBeConsideredUnderground)
+                        return false;
+                }
+            }
+            return true;
         }
         public static long DirSize(DirectoryInfo d)
         {
@@ -187,5 +444,21 @@ namespace OpenMinecraft
             }
             return (Size);
         }
+
+        public static void GrowCactus(ref byte[, ,] b, Random rand, int x, int y, int z)
+        {
+            for (int i = 0; i < rand.Next(1,3); i++)
+                b[x, y, z + i] = 0x51;
+        }
+        public static double CosineInterpolate(
+            double y1, double y2,
+            double mu)
+        {
+            double mu2;
+
+            mu2 = (1 - Math.Cos(mu * Math.PI)) / 2;
+            return (y1 * (1 - mu2) + y2 * mu2);
+        }
+
     }
 }

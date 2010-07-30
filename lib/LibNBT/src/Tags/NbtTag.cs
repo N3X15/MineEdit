@@ -63,5 +63,10 @@ namespace LibNbt.Tags
         {
             return (this as NbtByteArray).Value;
         }
+
+        public double asDouble()
+        {
+            return (this as NbtDouble).Value;
+        }
     }
 }

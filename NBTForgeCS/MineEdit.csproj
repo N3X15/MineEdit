@@ -88,6 +88,18 @@
     <Compile Include="dlgChunk.Designer.cs">
       <DependentUpon>dlgChunk.cs</DependentUpon>
     </Compile>
+    <Compile Include="dlgReplace.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgReplace.Designer.cs">
+      <DependentUpon>dlgReplace.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dlgTerrainGen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgTerrainGen.Designer.cs">
+      <DependentUpon>dlgTerrainGen.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -115,6 +127,12 @@
     <Compile Include="Texture.cs" />
     <Compile Include="UIControls\BlockSelector.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="dlgLongTask.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="dlgLongTask.Designer.cs">
+      <DependentUpon>dlgLongTask.cs</DependentUpon>
     </Compile>
     <Compile Include="UIControls\MobSelector.cs">
       <SubType>Component</SubType>
@@ -166,12 +184,12 @@
     <Compile Include="dlgLoading.Designer.cs">
       <DependentUpon>dlgLoading.cs</DependentUpon>
     </Compile>
-    <Compile Include="UIControls\MapControlGL.cs">
+    <None Include="UIControls\MapControlGL.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UIControls\MapControlGL.Designer.cs">
+    </None>
+    <None Include="UIControls\MapControlGL.Designer.cs">
       <DependentUpon>MapControlGL.cs</DependentUpon>
-    </Compile>
+    </None>
     <Compile Include="UIControls\Inventory.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -202,6 +220,12 @@
     <EmbeddedResource Include="dlgChunk.resx">
       <DependentUpon>dlgChunk.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="dlgReplace.resx">
+      <DependentUpon>dlgReplace.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgTerrainGen.resx">
+      <DependentUpon>dlgTerrainGen.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmAbout.resx">
       <DependentUpon>frmAbout.cs</DependentUpon>
     </EmbeddedResource>
@@ -216,6 +240,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmSplash.resx">
       <DependentUpon>frmSplash.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="dlgLongTask.resx">
+      <DependentUpon>dlgLongTask.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UIControls\TileEntityControls\ChestEditor.resx">
       <DependentUpon>ChestEditor.cs</DependentUpon>
@@ -238,9 +265,9 @@
     <EmbeddedResource Include="UIControls\InventoryItemControl.resx">
       <DependentUpon>InventoryItemControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UIControls\MapControlGL.resx">
+    <None Include="UIControls\MapControlGL.resx">
       <DependentUpon>MapControlGL.cs</DependentUpon>
-    </EmbeddedResource>
+    </None>
     <EmbeddedResource Include="UIControls\Inventory.resx">
       <DependentUpon>Inventory.cs</DependentUpon>
     </EmbeddedResource>
@@ -275,14 +302,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\mobzombie.png" />
-    <None Include="Resources\mobspider.png" />
-    <None Include="Resources\mobskeleton.png" />
-    <None Include="Resources\mobsheep.png" />
-    <None Include="Resources\mobpig.png" />
-    <None Include="Resources\mobnotch.png" />
-    <None Include="Resources\mobcreeper.png" />
-    <None Include="Resources\view-refresh.png" />
     <None Include="Resources\go-home.png" />
     <None Include="Resources\list-add.png" />
     <None Include="Resources\LOGOBAR.png" />
@@ -328,6 +347,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\MineEdit.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\view-refresh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Terragen_Logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

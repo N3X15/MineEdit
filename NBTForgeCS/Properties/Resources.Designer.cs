@@ -62,14 +62,14 @@ namespace MineEdit.Properties {
         
         internal static System.Drawing.Bitmap document_open {
             get {
-                object obj = ResourceManager.GetObject("document-open", resourceCulture);
+                object obj = ResourceManager.GetObject("document_open", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         internal static System.Drawing.Bitmap document_save {
             get {
-                object obj = ResourceManager.GetObject("document-save", resourceCulture);
+                object obj = ResourceManager.GetObject("document_save", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -144,58 +144,16 @@ namespace MineEdit.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap mobcreeper {
+        internal static System.Drawing.Bitmap Terragen_Logo {
             get {
-                object obj = ResourceManager.GetObject("mobcreeper", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap mobnotch {
-            get {
-                object obj = ResourceManager.GetObject("mobnotch", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap mobpig {
-            get {
-                object obj = ResourceManager.GetObject("mobpig", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap mobsheep {
-            get {
-                object obj = ResourceManager.GetObject("mobsheep", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap mobskeleton {
-            get {
-                object obj = ResourceManager.GetObject("mobskeleton", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap mobspider {
-            get {
-                object obj = ResourceManager.GetObject("mobspider", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap mobzombie {
-            get {
-                object obj = ResourceManager.GetObject("mobzombie", resourceCulture);
+                object obj = ResourceManager.GetObject("Terragen_Logo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         internal static System.Drawing.Bitmap view_refresh {
             get {
-                object obj = ResourceManager.GetObject("view-refresh", resourceCulture);
+                object obj = ResourceManager.GetObject("view_refresh", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

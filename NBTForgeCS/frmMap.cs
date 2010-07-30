@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using OpenMinecraft;
 using OpenMinecraft.Entities;
 using OpenMinecraft.TileEntities;
+using System.Threading;
 namespace MineEdit
 {
     public partial class frmMap : Form
@@ -625,6 +626,68 @@ namespace MineEdit
         private void cmdProcess_Click(object sender, EventArgs e)
         {
             DoReplace();
+        }
+
+        internal void FixLava()
+        {
+            dlgLongTask dlt = new dlgLongTask();
+            ThreadStart ts = new ThreadStart(delegate()
+            {
+                dlt.Title = "Fixing Lava";
+                dlt.Subtitle = "This will take a very long time, take a break.";
+                dlt.VocabSubtask = "subtask";
+                dlt.VocabSubtasks = "subtasks";
+                dlt.CurrentSubtask = "Counting chunks...";
+                int NumChunks = 0;
+                Map.ForEachChunk(delegate(long X, long Y)
+                {
+                    if (dlt.STOP) return;
+                    ++NumChunks;
+                    dlt.CurrentSubtask = string.Format("Counting chunks ({0})...", NumChunks);
+                });
+                dlt.SubtasksTotal = (int)(Map.ChunkScale.X * Map.ChunkScale.Y * Map.ChunkScale.Z);
+                dlt.TasksTotal = NumChunks;
+                dlt.TasksComplete = 0;
+                Map.ForEachChunk(delegate(long X, long Y)
+                {
+                    if (dlt.STOP) return;
+                    dlt.TasksComplete++;
+                    Chunk c = Map.GetChunk(X, Y);
+                    if (c == null) return;
+                    byte[, ,] b = c.Blocks;
+                    for (int x = 0; x < Map.ChunkScale.X; x++)
+                    {
+                        for (int y = 0; y < Map.ChunkScale.Y; y++)
+                        {
+                            for (int z = 0; z < Map.ChunkScale.Z; z++)
+                            {
+                                if (z == 0)
+                                    b[x, y, z] = 7;
+                                else if (z == 1)
+                                    b[x, y, z] = 11;
+                            }
+                        }
+                    }
+                    c.Blocks = b;
+                    _Map.SaveChunk(c);
+                });
+                if (dlt.TasksTotal - dlt.TasksComplete > 0)
+                    MessageBox.Show(string.Format("{0} chunks were skipped?!", dlt.TasksTotal - dlt.TasksComplete));
+                dlt.Done();
+            });
+            dlt.Start(ts);
+            dlt.ShowDialog();
+                mapCtrl.Render();
+        }
+
+        private void Replacements_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void blkReplace_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

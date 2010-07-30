@@ -47,6 +47,7 @@ namespace OpenMinecraft
 
         public static double Distance(Vector3d v1, Vector3d v2)
         {
+            if (v1 == null || v2 == null) return double.MaxValue;
             double x = v1.X - v2.X;
             double y = v1.Y - v2.Y;
             double z = v1.Z - v2.Z;

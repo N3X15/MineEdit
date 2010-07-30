@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using OpenMinecraft.Entities;
+using OpenMinecraft.TileEntities;
 
 namespace OpenMinecraft
 {
@@ -9,6 +11,8 @@ namespace OpenMinecraft
     {
         public delegate void ChunkModifierDelegate(long x, long y);
         public event ChunkModifierDelegate ChunkModified;
+        public Dictionary<Guid, Entity> Entities = new Dictionary<Guid, Entity>();
+        public Dictionary<Guid, TileEntity> TileEntities = new Dictionary<Guid, TileEntity>();
 
         /// <summary>
         /// Global position of chunk
@@ -236,5 +240,80 @@ namespace OpenMinecraft
         {
             Blocks[bp.X, bp.Y, bp.Z] = p;
         }
+
+        public void RecalculateLighting(bool Sky)
+        {
+            if(!Sky)
+                BlockLight = RecalcLighting(this, false);
+            else
+                SkyLight = RecalcLighting(this, true);
+        }
+
+
+        // Shitty. Shitty. Shitty.
+        public static byte[, ,] RecalcLighting(Chunk c, bool Sky)
+        {
+            byte[, ,] blocklight = c.BlockLight;
+            for (int i = 0; i < 15; i++)
+            {
+                for (int x = 0; x < c.Size.X; x++)
+                {
+                    for (int y = 0; y < c.Size.Y; y++)
+                    {
+                        for (int z = 0; z < c.Size.Z; z++)
+                        {
+                            byte me = blocklight[x, y, z];
+                            // SUNLIGHT
+                            if (Sky)
+                            {
+                                if (c.HeightMap[x, y] <= z)
+                                    me = (byte)(15 - c.WaterDepth[x,y]);
+                            }
+                            else
+                            {
+                                if (IsLightSource(c.Blocks[x, y, z]))
+                                    me = GetLightLevel(c.Blocks[x, y, z]);
+                            }
+                            // Get brightest neighbor
+                            if (x < c.Size.X - 1 && me < blocklight[x + 1, y, z])
+                                me = blocklight[x + 1, y, z];
+                            if (y < c.Size.Y - 1 && me < blocklight[x, y + 1, z])
+                                me = blocklight[x, y + 1, z];
+                            if (z < c.Size.Z - 1 && me < blocklight[x, y, z + 1])
+                                me = blocklight[x, y, z + 1];
+                            if (x > 0 && me < blocklight[x - 1, y, z])
+                                me = blocklight[x - 1, y, z];
+                            if (y > 0 && me < blocklight[x, y - 1, z])
+                                me = blocklight[x, y - 1, z];
+                            if (z > 0 && me < blocklight[x, y, z - 1])
+                                me = blocklight[x, y, z - 1];
+                            // Drop 1 level of light ( WHAT ABOUT SQUARE LAW :| )
+                            me--;
+                            if (me < 0) me = 0;
+                            if (me > 15) me = 15;
+                            blocklight[x, y, z] = me;
+                        }
+                    }
+                }
+            }
+            return blocklight;
+        }
+
+        private static byte GetLightLevel(byte p)
+        {
+            if (p == 10 || p == 11)
+                return 11;
+            if (p == 50 || p == 51)
+                return 10;
+            if (p == 76)
+                return 5;
+            return 0;
+        }
+
+        private static bool IsLightSource(byte p)
+        {
+            return (p == 10 || p == 11 || p == 50 || p == 51 || p == 76);
+        }
+        //
     }
 }

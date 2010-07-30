@@ -7,6 +7,8 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 using OpenMinecraft;
+using OpenMinecraft.Entities;
+using OpenMinecraft.TileEntities;
 
 namespace MineEdit
 {
@@ -14,6 +16,8 @@ namespace MineEdit
     {
         public IMapHandler Map;
         MapControl parent;
+        public Dictionary<Guid, PictureBox> EntityButtons = new Dictionary<Guid, PictureBox>();
+        public Dictionary<Guid, PictureBox> TileEntityButtons = new Dictionary<Guid, PictureBox>();
         bool Drawing = false;
 
         /// <summary>
@@ -62,6 +66,12 @@ namespace MineEdit
                 g.DrawString("[ NO PARENT! ]", new Font(FontFamily.GenericSansSerif, 7), Brushes.White, 2, 2);
                 return;
             }
+            if (MyChunk == null)
+            {
+                g.FillRectangle(new SolidBrush(Blocks.GetColor(9)), 0, 0, Width - 1, Height - 1);
+                g.DrawString("[ Missing Chunk ]", new Font(FontFamily.GenericSansSerif, 7), Brushes.White, 2, 2);
+                return;
+            }
             if (bmp != null/* && LastPos==parent.CurrentPosition*/)
                 g.DrawImage(bmp, 0, 0, Width, Height);
             else
@@ -74,9 +84,6 @@ namespace MineEdit
                 LastPos = parent.CurrentPosition;
         }
 
-        /// <summary>
-        /// I've rewritten this 8x and it's still not working.  Feel free to point out that I'm stupid.
-        /// </summary>
         public void Render()
         {
             //Console.WriteLine("[MapChunkControl::Render()] Rendering chunk ({0},{1})...", AssignedChunk.X, AssignedChunk.Y);
@@ -88,6 +95,11 @@ namespace MineEdit
             if (Map == null)
             {
                 Console.WriteLine("parent.Map = null");
+                return;
+            }
+            if (MyChunk == null)
+            {
+                Console.WriteLine("MyChunk = null");
                 return;
             }
             Drawing = true;
@@ -102,7 +114,7 @@ namespace MineEdit
                 DrawSquares=(parent.ViewingAngle == ViewAngle.TopDown);
             Graphics g = Graphics.FromImage((Image)bmp);
             // No AA.  We WANT pixels :V
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
             // Chunk        1,1
             // ChunkSZ      16,16
@@ -113,6 +125,10 @@ namespace MineEdit
             if (parent != null)
             {
                 z = (int)parent.CurrentPosition.Z;
+                if (z > MyChunk.Size.Z - 1)
+                    z = (int)MyChunk.Size.Z - 1;
+                if (z < 0)
+                    z = 0;
                 zoom = parent.ZoomLevel;
             }
             for (int x = 0; x < Map.ChunkScale.X; x++)
@@ -223,8 +239,16 @@ namespace MineEdit
                         g.DrawString(string.Format("Chunk {0},{1}", AssignedChunk.X, AssignedChunk.Y), f, Brushes.White, 1, 1);
                     }
                 }
-                /*
-                foreach (KeyValuePair<Guid, Entity> k in parent.Map.Entities)
+
+                /// FUCKING ENTITIES HURRRRRRRRRRRRR ////////////////////////////////
+                foreach (KeyValuePair<Guid, PictureBox> p in EntityButtons)
+                {
+                    p.Value.MouseDown += new MouseEventHandler(EntityMouseDown);
+                    Controls.Remove(p.Value);
+                    p.Value.Dispose();
+                }
+                EntityButtons.Clear();
+                foreach (KeyValuePair<Guid, Entity> k in MyChunk.Entities)
                 {
                     if (
                         k.Value.Pos.X > (AssignedChunk.X * 16) &&
@@ -232,18 +256,166 @@ namespace MineEdit
                         k.Value.Pos.Y > (AssignedChunk.Y * 16) &&
                         k.Value.Pos.Y < (AssignedChunk.Y * 16) + 16)
                     {
-                        int x = (int)k.Value.Pos.X % (int)parent.Map.ChunkScale.X;
-                        int y = (int)k.Value.Pos.Y % (int)parent.Map.ChunkScale.Y;
+                        float x = (float)(k.Value.Pos.X - ((double)MyChunk.Position.X * (double)MyChunk.Size.X));
+                        float y = (float)(k.Value.Pos.Y - ((double)MyChunk.Position.Y * (double)MyChunk.Size.Y));
                         x *= parent.ZoomLevel;
                         y *= parent.ZoomLevel;
-                        DrawCross(ref g, new Pen(Color.Yellow), x, y);
-                        g.DrawString(k.Value.ToString(), f, Brushes.Black, x + 1, y + 1);
+                        if ((int)k.Value.Pos.Z != parent.CurrentPosition.Z)
+                        {
+                            g.DrawImage(Fade(k.Value.Image), new RectangleF(x, y, 16, 16));
+                            if ((int)k.Value.Pos.Z > parent.CurrentPosition.Z)
+                            {
+                                g.DrawString("^", f, Brushes.Black, x + 1f, y + 1f);
+                                g.DrawString("^", f, Brushes.White, x, y);
+                            }
+                            else
+                            {
+                                g.DrawString("v", f, Brushes.Black, x + 1f, y + 1f);
+                                g.DrawString("v", f, Brushes.White, x, y);
+                            }
+                        }
+                        else
+                        {
+                            Guid lol = k.Key;
+                            EntityButtons.Add(lol, new PictureBox());
+                            EntityButtons[lol].Tag = lol;
+                            EntityButtons[lol].Image = k.Value.Image;
+                            EntityButtons[lol].BackColor = Color.Transparent;
+                            EntityButtons[lol].MouseDown += new MouseEventHandler(EntityMouseDown);
+                            EntityButtons[lol].ContextMenu = new ContextMenu(new MenuItem[]{
+                                new MenuItem("Entity Editor...",delegate(object s,EventArgs e){
+                                    if (parent != null)
+                                        parent.SelectEntity(lol);
+                                }),
+                                new MenuItem("Delete",delegate(object s,EventArgs e){
+                                    if (parent != null)
+                                        parent.Map.RemoveEntity(parent.Map.Entities[lol]);
+                                })
+                            });
+                            EntityButtons[lol].MouseHover += new EventHandler(EntityHover);
+                            EntityButtons[lol].SetBounds((int)x, (int)y, 16, 16);
+                            Controls.Add(EntityButtons[lol]);
+                        }
                     }
-                }*/
+                }
+
+                /// FUCKING TILEENTITIES HURRRRRRRRRRRRR ////////////////////////////////
+                foreach (KeyValuePair<Guid, PictureBox> p in TileEntityButtons)
+                {
+                    p.Value.MouseDown += new MouseEventHandler(TileEntityMouseDown);
+                    Controls.Remove(p.Value);
+                    p.Value.Dispose();
+                }
+                TileEntityButtons.Clear();
+                foreach (KeyValuePair<Guid, TileEntity> k in MyChunk.TileEntities)
+                {
+                    if (
+                        k.Value.Pos.X > (AssignedChunk.X * 16) &&
+                        k.Value.Pos.X < (AssignedChunk.X * 16) + 16 &&
+                        k.Value.Pos.Y > (AssignedChunk.Y * 16) &&
+                        k.Value.Pos.Y < (AssignedChunk.Y * 16) + 16)
+                    {
+                        float x = (float)(k.Value.Pos.X - ((double)MyChunk.Position.X * (double)MyChunk.Size.X));
+                        float y = (float)(k.Value.Pos.Y - ((double)MyChunk.Position.Y * (double)MyChunk.Size.Y));
+                        x *= parent.ZoomLevel;
+                        y *= parent.ZoomLevel;
+                        if ((int)k.Value.Pos.Z != parent.CurrentPosition.Z)
+                        {
+                            g.DrawImage(Fade(k.Value.Image), new RectangleF(x, y, 16, 16));
+                            if ((int)k.Value.Pos.Z > parent.CurrentPosition.Z)
+                            {
+                                g.DrawString("^", f, Brushes.Black, x + 1f, y + 1f);
+                                g.DrawString("^", f, Brushes.White, x, y);
+                            }
+                            else
+                            {
+                                g.DrawString("v", f, Brushes.Black, x + 1f, y + 1f);
+                                g.DrawString("v", f, Brushes.White, x, y);
+                            }
+                        }
+                        else
+                        {
+                            Guid lol = k.Key;
+                            TileEntityButtons.Add(lol, new PictureBox());
+                            TileEntityButtons[lol].Tag = lol;
+                            TileEntityButtons[lol].Image = k.Value.Image;
+                            TileEntityButtons[lol].BackColor = Color.Transparent;
+                            TileEntityButtons[lol].MouseDown += new MouseEventHandler(TileEntityMouseDown);
+                            TileEntityButtons[lol].ContextMenu = new ContextMenu(new MenuItem[]{
+                                new MenuItem("TileEntity Editor...",delegate(object s,EventArgs e){
+                                    if (parent != null)
+                                        parent.SelectTileEntity(lol);
+                                }),
+                                new MenuItem("Delete",delegate(object s,EventArgs e){
+                                    if (parent != null)
+                                        parent.Map.RemoveEntity(parent.Map.Entities[lol]);
+                                })
+                            });
+                            TileEntityButtons[lol].MouseHover += new EventHandler(TileEntityHover);
+                            TileEntityButtons[lol].SetBounds((int)x, (int)y, 16, 16);
+                            Controls.Add(TileEntityButtons[lol]);
+                        }
+                    }
+                }
             }
             Drawing = false;
         }
 
+        void TileEntityMouseDown(object sender, MouseEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Image Fade(Image image)
+        {
+            Bitmap bmp = (Bitmap)image;
+            for (int x = 0; x < image.Size.Width; x++)
+            {
+                for (int y = 0; y < image.Size.Width; y++)
+                {
+                    Color c = bmp.GetPixel(x, y);
+                    c = Color.FromArgb(128, c);
+                    try
+                    {
+                        bmp.SetPixel(x, y, c);
+                    }
+                    catch (Exception)
+                    {
+                        return bmp;
+                    }
+                }
+            }
+            return bmp;
+        }
+
+        void EntityHover(object sender, EventArgs e)
+        {
+            Guid lol = (Guid)(sender as PictureBox).Tag;
+            ToolTip t = new ToolTip();
+            t.Show(parent.Map.Entities[lol].ToString(), ParentForm);
+        }
+
+        void TileEntityHover(object sender, EventArgs e)
+        {
+            Guid lol = (Guid)(sender as PictureBox).Tag;
+            ToolTip t = new ToolTip();
+            t.Show(parent.Map.TileEntities[lol].ToString(), ParentForm);
+        }
+            
+        void EntityMouseDown(object sender, MouseEventArgs e)
+        {
+            Guid lol = (Guid)(sender as PictureBox).Tag;
+            Entity ent = parent.Map.Entities[lol];
+            if (e.Button == MouseButtons.Left)
+            {
+                foreach (KeyValuePair<Guid, PictureBox> k in new Dictionary<Guid,PictureBox>(EntityButtons))
+                {
+                    Guid clol = (Guid)k.Value.Tag;
+                    EntityButtons[k.Key].BorderStyle = (clol == lol) ? BorderStyle.FixedSingle : BorderStyle.None;
+                    EntityButtons[k.Key].BackColor = (clol == lol) ? Color.Orange : Color.Transparent;
+                }
+            }
+        } 
 
         public void Draw()
         {

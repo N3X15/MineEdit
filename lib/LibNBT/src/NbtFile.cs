@@ -9,7 +9,7 @@ namespace LibNbt
 {
     public class NbtFile : IDisposable
     {
-        public NbtCompound RootTag { get; protected set; }
+        public NbtCompound RootTag { get; set; }
         protected string LoadedFile { get; set; }
 
         public NbtFile() 
