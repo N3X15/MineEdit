@@ -139,6 +139,8 @@ namespace MineEdit
             }
             set
             {
+                if (TasksTotal < value)
+                    TasksTotal = value;
                 totalProgress.Value = value;
                 //(ParentForm as frmMain).tsbProgress.Value = value;
                 lblTotalProgress.Text = string.Format("Progress: {0}/{1} ({2}%) {3} complete.", TasksComplete, TasksTotal, ((float)TasksComplete / (float)TasksTotal) * 100f, (TasksComplete > 1) ? VocabTasks : VocabTasks);

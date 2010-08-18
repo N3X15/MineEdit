@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using OpenMinecraft.TileEntities;
 using OpenMinecraft.Entities;
+using System.Security.Cryptography;
 
 namespace OpenMinecraft
 {
@@ -160,7 +161,34 @@ namespace OpenMinecraft
         }
         #endregion
 
+        /// <summary>
+        /// For FileSystemWatcher stuff
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static string GetMD5HashFromFile(string fileName)
+        {
+            FileStream file = new FileStream(fileName, FileMode.Open);
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] retVal = md5.ComputeHash(file);
+            file.Close();
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < retVal.Length; i++)
+            {
+                sb.Append(retVal[i].ToString("x2"));
+            }
+            return sb.ToString();
+        }
+
         #region Linear Interpolation
+        /// <summary>
+        /// Used for blending colors or line-drawing.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="u"></param>
+        /// <returns></returns>
         public static float Lerp(float a, float b, float u)
         {
             return a + ((b - a) * u);
@@ -358,7 +386,7 @@ namespace OpenMinecraft
                 (position.Y - (size.Y/2)) < 0 ||
                 (position.Z - (size.Z/2)) < 0)
             {
-                Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkY, ChunkZ);
+                //Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkY, ChunkZ);
                 return false;
             }
 
@@ -366,11 +394,11 @@ namespace OpenMinecraft
                 (position.Y + (size.Y/2)) > ChunkY - 1 ||
                 (position.Z + (size.Z/2)) > ChunkZ - 1)
             {
-                Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkY, ChunkZ);
+                //Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkY, ChunkZ);
                 return false;
             }
                 
-                Console.WriteLine("Object with size {0} @ {1} is within the chunk of size {2},{3},{4}",position,size,ChunkX,ChunkY,ChunkZ);
+            //Console.WriteLine("Object with size {0} @ {1} is within the chunk of size {2},{3},{4}",position,size,ChunkX,ChunkY,ChunkZ);
             return true;
         }
 

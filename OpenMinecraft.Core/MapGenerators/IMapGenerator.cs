@@ -18,7 +18,6 @@ namespace OpenMinecraft
         /// <returns></returns>
         public abstract byte[, ,] Generate(ref IMapHandler mh, long X, long Y);
         public abstract void AddTrees(ref byte[, ,] b, int X, int Y, int H);
-        public abstract int ExpandFluids(Vector3i chunkscale, ref byte[, ,] b, byte fluidID);
 
         [Browsable(false)]
         public abstract bool GenerateCaves { get; set; }

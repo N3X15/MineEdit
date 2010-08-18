@@ -89,6 +89,7 @@
     <Compile Include="TileEntities\Sign.cs" />
     <Compile Include="TileEntities\TileEntity.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="Vector2i.cs" />
     <Compile Include="Vector3d.cs" />
     <Compile Include="Vector3i.cs" />
     <Compile Include="ViewAngle.cs" />

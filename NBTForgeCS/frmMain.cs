@@ -326,6 +326,7 @@ namespace MineEdit
                 MessageBox.Show(string.Format("Unable to open file {0}: Unrecognised format", Path.GetFileName(FileName)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            mh.CorruptChunk +=new CorruptChunkHandler(OnCorruptChunk);
             mh.Load(FileName);
 
             dlgLoading load = new dlgLoading(mh);
@@ -416,19 +417,15 @@ namespace MineEdit
                                 dlt.Title = "Removing chunks.";
                                 dlt.Subtitle = "This will take a while.  Go take a break.";
                                 dlt.CurrentSubtask = "Counting chunks (0)...";
-                                dlt.CurrentTask = "Calculating how long this might take...";
-                                (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate(long x, long y)
-                                {
-                                    if (dlt.STOP) return;
-                                    ++NumChunks;
-                                    dlt.CurrentSubtask = "Counting chunks ("+NumChunks.ToString()+" so far)...";
-                                }));
-
-                                dlt.SetMarquees(false, false);
                                 dlt.CurrentTask = "Replacing stuff in chunks...";
                                 dlt.TasksComplete = 0;
                                 dlt.TasksTotal = NumChunks;
                                 dlt.SubtasksTotal = 2;
+                                (ActiveMdiChild as frmMap).Map.ForEachProgress += new ForEachProgressHandler(delegate(int Total, int Progress)
+                                {
+                                    dlt.TasksTotal = Total;
+                                    dlt.TasksComplete = Progress;
+                                });
                                 (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate(long x, long y)
                                 {
                                     if (dlt.STOP) return;
@@ -441,7 +438,6 @@ namespace MineEdit
                                     dlt.SubtasksComplete = 1;
                                     File.Delete(c.Filename);
                                     dlt.SubtasksComplete = 2;
-                                    ++dlt.TasksComplete;
                                 }));
                                 dlt.Done();
                                 MessageBox.Show("Done.");
@@ -491,14 +487,14 @@ namespace MineEdit
             {
                 if ((ActiveMdiChild as frmMap).Map != null)
                 {
-                    DialogResult dr = MessageBox.Show("This will DELETE FUCKING EVERYTHING. ARE YOU SURE?", "ARE YOU NUTS", MessageBoxButtons.YesNo);
-                    if (dr == DialogResult.No)
+                    dlgTerrainGen terragen = new dlgTerrainGen((ActiveMdiChild as frmMap).Map);
+                    if(terragen.ShowDialog() == DialogResult.Cancel)
                     {
                         ResetStatus();
                         return;
                     }
-                    dlgTerrainGen terragen = new dlgTerrainGen((ActiveMdiChild as frmMap).Map);
-                    if(terragen.ShowDialog() == DialogResult.Cancel)
+                    DialogResult dr = MessageBox.Show("This could DELETE EVERYTHING. ARE YOU SURE?", "ARE YOU NUTS", MessageBoxButtons.YesNo);
+                    if (dr == DialogResult.No)
                     {
                         ResetStatus();
                         return;
@@ -508,38 +504,65 @@ namespace MineEdit
                     dlgLongTask dlt = new dlgLongTask();
                     dlt.Start(delegate()
                     {
-                        int NumChunks = 0;
                         dlt.SetMarquees(true, true);
                         dlt.VocabSubtask = "Chunk";
                         dlt.VocabSubtasks = "Chunks";
                         dlt.Title = "Generating chunks.";
                         dlt.Subtitle = "This will take a while.  Go take a break.";
-                        dlt.CurrentSubtask = "Counting chunks (0)...";
-                        dlt.CurrentTask = "Calculating how long this might take...";
-                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
-                        {
-                            if (dlt.STOP) return;
-                            ++NumChunks;
-                            dlt.CurrentSubtask = string.Format("Counting chunks ({0})...", NumChunks);
-                        });
-
                         dlt.SetMarquees(false, false);
                         dlt.CurrentTask = "Replacing stuff in chunks...";
                         dlt.TasksComplete = 0;
-                        dlt.TasksTotal = NumChunks;
+                        dlt.TasksTotal = 1;
                         dlt.SubtasksTotal = 1;
-                        int tfa=0;
+
+                        (ActiveMdiChild as frmMap).Map.ForEachProgress +=new ForEachProgressHandler(delegate(int Total, int Progress){
+                            dlt.TasksTotal = Total;
+                            dlt.TasksComplete = Progress;
+                        });
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
                         {
                             if (dlt.STOP) return;
-                            dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Y); 
-                            dlt.CurrentTask = "Generating chunks...";
                             dlt.SubtasksComplete = 0;
-
+                            dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Y);
                             (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y);
                             dlt.SubtasksComplete = 1;
-                            dlt.TasksComplete++;
                         });
+                        dlt.CurrentTask = "Fixing fluids, may take a while...";
+                        dlt.SubtasksTotal = 2;
+                        dlt.SubtasksComplete = 0;
+                        IMapHandler mh = (ActiveMdiChild as frmMap).Map;
+                        dlt.CurrentSubtask = "Fixing water...";
+                        int hurr = 1;
+                        int hurrT = 0;
+                        int passes = 0;
+                        while (hurr != 0)
+                        {
+                            passes++;
+                            dlt.CurrentSubtask = string.Format("Fixing water ({0} passes, {1} blocks added)...", passes, hurrT);
+                            hurr = mh.ExpandFluids(09, false, delegate(int Total,int Complete){
+                                dlt.SubtasksTotal = Total;
+                                dlt.SubtasksComplete = Complete;
+                            });
+                            hurrT += hurr;
+                        }
+                        dlt.SubtasksComplete++;
+                        dlt.CurrentSubtask = "Fixing lava...";
+                        passes = 0;
+                        hurrT = 0;
+                        hurr = 1;
+                        while (hurr != 0)
+                        {
+                            passes++; 
+                            dlt.CurrentSubtask = string.Format("Fixing lava ({0} passes, {1} blocks added)...", passes, hurrT);
+                            hurr = mh.ExpandFluids(11, false, delegate(int Total, int Complete)
+                            {
+                                dlt.SubtasksTotal = Total;
+                                dlt.SubtasksComplete = Complete;
+                            });
+                            hurrT += hurr;
+                        }
+                        dlt.SubtasksComplete++;
+                        (ActiveMdiChild as frmMap).Map = mh;
                         dlt.Done();
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
                     });
@@ -562,47 +585,46 @@ namespace MineEdit
                     Profiler profSky = new Profiler("Sky Lighting");
                     Profiler profBlock = new Profiler("Block Lighting");
                     tsbStatus.Text = "Waiting for user response lol";
-                    DialogResult dr = MessageBox.Show("MineEdit will recalculate both Block and Sky lighting.  This will be godawfully slow.  Are you sure you want to do this?", "DO YOU HAVE THE PATIENCE", MessageBoxButtons.YesNo);
+                    DialogResult dr = MessageBox.Show("MineEdit will remove lighting data from all chunks, forcing a lighting recalculation (according to advice from Notch, anyway).\n\nThis will inevitably take a long time.  ARE YOU SURE?", "DO YOU HAVE THE PATIENCE", MessageBoxButtons.YesNo);
                     if (dr == DialogResult.No)
                     {
                         ResetStatus();
                         return;
                     }
-                    //(ActiveMdiChild as frmMap).Enabled = false;
-                    int NumChunks = 0;
-                    tsbProgress.Style = ProgressBarStyle.Marquee;
-                    (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
+                    dlgLongTask dlt = new dlgLongTask();
+                    dlt.Start(delegate()
                     {
-                        ++NumChunks;
-                        tsbStatus.Text = string.Format("Counting chunks... ({0})", NumChunks);
-                        Application.DoEvents();
-                    });
-                    tsbProgress.Style = ProgressBarStyle.Continuous;
-                    tsbProgress.Maximum = NumChunks;
-                    int NumGenned = 0;
-                    int NumSkipped = 0;
-                    (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
-                    {
-                        Chunk c = (ActiveMdiChild as frmMap).Map.GetChunk(X, Y);
-                        if (c == null)
+                        int NumChunks = 0;
+                        dlt.VocabSubtask = "Chunk";
+                        dlt.VocabSubtasks = "Chunks";
+                        dlt.Title = "Stripping lighting from chunks.";
+                        dlt.Subtitle = "This will take a while.  Go take a break.";
+                        dlt.SetMarquees(false, false);
+                        dlt.CurrentTask = "Replacing stuff in chunks...";
+                        dlt.TasksComplete = 0;
+                        dlt.TasksTotal = 1;
+                        dlt.SubtasksTotal = 1;
+                        (ActiveMdiChild as frmMap).Map.ForEachProgress += new ForEachProgressHandler(delegate(int Total, int Progress)
                         {
-                            ++NumSkipped;
-                            return;
-                        }
-                        profSky.Start();
-                        c.RecalculateLighting(true);
-                        profSky.Stop();
-                        profBlock.Start();
-                        c.RecalculateLighting(false);
-                        profBlock.Stop();
-                        c.Save();
-                        tsbStatus.Text = string.Format("Recalculating lighting... ({0}/{1}, {2} skipped)", NumGenned++, NumChunks, NumSkipped);
-                        tsbProgress.Value = NumGenned;
-                        Application.DoEvents();
+                            dlt.TasksTotal = Total;
+                            dlt.TasksComplete = Progress;
+                        });
+                        int NumSkipped=0;
+                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
+                        {
+                            Chunk c = (ActiveMdiChild as frmMap).Map.GetChunk(X, Y);
+                            if (c == null)
+                            {
+                                ++NumSkipped;
+                                return;
+                            }
+                            c.Save();
+                            dlt.CurrentTask= string.Format("Stripping lighting... ({0}/{1}, {2} skipped)", dlt.TasksComplete, dlt.TasksTotal, NumSkipped);
+                        });
+                        dlt.Done();
                     });
-                    Console.WriteLine(profSky.ToString());
-                    Console.WriteLine(profBlock.ToString());
-                    MessageBox.Show("Lighting regenerated.\n\n\t" + profSky.ToString() + "\n\t" + profSky.ToString() + "\n\t " + NumGenned.ToString() + " blocks processed\n\t" + NumSkipped.ToString() + " blocks skipped.", "Report");
+                    dlt.ShowDialog();
+                    MessageBox.Show("Lighting stripped from "+dlt.TasksComplete+" chunks.", "Report");
                     //(ActiveMdiChild as frmMap).Enabled = true;
                     (ActiveMdiChild as frmMap).ReloadAll();
                     ResetStatus();

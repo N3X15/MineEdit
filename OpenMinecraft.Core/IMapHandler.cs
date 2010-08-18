@@ -15,9 +15,11 @@ namespace OpenMinecraft
         Boots
     }
     public delegate void CorruptChunkHandler(string error, string file);
+    public delegate void ForEachProgressHandler(int Total, int Complete);
     public interface IMapHandler
     {
         event CorruptChunkHandler CorruptChunk;
+        event ForEachProgressHandler ForEachProgress;
 
         void Load(string filename);
         bool Save();
@@ -96,5 +98,12 @@ namespace OpenMinecraft
         Chunk NewChunk(long X, long Y);
         IMapGenerator Generator { get; set; }
         void Generate(IMapHandler mh, long X, long Y);
+
+        Vector2i GetChunkCoordsFromFile(string filename);
+
+        byte GetBlockAt(int x, int y, int z);
+        void SetBlockAt(int x, int y, int z, byte val);
+
+        int ExpandFluids(byte fluidID, bool CompleteRegen, ForEachProgressHandler ph);
     }
 }

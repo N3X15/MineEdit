@@ -21,7 +21,7 @@ namespace OpenMinecraft
         protected Perlin TreeNoise;
 
         public double _CaveThreshold = 0.70d;
-        public int WaterHeight = 65;
+        public int WaterHeight = 63;
         public int DERT_DEPTH = 6;
         double _TerrainDivisor = 0.33;
         double _CaveDivisor = 2.0;
@@ -137,13 +137,13 @@ namespace OpenMinecraft
 
             int ZH = (int)chunksize.Z;
             byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
-            for (int z = 0; z < ZH; z++)
+            for (int x = 0; x < chunksize.X; x++)
             {
-                int intensity = z * (255 / ZH);
-                for (int x = 0; x < chunksize.X; x++)
+                for (int y = 0; y < chunksize.Y; y++)
                 {
-                    for (int y = 0; y < chunksize.Y; y++)
+                    for (int z = 0; z < ZH; z++)
                     {
+                        int intensity = z * (255 / ZH);
                         double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d) / 2.0;
                         //Console.WriteLine("HeightOffset {0}",heightoffset);
                         if (z == 0)
@@ -234,32 +234,6 @@ namespace OpenMinecraft
                     }
                 }
             }
-            /*
-            int StillWater = 0;
-            int RunningWater = 0;
-            for (int z = 0; z < ZH; z++)
-            {
-                for (int x = 0; x < chunksize.X; x++)
-                {
-                    for (int y = 0; y < chunksize.Y; y++)
-                    {
-                        switch (b[x, y, z])
-                        {
-                            case 8:
-                                RunningWater++;
-                                break;
-                            case 9:
-                                StillWater++;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-            Console.WriteLine("{0} still water, {1} running water", StillWater, RunningWater);*/
-            while (ExpandFluids(chunksize, ref b, 09) != 0) ;
-            while (ExpandFluids(chunksize, ref b, 11) != 0) ;
             return b;
         }
         public override void AddTrees(ref byte[, ,] b, int X, int Y, int H)
@@ -286,55 +260,6 @@ namespace OpenMinecraft
                 }
             }
         }
-        public override int ExpandFluids(Vector3i chunkscale, ref byte[, ,] b, byte fluidID)
-        {
-            int bc = 0; // Whether the water map has changed.
-            int xm = (int)chunkscale.X - 1;
-            int ym = (int)chunkscale.Y - 1;
-            int zm = (int)chunkscale.Z - 1;
-            for (int z = 0; z < (int)chunkscale.Z; z++)
-            {
-                for (int x = 0; x < (int)chunkscale.X; x++)
-                {
-                    for (int y = 0; y < (int)chunkscale.Y; y++)
-                    {
-                        // If this block is air, and a block in any neighborly position except downwards is fluidID...
-
-                        if (b[x, y, z] == 0)
-                        {
-                            if (x < xm && b[x + 1, y, z] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: West block = {1}",new Vector3i(x,y,z),b[x+1,y,z]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                            if (x > 0 && b[x - 1, y, z] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: East block = {1}", new Vector3i(x, y, z), b[x-1, y, z]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                            if (y < ym && b[x, y + 1, z] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: North block = {1}", new Vector3i(x, y, z), b[x, y+1, z]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                            if (y > 0 && b[x, y - 1, z] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: South block = {1}", new Vector3i(x, y, z), b[x, y - 1, z]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                            if (z < zm && b[x, y, z + 1] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: Above block = {1}", new Vector3i(x, y, z), b[x, y, z+1]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                        }
-                    }
-                }
-            }
-            //Console.WriteLine("MapGenerator::ExpandFluids({0}): Added {1} fluid blocks.", fluidID, bc);
-            return bc;
-        }
-
 
         public override bool GenerateCaves
         {

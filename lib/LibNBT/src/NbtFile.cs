@@ -54,15 +54,15 @@ namespace LibNbt
                         if (memStream.ReadByte() == (int)NbtTagType.TAG_Compound)
                         {
                             NbtCompound rootCompound = new NbtCompound();
-                            try
-                            {
+                            //try
+                            //{
                                 rootCompound.TagPath = "";
                                 rootCompound.ReadTag(memStream);
-                            }
-                            catch (Exception)
-                            {
-                                throw;
-                            }
+                            //}
+                            //catch (Exception)
+                            //{
+                            //    throw;
+                            //}
                             RootTag = rootCompound;
                         }
                         else
@@ -138,7 +138,7 @@ namespace LibNbt
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        Console.WriteLine("Triggered @ NbtFile.GetTag() - {0}",e);
                         return null;
                     }
                 }

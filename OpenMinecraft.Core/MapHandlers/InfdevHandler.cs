@@ -11,6 +11,7 @@ namespace OpenMinecraft
     public class InfdevHandler:IMapHandler
     {
         public event CorruptChunkHandler CorruptChunk;
+        public event ForEachProgressHandler ForEachProgress;
 
         NbtFile root = new NbtFile();
         NbtFile chunk = new NbtFile();
@@ -461,66 +462,66 @@ namespace OpenMinecraft
                 chunk = new NbtFile(c.Filename);
                 chunk.LoadFile();
 
-            NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
+                NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
 
-            c.Position = new Vector3i(
-                level["xPos"].asInt(),
-                level["zPos"].asInt(), 0);
+                c.Position = new Vector3i(
+                    level["xPos"].asInt(),
+                    level["zPos"].asInt(), 0);
 
-            if ((int)c.Position.X != x || (int)c.Position.Y != z)
-            {
-                throw new Exception(string.Format("Chunk pos is wrong.  {0}!={1}", c.Filename, c.Position));
-            }
-            NbtList TileEntities = (NbtList)level["TileEntities"];
-            if (TileEntities.Tags.Count > 0)
-            {
-                //Console.WriteLine("*** Found TileEntities.");
-                LoadTileEnts(ref c, (int)x, (int)z, TileEntities);
-            }
-
-            NbtList Entities = (NbtList)level["Entities"];
-            if (Entities.Tags.Count > 0)
-            {
-                //Console.WriteLine("*** Found Entities.");
-                LoadEnts(ref c, (int)x, (int)z, Entities);
-            }
-
-            // Blocks
-            c.Blocks = DecompressBlocks(level["Blocks"].asBytes());
-
-
-            c.Loading = false;
-            c.UpdateOverview();
-
-            string ci = string.Format("{0},{1}", x, z);
-            if (Chunks.ContainsKey(ci))
-                return Chunks[ci];
-            Chunks.Add(ci, c);
-            /*
-                @TODO: Make Pig spawner converter.
-            for (int Z = 0; Z < ChunkScale.X; Z++)
-            {
-                for (int Y = 0; Y < ChunkScale.Y; Y++)
+                if ((int)c.Position.X != x || (int)c.Position.Y != z)
                 {
-                    for (int X = 0; X < ChunkScale.X; X++)
+                    throw new Exception(string.Format("Chunk pos is wrong.  {0}!={1}", c.Filename, c.Position));
+                }
+                NbtList TileEntities = (NbtList)level["TileEntities"];
+                if (TileEntities.Tags.Count > 0)
+                {
+                    //Console.WriteLine("*** Found TileEntities.");
+                    LoadTileEnts(ref c, (int)x, (int)z, TileEntities);
+                }
+
+                NbtList Entities = (NbtList)level["Entities"];
+                if (Entities.Tags.Count > 0)
+                {
+                    //Console.WriteLine("*** Found Entities.");
+                    LoadEnts(ref c, (int)x, (int)z, Entities);
+                }
+
+                // Blocks
+                c.Blocks = DecompressBlocks(level["Blocks"].asBytes());
+
+
+                c.Loading = false;
+                c.UpdateOverview();
+
+                string ci = string.Format("{0},{1}", x, z);
+                if (Chunks.ContainsKey(ci))
+                    return Chunks[ci];
+                Chunks.Add(ci, c);
+                /*
+                @TODO: Make Pig spawner converter.
+                for (int Z = 0; Z < ChunkScale.X; Z++)
+                {
+                    for (int Y = 0; Y < ChunkScale.Y; Y++)
                     {
-                        long index = X + (Z * ChunkY + Y) * ChunkZ;
-                        byte b = CurrentChunks[index];
-                        if (b == Blocks.Find("Mob spawner").ID)
+                        for (int X = 0; X < ChunkScale.X; X++)
                         {
-                            MobSpawner ms = new MobSpawner(X + (int)(x * ChunkScale.X), Y + (int)(z * ChunkScale.Y), Z, "Pig", 20);
-                            ms.id = "MobSpawner";
-                            ms.UUID = Guid.NewGuid();
-                            _TileEntities.Add(ms.UUID, ms);
-                            c++;
+                            long index = X + (Z * ChunkY + Y) * ChunkZ;
+                            byte b = CurrentChunks[index];
+                            if (b == Blocks.Find("Mob spawner").ID)
+                            {
+                                MobSpawner ms = new MobSpawner(X + (int)(x * ChunkScale.X), Y + (int)(z * ChunkScale.Y), Z, "Pig", 20);
+                                ms.id = "MobSpawner";
+                                ms.UUID = Guid.NewGuid();
+                                _TileEntities.Add(ms.UUID, ms);
+                                c++;
+                            }
                         }
                     }
                 }
-            }
-                */
-            //if (c>0)  Console.WriteLine("*** {0} spawners found.", c);
-            //Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
-            return c;
+                    */
+                //if (c>0)  Console.WriteLine("*** {0} spawners found.", c);
+                //Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
+                return c;
             }
             catch (Exception e)
             {
@@ -866,65 +867,47 @@ namespace OpenMinecraft
             return y * ChunkZ + x * ChunkZ * ChunkX + z;
         }
 
-        public virtual int ExpandFluids(byte fluidID)
-        {
-            int bc = 0; // Whether the water map has changed.
-            int xm = (int)ChunkScale.X - 1;
-            int ym = (int)ChunkScale.Y - 1;
-            int zm = (int)ChunkScale.Z - 1;
-            UnloadChunks();
-            ForEachChunk(delegate(long X, long Y)
-            {
-                Chunk c = GetChunk(X, Y);
-                byte[, ,] b = c.Blocks;
-                for (int _z = 0; _z < (int)ChunkScale.Z; _z++)
-                {
-                    for (int _x = 0; _x < (int)ChunkScale.X; _x++)
-                    {
-                        for (int _y = 0; _y < (int)ChunkScale.Y; _y++)
-                        {
-                            int x = _x + (int)(X * ChunkScale.X);
-                            int y = _y + (int)(Y * ChunkScale.Y); 
-                            int z = _z;
-                            bool w = false;
-                            // If this block is air, and a block in any neighborly position except downwards is fluidID...
-                            if (GetBlockAt(x, y, z) == 0)
-                            {
-                                if (GetBlockAt(x + 1, y, z) == fluidID)
-                                    w = true;
-                                else if (GetBlockAt(x - 1, y, z) == fluidID)
-                                    w = true;
-                                else if (GetBlockAt(x, y + 1, z) == fluidID)
-                                    w = true;
-                                else if (GetBlockAt(x, y - 1, z) == fluidID)
-                                    w = true;
-                                else if (GetBlockAt(x, y, z + 1) == fluidID)
-                                    w = true;
 
-                                if (w)
-                                {
-                                    b[_x, _y, _z] = fluidID; ++bc;
-                                }
-                            }
-                        }
-                    }
-                }
-                c.Blocks = b;
-                SaveChunk(c);
-            });
-            //Console.WriteLine("MapGenerator::ExpandFluids({0}): Added {1} fluid blocks.", fluidID, bc);
-            return bc;
+        public byte GetBlockAt(int px, int py, int z)
+        {
+            int X = px / 16;
+            int Y = py / 16;
+
+            int x = (px >> 4) & 0xf;// - (X * (int)ChunkScale.X);
+            int y = (py >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
+
+            Chunk c = GetChunk(X, Y);
+            if (c == null) return 0x00;
+            return c.Blocks[x, y, z];
         }
 
-        private byte GetBlockAt(int px, int py, int z)
+        public void SetBlockAt(int px, int py, int z, byte val)
         {
-            int X = px/16;
-            int Y = py/16;
+            int X = px / 16;
+            int Y = py / 16;
 
-            int x = px-(X*(int)ChunkScale.X);
-            int y = py-(Y*(int)ChunkScale.Y);
+            int x = (px >> 4) & 0xf;// - (X * (int)ChunkScale.X);
+            int y = (py >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
 
-            return GetChunk(X, Y).Blocks[x, y, z];
+            Chunk c = GetChunk(X, Y);
+            if (c == null) return;
+            c.Blocks[x, y, z] = val;
+            SetChunk(X, Y, c);
+        }
+
+        private void SetChunk(int X, int Y, Chunk c)
+        {
+            string id = X.ToString() + "," + Y.ToString();
+            if (!Chunks.ContainsKey(id))
+            {
+                Chunks.Add(id, c);
+            }
+            else
+            {
+                Chunks[id] = c;
+            }
+            if (!ChangedChunks.Contains(id))
+                ChangedChunks.Add(id);
         }
 
         private void UnloadChunks()
@@ -932,8 +915,95 @@ namespace OpenMinecraft
             Chunks.Clear();
             ChangedChunks.Clear();
         }
+
+
+        public int ExpandFluids(byte fluidID, bool CompleteRegen, ForEachProgressHandler ph)
+        {
+            int bc = 0; // Whether the water map has changed.
+            ForEachProgress += ph;
+            UnloadChunks();
+            ForEachChunk(delegate(long X, long Y)
+            {
+                BeginTransaction();
+                Chunk tc = GetChunk(X, Y);
+                if (tc == null) return;
+                int xm = (int)tc.Size.X - 1;
+                int ym = (int)tc.Size.Y - 1;
+                int zm = (int)tc.Size.Z - 1;
+                for (int _z = 0; _z < (int)tc.Size.Z; _z++)
+                {
+                    for (int _x = 0; _x < (int)tc.Size.X; _x++)
+                    {
+                        for (int _y = 0; _y < (int)tc.Size.Y; _y++)
+                        {
+                            int x = _x + (int)(X * ChunkScale.X);
+                            int y = _y + (int)(Y * ChunkScale.Y);
+                            int z = _z;
+                            // If this block is air, and a block in any neighborly position except downwards is fluidID...
+                            if (GetBlockAt(x, y, z) == 0)
+                            {
+                                bool w = false;
+                                if (GetBlockAt(x + 1, y, z) == fluidID)
+                                    w = true;
+                                else if (GetBlockAt(x - 1, y, z) == fluidID)
+                                    w = true;
+                                if (GetBlockAt(x, y + 1, z) == fluidID)
+                                    w = true;
+                                else if (GetBlockAt(x, y - 1, z) == fluidID)
+                                    w = true;
+                                else if (z < zm && GetBlockAt(x, y, z + 1) == fluidID)
+                                    w = true;
+                                if (w)
+                                {
+                                    SetBlockAt(x, y, z, fluidID);
+                                    ++bc;
+                                }
+                            }
+                        }
+                    }
+                }
+                // Go backwards to help reduce block expansion time.
+                for (int _z = (int)tc.Size.Z - 1; _z > 0; _z--)
+                {
+                    for (int _x = (int)tc.Size.X - 1; _x > 0; _x--)
+                    {
+                        for (int _y = (int)tc.Size.Y - 1; _y > 0; _y--)
+                        {
+                            int x = _x + (int)(X * ChunkScale.X);
+                            int y = _y + (int)(Y * ChunkScale.Y);
+                            int z = _z;
+                            // If this block is air, and a block in any neighborly position except downwards is fluidID...
+                            if (GetBlockAt(x, y, z) == 0)
+                            {
+                                bool w = false;
+                                if (GetBlockAt(x + 1, y, z) == fluidID)
+                                    w = true;
+                                else if (GetBlockAt(x - 1, y, z) == fluidID)
+                                    w = true;
+                                if (GetBlockAt(x, y + 1, z) == fluidID)
+                                    w = true;
+                                else if (GetBlockAt(x, y - 1, z) == fluidID)
+                                    w = true;
+                                else if (z < zm && GetBlockAt(x, y, z + 1) == fluidID)
+                                    w = true;
+                                if (w)
+                                {
+                                    SetBlockAt(x, y, z, fluidID);
+                                    ++bc;
+                                }
+                            }
+                        }
+                    }
+                }
+                CommitTransaction();
+            });
+            return bc;
+        }
+
+
         public void Generate(IMapHandler mh, long X, long Y)
         {
+            if (_Generator == null) return;
             string lockfile = Path.ChangeExtension(GetChunkFilename((int)X,(int)Y), "genlock");
             if (!_Generator.NoPreservation)
             {
@@ -956,8 +1026,6 @@ namespace OpenMinecraft
             catch (Exception) { }
             */
             _Generator.AddTrees(ref b, (int)X, (int)Y, (int)ChunkScale.Z);
-            while (_Generator.ExpandFluids(ChunkScale, ref b, 09) != 0) ;
-            while (_Generator.ExpandFluids(ChunkScale, ref b, 11) != 0) ;
             _c.Blocks = b;
             _c.UpdateOverview();
             //_c.SkyLight=Utils.RecalcLighting(_c,true);
@@ -1337,31 +1405,56 @@ namespace OpenMinecraft
         }
         public void ForEachChunk(Chunk.ChunkModifierDelegate cmd)
         {
-            string[] dirsX = Directory.GetDirectories(Folder);
-            foreach (string dirX in dirsX)
+            string[] f = Directory.GetFiles(Folder,"c*.*.dat",SearchOption.AllDirectories);
+            int Complete=0;
+            foreach (string file in f)
             {
-                //Console.WriteLine(dirX);
-                string[] dirsY = Directory.GetDirectories(dirX);
-                foreach(string dirY in dirsY)
+
+                if (ForEachProgress != null)
+                    ForEachProgress(f.Length, Complete++);
+                //Console.WriteLine(Path.GetExtension(file));
+                if (Path.GetExtension(file) == "dat") continue;
+                if (file.EndsWith(".genlock")) continue;
+                NbtFile nf = new NbtFile(file);
+                try
                 {
-                    //Console.WriteLine(dirY);
-                    string[] files = Directory.GetFiles(dirY);
-                    foreach (string file in files)
-                    {
-                        //Console.WriteLine(file);
-                        //Console.WriteLine(Path.GetExtension(file));
-                        if (Path.GetExtension(file) == "dat") continue;
-                        if (file.EndsWith(".genlock")) continue;
-                        NbtFile f = new NbtFile(file);
-                        f.LoadFile();
-                        NbtCompound Level = (NbtCompound)f.RootTag["Level"];
-                        long x = (Level["xPos"] as NbtInt).Value;
-                        long y = (Level["zPos"] as NbtInt).Value;
-                        f.Dispose();
-                        cmd(x, y);
-                    }
+                    nf.LoadFile();
                 }
+                catch (Exception e)
+                {
+                    if(CorruptChunk!=null)
+                        CorruptChunk(e.ToString(), file);
+                    continue;
+                }
+                NbtCompound Level = (NbtCompound)nf.RootTag["Level"];
+                long x = (Level["xPos"] as NbtInt).Value;
+                long y = (Level["zPos"] as NbtInt).Value;
+                nf.Dispose();
+                cmd(x, y);
             }
+            // This MUST be done.
+            ForEachProgress = null;
+        }
+
+        public Vector2i GetChunkCoordsFromFile(string file)
+        {
+            NbtFile f = new NbtFile(file);
+            try
+            {
+                f.LoadFile();
+            }
+            catch (Exception e)
+            {
+                if (CorruptChunk != null)
+                    CorruptChunk(e.ToString(), file);
+                return null;
+            }
+            NbtCompound Level = (NbtCompound)f.RootTag["Level"];
+            Vector2i r = new Vector2i(0, 0);
+            r.X = (Level["xPos"] as NbtInt).Value;
+            r.Y = (Level["zPos"] as NbtInt).Value;
+            f.Dispose();
+            return r;
         }
 
         IMapGenerator _Generator = new DefaultMapGenerator(0);
@@ -1380,8 +1473,19 @@ namespace OpenMinecraft
 
         private void SaveMapGenerator()
         {
-            File.WriteAllText(_Generator.GetType().Name,Path.Combine(Folder,"mapgen.id"));
+            File.WriteAllText(_Generator.GetType().Name, Path.Combine(Folder, "mapgen.id"));
             _Generator.Save(Folder);
+        }
+
+        private void LoadMapGenerator()
+        {
+            string f = Path.Combine(Folder, "mapgen.id");
+            if (File.Exists(f))
+            {
+                string mg = File.ReadAllText(f);
+                _Generator = MapGenerators.Get(mg, RandomSeed);
+                _Generator.Load(Folder);
+            }
         }
 
         public void ChunkModified(long x, long y)

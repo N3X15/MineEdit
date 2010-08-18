@@ -223,8 +223,6 @@ namespace OpenMinecraft
                 }
             }
             Console.WriteLine("{0} still water, {1} running water", StillWater, RunningWater);*/
-            while (ExpandFluids(chunksize, ref b, 09) != 0) ;
-            while (ExpandFluids(chunksize, ref b, 11) != 0) ;
             AddTrees(ref b, (int)X, (int)Y, (int)chunksize.Z);
             return b;
         }
@@ -251,56 +249,6 @@ namespace OpenMinecraft
                 }
             }
         }
-        public override int ExpandFluids(Vector3i chunkscale, ref byte[, ,] b, byte fluidID)
-        {
-            int bc = 0; // Whether the water map has changed.
-            int xm = (int)chunkscale.X - 1;
-            int ym = (int)chunkscale.Y - 1;
-            int zm = (int)chunkscale.Z - 1;
-            for (int z = 0; z < (int)chunkscale.Z; z++)
-            {
-                for (int x = 0; x < (int)chunkscale.X; x++)
-                {
-                    for (int y = 0; y < (int)chunkscale.Y; y++)
-                    {
-                        // If this block is air, and a block in any neighborly position except downwards is fluidID...
-
-                        if (b[x, y, z] == 0)
-                        {
-                            if (x < xm && b[x + 1, y, z] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: West block = {1}",new Vector3i(x,y,z),b[x+1,y,z]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                            if (x > 0 && b[x - 1, y, z] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: East block = {1}", new Vector3i(x, y, z), b[x-1, y, z]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                            if (y < ym && b[x, y + 1, z] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: North block = {1}", new Vector3i(x, y, z), b[x, y+1, z]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                            if (y > 0 && b[x, y - 1, z] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: South block = {1}", new Vector3i(x, y, z), b[x, y - 1, z]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                            if (z < zm && b[x, y, z + 1] == fluidID)
-                            {
-                                //Console.WriteLine("{0}: Above block = {1}", new Vector3i(x, y, z), b[x, y, z+1]);
-                                b[x, y, z] = fluidID; ++bc;
-                            }
-                        }
-                    }
-                }
-            }
-            //Console.WriteLine("MapGenerator::ExpandFluids({0}): Added {1} fluid blocks.", fluidID, bc);
-            return bc;
-        }
-
-
         [Browsable(false)]
         public override bool GenerateCaves { get; set; }
         [Browsable(false)]

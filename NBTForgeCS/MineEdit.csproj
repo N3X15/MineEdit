@@ -118,6 +118,10 @@
     <Compile Include="frmMap.Designer.cs">
       <DependentUpon>frmMap.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmServer.cs" />
+    <Compile Include="frmServer.designer.cs">
+      <DependentUpon>frmServer.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmSplash.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -134,6 +138,7 @@
     <Compile Include="dlgLongTask.Designer.cs">
       <DependentUpon>dlgLongTask.cs</DependentUpon>
     </Compile>
+    <Compile Include="UIControls\Histogram.cs" />
     <Compile Include="UIControls\MobSelector.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -237,6 +242,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="dlgLoading.resx">
       <DependentUpon>dlgLoading.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmServer.resx">
+      <DependentUpon>frmServer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmSplash.resx">
       <DependentUpon>frmSplash.cs</DependentUpon>

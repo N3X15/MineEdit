@@ -483,45 +483,7 @@ namespace MineEdit
         }
         private void ReplaceStuff(long X,long Y)
         {
-            Dictionary<byte,byte> durr = new Dictionary<byte,byte>();
-            foreach(KeyValuePair<byte,byte> derp in Replacements.Items)
-            {
-                durr.Add(derp.Key,derp.Value);
-            }
-            Application.DoEvents();
-            _Map.ReplaceBlocksIn(X, Y, durr);
-            /*
-            for(int x=0;x<_Map.ChunkScale.X;x++)
-            {
-                for(int y=0;y<_Map.ChunkScale.Y;y++)
-                {
-                    for(int z=0;z<_Map.ChunkScale.Z;z++)
-                    {
-                        byte block=_Map.GetBlockAt(new Vector3i(x+(_Map.ChunkScale.X*X), y+(_Map.ChunkScale.Y*Y), z));  
-
-                        if (block== lolsnow)
-                            block = 0;
-                        else if (block == lolice)
-                            block = lolwater;
-                        else 
-                            continue;
-
-                        _Map.SetBlockAt(new Vector3i(x + (_Map.ChunkScale.X * X), y + (_Map.ChunkScale.Y * Y), z), block);
-
-                    }
-                }
-            }
-            */
-            int hurp = (int)((double)ProcessedChunks / (double)NumChunks) * 100;
-            string durp = string.Format("Replacing stuff in chunk {0} of {1} ({2}%)", ProcessedChunks, NumChunks, hurp);
-            (MdiParent as frmMain).tsbStatus.Text = durp;
-            (MdiParent as frmMain).tsbProgress.Value = ProcessedChunks;
-
-            if (hurp - lastpct > 0)
-                Console.WriteLine(durp);
-
-            lastpct = hurp;
-            ++ProcessedChunks;
+            
         }
 
         private void ClearSnow()
@@ -545,32 +507,41 @@ namespace MineEdit
             {
                 reps.Add(string.Format("{0} to {1}",Blocks.Get((short)rep.Key).Name,Blocks.Get((short)rep.Value).Name));
             }
-            DialogResult dr = MessageBox.Show(string.Format(q,string.Join("\n\t",reps.ToArray())), "Clear snow?", MessageBoxButtons.YesNo);
+            DialogResult dr = MessageBox.Show(string.Format(q,string.Join("\n\t",reps.ToArray())), "Are you sure?", MessageBoxButtons.YesNo);
 
-            long nchunks = (_Map.MapMax.X - _Map.MapMin.X) * (_Map.MapMax.Y - _Map.MapMin.Y);
 
             if (dr == DialogResult.Yes)
             {
-
-                (MdiParent as frmMain).tsbStatus.Text = "Counting chunks...";
-                (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Marquee;
-                (MdiParent as frmMain).tsbProgress.Value = 0;
-                NumChunks = 0;
-                ProcessedChunks = 0;
-                _Map.BeginTransaction();
-                _Map.ForEachChunk(CountChunks);
-                (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Continuous;
-                (MdiParent as frmMain).tsbProgress.Maximum = NumChunks;
-                _Map.ForEachChunk(ReplaceStuff);
-
-                (MdiParent as frmMain).tsbStatus.Text = "Saving...";
-                (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Marquee;
-                (MdiParent as frmMain).tsbProgress.Value = 0;
-                _Map.CommitTransaction();
-
-                (MdiParent as frmMain).tsbStatus.Text = "Ready.";
-                (MdiParent as frmMain).tsbProgress.Style = ProgressBarStyle.Continuous;
-                (MdiParent as frmMain).tsbProgress.Value = 0;
+                dlgLongTask dlt = new dlgLongTask();
+                dlt.Title = "Replacing blocks";
+                dlt.Subtitle = "This will take a long time, take a break.";
+                dlt.VocabSubtask = "subtask";
+                dlt.VocabSubtasks = "subtasks";
+                dlt.VocabTask = "chunk";
+                dlt.VocabTasks = "chunks";
+                dlt.Start(delegate()
+                {
+                    Map.ForEachProgress += new ForEachProgressHandler(delegate(int Total, int Progress)
+                    {
+                        dlt.TasksTotal = Total;
+                        dlt.TasksComplete = Progress;
+                    });
+                    dlt.CurrentTask = "Replacing blocks...";
+                    _Map.ForEachChunk(delegate(long X, long Y)
+                    {
+                        dlt.CurrentTask = string.Format("Replacing stuff in chunk {0} of {1}...", dlt.TasksComplete, dlt.TasksTotal);
+                        Dictionary<byte, byte> durr = new Dictionary<byte, byte>();
+                        foreach (KeyValuePair<byte, byte> derp in Replacements.Items)
+                        {
+                            durr.Add(derp.Key, derp.Value);
+                        }
+                        _Map.ReplaceBlocksIn(X, Y, durr);
+                        ++ProcessedChunks;
+                    });
+                });
+                dlt.ShowDialog();
+                (MdiParent as frmMain).ResetStatus();
+                dlt.Done();
                 MessageBox.Show("Done.", "Operation complete!");
             }
             this.Enabled = true;
@@ -637,21 +608,17 @@ namespace MineEdit
                 dlt.Subtitle = "This will take a very long time, take a break.";
                 dlt.VocabSubtask = "subtask";
                 dlt.VocabSubtasks = "subtasks";
-                dlt.CurrentSubtask = "Counting chunks...";
-                int NumChunks = 0;
-                Map.ForEachChunk(delegate(long X, long Y)
-                {
-                    if (dlt.STOP) return;
-                    ++NumChunks;
-                    dlt.CurrentSubtask = string.Format("Counting chunks ({0})...", NumChunks);
-                });
                 dlt.SubtasksTotal = (int)(Map.ChunkScale.X * Map.ChunkScale.Y * Map.ChunkScale.Z);
                 dlt.TasksTotal = NumChunks;
                 dlt.TasksComplete = 0;
+                (ActiveMdiChild as frmMap).Map.ForEachProgress += new ForEachProgressHandler(delegate(int Total, int Progress)
+                {
+                    dlt.TasksTotal = Total;
+                    dlt.TasksComplete = Progress;
+                });
                 Map.ForEachChunk(delegate(long X, long Y)
                 {
                     if (dlt.STOP) return;
-                    dlt.TasksComplete++;
                     Chunk c = Map.GetChunk(X, Y);
                     if (c == null) return;
                     byte[, ,] b = c.Blocks;

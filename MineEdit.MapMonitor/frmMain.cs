@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Windows.Forms;
 using OpenMinecraft;
-using System.IO;
 
 namespace MineEdit.MapMonitor
 {
@@ -23,7 +19,7 @@ namespace MineEdit.MapMonitor
         Color okchunk = Color.Green;
         Color modifiedchunk = Color.YellowGreen;
 
-        Dictionary<Vector3i, FileSystemWatcher> ChunkWatchers = new Dictionary<Vector3i, FileSystemWatcher>();
+        Dictionary<Vector2i, FileSystemWatcher> ChunkMD5s = new Dictionary<Vector2i, FileSystemWatcher>();
         FileSystemWatcher FolderObserver;
         public frmMain(string folder)
         {
@@ -36,6 +32,8 @@ namespace MineEdit.MapMonitor
         void  FolderObserver_Created(object sender, FileSystemEventArgs e)
         {
  	        string filename = Path.GetFileName(e.FullPath);
+            Vector2i coords = Map.GetChunkCoordsFromFile(filename);
+            Map.Generate(Map, coords.X, coords.Y);
         }
         private bool GetFileHandler(string FileName, out IMapHandler mh)
         {
@@ -52,8 +50,6 @@ namespace MineEdit.MapMonitor
         }
         private void Open(string FileName)
         {
-
-
             IMapHandler mh;
             if (!GetFileHandler(FileName, out mh))
             {
@@ -71,6 +67,11 @@ namespace MineEdit.MapMonitor
         private void picMapStatus_Resize(object sender, EventArgs e)
         {
            // Render();
+        }
+
+        private void cmdStartStop_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

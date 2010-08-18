@@ -66,7 +66,8 @@
 80	80.png	Snow block
 81	81.png	Cactus
 82	82.png	Clay block
-83	83.png	Bamboo block
+83	83.png	Reed block
+84	84.png	Jukebox
 256	256.png	Iron shovel
 257	257.png	Iron pickaxe
 258	258.png	Iron axe
@@ -149,7 +150,10 @@
 335	335.png	Milk bucket
 336	336.png	Brick
 337	337.png	Clay
-338	338.png	Bamboo
+338	338.png	Reed
 339	339.png	Paper
 340	340.png	Book
 341	341.png	Slime orb
+342	342.png	Storage minecart
+343	343.png	Powered minecart
+344	344.png	Egg
