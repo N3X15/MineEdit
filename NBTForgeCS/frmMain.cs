@@ -538,7 +538,7 @@ namespace MineEdit
                         while (hurr != 0)
                         {
                             passes++;
-                            dlt.CurrentSubtask = string.Format("Fixing water ({0} passes, {1} blocks added)...", passes, hurrT);
+                            dlt.CurrentSubtask = string.Format("Fixing water (Pass #{0}, {1} blocks added)...", passes, hurrT);
                             hurr = mh.ExpandFluids(09, false, delegate(int Total,int Complete){
                                 dlt.SubtasksTotal = Total;
                                 dlt.SubtasksComplete = Complete;

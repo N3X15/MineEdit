@@ -118,7 +118,9 @@
     <Compile Include="frmMap.Designer.cs">
       <DependentUpon>frmMap.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmServer.cs" />
+    <Compile Include="frmServer.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmServer.designer.cs">
       <DependentUpon>frmServer.cs</DependentUpon>
     </Compile>
@@ -138,7 +140,9 @@
     <Compile Include="dlgLongTask.Designer.cs">
       <DependentUpon>dlgLongTask.cs</DependentUpon>
     </Compile>
-    <Compile Include="UIControls\Histogram.cs" />
+    <Compile Include="UIControls\Histogram.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="UIControls\MobSelector.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -51,7 +51,6 @@ namespace OpenMinecraft
                 return "Flat";
             }
         }
-
         public DefaultMapGenerator()
         {
             Frequency = 0.03;
@@ -98,15 +97,21 @@ namespace OpenMinecraft
         /// <returns></returns>
         public override byte[, ,] Generate(ref IMapHandler mh, long X, long Y)
         {
-            /*Perlin p1 = new Perlin();
-            Perlin p2 = new Perlin();
-            Perlin CaveNoise = new Perlin();*/
             Vector3i chunksize = mh.ChunkScale;
 
             int ZH = (int)chunksize.Z;
             byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
-            double TerrainDivisor = 0.33;
-            double HeightDivisor = 1.5;
+            bool[, ,] cavemap = new bool[chunksize.X, chunksize.Y, chunksize.Z];
+            byte Sand=12;
+            byte Grass=2;
+            byte Soil=3;
+            byte Water=9;
+            if (HellMode)
+            {
+                Sand = 49; // Obsidian
+                Grass = Soil;
+                Water = 11; // Lava
+            }
             for (int z = 0; z < ZH; z++)
             {
                 for (int x = 0; x < chunksize.X; x++)
@@ -114,20 +119,20 @@ namespace OpenMinecraft
                     for (int y = 0; y < chunksize.Y; y++)
                     {
                         //Console.WriteLine("HeightOffset {0}",heightoffset);
+                        cavemap[x, y, z] = false;
                         if (z == 0)
-                            b[x, y, z] = 7;
-                        //else if (x == 0 && y == 0)
-                        //    b[x, y, z] = 1;
+                            b[x, y, z] = 7; // Adminite layer
                         else
                         {
-                            
-                            double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z*2.0) + 1) / 2.0);
+
+                            double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * 2.0) + 1) / 2.0);
                             bool d3 = _do > CaveThreshold;
                             // XOR?
                             if(z<=WaterHeight+7)//if (!(!d1 || !d2))
                             {
                                 //Console.Write("#");
                                 b[x, y, z] = (d3) ? b[x,y,z] : (byte)1;
+                                cavemap[x, y, z] = d3;
                                 //if (x == 0|| y == 0)
                                 //    b[x, y, z] = 41;
                             }
@@ -138,6 +143,8 @@ namespace OpenMinecraft
                 }
             }
             //Console.WriteLine("Done generating chunk.  [{0},{1}]",min,max);
+            // Add soil, sand
+
             for (int x = 0; x < chunksize.X; x++)
             {
                 //Console.WriteLine();
@@ -145,6 +152,7 @@ namespace OpenMinecraft
                 {
                     bool HavePloppedGrass = false;
                     bool HaveTouchedSoil = false;
+                    byte BlockForThisColumn = 0;
                     for (int z = (int)chunksize.Z - 1; z > 0; z--)
                     {
                         if (b[x, y, z] == 1)
@@ -158,21 +166,37 @@ namespace OpenMinecraft
                                 case 0: // Air
                                 case 8: // Water
                                 case 9: // Water
-                                    if (z - DERT_DEPTH <= WaterHeight)
-                                        b[x, y, z] = (byte)12;
+                                    if (BlockForThisColumn == 0)
+                                    {
+                                        if (z - DERT_DEPTH <= WaterHeight)
+                                        {
+                                            b[x, y, z] = Sand; // Sand
+                                            BlockForThisColumn = Sand;
+                                        }
+                                        else
+                                        {
+                                            b[x, y, z] = (HavePloppedGrass) ? Soil : Grass; // Dirt or grass
+                                            if (!HavePloppedGrass)
+                                            {
+                                                BlockForThisColumn = Soil;
+                                                HavePloppedGrass = true;
+                                            }
+                                        }
+                                    }
                                     else
-                                        b[x, y, z] = (HavePloppedGrass) ? (byte)3 : (byte)2;
-                                    if (!HavePloppedGrass)
-                                        HavePloppedGrass = true;
+                                    {
+                                        b[x, y, z] = BlockForThisColumn;
+                                    }
                                     break;
                                 default:
                                     z = 0;
                                     break;
                             }
                         }
+                        // Place water
                         else if (b[x, y, z] == 0 && z <= WaterHeight && !HaveTouchedSoil)
                         {
-                            b[x, y, z] = 9;
+                            b[x, y, z] = (cavemap[x,y,z]) ? Soil:Water;
                         }
                     }
                 }
@@ -316,7 +340,7 @@ namespace OpenMinecraft
 
         public override string Version
         {
-            get { return "07292010"; }
+            get { return "08192010"; }
         }
     }
 }

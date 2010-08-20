@@ -69,12 +69,17 @@ namespace MineEdit
         {
             DoLayout();
         }
-
+        delegate void LayoutDelegate();
         /// <summary>
         /// Perform map layout stuff.
         /// </summary>
         void DoLayout()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new LayoutDelegate(DoLayout));
+                return;
+            }
             if(_Map==null) return;
 
             Vector3i Sides = new Vector3i(_Map.ChunkScale.X * ZoomLevel, _Map.ChunkScale.Y * ZoomLevel, _Map.ChunkScale.Z * ZoomLevel);

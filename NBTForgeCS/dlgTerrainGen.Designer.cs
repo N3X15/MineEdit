@@ -123,6 +123,7 @@
             this.chkGenWater.TabIndex = 2;
             this.chkGenWater.Text = "Generate Water\r\n\r\n(Will still add random springs unless \r\n\"Generate Ores\" is unch" +
                 "ecked)";
+            this.chkGenWater.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             this.chkGenWater.UseVisualStyleBackColor = true;
             this.chkGenWater.CheckedChanged += new System.EventHandler(this.chkGenWater_CheckedChanged);
             // 

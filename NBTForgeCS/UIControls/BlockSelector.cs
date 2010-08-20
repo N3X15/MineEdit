@@ -7,9 +7,15 @@ using OpenMinecraft;
 
 namespace MineEdit
 {
+    /// <summary>
+    /// Block selection combobox
+    /// </summary>
     public class BlockSelector:ComboBox
     {
         protected bool _blocksonly=false;
+        /// <summary>
+        /// Display blocks only (leave items out of the list)
+        /// </summary>
         public bool BlocksOnly { 
             get
             {

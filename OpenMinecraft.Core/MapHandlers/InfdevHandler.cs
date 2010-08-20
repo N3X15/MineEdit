@@ -714,6 +714,7 @@ namespace OpenMinecraft
             blocks = null;
 
             // LIGHTING ///////////////////////////////////////////////////
+            // TODO:  Whatever is going on in here is crashing Minecraft now.
             //byte[] lighting = CompressLightmap(cnk.SkyLight);
             Level.Tags.Add(new NbtByteArray("SkyLight", new byte[16384]));
 
