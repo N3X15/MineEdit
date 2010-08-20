@@ -1,0 +1,1 @@
+bin\Prebuild.exe /clean /yes /removedir obj /file prebuild.xml /pause
