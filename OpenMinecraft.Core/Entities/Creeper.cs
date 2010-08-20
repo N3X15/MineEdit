@@ -40,6 +40,8 @@ TAG_Compound: 12 entries
 	TAG_Short("DeathTime"): 0
 }*/
 
+		private static Image icon = new Bitmap("mobs/creeper.png");
+
         public Creeper()
         {
         }
@@ -67,7 +69,7 @@ TAG_Compound: 12 entries
         {
             get
             {
-                return MobIcons.mobcreeper;
+                return icon;
             }
         }
     }

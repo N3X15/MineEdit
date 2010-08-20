@@ -6,10 +6,8 @@ using System.Windows.Forms;
 using System.Drawing;
 using OpenMinecraft;
 using OpenMinecraft.TileEntities;
-using OpenMinecraft.TileEntities.Icons;
 namespace MineEdit
 {
-    [ToolboxBitmap(typeof(TileEntities),"Chest")]
     public class InventoryItemControl:Control
     {
         public delegate void ChangedHandler();

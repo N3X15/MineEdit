@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.21022</ProductVersion>
@@ -6,7 +6,8 @@
     <ProjectGuid>{C0CBEE62-0000-0000-0000-000000000000}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ApplicationIcon></ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
     <AssemblyName>OpenMinecraft.Core</AssemblyName>
@@ -16,10 +17,13 @@
     <DelaySign>false</DelaySign>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder></AppDesignerFolder>
+    <AppDesignerFolder>
+    </AppDesignerFolder>
     <RootNamespace>OpenMinecraft.Core</RootNamespace>
-    <StartupObject></StartupObject>
-    <StartArguments></StartArguments>
+    <StartupObject>
+    </StartupObject>
+    <StartArguments>
+    </StartArguments>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
   </PropertyGroup>
@@ -30,7 +34,8 @@
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <DebugSymbols>True</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <Optimize>False</Optimize>
@@ -40,7 +45,8 @@
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>False</NoStdLib>
-    <NoWarn></NoWarn>
+    <NoWarn>
+    </NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -49,7 +55,8 @@
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
     <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <DebugSymbols>False</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <Optimize>True</Optimize>
@@ -59,43 +66,44 @@
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>False</NoStdLib>
-    <NoWarn></NoWarn>
+    <NoWarn>
+    </NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LibNbt" >
-        <Name>LibNbt</Name>
+    <Reference Include="LibNbt">
+      <Name>LibNbt</Name>
       <Private>False</Private>
     </Reference>
-    <Reference Include="LibNoise" >
-        <Name>LibNoise</Name>
+    <Reference Include="LibNoise">
+      <Name>LibNoise</Name>
       <Private>False</Private>
     </Reference>
-    <Reference Include="log4net.dll" >
-        <Name>log4net.dll</Name>
+    <Reference Include="log4net.dll">
+      <Name>log4net.dll</Name>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System" >
-        <Name>System</Name>
+    <Reference Include="System">
+      <Name>System</Name>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Core" >
-        <Name>System.Core</Name>
+    <Reference Include="System.Core">
+      <Name>System.Core</Name>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Drawing" >
-        <Name>System.Drawing</Name>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Web" >
-        <Name>System.Web</Name>
+    <Reference Include="System.Web">
+      <Name>System.Web</Name>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Windows.Forms" >
-        <Name>System.Windows.Forms</Name>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Xml" >
-        <Name>System.Xml</Name>
+    <Reference Include="System.Xml">
+      <Name>System.Xml</Name>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -220,26 +228,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>frmUpdate.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="Entities\MobIcons.resx">
-      <SubType>Designer</SubType>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Entities\MobIcons.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <Compile Include="Entities\MobIcons.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MobIcons.resx</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="TileEntities\Icons\TileEntities.resx">
-      <SubType>Designer</SubType>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TileEntities\Icons\TileEntities.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <Compile Include="TileEntities\Icons\TileEntities.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TileEntities.resx</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Resources\0.png">
     </EmbeddedResource>

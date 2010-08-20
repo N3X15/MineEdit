@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using LibNbt.Tags;
-
+using System.Drawing;
 namespace OpenMinecraft.TileEntities
 {
     public class TileEntity
@@ -10,6 +10,7 @@ namespace OpenMinecraft.TileEntities
         public string id = "NULL";
 
         private NbtCompound orig;
+        private static Image icon;
         public TileEntity()
         {
         }
@@ -99,7 +100,15 @@ namespace OpenMinecraft.TileEntities
 
         public Guid UUID { get; set; }
 
-        public virtual System.Drawing.Image Image { get { return Icons.TileEntities.Air; } }
+        public virtual Image Image 
+        { 
+        	get 
+        	{
+        		if(icon==null)
+        			icon = Blocks.Get(0).Image;
+        		return icon; 
+        	} 
+        }
         public override string ToString()
         {
             return id + "?";

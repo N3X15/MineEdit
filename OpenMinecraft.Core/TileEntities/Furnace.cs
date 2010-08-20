@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Drawing;
 using System.Text;
 using LibNbt.Tags;
 using OpenMinecraft;
@@ -31,6 +31,7 @@ namespace OpenMinecraft.TileEntities
      */
     public class Furnace:TileEntity
     {
+    	private static Image icon;
         public InventoryItem[] Slots = new InventoryItem[3];
         public short BurnTime = 0;
         public short CookTime = 0;
@@ -83,12 +84,14 @@ namespace OpenMinecraft.TileEntities
             }
         }
 
-        public override System.Drawing.Image Image
-        {
-            get
-            {
-                return Icons.TileEntities.Furnace;
-            }
+        public override Image Image 
+        { 
+        	get 
+        	{
+        		if(icon==null)
+        			icon = Blocks.Get(62).Image;
+        		return icon; 
+        	} 
         }
 
         public override NbtCompound ToNBT()

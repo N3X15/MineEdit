@@ -10,6 +10,8 @@ namespace OpenMinecraft.Entities
 {
     public class LivingEntity:Entity
     {
+
+		private static Image icon = new Bitmap("mobs/pig.png");
         [Category("LivingEntity")]
         [Description("Health of the living entity.")]
         public short Health = 20;
@@ -62,7 +64,7 @@ namespace OpenMinecraft.Entities
         {
             get
             {
-                return MobIcons.mobpig;
+                return icon;
             }
         }
     }

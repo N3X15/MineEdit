@@ -41,6 +41,8 @@ TAG_Compound: 13 entries
      */
     public class Sheep:LivingEntity
     {
+		private static Image icon = new Bitmap("mobs/sheep.png");
+		
         public bool Sheared = false;
 
         public Sheep()
@@ -72,7 +74,7 @@ TAG_Compound: 13 entries
         {
             get
             {
-                return MobIcons.mobsheep;
+                return icon;
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Drawing;
 using System.Text;
 using LibNbt.Tags;
 
@@ -21,6 +21,7 @@ namespace OpenMinecraft.TileEntities
      */
     public class Sign :TileEntity
     {
+    	private static Image icon;
         public string[] Text = new string[4];
         public Sign(int CX, int CY, int CS, LibNbt.Tags.NbtCompound c)
             : base(CX, CY, CS, c)
@@ -53,7 +54,15 @@ namespace OpenMinecraft.TileEntities
             return c;
         }
 
-        public override System.Drawing.Image Image { get { return Icons.TileEntities.Chest; } }
+        public override Image Image 
+        { 
+        	get 
+        	{
+        		if(icon==null)
+        			icon = Blocks.Get(323).Image;
+        		return icon; 
+        	} 
+        }
 
         public override string ToString()
         {

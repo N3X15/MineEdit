@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using LibNbt.Tags;
+using System.Drawing;
 
 namespace OpenMinecraft.TileEntities
 {
     public class Chest:TileEntity
     {
+    	private static Image icon;
         public InventoryCollection Inventory = new InventoryCollection();
 
         public Chest(int CX, int CY, int CS, LibNbt.Tags.NbtCompound c)
@@ -42,7 +44,15 @@ namespace OpenMinecraft.TileEntities
             return c;
         }
 
-        public override System.Drawing.Image Image { get { return Icons.TileEntities.Chest; } }
+        public override Image Image 
+        { 
+        	get 
+        	{
+        		if(icon==null)
+        			icon = Blocks.Get(54).Image;
+        		return icon; 
+        	} 
+        }
 
         public override string ToString()
         {

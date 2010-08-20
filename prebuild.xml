@@ -129,7 +129,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v3_5" name="MineEdit" path="NBTForgeCS/" type="Exe">
+    <Project frameworkVersion="v3_5" name="MineEdit" path="NBTForgeCS/" type="WinExe">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../bin/</OutputPath>

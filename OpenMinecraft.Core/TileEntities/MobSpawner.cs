@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Drawing;
 using System.Text;
 using LibNbt.Tags;
 
@@ -8,6 +8,7 @@ namespace OpenMinecraft.TileEntities
 {
     public class MobSpawner:TileEntity
     {
+    	private static System.Drawing.Image icon;
         public string EntityId = "Pig";
         public short Delay = 20;
         public MobSpawner(int CX, int CY, int CS, LibNbt.Tags.NbtCompound c)
@@ -33,12 +34,14 @@ namespace OpenMinecraft.TileEntities
             return c;
         }
 
-        public override System.Drawing.Image Image
-        {
-            get
-            {
-                return Icons.TileEntities.MobSpawner;
-            }
+        public override Image Image 
+        { 
+        	get 
+        	{
+        		if(icon==null)
+        			icon = Blocks.Get(52).Image;
+        		return icon; 
+        	} 
         }
 
         public override string ToString()

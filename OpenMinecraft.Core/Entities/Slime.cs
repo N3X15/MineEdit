@@ -12,6 +12,8 @@ namespace OpenMinecraft.Entities
         /*
 	TAG_Int("Size"): 0
 }*/
+
+		private static Image icon = new Bitmap("mobs/slime.png");
         [Category("Slime"), Description("Size of slime - 1.  A 4x4 slime would be size 3.")]
         public int Size {get;set;}
 
@@ -44,7 +46,7 @@ namespace OpenMinecraft.Entities
         {
             get
             {
-                return MobIcons.mobslime;
+                return icon;
             }
         }
     }
