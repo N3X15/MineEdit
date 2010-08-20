@@ -80,7 +80,7 @@ namespace LaunchServer
                     break;
                 case "02": // Restart gracefully.
                     if (!AuthenticatedClient) return true;
-                    Wrapper.Stop();
+                    Wrapper.Stop(false);
                     break;
                 case "03": // Set server config value X to Y
                     if (!AuthenticatedClient) return true;

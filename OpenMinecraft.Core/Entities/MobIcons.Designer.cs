@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace OpenMinecraft.Entities {
+namespace OpenMinecraft {
     using System;
     
     

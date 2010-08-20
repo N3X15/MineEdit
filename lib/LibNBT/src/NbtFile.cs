@@ -146,7 +146,7 @@ namespace LibNbt
             return ctag;
         }
 
-        public void ls(string path="")
+        public void ls(string path)
         {
             NbtTag hurr = GetTag(path);
             if (hurr is NbtCompound)

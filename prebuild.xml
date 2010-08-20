@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Prebuild xmlns="http://dnpb.sourceforge.net/schemas/prebuild-1.7.xsd" version="1.7">
+  <Solution name="MineEdit" activeConfig="Release" path="./" version="0.1.0-$Rev$">
+    <Configuration name="Debug">
+      <Options>
+        <CompilerDefines>TRACE;DEBUG</CompilerDefines>
+        <OptimizeCode>false</OptimizeCode>
+        <CheckUnderflowOverflow>false</CheckUnderflowOverflow>
+        <AllowUnsafe>false</AllowUnsafe>
+        <WarningLevel>4</WarningLevel>
+        <WarningsAsErrors>false</WarningsAsErrors>
+        <SuppressWarnings></SuppressWarnings>
+        <OutputPath>bin</OutputPath>
+        <DebugInformation>true</DebugInformation>
+        <IncrementalBuild>true</IncrementalBuild>
+        <NoStdLib>false</NoStdLib>
+      </Options>
+    </Configuration>
+    <Configuration name="Release">
+      <Options>
+        <CompilerDefines>TRACE</CompilerDefines>
+        <OptimizeCode>true</OptimizeCode>
+        <CheckUnderflowOverflow>false</CheckUnderflowOverflow>
+        <AllowUnsafe>false</AllowUnsafe>
+        <WarningLevel>4</WarningLevel>
+        <WarningsAsErrors>false</WarningsAsErrors>
+        <SuppressWarnings></SuppressWarnings>
+        <OutputPath>bin</OutputPath>
+        <DebugInformation>false</DebugInformation>
+        <IncrementalBuild>true</IncrementalBuild>
+        <NoStdLib>false</NoStdLib>
+      </Options>
+    </Configuration>
+    <Project frameworkVersion="v3_5" name="LibNBT" path="lib/LibNbt/" type="Library">
+      <Configuration name="Debug">
+        <Options>
+          <OutputPath>../../bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release">
+        <Options>
+          <OutputPath>../../bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <ReferencePath>../../bin/</ReferencePath>
+      <Reference name="System"/>
+      <Reference name="log4net.dll"/>
+
+      <Files>
+        <Match pattern="*.cs" recurse="true" />
+      </Files>
+    </Project>
+
+    <Project frameworkVersion="v3_5" name="OpenMinecraft.Core" path="OpenMinecraft.Core/" type="Library">
+      <Configuration name="Debug">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <ReferencePath>../bin/</ReferencePath>
+      <Reference name="System"/>
+      <Reference name="System.Xml"/>
+      <Reference name="System.Web"/>
+      <Reference name="System.Drawing"/>
+      <Reference name="System.Core"/>
+      <Reference name="LibNoise"/>
+      <Reference name="LibNbt"/>
+      <Reference name="System.Windows.Forms"/> <!-- Updater control -->
+      <Reference name="log4net.dll"/>
+      <Files>
+        <Match pattern="*.cs" recurse="true" />
+        <Match pattern="*.resx" recurse="true" />
+		<Match pattern="*.png" path="Resources" recurse="false" buildAction="EmbeddedResource" />
+      </Files>
+    </Project>
+
+    <Project frameworkVersion="v3_5" name="OpenMinecraft.2DRendering" path="OpenMinecraft.2DRendering/" type="Library">
+      <Configuration name="Debug">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <ReferencePath>../bin/</ReferencePath>
+      <Reference name="System"/>
+      <Reference name="System.Xml"/>
+      <Reference name="System.Web"/>
+      <Reference name="System.Drawing"/>
+      <Reference name="OpenMinecraft.Core"/>
+      <Reference name="log4net.dll"/>
+      <Files>
+        <Match pattern="*.cs" recurse="true" />
+      </Files>
+    </Project>
+
+    <Project frameworkVersion="v3_5" name="ServerLauncher" path="LaunchServer/" type="Exe">
+      <Configuration name="Debug">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <ReferencePath>../bin/</ReferencePath>
+      <Reference name="System"/>
+      <Reference name="System.Xml"/>
+      <Reference name="System.Web"/>
+      <Reference name="System.Drawing"/>
+      <Reference name="OpenMinecraft.Core"/>
+      <Reference name="log4net.dll"/>
+      <Files>
+        <Match pattern="*.cs" recurse="true" />
+      </Files>
+    </Project>
+
+    <Project frameworkVersion="v3_5" name="MineEdit" path="NBTForgeCS/" type="Exe">
+      <Configuration name="Debug">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <ReferencePath>../bin/</ReferencePath>
+      <Reference name="System"/>
+      <Reference name="System.Xml"/>
+      <Reference name="System.Web"/>
+      <Reference name="System.Drawing"/>
+      <Reference name="System.Windows.Forms"/>
+      <Reference name="OpenMinecraft.Core"/>
+      <Reference name="OpenTK"/>
+      <Reference name="OpenTK.Compatibility"/>
+      <Reference name="OpenTK.GLControl"/>
+      <Reference name="LibNbt"/>
+      <Reference name="log4net.dll"/>
+      <Files>
+        <Match pattern="*.cs" recurse="true" />
+        <Match pattern="*.resx" recurse="true" />
+		<Match pattern="*.*" path="Resources" recurse="false" buildAction="EmbeddedResource" />
+      </Files>
+    </Project>
+  </Solution>
+</Prebuild>

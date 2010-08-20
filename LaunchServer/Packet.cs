@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using System.Net.Sockets;
 using System.IO;
@@ -38,8 +38,8 @@ namespace LaunchServer
 #else
                 Console.WriteLine("Packet ID " + pid.ToString() + " is unknown to me!");
                 return null;
-            }
 #endif
+            }
             Packet p = PacketHandlers[pid];
             p.Read(ref rdr);
             return p;

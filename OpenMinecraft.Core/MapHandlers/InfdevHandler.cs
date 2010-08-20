@@ -669,7 +669,7 @@ namespace OpenMinecraft
             SaveChunk(c);
         }
 
-        public Chunk GetChunk(int x, int z, bool GenerateNewChunkIfNeeded=false)
+        public Chunk GetChunk(int x, int z, bool GenerateNewChunkIfNeeded)
         {
             string id = x.ToString() + "," + z.ToString();
             Chunk c;
@@ -1496,7 +1496,7 @@ namespace OpenMinecraft
 
         public Chunk GetChunk(long x, long y)
         {
-            return GetChunk((int)x, (int)y);
+            return GetChunk((int)x, (int)y, false);
         }
     }
 }

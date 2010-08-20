@@ -155,7 +155,7 @@ namespace LaunchServer
         }
 
         bool ShuttingDown = false;
-        public void Stop(bool permanently = false)
+        public void Stop(bool permanently)
         {
             if (ShuttingDown) return;
             ShuttingDown = true;

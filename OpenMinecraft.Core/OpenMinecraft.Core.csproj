@@ -1,160 +1,276 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C0CBEE62-0000-0000-0000-000000000000}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{14924795-C5DF-4F6D-A0D1-B9B5B92C855D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OpenMinecraft</RootNamespace>
+    <ApplicationIcon></ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
     <AssemblyName>OpenMinecraft.Core</AssemblyName>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder></AppDesignerFolder>
+    <RootNamespace>OpenMinecraft.Core</RootNamespace>
+    <StartupObject></StartupObject>
+    <StartArguments></StartArguments>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DocumentationFile></DocumentationFile>
+    <DebugSymbols>True</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <Optimize>False</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <RemoveIntegerChecks>False</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
+    <NoStdLib>False</NoStdLib>
+    <NoWarn></NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
     <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
+    <DocumentationFile></DocumentationFile>
+    <DebugSymbols>False</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <Optimize>True</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <RemoveIntegerChecks>False</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
+    <NoStdLib>False</NoStdLib>
+    <NoWarn></NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LibNoise">
-      <HintPath>..\lib\LibNoise.dll</HintPath>
+    <Reference Include="LibNbt" >
+        <Name>LibNbt</Name>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
+    <Reference Include="LibNoise" >
+        <Name>LibNoise</Name>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="log4net.dll" >
+        <Name>log4net.dll</Name>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" >
+        <Name>System</Name>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Core" >
+        <Name>System.Core</Name>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Drawing" >
+        <Name>System.Drawing</Name>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Web" >
+        <Name>System.Web</Name>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms" >
+        <Name>System.Windows.Forms</Name>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml" >
+        <Name>System.Xml</Name>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Blocks.cs" />
-    <Compile Include="Chunk.cs" />
-    <Compile Include="Entities\Slime.cs" />
-    <Compile Include="Entities\Creeper.cs" />
-    <Compile Include="Entities\FallingSand.cs" />
-    <Compile Include="Entities\Giant.cs" />
-    <Compile Include="Entities\Item.cs" />
-    <Compile Include="Entities\LivingEntity.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Blocks.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Chunk.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="frmUpdate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IMapHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InventoryCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InventoryItem.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Profiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Vector2i.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Vector3d.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Vector3i.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewAngle.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Creeper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Entity.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\FallingSand.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Giant.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Item.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\LivingEntity.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Pig.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Sheep.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Skeleton.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Slime.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Spider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Entities\Zombie.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Extensions\_Color.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MapGenerators\DefaultMapGenerator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MapGenerators\HillGenerator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MapGenerators\IMapGenerator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MapGenerators\MapGenerators.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MapHandlers\InfdevHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TileEntities\Chest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TileEntities\Furnace.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TileEntities\MobSpawner.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TileEntities\Sign.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TileEntities\TileEntity.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="frmUpdate.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>frmUpdate.Designer.cs</LastGenOutput>
+      <DependentUpon>frmUpdate.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="frmUpdate.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>frmUpdate.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Entities\MobIcons.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Entities\MobIcons.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <Compile Include="Entities\MobIcons.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>MobIcons.resx</DependentUpon>
     </Compile>
-    <Compile Include="Entities\Pig.cs" />
-    <Compile Include="Entities\Sheep.cs" />
-    <Compile Include="Entities\Skeleton.cs" />
-    <Compile Include="Entities\Spider.cs" />
-    <Compile Include="Entities\Zombie.cs" />
-    <Compile Include="Entities\Entity.cs" />
-    <Compile Include="Extensions\_Color.cs" />
-    <Compile Include="frmUpdate.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmUpdate.Designer.cs">
-      <DependentUpon>frmUpdate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="IMapHandler.cs" />
-    <Compile Include="InventoryCollection.cs" />
-    <Compile Include="InventoryItem.cs" />
-    <Compile Include="MapGenerators\DefaultMapGenerator.cs" />
-    <Compile Include="MapGenerators\HillGenerator.cs" />
-    <Compile Include="MapGenerators\IMapGenerator.cs" />
-    <Compile Include="MapGenerators\MapGenerators.cs" />
-    <Compile Include="MapHandlers\InfdevHandler.cs" />
-    <Compile Include="Profiler.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TileEntities\Chest.cs" />
-    <Compile Include="TileEntities\Furnace.cs" />
+    <EmbeddedResource Include="TileEntities\Icons\TileEntities.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TileEntities\Icons\TileEntities.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <Compile Include="TileEntities\Icons\TileEntities.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>TileEntities.resx</DependentUpon>
     </Compile>
-    <Compile Include="TileEntities\MobSpawner.cs" />
-    <Compile Include="TileEntities\Sign.cs" />
-    <Compile Include="TileEntities\TileEntity.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="Vector2i.cs" />
-    <Compile Include="Vector3d.cs" />
-    <Compile Include="Vector3i.cs" />
-    <Compile Include="ViewAngle.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\lib\LibNBT\LibNbt.csproj">
-      <Project>{4488498D-976D-4DA3-BF72-109531AF0488}</Project>
-      <Name>LibNbt</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Entities\MobIcons.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>MobIcons.Designer.cs</LastGenOutput>
+    <EmbeddedResource Include="Resources\0.png">
     </EmbeddedResource>
-    <EmbeddedResource Include="frmUpdate.resx">
-      <DependentUpon>frmUpdate.cs</DependentUpon>
+    <EmbeddedResource Include="Resources\52.png">
     </EmbeddedResource>
-    <EmbeddedResource Include="TileEntities\Icons\TileEntities.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>TileEntities.Designer.cs</LastGenOutput>
+    <EmbeddedResource Include="Resources\54.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\61.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\mobcreeper.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\mobnotch.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\mobpig.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\mobsheep.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\mobskeleton.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\mobslime.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\mobspider.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\mobzombie.png">
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\52.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\54.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\61.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\0.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\mobcreeper.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\mobnotch.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\mobpig.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\mobsheep.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\mobskeleton.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\mobspider.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\mobzombie.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\mobslime.png" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
 </Project>
