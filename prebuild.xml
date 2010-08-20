@@ -31,7 +31,7 @@
         <NoStdLib>false</NoStdLib>
       </Options>
     </Configuration>
-    <Project frameworkVersion="v3_5" name="LibNBT" path="lib/LibNbt/" type="Library">
+    <Project frameworkVersion="v3_5" name="LibNBT" path="lib/LibNBT/" type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../../bin/</OutputPath>
