@@ -13,6 +13,7 @@ namespace OpenMinecraft
         public event ChunkModifierDelegate ChunkModified;
         public Dictionary<Guid, Entity> Entities = new Dictionary<Guid, Entity>();
         public Dictionary<Guid, TileEntity> TileEntities = new Dictionary<Guid, TileEntity>();
+        public IChunkRenderer Renderer;
 
         /// <summary>
         /// Global position of chunk
@@ -100,6 +101,10 @@ namespace OpenMinecraft
                 Changed();
             }
         }
+        /// <summary>
+        /// Stores block data
+        /// </summary>
+        public byte[, ,] Data {get;set;}
         public void GetOverview(Vector3i pos, out int h, out byte block, out int waterdepth)
         {
             h = 0;
@@ -223,6 +228,11 @@ namespace OpenMinecraft
         {
             return Blocks[x, y, z];
         }
+        
+        public Block GetBlockType(int x, int y, int z)
+        {
+        	return OpenMinecraft.Blocks.Get(GetBlock(x,y,z));
+        }
 
         private void Changed()
         {
@@ -248,7 +258,6 @@ namespace OpenMinecraft
             else
                 SkyLight = RecalcLighting(this, true);
         }
-
 
         // Shitty. Shitty. Shitty.
         public static byte[, ,] RecalcLighting(Chunk c, bool Sky)

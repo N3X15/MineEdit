@@ -17,7 +17,7 @@ namespace MineEdit
         {
             mh = _mh;
             InitializeComponent();
-            cmbMapGenSel.DrawMode = DrawMode.OwnerDrawFixed;
+            cmbMapGenSel.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             cmbMapGenSel.DrawItem += new DrawItemEventHandler(cmbMapGenSel_DrawItem);
             LockCheckboxes(true);
         }

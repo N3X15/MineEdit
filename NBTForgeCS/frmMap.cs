@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using OpenMinecraft;
 using OpenMinecraft.Entities;
 using OpenMinecraft.TileEntities;
+using OpenMinecraft._3DRendering;
 using System.Threading;
 namespace MineEdit
 {
@@ -16,9 +17,9 @@ namespace MineEdit
     {
         private IMapHandler _Map = null;
         // Use this TEMPORARILY.
-        protected MapControl mapCtrl;
+        //protected MapControl mapCtrl;
         // Work towards using THIS.
-        //protected MapControlGL mapCtrl;
+        protected Viewport mapCtrl;
         protected Label lblMapDisabled = new Label();
         //Dictionary<byte, byte> Replacements = new Dictionary<byte, byte>();
         public frmMap()
@@ -32,13 +33,13 @@ namespace MineEdit
             tclMap.SelectedTab = tabInventory;
             */
 
-            mapCtrl = new MapControl();
-            //mapCtrl = new MapControlGL();
+            //mapCtrl = new MapControl();
+            mapCtrl = new Viewport();
             tabMap.Controls.Add(mapCtrl);
             mapCtrl.Dock = DockStyle.Fill;
             mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
-            mapCtrl.EntityClicked += new MapControl.EntityClickHandler(mapCtrl_EntityClicked);
-            mapCtrl.TileEntityClicked += new MapControl.TileEntityClickHandler(mapCtrl_TileEntityClicked);
+            //mapCtrl.EntityClicked += new MapControl.EntityClickHandler(mapCtrl_EntityClicked);
+//            mapCtrl.TileEntityClicked += new MapControl.TileEntityClickHandler(mapCtrl_TileEntityClicked);
 
             Replacements.DrawItem += new DrawItemEventHandler(Replacements_DrawItem);
             SetStyle(ControlStyles.ResizeRedraw, true);
@@ -158,7 +159,7 @@ namespace MineEdit
 
         void mnuChunkDetails_Click(object sender, EventArgs e)
         {
-            dlgChunk chunk = new dlgChunk(_Map, mapCtrl.SelectedVoxel);
+            //dlgChunk chunk = new dlgChunk(_Map, mapCtrl.SelectedVoxel);
         }
 
         void mnuPlaceEntity_Click(object sender, EventArgs e)
@@ -167,7 +168,8 @@ namespace MineEdit
         }
         Vector3i GetVoxelFromMouse(int x, int y)
         {
-            return _Map.GetMousePos(new Vector3i(x, y, mapCtrl.CurrentPosition.Z), mapCtrl.ZoomLevel, ViewingAngle);
+        	return new Vector3i(0,0,0);
+            //return _Map.GetMousePos(new Vector3i(x, y, mapCtrl.CurrentPosition.Z), mapCtrl.ZoomLevel, ViewingAngle);
         }
 
         public IMapHandler Map
@@ -178,7 +180,7 @@ namespace MineEdit
                 _Map = value;
                 this.invMain.Map = value;
                 if (_Map != null && !string.IsNullOrEmpty(_Map.Filename))
-                    mapCtrl.Map = _Map;
+                    mapCtrl.World = _Map;
                 Reload();
                 Refresh();
             }
@@ -287,8 +289,8 @@ namespace MineEdit
         
         private void ClampCZ()
         {
-            if (mapCtrl.CurrentPosition.Z == -1) mapCtrl.CurrentPosition.Z = 127;
-            mapCtrl.CurrentPosition.Z = Math.Abs(mapCtrl.CurrentPosition.Z % _Map.ChunkScale.Z);
+            //if (mapCtrl.CurrentPosition.Z == -1) mapCtrl.CurrentPosition.Z = 127;
+            //mapCtrl.CurrentPosition.Z = Math.Abs(mapCtrl.CurrentPosition.Z % _Map.ChunkScale.Z);
         }
         
         // Up
@@ -644,7 +646,6 @@ namespace MineEdit
             });
             dlt.Start(ts);
             dlt.ShowDialog();
-                mapCtrl.Render();
         }
 
         private void Replacements_SelectedIndexChanged(object sender, EventArgs e)

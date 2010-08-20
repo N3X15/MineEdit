@@ -16,6 +16,7 @@ namespace OpenMinecraft
     }
     public delegate void CorruptChunkHandler(string error, string file);
     public delegate void ForEachProgressHandler(int Total, int Complete);
+	public delegate void CachedChunkDelegate(long x, long y,Chunk c);
     public interface IMapHandler
     {
         event CorruptChunkHandler CorruptChunk;
@@ -70,6 +71,8 @@ namespace OpenMinecraft
 
         void LoadChunk(long X, long Y);
 
+        void CullChunk(long X, long Y);
+
         void SetEntity(Entity ent);
         void RemoveEntity(Entity e);
 
@@ -81,6 +84,7 @@ namespace OpenMinecraft
         bool Snow { get; set; }
 
         void ForEachChunk(Chunk.ChunkModifierDelegate cmd);
+        void ForEachCachedChunk(CachedChunkDelegate cmd);
 
         void BeginTransaction();
         void CommitTransaction();
@@ -89,7 +93,8 @@ namespace OpenMinecraft
 
         Chunk GetChunk(Vector3i ChunkPos);
         Chunk GetChunk(long x, long y);
-
+        void SetChunk(Chunk c);
+        
         long RandomSeed { get; set; }
 
         void SaveChunk(Chunk chunk);

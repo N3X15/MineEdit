@@ -105,6 +105,34 @@
       </Files>
     </Project>
 
+    <Project frameworkVersion="v3_5" name="OpenMinecraft.3DRendering" path="OpenMinecraft.3DRendering/" type="Library">
+      <Configuration name="Debug">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <ReferencePath>../bin/</ReferencePath>
+      <Reference name="System"/>
+      <Reference name="System.Xml"/>
+      <Reference name="System.Web"/>
+      <Reference name="System.Drawing"/>
+      <Reference name="System.Windows.Forms"/>
+      <Reference name="OpenMinecraft.Core"/>
+      <Reference name="OpenTK"/>
+      <Reference name="OpenTK.Compatibility"/>
+      <Reference name="OpenTK.GLControl"/>
+      <Reference name="log4net.dll"/>
+      <Files>
+        <Match pattern="*.cs" recurse="true" />
+      </Files>
+    </Project>
+
     <Project frameworkVersion="v3_5" name="ServerLauncher" path="LaunchServer/" type="Exe">
       <Configuration name="Debug">
         <Options>
@@ -148,6 +176,7 @@
       <Reference name="System.Drawing"/>
       <Reference name="System.Windows.Forms"/>
       <Reference name="OpenMinecraft.Core"/>
+      <Reference name="OpenMinecraft.3DRendering"/>
       <Reference name="OpenTK"/>
       <Reference name="OpenTK.Compatibility"/>
       <Reference name="OpenTK.GLControl"/>

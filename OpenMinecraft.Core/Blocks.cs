@@ -6,6 +6,13 @@ using System.Collections.Generic;
 using System.Net;
 namespace OpenMinecraft
 {
+
+	public enum DrawMode {
+		Normal,
+		Leaves,
+		Glass,
+		Water
+	}
     public class Block
     {
         /// <summary>
@@ -21,14 +28,105 @@ namespace OpenMinecraft
         /// </summary>
         public Bitmap   Image;
         public Color    Color;
+        
+        public DrawMode DrawMode {get;set;}
 
+        public BlockSide Top;
+        public BlockSide Sides;
+        public BlockSide Bottom;
+		public BlockSide All {
+			set {
+				Top = value;
+				Sides = value;
+				Bottom = value;
+			}
+		}
+		
+		public bool SideVisible(Block adjacent)
+		{
+			return (adjacent == null || adjacent.DrawMode != DrawMode.Normal && !(adjacent.DrawMode > DrawMode.Leaves && adjacent==this));
+		}
+        
         public Block(byte id,string name,Bitmap image,Color color)
         {
             this.ID=id;
             this.Name=name;
             this.Image=image;
             this.Color=color;
+            DrawMode = DrawMode.Normal;
             Console.Write(ToString());
+            // TODO:  We need a better way of doing this.  A much better way of doing this.
+            switch(ID)
+            {
+            	case 1: All = 1; break;							// ROCK
+            	case 2: Top = 0; Sides = 3; Bottom = 2; break; 	// GRASS
+            	case 3: All = 2; break;							// DIRT
+            	case 4: All = 16; break;						
+				case 5: All = 4; break;							// WOOD
+				case 7: All = 17; break;						// ADMINIUM
+				case 8: 
+				//Water
+				case 9: 
+					DrawMode = DrawMode.Water; 
+					All = 13*16 + 15;
+					break;
+				// Lava
+				case 10:
+				case 11:
+					DrawMode = DrawMode.Glass; 
+					All = 15*16 + 15;
+					break;
+				case 12: All = 1*16 + 2; break; // Sand
+				case 13: All = 1*16 + 3; break; // Gravel
+				case 14: All = 2*16 + 0; break; // Gold Ore
+				case 15: All = 2*16 + 1; break; // Iron Ore
+				case 16: All = 2*16 + 2; break; // Coal Ore
+				case 17: All = 1*16 + 5; Sides = 1*16 + 4; break; // TREE
+				// Leaves
+				case 18: 
+					DrawMode = DrawMode.Leaves; 
+					All = 3*16 + 4; 
+					break;
+				case 19: All = 3*16 + 0; break; // Sponge
+				// Glass
+				case 20: 
+					DrawMode = DrawMode.Glass;
+					All = 3*16 + 1;
+					break;
+				case 35: All = 4*16 + 0; break; // Cloth
+				// Gold
+				case 41:
+					Top = 1*16 + 7;
+					Sides = 2*16 + 7;
+					Bottom = 3*16 + 7;
+					break;
+				// Iron
+				case 42:
+					Top = 1*16 + 6;
+					Sides = 2*16 + 6; 
+					Bottom = 3*16 + 6;
+					break;
+				case 43: All = 6; Sides = 5; break; 									// Doublestair
+				case 44: All = 6; Sides = 5; break; 									// Stair
+				case 45: All = 7; break; 												//Brick
+				case 46: Top = 9; Sides = 8; Bottom = 10; break; 						// TNT
+				case 47: Top = 4; Sides = 2*16 + 3; Bottom = 4; break; 					// Bookshelf
+				case 48: All = 2*16 + 4; break; 										// Mossy cobbo
+				case 49: All = 2*16 + 5; break; 										// Obsidian
+				case 52: DrawMode = DrawMode.Glass; All = 4*16 + 1; break; 				// Mob Spawner
+				case 54: All = 1*16 + 9; Sides = 1*16 + 11; break; 						// Chest
+				case 56: All = 3*16 + 2; break; 										// Diamond Ore
+				case 57: Top = 1*16 + 8; Sides = 2*16 + 8; Bottom = 3*16 + 8; break; 	// Diamond
+				case 58: Top = 2*16 + 11; Sides = 3*16 + 11; Bottom = 4; break; 		// Workbench
+				case 59: All = 2; Top = 5*16 + 7; break; 								// Soil
+				case 60: All = 1; Sides = 2*16 + 12; break;	 							// Furnace
+				case 61: All = 1; Sides = 3*16 + 13; break; 							// Lit Furnace
+				case 73: All = 3*16 + 3;break; 											// Redstone Ore
+				case 79: DrawMode = DrawMode.Glass; All = 4*16 + 3; break; 				// Ice
+				case 80: All = 4*16 + 2; break; 										// Snow block
+				case 81: Top = 4*16 + 5; Sides = 4*16 + 6; Bottom = 4*16 + 7; break; 	// Cactus
+				case 82: All = 4*16 + 8; break; 										// Clay
+            }
         }
         public Block()
         {
@@ -38,6 +136,25 @@ namespace OpenMinecraft
             return Name;
         }
     }
+	public struct BlockSide
+	{
+		public byte ID { get; private set; }
+		
+		public double X1 { get { return (double)(ID % 16)/16; } }
+		public double Y1 { get { return (double)(ID / 16)/16; } }
+		public double X2 { get { return (double)(ID % 16 + 1)/16; } }
+		public double Y2 { get { return (double)(ID / 16 + 1)/16; } }
+		
+		public BlockSide(byte id) : this()
+		{
+			ID = id;
+		}
+		
+		public static implicit operator BlockSide(byte id)
+		{
+			return new BlockSide(id);
+		}
+	}
     public static class Blocks
     {
         /// <summary>
@@ -134,6 +251,7 @@ namespace OpenMinecraft
             return false;
         }
 
+		
         /// <summary>
         /// Clear all blocks
         /// </summary>

@@ -415,6 +415,22 @@ namespace OpenMinecraft
             }
             return blocks;
         }
+
+        private byte[, ,] DecompressDatamap(byte[] databuffer)
+        {
+            byte[, ,] blocks = new byte[ChunkX, ChunkY, ChunkZ];
+            for (int x = 0; x < 16; x++)
+            {
+                for (int y = 0; y < 16; y++)
+                {
+                    for (int z = 0; z < 128; z++)
+                    {
+                        blocks[x,y,z]=(byte)DecompressData(databuffer, x, y, z);
+                    }
+                }
+            }
+            return blocks;
+        }
         private byte[] CompressLightmap(byte[,,] blocks)
         {
             byte[] databuffer = new byte[16384];
@@ -425,6 +441,21 @@ namespace OpenMinecraft
                     for (int z = 0; z < 128; z++)
                     {
                         CompressLight(ref databuffer, x, y, z, blocks[x, y, z]);
+                    }
+                }
+            }
+            return databuffer;
+        }
+        private byte[] CompressDatamap(byte[,,] blocks)
+        {
+            byte[] databuffer = new byte[16384];
+            for (int x = 0; x < 16; x++)
+            {
+                for (int y = 0; y < 16; y++)
+                {
+                    for (int z = 0; z < 128; z++)
+                    {
+                        CompressData(ref databuffer, x, y, z, blocks[x, y, z]);
                     }
                 }
             }
@@ -488,7 +519,9 @@ namespace OpenMinecraft
 
                 // Blocks
                 c.Blocks = DecompressBlocks(level["Blocks"].asBytes());
-
+                c.BlockLight = DecompressLightmap(level["BlockLight"].asBytes());
+                c.SkyLight = DecompressLightmap(level["SkyLight"].asBytes());
+                c.Data = DecompressDatamap(level["Data"].asBytes());
 
                 c.Loading = false;
                 c.UpdateOverview();
@@ -688,6 +721,14 @@ namespace OpenMinecraft
             return c;
         }
 
+        public void SetChunk(Chunk cnk)
+        {
+            string id = cnk.Position.ToString() + "," + cnk.Position.Y.ToString();
+            if(Chunks.ContainsKey(id))
+            	Chunks[id]=cnk;
+            else
+            	Chunks.Add(id,cnk);
+        }
         public void SaveChunk(Chunk cnk)
         {
             NbtFile c = new NbtFile(cnk.Filename);
@@ -715,11 +756,14 @@ namespace OpenMinecraft
 
             // LIGHTING ///////////////////////////////////////////////////
             // TODO:  Whatever is going on in here is crashing Minecraft now.
-            //byte[] lighting = CompressLightmap(cnk.SkyLight);
-            Level.Tags.Add(new NbtByteArray("SkyLight", new byte[16384]));
+            byte[] lighting = CompressLightmap(cnk.SkyLight);
+            Level.Add("SkyLight", lighting);
 
-            //lighting = CompressLightmap(cnk.BlockLight);
-            Level.Tags.Add(new NbtByteArray("BlockLight", new byte[16384]));
+            lighting = CompressLightmap(cnk.BlockLight);
+            Level.Add("BlockLight", lighting);
+            
+            lighting = CompressDatamap(cnk.Data);
+            Level.Add("Data",lighting);
 
             // HEIGHTMAP (Needed for lighting).
             byte[] hm = new byte[256];
@@ -1128,27 +1172,33 @@ namespace OpenMinecraft
         /// <returns>Lighting value at this position</returns>
         public int DecompressLight(byte[] lightdata, int x, int y, int z)
         {
-            // Get uncompressed block ID.
-            int uncompressedindex = GetBlockIndex(x, y, z); // y * ChunkZ + x * ChunkZ * ChunkX + z;
-            int compressedindex = uncompressedindex / 2;
-            int whichhalf = uncompressedindex % 2;
-            if (whichhalf == 0)
-                return lightdata[compressedindex] & 0xf;
-            else
-                return lightdata[compressedindex] / 16 & 0xf;
+            int index = GetBlockIndex(x, y, z); 
+			if (index % 2 == 0) return (byte)(lightdata[index/2] >> 4);
+			else return (byte)(lightdata[index/2] & 0xF);
         }
 
         public void CompressLight(ref byte[] lightdata, int x, int y, int z, int val)
         {
-            int uncompressedindex = GetBlockIndex(x, y, z);
-            int compressedindex = uncompressedindex / 2;
-            int whichhalf = uncompressedindex % 2;
-            if (whichhalf == 0)
-                lightdata[compressedindex] = (byte)(lightdata[compressedindex] & 0xf0 | val & 0xf);
-            else
-                lightdata[compressedindex] = (byte)(lightdata[compressedindex] & 0xf | (val & 0xf) * 16);
+            int index = GetBlockIndex(x, y, z);
+			if (index % 2 == 0) lightdata[index/2] = (byte)((lightdata[index/2] & 0x0F) | (val << 4));
+			else lightdata[index/2] = (byte)((lightdata[index/2] & 0xF) | (val & 0x0F));
         }
 
+        
+        
+        public byte DecompressData(byte[] data,int x, int y, int z)
+		{
+			int index = GetBlockIndex(x, y, z);
+			if (index % 2 == 0) return (byte)(data[index/2] >> 4);
+			else return (byte)(data[index/2] & 0xF);
+		}
+        public void CompressData(ref byte[] data,int x, int y, int z, byte b)
+		{
+			int index = GetBlockIndex(x, y, z);
+			if (index % 2 == 0) data[index/2] = (byte)((data[index/2] & 0x0F) | (b << 4));
+			else data[index/2] = (byte)((data[index/2] & 0xF) | (b & 0x0F));
+		}
+		
         public byte GetBlockIn(long CX, long CY, Vector3i pos)
         {
             pos = new Vector3i(pos.Y, pos.X, pos.Z);
@@ -1192,6 +1242,12 @@ namespace OpenMinecraft
             }
         }
 
+        public void CullChunk(long X, long Y)
+        {
+            string ci = string.Format("{0},{1}", X, Y);
+            if(Chunks.ContainsKey(ci))
+            	Chunks.Remove(ci);
+        }
         public void LoadChunk(long X, long Y)
         {
             _LoadChunk((int)X, (int)Y);
@@ -1403,6 +1459,14 @@ namespace OpenMinecraft
         public void Repair()
         {
             throw new NotImplementedException();
+        }
+        public void ForEachCachedChunk(CachedChunkDelegate cmd)
+        {
+            Dictionary<string, Chunk> C = new Dictionary<string, Chunk>(Chunks);
+            foreach (KeyValuePair<string, Chunk> k in C)
+            {
+                cmd(k.Value.Position.X, k.Value.Position.Y, k.Value);
+            }
         }
         public void ForEachChunk(Chunk.ChunkModifierDelegate cmd)
         {

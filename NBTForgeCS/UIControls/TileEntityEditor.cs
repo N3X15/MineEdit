@@ -24,7 +24,7 @@ namespace MineEdit
         public TileEntityEditor()
         {
             InitializeComponent();
-            cmbTEntities.DrawMode = DrawMode.OwnerDrawFixed;
+            cmbTEntities.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             cmbTEntities.DrawItem += new DrawItemEventHandler(cmbEntities_DrawItem);
             groupBox1.Enabled = false;
 

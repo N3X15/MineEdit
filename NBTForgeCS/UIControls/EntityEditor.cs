@@ -23,7 +23,7 @@ namespace MineEdit
         public EntityEditor()
         {
             InitializeComponent();
-            cmbEntities.DrawMode = DrawMode.OwnerDrawFixed;
+            cmbEntities.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             cmbEntities.DrawItem += new DrawItemEventHandler(cmbEntities_DrawItem);
             groupBox1.Enabled = false;
 

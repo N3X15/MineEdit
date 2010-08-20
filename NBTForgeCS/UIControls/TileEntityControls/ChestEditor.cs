@@ -24,7 +24,7 @@ namespace MineEdit
                 InvControls[i].Changed += new InventoryItemControl.ChangedHandler(ChestEditor_Changed);
             }
             DoLayout();
-            cmbType.DrawMode = DrawMode.OwnerDrawFixed;
+            cmbType.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             cmbType.DrawItem +=new DrawItemEventHandler(cmbType_DrawItem);
             cmbType.Items.Clear();
             cmbType.ValueMember = "ID";
