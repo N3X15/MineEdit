@@ -118,8 +118,14 @@ namespace OpenMinecraft._3DRendering
 			
 			terrain = Texture.Load("terrain.png");
 			Application.Idle += new EventHandler(Application_Idle);
+            this.Paint += new PaintEventHandler(Viewport_Paint);
 			Loaded=true;
 		}
+
+        void Viewport_Paint(object sender, PaintEventArgs e)
+        {
+            Render();
+        }
 		
 		protected override void OnResize(EventArgs e)
 		{
