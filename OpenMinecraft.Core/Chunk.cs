@@ -101,6 +101,11 @@ namespace OpenMinecraft
                 Changed();
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("[Chunk {0}]",Position);
+        }
         /// <summary>
         /// Stores block data
         /// </summary>
@@ -226,7 +231,12 @@ namespace OpenMinecraft
 
         public byte GetBlock(int x, int y, int z)
         {
-            return Blocks[x, y, z];
+            if (x < 0 || y < 0 || z < 0 || x >= Size.X || y >= Size.Y || z >= Size.Z)
+            {
+                return Map.GetBlockAt(x + (int)(Size.X * Position.X), y + (int)(Size.Y * Position.Y), Utils.Clamp(z,0,127));
+                //return 0;
+            }
+        	return Blocks[x, y, z];
         }
         
         public Block GetBlockType(int x, int y, int z)

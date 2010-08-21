@@ -21,6 +21,7 @@ namespace OpenMinecraft._3DRendering
 	/// </summary>
 	public class Viewport:UserControl
 	{
+        Queue<Chunk> ToBeRendered = new Queue<Chunk>();
 		GLControl gl;
 		Camera camera;
 		public IMapHandler World {get;set;}
@@ -32,14 +33,21 @@ namespace OpenMinecraft._3DRendering
 			gl = new GLControl(new OpenTK.Graphics.GraphicsMode(32, 24, 8, 4));
 			Controls.Add(gl);
 			gl.Dock = DockStyle.Fill;
+            gl.MouseDown += new MouseEventHandler(gl_MouseDown);
 			Console.WriteLine("Creating viewport.");
 			camera = new Camera(gl);
 			camera.Location = new OpenTK.Vector3d(0d, -128d, 0d);
 			camera.Rotation = new Vector2(0, 70);
 			camera.MoveEnabled = true;
-			camera.MouseEnabled = true;
+			camera.MouseEnabled = false;
 			
 		}
+
+        void gl_MouseDown(object sender, MouseEventArgs e)
+        {
+            camera.MouseEnabled = true;
+
+        }
 
 		void Application_Idle(object sender, EventArgs e)
 		{
@@ -69,38 +77,61 @@ namespace OpenMinecraft._3DRendering
 						if(chunk.Renderer == null)
 						{
 							chunk.Renderer= new ChunkRenderer(chunk,World);
-							World.SetChunk(chunk);
-						}
+                        }
+                        if (!chunk.Renderer.Cached && !ToBeRendered.Contains(chunk))
+                        {
+                            if (Math.Sqrt((Math.Pow(RenderOriginX + x, 2) + Math.Pow(RenderOriginY + y, 2))) <= RenderRange + 0.5f)
+                            {
+                                ToBeRendered.Enqueue(chunk);
+                                World.SetChunk(chunk);
+                            }
+                        }
 					}
 				}
 				World.ForEachCachedChunk(delegate(long x, long y, Chunk c){
-                    //if (c.Renderer == null) 
-                    //	Console.WriteLine("Chunk ({0},{1}) doesn't have a renderer!", x, y);
+                    if (c.Renderer == null) 
+                    {
+                    	//Console.WriteLine("Chunk ({0},{1}) doesn't have a renderer!", x, y);
+						c.Renderer= new ChunkRenderer(c,World);
+						World.SetChunk(c);
+                    }
 					if (Math.Sqrt((Math.Pow(RenderOriginX+x, 2) + Math.Pow(RenderOriginY+y, 2))) > RenderRange + 0.5f) 
 					{
 						World.CullChunk(x,y); // Out of rendering distance, nuke it.
 						return;
 					}
-					c.Renderer.RenderGround();
+                    c.Renderer.RenderGround(ToBeRendered.Count>0 && ToBeRendered.Peek() != c);
 				});
 				GL.DepthMask(false);
 				GL.Enable(EnableCap.Blend);
 				GL.Translate(0.0, -0.1, 0.0);
-				World.ForEachCachedChunk(delegate(long x, long y, Chunk c){
+                World.ForEachCachedChunk(delegate(long x, long y, Chunk c)
+                {
+                    if (c.Renderer == null)
+                    {
+                        return; // We'll pick it up next time.
+                    }
 					if (Math.Sqrt((Math.Pow(RenderOriginX+x, 2) + Math.Pow(RenderOriginY+y, 2))) > RenderRange + 0.5f) 
 					{
 						World.CullChunk(x,y); // Out of rendering distance, nuke it.
 						return;
 					}
-					c.Renderer.RenderWater();
+                    c.Renderer.RenderWater((ToBeRendered.Count > 0 && ToBeRendered.Peek() != c));
 				});
+                if(ToBeRendered.Count>0)
+                    ToBeRendered.Dequeue();
 				GL.DepthMask(true);
 				GL.Disable(EnableCap.Blend);
 				GL.PopMatrix();
 			}
 			
 			GL.PopMatrix();
-			gl.SwapBuffers();
+			try
+			{
+				gl.SwapBuffers();
+			} catch(Exception)
+			{
+			}
 		}
 		
 		protected override void OnLoad(EventArgs e)
@@ -140,5 +171,16 @@ namespace OpenMinecraft._3DRendering
 			GL.LoadMatrix(ref projection);
 			GL.MatrixMode(MatrixMode.Modelview);
 		}
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // Viewport
+            // 
+            this.Name = "Viewport";
+            this.ResumeLayout(false);
+
+        }
 	}
 }

@@ -35,6 +35,10 @@ namespace OpenMinecraft._3DRendering
 
 		void control_KeyDown(object sender, KeyEventArgs e)
 		{
+            if (MouseEnabled && control.Focused && (e.KeyCode & Keys.Escape) == Keys.Escape)
+            {
+                MouseEnabled = false;
+            }
 			if (MoveEnabled && control.Focused) {
 				double x = Location.X;
 				double y = Location.Y;

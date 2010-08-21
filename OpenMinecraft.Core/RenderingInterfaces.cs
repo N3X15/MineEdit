@@ -15,7 +15,10 @@ namespace OpenMinecraft
 	/// </summary>
 	public interface IChunkRenderer
 	{
-		void RenderGround();
-		void RenderWater();
-	}
+        bool Cached { get; }
+
+		void RenderGround(bool FromCache);
+		void RenderWater(bool FromCache);
+        void SetDirty();
+    }
 }
