@@ -74,6 +74,8 @@ namespace OpenMinecraft._3DRendering
 					}
 				}
 				World.ForEachCachedChunk(delegate(long x, long y, Chunk c){
+                    //if (c.Renderer == null) 
+                    //	Console.WriteLine("Chunk ({0},{1}) doesn't have a renderer!", x, y);
 					if (Math.Sqrt((Math.Pow(RenderOriginX+x, 2) + Math.Pow(RenderOriginY+y, 2))) > RenderRange + 0.5f) 
 					{
 						World.CullChunk(x,y); // Out of rendering distance, nuke it.

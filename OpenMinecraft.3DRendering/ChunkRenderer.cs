@@ -53,12 +53,12 @@ namespace OpenMinecraft._3DRendering
 						{
 							Block type = Chunk.GetBlockType(x, y, z);
 							if (type != null && type.DrawMode != DrawMode.Water) {
-								Block top = Chunk.GetBlockType(x, y+1, z);
-								Block bottom = Chunk.GetBlockType(x, y-1, z);
+								Block top = Chunk.GetBlockType(x, y, z+1);
+								Block bottom = Chunk.GetBlockType(x, y, z-1);
 								Block right = Chunk.GetBlockType(x+1, y, z);
 								Block left = Chunk.GetBlockType(x-1, y, z);
-								Block front = Chunk.GetBlockType(x, y, z+1);
-								Block back = Chunk.GetBlockType(x, y, z-1);
+								Block front = Chunk.GetBlockType(x, y+1, z);
+								Block back = Chunk.GetBlockType(x, y-1, z);
 								if (type.SideVisible(top)) {
 									GL.Normal3(0.0, 1.0, 0.0);
 									GL.TexCoord2(type.Top.X1, type.Top.Y1); GL.Vertex3(x+0.0, y+1.0, z+0.0);
