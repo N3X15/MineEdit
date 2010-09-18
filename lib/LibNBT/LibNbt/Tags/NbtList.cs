@@ -2,31 +2,102 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using LibNbt.Exceptions;
+using LibNbt.Queries;
 
 namespace LibNbt.Tags
 {
-    public class NbtList : NbtTag
+    public class NbtList : NbtTag, INbtTagList
     {
         public List<NbtTag> Tags { get; protected set; }
         public NbtTagType Type { get; protected set; }
-        public string TagPath;
-		public NbtTag this[int index]
-		{
-			get { return Tags[index]; }
-			set { Tags[index] = value; }
-		}
-		
-		public NbtList()
-        {
-            Name = "";
-            Tags = new List<NbtTag>();
-        }
-		public NbtList(string tagName)
-		{
-			Name = tagName;
-			Tags = new List<NbtTag>();
-		}
 
+        public NbtTag this[int tagIdx]
+        {
+            get { return Get<NbtTag>(tagIdx); }
+            set { Tags[tagIdx] = value; }
+        }
+        
+        public NbtList() : this("") { }
+        public NbtList(string tagName) : this(tagName, new NbtTag[] { }) { }
+        public NbtList(string tagName, IEnumerable<NbtTag> tags)
+        {
+            Name = tagName;
+            Tags = new List<NbtTag>();
+
+            if (tags != null)
+            {
+                Tags.AddRange(tags);
+            }
+        }
+
+        public NbtTag Get(int tagIdx)
+        {
+            return Get<NbtTag>(tagIdx);
+        }
+        public T Get<T>(int tagIdx) where T : NbtTag
+        {
+            return (T) Tags[tagIdx];
+        }
+
+        public override NbtTag Query(string query)
+        {
+            return Query<NbtTag>(query);
+        }
+        public override T Query<T>(string query)
+        {
+            var tagQuery = new TagQuery(query);
+
+            return Query<T>(tagQuery);
+        }
+        internal override T Query<T>(TagQuery query, bool bypassCheck)
+        {
+            TagQueryToken token = query.Next();
+
+            if (!bypassCheck)
+            {
+                if (token != null && !token.Name.Equals(Name))
+                {
+                    return null;
+                }
+            }
+
+            var nextToken = query.Peek();
+            if (nextToken != null)
+            {
+                // Make sure this token is an integer because NbtLists don't have
+                // named tag items
+                int tagIndex;
+                if (!int.TryParse(nextToken.Name, out tagIndex))
+                {
+                    throw new NbtQueryException(
+                        string.Format("Attempt to query by name on a list tag that doesn't support names. ({0})",
+                                        Name));
+                }
+
+                var indexedTag = Get(tagIndex);
+                if (indexedTag == null)
+                {
+                    return null;
+                }
+
+                if (query.TokensLeft() > 1)
+                {
+                    // Pop the index token so the current token is the next
+                    // named token to continue the query
+                    query.Next();
+
+                    // Bypass the name check because the tag won't have one
+                    return indexedTag.Query<T>(query, true);    
+                }
+
+                return (T) indexedTag;
+            }
+
+            return (T) ((NbtTag) this);
+        }
+
+        #region Reading Tag
         internal override void ReadTag(Stream readStream) { ReadTag(readStream, true); }
         internal override void ReadTag(Stream readStream, bool readName)
         {
@@ -34,17 +105,17 @@ namespace LibNbt.Tags
             Name = "";
             if (readName)
             {
-                NbtString name = new NbtString();
+                var name = new NbtString();
                 name.ReadTag(readStream, false);
 
                 Name = name.Value;
             }
 
-            NbtByte tagId = new NbtByte();
+            var tagId = new NbtByte();
             tagId.ReadTag(readStream, false);
             Type = (NbtTagType)tagId.Value;
 
-            NbtInt length = new NbtInt();
+            var length = new NbtInt();
             length.ReadTag(readStream, false);
 
             Tags.Clear();
@@ -53,76 +124,68 @@ namespace LibNbt.Tags
                 switch ((NbtTagType)tagId.Value)
                 {
                     case NbtTagType.TAG_Byte:
-                        NbtByte nextByte = new NbtByte();
+                        var nextByte = new NbtByte();
                         nextByte.ReadTag(readStream, false);
-                        nextByte.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextByte);
                         break;
                     case NbtTagType.TAG_Short:
-                        NbtShort nextShort = new NbtShort();
+                        var nextShort = new NbtShort();
                         nextShort.ReadTag(readStream, false);
-                        nextShort.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextShort);
                         break;
                     case NbtTagType.TAG_Int:
-                        NbtInt nextInt = new NbtInt();
+                        var nextInt = new NbtInt();
                         nextInt.ReadTag(readStream, false);
-                        nextInt.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextInt);
                         break;
                     case NbtTagType.TAG_Long:
-                        NbtLong nextLong = new NbtLong();
+                        var nextLong = new NbtLong();
                         nextLong.ReadTag(readStream, false);
-                        nextLong.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextLong);
                         break;
                     case NbtTagType.TAG_Float:
-                        NbtFloat nextFloat = new NbtFloat();
+                        var nextFloat = new NbtFloat();
                         nextFloat.ReadTag(readStream, false);
-                        nextFloat.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextFloat);
                         break;
                     case NbtTagType.TAG_Double:
-                        NbtDouble nextDouble = new NbtDouble();
+                        var nextDouble = new NbtDouble();
                         nextDouble.ReadTag(readStream, false);
-                        nextDouble.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextDouble);
                         break;
                     case NbtTagType.TAG_Byte_Array:
-                        NbtByteArray nextByteArray = new NbtByteArray();
+                        var nextByteArray = new NbtByteArray();
                         nextByteArray.ReadTag(readStream, false);
-                        nextByteArray.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextByteArray);
                         break;
                     case NbtTagType.TAG_String:
-                        NbtString nextString = new NbtString();
+                        var nextString = new NbtString();
                         nextString.ReadTag(readStream, false);
-                        nextString.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextString);
                         break;
                     case NbtTagType.TAG_List:
-                        NbtList nextList = new NbtList();
+                        var nextList = new NbtList();
                         nextList.ReadTag(readStream, false);
-                        nextList.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextList);
                         break;
                     case NbtTagType.TAG_Compound:
-                        NbtCompound nextCompound = new NbtCompound();
+                        var nextCompound = new NbtCompound();
                         nextCompound.ReadTag(readStream, false);
-                        nextCompound.TagPath = TagPath+"/"+idx.ToString();
                         Tags.Add(nextCompound);
                         break;
                 }
             }
         }
+        #endregion
 
+        #region Write Tag
         internal override void WriteTag(Stream writeStream) { WriteTag(writeStream, true); }
         internal override void WriteTag(Stream writeStream, bool writeName)
         {
             writeStream.WriteByte((byte)NbtTagType.TAG_List);
             if (writeName)
             {
-                NbtString name = new NbtString("", Name);
+                var name = new NbtString("", Name);
                 name.WriteData(writeStream);
             }
 
@@ -135,7 +198,6 @@ namespace LibNbt.Tags
             // to make sure all elements are that type.
             if (Tags.Count > 0)
             {
-                if (Tags[0] == null) return;
                 NbtTagType listType = Tags[0].GetTagType();
                 foreach(NbtTag tag in Tags)
                 {
@@ -147,10 +209,10 @@ namespace LibNbt.Tags
                 Type = listType;
             }
 
-            NbtByte tagType = new NbtByte((byte)Type);
+            var tagType = new NbtByte("", (byte)Type);
             tagType.WriteData(writeStream);
 
-            NbtInt length = new NbtInt(Tags.Count);
+            var length = new NbtInt("", Tags.Count);
             length.WriteData(writeStream);
 
             foreach (NbtTag tag in Tags)
@@ -158,21 +220,16 @@ namespace LibNbt.Tags
                 tag.WriteData(writeStream);
             }
         }
+        #endregion
 
         internal override NbtTagType GetTagType()
         {
             return NbtTagType.TAG_List;
         }
 
-        internal override void SaveData(string recipient, object data)
-        {
-            foreach (NbtTag t in Tags)
-                t.SaveData(recipient, data);
-        }
-
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append("TAG_List");
             if (Name.Length > 0)
             {
