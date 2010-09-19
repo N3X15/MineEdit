@@ -7,13 +7,15 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using Vector3d = OpenTK.Vector3d;
 using Vector2 = OpenTK.Vector2;
+using System.Diagnostics;
 namespace OpenMinecraft._3DRendering
 {
 	public class Camera
 	{
 		bool _lastMouseEnabled = false;
 		GLControl control;
-		
+        Stopwatch movetime;
+
 		public OpenTK.Vector3d Location { get; set; }
 		public OpenTK.Vector2 Rotation { get; set; }
 		
@@ -31,10 +33,14 @@ namespace OpenMinecraft._3DRendering
 			MousePosition = new Point(control.Width/2, control.Height/2);
 			control.MouseMove += new MouseEventHandler(control_MouseMove);
 			control.KeyDown += new KeyEventHandler(control_KeyDown);
+            movetime = Stopwatch.StartNew();
 		}
 
 		void control_KeyDown(object sender, KeyEventArgs e)
-		{
+        {
+            long ms = movetime.ElapsedMilliseconds;
+            movetime.Reset();
+            movetime.Start();
             if (MouseEnabled && control.Focused && (e.KeyCode & Keys.Escape) == Keys.Escape)
             {
                 MouseEnabled = false;
@@ -53,7 +59,7 @@ namespace OpenMinecraft._3DRendering
 				
 				float yaw = (float)Math.PI * Rotation.X / 180;
 				float pitch = (float)Math.PI * Rotation.Y / 180;
-				double speed = MoveSpeed;
+                double speed = MoveSpeed * (float)ms;
 				if (A ^ D && W ^ S)
 					speed /= Math.Sqrt(2);
 				if (LShift && !LControl) 
@@ -77,21 +83,26 @@ namespace OpenMinecraft._3DRendering
 					z -= Math.Sin(yaw) * speed;
 				}
 				Location = new OpenTK.Vector3d(x, y, z);
+               // Console.WriteLine("Camera is now at {0}", Location);
 			}
 		}
 
 		void control_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
+            long ms = movetime.ElapsedMilliseconds;
+            movetime.Reset();
+            movetime.Start();
 			if(MouseEnabled && _lastMouseEnabled && control.Focused)
 			{
 				float yaw = Rotation.X;
 				float pitch = Rotation.Y;
-				yaw += (e.X - MousePosition.X) * MouseSpeed;
-				pitch += (e.Y - MousePosition.Y) * MouseSpeed;
+				yaw += (e.X - MousePosition.X) * MouseSpeed * (float)ms;
+                pitch += (e.Y - MousePosition.Y) * MouseSpeed * (float)ms;
 				yaw = ((yaw % 360) + 360) % 360;
 				pitch = Math.Max(-90, Math.Min(90, pitch));
 				Cursor.Position = control.PointToScreen(MousePosition);
 				Rotation = new Vector2(yaw, pitch);
+                //Console.WriteLine("Camera's rotation is now {0}", Rotation);
 			} else if (MouseEnabled && !_lastMouseEnabled && control.Focused) {
 				Cursor.Position = control.PointToScreen(MousePosition);
 				Cursor.Hide();
@@ -103,7 +114,7 @@ namespace OpenMinecraft._3DRendering
 			
 		}
 		
-		public void Update(double time)
+		public void Update()
 		{
 		}
 		

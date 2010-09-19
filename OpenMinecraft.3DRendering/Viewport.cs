@@ -57,8 +57,9 @@ namespace OpenMinecraft._3DRendering
 		void Render()
 		{
 			if(!Loaded) return;
-			camera.Update(0d);
-			
+
+            // Update is never called;  Mouse/Keyboard events trigger camera updates.
+
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			GL.PushMatrix();
 			camera.Render();
@@ -138,7 +139,7 @@ namespace OpenMinecraft._3DRendering
 		{
 			base.OnLoad(e);
 			
-			GL.ClearColor(Color.Black);
+			GL.ClearColor(Color.SkyBlue);
 			GL.Enable(EnableCap.DepthTest);
 			GL.Enable(EnableCap.CullFace);
 			GL.Enable(EnableCap.Texture2D);
