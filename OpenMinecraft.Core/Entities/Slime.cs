@@ -23,13 +23,13 @@ namespace OpenMinecraft.Entities
         public Slime(NbtCompound c)
             :base(c)
         {
-            Size = c["Size"].asInt();
+            Size = c.Get<NbtInt>("Size").Value;
         }
 
         public override NbtCompound ToNBT()
         {
             NbtCompound c = base.ToNBT();
-            c.Add("Size", Size);
+            c.Tags.Add(new NbtInt("Size", Size));
             return c;
         }
         public override string ToString()

@@ -22,6 +22,8 @@ namespace LibNbt
         public NbtFile(string fileName) : this(fileName, true) { }
         public NbtFile(string fileName, bool compressed)
         {
+            RootTag = new NbtCompound();
+
             LoadedFile = fileName;
             CompressedFile = compressed;
         }

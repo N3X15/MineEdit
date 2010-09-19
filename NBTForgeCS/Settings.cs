@@ -81,10 +81,10 @@ namespace MineEdit
             {
                 NbtFile f = new NbtFile(".settings");
                 f.LoadFile();
-                ShowGridLines = f.RootTag["GridLines"].asBool();
-                ShowChunks = f.RootTag["ShowChunks"].asBool();
-                ShowMapIcons = f.RootTag["ShowMapIcons"].asBool();
-                ShowWaterDepth = f.RootTag["ShowWaterDepth"].asBool();
+                ShowGridLines = f.RootTag.Get<NbtByte>("GridLines").Value == 0x01 ? true : false;
+                ShowChunks = f.RootTag.Get<NbtByte>("ShowChunks").Value == 0x01 ? true : false;
+                ShowMapIcons = f.RootTag.Get<NbtByte>("ShowMapIcons").Value == 0x01 ? true : false;
+                ShowWaterDepth = f.RootTag.Get<NbtByte>("ShowWaterDepth").Value == 0x01 ? true : false;
                 f.Dispose();
             }
         }
@@ -95,10 +95,10 @@ namespace MineEdit
 
 
             NbtFile f = new NbtFile();
-            f.RootTag.Add("GridLines", ShowGridLines);
-            f.RootTag.Add("ShowChunks", ShowChunks);
-            f.RootTag.Add("ShowMapIcons", ShowMapIcons); 
-            f.RootTag.Add("ShowWaterDepth", ShowWaterDepth);
+            f.RootTag.Tags.Add(new NbtByte("GridLines", (byte) (ShowGridLines ? 0x01 : 0x00)));
+            f.RootTag.Tags.Add(new NbtByte("ShowChunks", (byte) (ShowChunks ? 0x01 : 0x00)));
+            f.RootTag.Tags.Add(new NbtByte("ShowMapIcons", (byte) (ShowMapIcons ? 0x01 : 0x00)));
+            f.RootTag.Tags.Add(new NbtByte("ShowWaterDepth", (byte) (ShowWaterDepth ? 0x01 : 0x00)));
             f.SaveFile(".settings");
             f.Dispose();
         }

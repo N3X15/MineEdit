@@ -25,9 +25,9 @@ namespace OpenMinecraft.TileEntities
         public TileEntity(int CX,int CY,int CS,NbtCompound c)
         {
             Pos = new Vector3i(
-                c["x"].asInt(),
-                c["z"].asInt(),
-                c["y"].asInt());
+                c.Get<NbtInt>("x").Value,
+                c.Get<NbtInt>("z").Value,
+                c.Get<NbtInt>("y").Value);
             id = (c["id"] as NbtString).Value;
             orig = c;
         }
@@ -40,10 +40,10 @@ namespace OpenMinecraft.TileEntities
         {
             orig = c;
             Pos = new Vector3i(
-                c["x"].asInt(),
-                c["z"].asInt(),
-                c["y"].asInt());
-            id = (c["id"] as NbtString).Value;
+                c.Get<NbtInt>("x").Value,
+                c.Get<NbtInt>("z").Value,
+                c.Get<NbtInt>("y").Value);
+            id = c.Get<NbtString>("id").Value;
         }
 
         /// <summary>
