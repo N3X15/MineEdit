@@ -14,10 +14,10 @@ namespace OpenMinecraft
         public void Add(NbtCompound item)
         {
             InventoryItem c = new InventoryItem();
-            c.Count=item["Count"].asByte();
-            c.Damage = item["Damage"].asShort();
-            c.ID = item["id"].asShort();
-            c.Slot = item["Slot"].asByte();
+            c.Count = item.Get<NbtByte>("Count").Value;
+            c.Damage = item.Get<NbtShort>("Damage").Value;
+            c.ID = item.Get<NbtShort>("id").Value;
+            c.Slot = item.Get<NbtByte>("Slot").Value;
             if (ContainsKey(c.Slot))
             {
                 Console.WriteLine("Tried to add to slot {0}, which already has something.", c.Slot);

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-
-namespace LibNbt.Tags
+﻿namespace LibNbt.Tags
 {
     public enum NbtTagType
     {

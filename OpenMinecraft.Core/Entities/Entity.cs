@@ -72,16 +72,16 @@ namespace OpenMinecraft.Entities
             c.Tags.Add(new NbtString("id", _id));
             NbtList motion = new NbtList("Motion");
             motion.Tags.AddRange(new NbtDouble[]{
-                new NbtDouble(Motion.X),
-                new NbtDouble(Motion.Y),
-                new NbtDouble(Motion.Z)
+                new NbtDouble("", Motion.X),
+                new NbtDouble("", Motion.Y),
+                new NbtDouble("", Motion.Z)
             });
             c.Tags.Add(motion);
             NbtList pos = new NbtList("Pos");
             pos.Tags.AddRange(new NbtDouble[]{
-                new NbtDouble(Pos.X),
-                new NbtDouble(Pos.Z),
-                new NbtDouble(Pos.Y)
+                new NbtDouble("", Pos.X),
+                new NbtDouble("", Pos.Z),
+                new NbtDouble("", Pos.Y)
             });
             c.Tags.Add(pos);
             c.Tags.Add(Rotation);

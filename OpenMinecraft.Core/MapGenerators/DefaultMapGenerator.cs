@@ -294,19 +294,19 @@ namespace OpenMinecraft
             NbtFile nf = new NbtFile(f);
             nf.RootTag = new NbtCompound("__ROOT__");
             NbtCompound c = new NbtCompound("DefaultMapGenerator");
-            c.Add("GenerateCaves",GenerateCaves);
-            c.Add("GenerateDungeons",GenerateDungeons);
-            c.Add("GenerateOres",GenerateOres);
-            c.Add("GenerateWater",GenerateWater);
-            c.Add("HellMode",HellMode);
-            c.Add("GenerateTrees",GenerateTrees);
-            c.Add("Frequency",Frequency);
-            c.Add("NoiseQuality",(byte)NoiseQuality);
-            c.Add("OctaveCount",OctaveCount);
-            c.Add("Lacunarity",Lacunarity);
-            c.Add("Persistance",Persistance);
-            c.Add("ContinentNoiseFrequency",ContinentNoiseFrequency);
-            c.Add("CaveThreshold",CaveThreshold);
+            c.Tags.Add(new NbtByte("GenerateCaves", (byte) (GenerateCaves ? 1 : 0)));
+            c.Tags.Add(new NbtByte("GenerateDungeons", (byte) (GenerateDungeons ? 1 : 0)));
+            c.Tags.Add(new NbtByte("GenerateOres", (byte) (GenerateOres ? 1 : 0)));
+            c.Tags.Add(new NbtByte("GenerateWater", (byte) (GenerateWater ? 1 : 0)));
+            c.Tags.Add(new NbtByte("HellMode", (byte) (HellMode ? 1 : 0)));
+            c.Tags.Add(new NbtByte("GenerateTrees", (byte) (GenerateTrees ? 1 : 0)));
+            c.Tags.Add(new NbtDouble("Frequency", Frequency));
+            c.Tags.Add(new NbtByte("NoiseQuality", (byte) NoiseQuality));
+            c.Tags.Add(new NbtInt("OctaveCount", OctaveCount));
+            c.Tags.Add(new NbtDouble("Lacunarity", Lacunarity));
+            c.Tags.Add(new NbtDouble("Persistance", Persistance));
+            c.Tags.Add(new NbtDouble("ContinentNoiseFrequency", ContinentNoiseFrequency));
+            c.Tags.Add(new NbtDouble("CaveThreshold", CaveThreshold));
             nf.RootTag.Tags.Add(c);
             nf.SaveFile(f);
         }
@@ -318,19 +318,19 @@ namespace OpenMinecraft
 
             NbtFile nf = new NbtFile(f);
             nf.LoadFile(f);
-            GenerateCaves = nf.GetTag("/DefaultMapGenerator/GenerateCaves").asBool();
-            GenerateDungeons=nf.GetTag("/DefaultMapGenerator/GenerateDungeons").asBool();
-            GenerateOres=nf.GetTag("/DefaultMapGenerator/GenerateOres").asBool();
-            GenerateWater=nf.GetTag("/DefaultMapGenerator/GenerateWater").asBool();
-            HellMode=nf.GetTag("/DefaultMapGenerator/HellMode").asBool();
-            GenerateTrees=nf.GetTag("/DefaultMapGenerator/GenerateTrees").asBool();
-            Frequency=nf.GetTag("/DefaultMapGenerator/Frequency").asDouble();
-            NoiseQuality=(NoiseQuality)nf.GetTag("/DefaultMapGenerator/NoiseQuality").asByte();
-            OctaveCount=nf.GetTag("/DefaultMapGenerator/OctaveCount").asInt();
-            Lacunarity=nf.GetTag("/DefaultMapGenerator/Lacunarity").asDouble();
-            Persistance=nf.GetTag("/DefaultMapGenerator/Persistance").asDouble();
-            ContinentNoiseFrequency=nf.GetTag("/DefaultMapGenerator/ContinentNoiseFrequency").asDouble();
-            CaveThreshold=nf.GetTag("/DefaultMapGenerator/CaveThreshold").asDouble();
+            GenerateCaves = nf.Query<NbtByte>("/DefaultMapGenerator/GenerateCaves").Value == 0x01 ? true : false;
+            GenerateDungeons = nf.Query<NbtByte>("/DefaultMapGenerator/GenerateDungeons").Value == 0x01 ? true : false;
+            GenerateOres = nf.Query<NbtByte>("/DefaultMapGenerator/GenerateOres").Value == 0x01 ? true : false;
+            GenerateWater = nf.Query<NbtByte>("/DefaultMapGenerator/GenerateWater").Value == 0x01 ? true : false;
+            HellMode = nf.Query<NbtByte>("/DefaultMapGenerator/HellMode").Value == 0x01 ? true : false;
+            GenerateTrees = nf.Query<NbtByte>("/DefaultMapGenerator/GenerateTrees").Value == 0x01 ? true : false;
+            Frequency = nf.Query<NbtDouble>("/DefaultMapGenerator/Frequency").Value;
+            NoiseQuality = (NoiseQuality) nf.Query<NbtByte>("/DefaultMapGenerator/NoiseQuality").Value;
+            OctaveCount = nf.Query<NbtInt>("/DefaultMapGenerator/OctaveCount").Value;
+            Lacunarity = nf.Query<NbtDouble>("/DefaultMapGenerator/Lacunarity").Value;
+            Persistance = nf.Query<NbtDouble>("/DefaultMapGenerator/Persistance").Value;
+            ContinentNoiseFrequency = nf.Query<NbtDouble>("/DefaultMapGenerator/ContinentNoiseFrequency").Value;
+            CaveThreshold = nf.Query<NbtDouble>("/DefaultMapGenerator/CaveThreshold").Value;
         }
 
         public override string Author
