@@ -34,10 +34,12 @@ namespace MineEdit
             */
 
             //mapCtrl = new MapControl();
+            tabMap.Hide();
+            /*
             mapCtrl = new Viewport();
             tabMap.Controls.Add(mapCtrl);
             mapCtrl.Dock = DockStyle.Fill;
-            mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);
+            mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);*/
             //mapCtrl.EntityClicked += new MapControl.EntityClickHandler(mapCtrl_EntityClicked);
 //            mapCtrl.TileEntityClicked += new MapControl.TileEntityClickHandler(mapCtrl_TileEntityClicked);
 
@@ -179,8 +181,8 @@ namespace MineEdit
             {
                 _Map = value;
                 this.invMain.Map = value;
-                if (_Map != null && !string.IsNullOrEmpty(_Map.Filename))
-                    mapCtrl.World = _Map;
+                //if (_Map != null && !string.IsNullOrEmpty(_Map.Filename))
+                //    mapCtrl.World = _Map;
                 Reload();
                 Refresh();
             }
@@ -203,7 +205,6 @@ namespace MineEdit
                 numSpawnZ.Value = _Map.Spawn.Z;
 
                 txtTime.Text = _Map.Time.ToString();
-                chkSnow.Checked = _Map.Snow;
 
                 entityEditor1.Load(ref _Map);
                 tileEntityEditor1.Load(ref _Map);
@@ -550,7 +551,6 @@ namespace MineEdit
         }
         private void chkSnow_CheckedChanged(object sender, EventArgs e)
         {
-            _Map.Snow = chkSnow.Checked;
         }
 
         private void cmdDefrost_Click(object sender, EventArgs e)

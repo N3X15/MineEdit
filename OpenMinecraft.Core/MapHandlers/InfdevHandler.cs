@@ -271,30 +271,6 @@ namespace OpenMinecraft
 			}
 		}
 
-		public bool Snow
-		{
-			get
-			{
-				NbtByte SnowCovered = root.Query<NbtByte>("//Data/SnowCovered");
-				if (SnowCovered == null) return false;
-				return SnowCovered.Value == (byte)1;
-			}
-			set
-			{
-				NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-				try
-				{
-					Data.Tags.Remove(Data["SnowCovered"]);
-				}
-				catch (Exception) { }
-				byte v = 0;
-				if (value == true) v = 1;
-				Console.WriteLine("Map is now {0}.", (value) ? "covered in snow" : "normal");
-				Data.Tags.Add(new NbtByte("SnowCovered", v));
-				root.RootTag["Data"] = Data;
-			}
-		}
-
 		public long RandomSeed
 		{
 			get

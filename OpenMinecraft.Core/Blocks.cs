@@ -282,7 +282,9 @@ namespace OpenMinecraft
         /// </summary>
         public static void UpdateBlocks()
         {
+            /*
             WebClient wc = new WebClient();
+            
             string[] derp = wc.DownloadString("http://copy.bplaced.net/mc/blocks/").Split(new string[]{"\n","\r\n"},StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in derp)
             {
@@ -302,6 +304,7 @@ namespace OpenMinecraft
                     TotalImages++;
                 }
             }
+            */
         }
 
         /// <summary>
@@ -309,6 +312,7 @@ namespace OpenMinecraft
         /// </summary>
         public static void UpdateItems()
         {
+            /*
             WebClient wc = new WebClient();
             string[] derp = wc.DownloadString("http://copy.bplaced.net/mc/items/").Split(new string[]{"\n","\r\n"},StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in derp)
@@ -343,6 +347,7 @@ namespace OpenMinecraft
                     TotalImages++;
                 }
             }
+            */
         }
 
         public static int GetImagesLeft(out string image)

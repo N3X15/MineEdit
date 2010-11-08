@@ -81,8 +81,6 @@ namespace OpenMinecraft
 
         int HurtTime { get; set; }
 
-        bool Snow { get; set; }
-
         void ForEachChunk(Chunk.ChunkModifierDelegate cmd);
         void ForEachCachedChunk(CachedChunkDelegate cmd);
 

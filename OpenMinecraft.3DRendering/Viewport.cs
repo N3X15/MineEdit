@@ -75,6 +75,7 @@ namespace OpenMinecraft._3DRendering
 					for(int y = (int)RenderOriginY-RenderRange;y<RenderOriginY+RenderRange;++y)
 					{
 						Chunk chunk = World.GetChunk(x,y);
+                        if (chunk == null) continue;
 						if(chunk.Renderer == null)
 						{
 							chunk.Renderer= new ChunkRenderer(chunk,World);
