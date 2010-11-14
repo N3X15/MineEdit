@@ -7,7 +7,7 @@
 6	6.png	Sapling
 7	7.png	Adminium
 8	8.png	Water
-9	9.png	Still Water
+9	9.png	Still water
 10	10.png	Lava
 11	11.png	Still lava
 12	12.png	Sand
@@ -24,10 +24,10 @@
 38	38.png	Rose
 39	39.png	Brown mushroom
 40	40.png	Red mushroom
-41	41.png	Gold
-42	42.png	Iron
-43	43.png	Double stair
-44	44.png	Stair
+41	41.png	Gold block
+42	42.png	Iron block
+43	43.png	Double stone slab
+44	44.png	Stone slab
 45	45.png	Brick
 46	46.png	TNT
 47	47.png	Bookshelf
@@ -51,15 +51,15 @@
 65	65.png	Ladder
 66	66.png	Rails
 67	67.png	Cobblestone stairs
-68	68.png	Sign block top
+68	68.png	Wall sign
 69	69.png	Lever
-70	70.png	Rock plate
+70	70.png	Rock pressure plate
 71	71.png	Iron door block
-72	72.png	Wood plate
-73	73.png	Redstone ore (1)
-74	74.png	Redstone ore (2)
-75	75.png	Redstone torch (off)
-76	76.png	Redstone torch (on)
+72	72.png	Wood pressure plate
+73	73.png	Redstone ore
+74	74.png	Lit redstone ore
+75	75.png	Redstone torch
+76	76.png	Lit redstone torch
 77	77.png	Button
 78	78.png	Snow
 79	79.png	Ice
@@ -68,6 +68,7 @@
 82	82.png	Clay block
 83	83.png	Reed block
 84	84.png	Jukebox
+85	85.png	Fence
 256	256.png	Iron shovel
 257	257.png	Iron pickaxe
 258	258.png	Iron axe
@@ -157,3 +158,5 @@
 342	342.png	Storage minecart
 343	343.png	Powered minecart
 344	344.png	Egg
+2256	2256.png	Gold record
+2257	2257.png	Green record

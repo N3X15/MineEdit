@@ -117,30 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="replacementsToolstrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="replacementsToolstrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="tsbNewReplacement.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGCSURBVDhPpZM/S8NAGIfjohQsfgMFUfALqCCCgrSb4gdw
-        EQc1gmAHXVy6SifBDta2g5OLUlBRHIJ+A50dROnSJJfk0j+Smvt5V72QFtMqHjzkIPye9717OaVQKJym
-        02l0I5PZR7GYwsW5CuNt8oC5AwkQZUgRSwR7LUpyaNib8OgiyuWkR/WJa+bEVxlTYoHAMAxUKpUWuq4H
-        2OYlD6v4qM7Ar29wVNxrs36DDJ8xJzYdCDrDQiig5IRXXuLBdTDvinMDv7YFzxp9ZG58pU0gK8uw+LpW
-        7lug8vAdWFPjsm149sgT6OByIPgpbJomHFLCu7MOvzoPv7HDSeHhdoHV9TF+D/3jkQIRFljkBVUryyVr
-        aLpJTgKaNueXn6d2AaWvTSBbl2FCCL54hWuXULMPOcfIZvfQGmF4jFFhy7IgsW27NXEx+j8LRLinQLQu
-        2w5XdRwHksgOOs8tBLKqDFNKo48QFoSrC4kQiHBXQa/3EP7fdom/eY2dLzWfzx8FU/jv5hPQCfIaq7ur
-        UwAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <metadata name="mTooltip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>189, 17</value>
-  </metadata>
-  <metadata name="mTooltip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>189, 17</value>
-  </metadata>
 </root>

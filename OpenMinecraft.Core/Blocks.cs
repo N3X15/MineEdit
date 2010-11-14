@@ -282,10 +282,9 @@ namespace OpenMinecraft
         /// </summary>
         public static void UpdateBlocks()
         {
-            /*
             WebClient wc = new WebClient();
             
-            string[] derp = wc.DownloadString("http://copy.bplaced.net/mc/blocks/").Split(new string[]{"\n","\r\n"},StringSplitOptions.RemoveEmptyEntries);
+            string[] derp = wc.DownloadString("http://copy.mcft.net/mc/blocks/").Split(new string[]{"\n","\r\n"},StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in derp)
             {
                 if (line.StartsWith("<img src=\"/mc/icons/"))
@@ -304,7 +303,6 @@ namespace OpenMinecraft
                     TotalImages++;
                 }
             }
-            */
         }
 
         /// <summary>
@@ -312,9 +310,8 @@ namespace OpenMinecraft
         /// </summary>
         public static void UpdateItems()
         {
-            /*
             WebClient wc = new WebClient();
-            string[] derp = wc.DownloadString("http://copy.bplaced.net/mc/items/").Split(new string[]{"\n","\r\n"},StringSplitOptions.RemoveEmptyEntries);
+            string[] derp = wc.DownloadString("http://copy.mcft.net/mc/items/").Split(new string[]{"\n","\r\n"},StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in derp)
             {
                 if (line.StartsWith("<img src=\"/mc/icons/"))
@@ -347,7 +344,6 @@ namespace OpenMinecraft
                     TotalImages++;
                 }
             }
-            */
         }
 
         public static int GetImagesLeft(out string image)
@@ -358,7 +354,7 @@ namespace OpenMinecraft
                 image = Path.Combine("items", nb.ID.ToString() + ".png");
 
             WebClient icondl = new WebClient();
-            string f = string.Format("http://copy.bplaced.net/mc/icons/{0}.png", nb.ID);
+            string f = string.Format("http://copy.mcft.net/mc/icons/{0}.png", nb.ID);
             Console.WriteLine(" * Downloading "+f+"...");
             icondl.DownloadFile(f, image);
             Console.WriteLine("Done.");
