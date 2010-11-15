@@ -172,6 +172,11 @@ namespace LibNbt
         {
             return Query<NbtTag>(query);
         }
+        public void SetQuery<T>(string query,T val)
+        {
+            Console.WriteLine(query);
+            RootTag.SetQuery<T>(new TagQuery(query),val,false);
+        }
         public T Query<T>(string query) where T : NbtTag
         {
             var tagQuery = new TagQuery(query);

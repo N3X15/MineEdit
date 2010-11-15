@@ -123,6 +123,19 @@ namespace MineEdit
             tileEntityEditor1.EntityModified += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityModified);
             tileEntityEditor1.EntityDeleted += new TileEntityEditor.TileEntityHandler(tileEntityEditor1_EntityDeleted);
 
+            // Character tab
+            dlTime.MouseDown += UnlockApplyCancel;
+            txtTime.TextChanged += UnlockApplyCancel;
+            numAir.ValueChanged += UnlockApplyCancel;
+            numFire.ValueChanged += UnlockApplyCancel;
+            numHealth.ValueChanged += UnlockApplyCancel;
+            numHurtTime.ValueChanged += UnlockApplyCancel;
+            numPlayerPosX.ValueChanged += UnlockApplyCancel;
+            numPlayerPosY.ValueChanged += UnlockApplyCancel;
+            numPlayerPosZ.ValueChanged += UnlockApplyCancel;
+            numSpawnX.ValueChanged += UnlockApplyCancel;
+            numSpawnY.ValueChanged += UnlockApplyCancel;
+            numSpawnZ.ValueChanged += UnlockApplyCancel;
         }
 
         /// <summary>
@@ -416,7 +429,6 @@ namespace MineEdit
 
         private void txtMinutes_TextChanged(object sender, EventArgs e)
         {
-            SetTime();
         }
 
         private void cmdDay_Click(object sender, EventArgs e)
@@ -426,7 +438,7 @@ namespace MineEdit
 
         private void cmdNight_Click(object sender, EventArgs e)
         {
-            txtTime.Text = "12125"; // Beginning of night
+            txtTime.Text = "12125"; // Beginning of night?
         }
 
         private void txtSeconds_TextChanged(object sender, EventArgs e)
@@ -438,7 +450,8 @@ namespace MineEdit
         {
             try
             {
-                _Map.Time = int.Parse(txtTime.Text);
+                _Map.Time = (int)dlTime.Value;
+                Console.WriteLine("Time: " + _Map.Time);
             }
             catch (Exception)
             {
@@ -948,6 +961,7 @@ namespace MineEdit
             this.Replacements.Name = "Replacements";
             this.Replacements.Size = new System.Drawing.Size(120, 95);
             this.Replacements.TabIndex = 6;
+            this.Replacements.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.Replacements_DrawItem);
             this.Replacements.SelectedIndexChanged += new System.EventHandler(this.Replacements_SelectedIndexChanged);
             // 
             // tabCharacter
@@ -979,12 +993,15 @@ namespace MineEdit
             // 
             // dlTime
             // 
+            this.dlTime.ForeColor = System.Drawing.SystemColors.ControlText;
             this.dlTime.Label = null;
             this.dlTime.Location = new System.Drawing.Point(6, 13);
-            this.dlTime.Maximum = 1200D;
+            this.dlTime.Maximum = 24000D;
             this.dlTime.Name = "dlTime";
             this.dlTime.Size = new System.Drawing.Size(62, 66);
             this.dlTime.TabIndex = 3;
+            this.mTooltip.SetToolTip(this.dlTime, "Upside-down graphical representation of sun angle, which is what this actually af" +
+                    "fects.");
             this.dlTime.Value = 0D;
             this.dlTime.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dlTime_MouseDown);
             // 
@@ -1003,6 +1020,7 @@ namespace MineEdit
             this.txtTime.Name = "txtTime";
             this.txtTime.Size = new System.Drawing.Size(100, 20);
             this.txtTime.TabIndex = 1;
+            this.mTooltip.SetToolTip(this.txtTime, "0=Just after dawn, full light.");
             this.txtTime.TextChanged += new System.EventHandler(this.txtTime_TextChanged);
             // 
             // cmdReset
@@ -1022,6 +1040,7 @@ namespace MineEdit
             this.cmdApply.TabIndex = 2;
             this.cmdApply.Text = "Apply";
             this.cmdApply.UseVisualStyleBackColor = true;
+            this.cmdApply.Click += new System.EventHandler(this.cmdApply_Click);
             // 
             // grpPosition
             // 
@@ -1239,6 +1258,7 @@ namespace MineEdit
             // 
             // numPlayerRotX
             // 
+            this.numPlayerRotX.Enabled = false;
             this.numPlayerRotX.Location = new System.Drawing.Point(184, 75);
             this.numPlayerRotX.Maximum = new decimal(new int[] {
             999999,
@@ -1256,6 +1276,7 @@ namespace MineEdit
             // 
             // numPlayerRotY
             // 
+            this.numPlayerRotY.Enabled = false;
             this.numPlayerRotY.Location = new System.Drawing.Point(248, 75);
             this.numPlayerRotY.Maximum = new decimal(new int[] {
             999999,
@@ -1309,6 +1330,7 @@ namespace MineEdit
             this.lblHurtTime.TabIndex = 6;
             this.lblHurtTime.Text = "HurtTime:";
             this.lblHurtTime.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.mTooltip.SetToolTip(this.lblHurtTime, "I have no idea, but it hurts you when you load the save.");
             // 
             // numHurtTime
             // 
@@ -1347,6 +1369,7 @@ namespace MineEdit
             this.lblAir.TabIndex = 4;
             this.lblAir.Text = "Air:";
             this.lblAir.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.mTooltip.SetToolTip(this.lblAir, "-300 = full air");
             // 
             // numAir
             // 
@@ -1375,6 +1398,7 @@ namespace MineEdit
             this.lblFire.TabIndex = 2;
             this.lblFire.Text = "Fire:";
             this.lblFire.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.mTooltip.SetToolTip(this.lblFire, "How hot you are. negative values = not on fire.");
             // 
             // numFire
             // 
@@ -1403,6 +1427,7 @@ namespace MineEdit
             this.lblHealth.TabIndex = 0;
             this.lblHealth.Text = "Health:";
             this.lblHealth.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.mTooltip.SetToolTip(this.lblHealth, "Player health.");
             // 
             // numHealth
             // 
@@ -1537,6 +1562,7 @@ namespace MineEdit
         private void dlTime_MouseDown(object sender, MouseEventArgs e)
         {
             txtTime.Text = ((int)Math.Round(dlTime.Value)).ToString();
+            _Map.Time = (int)Math.Round(dlTime.Value);
         }
 
         private void txtTime_TextChanged(object sender, EventArgs e)
@@ -1547,7 +1573,9 @@ namespace MineEdit
                 MessageBox.Show("Please enter an integer.");
                 return;
             }
-            dlTime.Value = (int)val%(int)dlTime.Maximum;
+            int nv = (int)val % (int)dlTime.Maximum; ;
+            dlTime.Value = nv;
+            _Map.Time = nv;
         }
 
    }

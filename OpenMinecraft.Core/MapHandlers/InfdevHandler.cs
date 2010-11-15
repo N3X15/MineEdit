@@ -219,12 +219,13 @@ namespace OpenMinecraft
 			}
 			set
 			{
-				NbtLong f = new NbtLong("Time", (short)value);
-				// BROKEN root.SetTag("/Data/Time", h);
-				NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-				Data.Tags.Remove(Data["Time"]);
-				Data.Tags.Add(f);
-				root.RootTag["Data"] = Data;
+                root.SetQuery("//Data/Time",(object)value);
+                //NbtLong f = new NbtLong("Time", (short)value);
+                //// BROKEN root.SetTag("/Data/Time", h);
+                //NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+                //Data.Tags.Remove(Data["Time"]);
+                //Data.Tags.Add(f);
+                //root.RootTag["Data"] = Data;
 			}
 		}
 

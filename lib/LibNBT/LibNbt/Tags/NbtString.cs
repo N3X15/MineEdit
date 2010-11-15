@@ -78,5 +78,20 @@ namespace LibNbt.Tags
             sb.AppendFormat(": {0}", Value);
             return sb.ToString();
         }
+        internal override void SetQuery<T>(TagQuery query, T val, bool bypassCheck)
+        {
+            if (bypassCheck) { return; }
+
+            TagQueryToken token = query.Next();
+
+            if (token.Name.Equals(Name))
+            {
+                if (query.Peek() != null)
+                {
+                    throw new LibNbt.Exceptions.NbtQueryException(string.Format("Attempt through non list type tag: {0}", Name));
+                }
+                Value = (string)Convert.ChangeType(val, typeof(string));
+            }
+        }
     }
 }

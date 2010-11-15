@@ -62,34 +62,62 @@ namespace LibNbt.Tags
 
 			return Query<T>(tagQuery);
 		}
-		internal override T Query<T>(TagQuery query, bool bypassCheck)
-		{
-			TagQueryToken token = null;
+        internal override T Query<T>(TagQuery query, bool bypassCheck)
+        {
+            TagQueryToken token = null;
 
-			if (!bypassCheck)
-			{
-				token = query.Next();
+            if (!bypassCheck)
+            {
+                token = query.Next();
 
-				if (token != null && !token.Name.Equals(Name))
-				{
-				    return null;
-				}
-			}
+                if (token != null && !token.Name.Equals(Name))
+                {
+                    return null;
+                }
+            }
 
-			TagQueryToken nextToken = query.Peek();
-			if (nextToken != null)
-			{
-				NbtTag nextTag = Get(nextToken.Name);
-				if (nextTag == null)
-				{
-				    return null;
-				}
+            TagQueryToken nextToken = query.Peek();
+            if (nextToken != null)
+            {
+                NbtTag nextTag = Get(nextToken.Name);
+                if (nextTag == null)
+                {
+                    return null;
+                }
 
-				return nextTag.Query<T>(query);
-			}
+                return nextTag.Query<T>(query);
+            }
 
-			return (T)((NbtTag)this);
-		}
+            return (T)((NbtTag)this);
+        }
+        internal override void SetQuery<T>(TagQuery query, T val, bool bypassCheck)
+        {
+            TagQueryToken token = null;
+
+            if (!bypassCheck)
+            {
+                token = query.Next();
+
+                if (token != null && !token.Name.Equals(Name))
+                {
+                    return;
+                }
+            }
+
+            TagQueryToken nextToken = query.Peek();
+            if (nextToken != null)
+            {
+                NbtTag nextTag = Get(nextToken.Name);
+                if (nextTag == null)
+                {
+                    return;
+                }
+
+                nextTag.SetQuery<T>(query,val,false);
+                Set(nextToken.Name, nextTag);
+                return;
+            }
+        }
 		#endregion
 
 		public NbtTag Get(string tagName)

@@ -88,13 +88,57 @@ namespace LibNbt.Tags
                     query.Next();
 
                     // Bypass the name check because the tag won't have one
-                    return indexedTag.Query<T>(query, true);    
+                    return indexedTag.Query<T>(query, true);
                 }
 
-                return (T) indexedTag;
+                return (T)indexedTag;
             }
 
-            return (T) ((NbtTag) this);
+            return (T)((NbtTag)this);
+        }
+        internal override void SetQuery<T>(TagQuery query, T val, bool bypassCheck)
+        {
+            TagQueryToken token = query.Next();
+
+            if (!bypassCheck)
+            {
+                if (token != null && !token.Name.Equals(Name))
+                {
+                    return;
+                }
+            }
+
+            var nextToken = query.Peek();
+            if (nextToken != null)
+            {
+                // Make sure this token is an integer because NbtLists don't have
+                // named tag items
+                int tagIndex;
+                if (!int.TryParse(nextToken.Name, out tagIndex))
+                {
+                    throw new NbtQueryException(
+                        string.Format("Attempt to query by name on a list tag that doesn't support names. ({0})",
+                                        Name));
+                }
+
+                var indexedTag = Get(tagIndex);
+                if (indexedTag == null)
+                {
+                    return;
+                }
+
+                if (query.TokensLeft() > 1)
+                {
+                    // Pop the index token so the current token is the next
+                    // named token to continue the query
+                    query.Next();
+
+                    // Bypass the name check because the tag won't have one
+                    indexedTag.SetQuery(query, val, true);
+                }
+
+                Tags[tagIndex]=indexedTag;
+            }
         }
 
         #region Reading Tag

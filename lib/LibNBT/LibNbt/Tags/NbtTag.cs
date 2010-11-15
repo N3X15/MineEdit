@@ -61,5 +61,7 @@ namespace LibNbt.Tags
         internal abstract void WriteData(Stream writeStream);
 
         internal virtual NbtTagType GetTagType() { return NbtTagType.TAG_Unknown; }
+
+        internal abstract void SetQuery<T>(TagQuery query, T val, bool bypassCheck);
     }
 }

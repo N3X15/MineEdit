@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using LibNbt.Queries;
+using LibNbt.Exceptions;
 
 namespace LibNbt.Tags
 {
@@ -71,5 +72,21 @@ namespace LibNbt.Tags
 			sb.AppendFormat(": {0}", Value);
 			return sb.ToString();
 		}
+        internal override void SetQuery<T>(TagQuery query, T value, bool bypassCheck)
+        {
+            if (bypassCheck) { return; }
+
+            TagQueryToken token = query.Next();
+
+            if (token.Name.Equals(Name))
+            {
+                if (query.Peek() != null)
+                {
+                    throw new NbtQueryException(string.Format("Attempt through non list type tag: {0}", Name));
+                }
+
+                Value = (byte)Convert.ChangeType(value, typeof(byte));
+            }
+        }
 	}
 }
