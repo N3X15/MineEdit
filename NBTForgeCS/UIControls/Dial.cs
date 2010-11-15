@@ -56,7 +56,7 @@ namespace MineEdit.UIControls
         protected override void OnPaint(PaintEventArgs e) 
         {
             Graphics g = e.Graphics;
-
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             bool DrawText = e.ClipRectangle.Height == e.ClipRectangle.Width && e.ClipRectangle.Width >= 64;
             Pen circlecolor = new Pen(Focused ? Color.Orange : SystemColors.ControlText,2f);
             // Draw dial radius

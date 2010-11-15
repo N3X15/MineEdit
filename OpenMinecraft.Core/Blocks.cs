@@ -4,6 +4,7 @@ using System.IO;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Net;
+using System.Xml;
 namespace OpenMinecraft
 {
 
@@ -34,6 +35,7 @@ namespace OpenMinecraft
         public BlockSide Top;
         public BlockSide Sides;
         public BlockSide Bottom;
+        public string FromImage;
 		public BlockSide All {
 			set {
 				Top = value;
@@ -277,6 +279,93 @@ namespace OpenMinecraft
             }
             File.WriteAllLines("blocks.txt",lolfile.ToArray());
         }
+
+        // Since copyboy's getting burnt out...
+        // TODO: Make a mirror in case someone bitches.
+        public static void UpdateIDs()
+        {
+            //WebClient wc = new WebClient();
+            //wc.Headers.Add("User-Agent: MineEdit/" + Version);
+            //wc.Headers.Add("Referer: http://www.minecraftwiki.net/");
+            //string derp = wc.DownloadString("http://www.minecraftwiki.net/wiki/Data_values");
+
+            //<tr>
+            //   <td>
+            //       <a href="/wiki/File:Stone2.png" class="image">
+            //           <img alt="Stone2.png" src="/images/thumb/a/a0/Stone2.png/25px-Stone2.png" height="25" width="25">
+            //       </a>
+            //   </td>
+            //   <td>1</td>
+            //   <td>01</td>
+            //   <td>
+            //       <a href="/wiki/Stone" title="Stone">Stone</a>
+            //   </td>
+            //</tr>
+            XmlReaderSettings xrs = new XmlReaderSettings();
+            xrs.ValidationType = ValidationType.None;
+            xrs.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
+            xrs.ConformanceLevel = ConformanceLevel.Auto;
+            xrs.ProhibitDtd = false;
+            xrs.XmlResolver = null;
+
+            XmlDocument dom = new XmlDocument();
+            dom.XmlResolver = null;
+            dom.Load(XmlReader.Create("http://www.minecraftwiki.net/wiki/Data_values",xrs));
+
+            foreach (XmlNode node in dom.GetElementsByTagName("tr"))
+            {
+                if (node.ChildNodes.Count == 4)
+                {
+                    string imgurl,name;
+                    
+                    // Image, Decimal, Hex, Name
+                    // Yay xpath
+                    XmlElement img = (XmlElement)node.SelectSingleNode("/td[1]/a/img");
+                    if(img==null) continue;
+
+                    XmlElement xNameParent = (XmlElement)node.SelectSingleNode("/td[4]");
+                    if(xNameParent==null) continue;
+                    if (xNameParent.ChildNodes[0].Name == "a")
+                        name = xNameParent.ChildNodes[0].Value;
+                    else if (xNameParent.ChildNodes[0].Name == "i")
+                        name = xNameParent.ChildNodes[0].ChildNodes[0].Value;
+                    else continue;
+                    
+                    XmlElement xID = (XmlElement)node.SelectSingleNode("/td[2]");
+                    if(xID==null) continue;
+
+                    imgurl = img.Attributes["src"].Value;
+
+                    // Load it up
+                    Block nb = new Block();
+                    nb.ID = short.Parse(xID.Value);
+                    nb.Name = xID.InnerText;
+                    nb.FromImage = imgurl;
+
+                    short i = 0;
+                    if (Find(nb.Name) != null)
+                    {
+                        string type = (nb.ID < 255) ? " block" : " (item)";
+                        nb.Name += type;
+                        if (Find(nb.Name) != null)
+                        {
+                            while (true)
+                            {
+                                string nm = nb.Name + " " + (++i).ToString();
+                                if (Find(nm) == null)
+                                {
+                                    nb.Name = nm;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    BlocksToDL.Enqueue(nb);
+                    TotalImages++;
+                }
+            }
+        }
         /// <summary>
         /// Update blocks from web.
         /// </summary>
@@ -354,7 +443,10 @@ namespace OpenMinecraft
                 image = Path.Combine("items", nb.ID.ToString() + ".png");
 
             WebClient icondl = new WebClient();
+            icondl.Headers.Add("User-Agent: MineEdit/" + Version);
+            //icondl.Headers.Add("Referer: http://www.minecraftwiki.net/");
             string f = string.Format("http://copy.mcft.net/mc/icons/{0}.png", nb.ID);
+            //string f = nb.FromImage;
             Console.WriteLine(" * Downloading "+f+"...");
             icondl.DownloadFile(f, image);
             Console.WriteLine("Done.");

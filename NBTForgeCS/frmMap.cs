@@ -738,6 +738,7 @@ namespace MineEdit
             this.invMain.Name = "invMain";
             this.invMain.Size = new System.Drawing.Size(610, 281);
             this.invMain.TabIndex = 0;
+            this.invMain.Load += new System.EventHandler(this.invMain_Load);
             // 
             // tabMaterials
             // 
@@ -1130,6 +1131,16 @@ namespace MineEdit
             // numSpawnX
             // 
             this.numSpawnX.Location = new System.Drawing.Point(184, 23);
+            this.numSpawnX.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this.numSpawnX.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
             this.numSpawnX.Name = "numSpawnX";
             this.numSpawnX.Size = new System.Drawing.Size(58, 20);
             this.numSpawnX.TabIndex = 4;
@@ -1137,6 +1148,16 @@ namespace MineEdit
             // numSpawnY
             // 
             this.numSpawnY.Location = new System.Drawing.Point(248, 23);
+            this.numSpawnY.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this.numSpawnY.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
             this.numSpawnY.Name = "numSpawnY";
             this.numSpawnY.Size = new System.Drawing.Size(58, 20);
             this.numSpawnY.TabIndex = 5;
@@ -1144,6 +1165,16 @@ namespace MineEdit
             // numSpawnZ
             // 
             this.numSpawnZ.Location = new System.Drawing.Point(312, 23);
+            this.numSpawnZ.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this.numSpawnZ.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
             this.numSpawnZ.Name = "numSpawnZ";
             this.numSpawnZ.Size = new System.Drawing.Size(58, 20);
             this.numSpawnZ.TabIndex = 6;
@@ -1151,6 +1182,16 @@ namespace MineEdit
             // numPlayerPosX
             // 
             this.numPlayerPosX.Location = new System.Drawing.Point(184, 49);
+            this.numPlayerPosX.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this.numPlayerPosX.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
             this.numPlayerPosX.Name = "numPlayerPosX";
             this.numPlayerPosX.Size = new System.Drawing.Size(58, 20);
             this.numPlayerPosX.TabIndex = 8;
@@ -1158,6 +1199,16 @@ namespace MineEdit
             // numPlayerPosY
             // 
             this.numPlayerPosY.Location = new System.Drawing.Point(248, 49);
+            this.numPlayerPosY.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this.numPlayerPosY.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
             this.numPlayerPosY.Name = "numPlayerPosY";
             this.numPlayerPosY.Size = new System.Drawing.Size(58, 20);
             this.numPlayerPosY.TabIndex = 9;
@@ -1165,6 +1216,16 @@ namespace MineEdit
             // numPlayerPosZ
             // 
             this.numPlayerPosZ.Location = new System.Drawing.Point(312, 49);
+            this.numPlayerPosZ.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this.numPlayerPosZ.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
             this.numPlayerPosZ.Name = "numPlayerPosZ";
             this.numPlayerPosZ.Size = new System.Drawing.Size(58, 20);
             this.numPlayerPosZ.TabIndex = 10;
@@ -1172,6 +1233,16 @@ namespace MineEdit
             // numPlayerRotX
             // 
             this.numPlayerRotX.Location = new System.Drawing.Point(184, 75);
+            this.numPlayerRotX.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this.numPlayerRotX.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
             this.numPlayerRotX.Name = "numPlayerRotX";
             this.numPlayerRotX.Size = new System.Drawing.Size(58, 20);
             this.numPlayerRotX.TabIndex = 12;
@@ -1179,6 +1250,16 @@ namespace MineEdit
             // numPlayerRotY
             // 
             this.numPlayerRotY.Location = new System.Drawing.Point(248, 75);
+            this.numPlayerRotY.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
+            this.numPlayerRotY.Minimum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            -2147483648});
             this.numPlayerRotY.Name = "numPlayerRotY";
             this.numPlayerRotY.Size = new System.Drawing.Size(58, 20);
             this.numPlayerRotY.TabIndex = 13;
@@ -1423,7 +1504,7 @@ namespace MineEdit
 
         private void CheckIfAddAllowed(object sender, EventArgs e)
         {
-            cmdAddReplacement.Enabled = (blkReplace.SelectedValue != null && blkWith.SelectedValue != null);
+            cmdAddReplacement.Enabled = (blkReplace.SelectedItem != null && blkWith.SelectedItem != null);
         }
 
         private void cmdAddReplacement_Click(object sender, EventArgs e)

@@ -69,6 +69,12 @@
 83	83.png	Reed block
 84	84.png	Jukebox
 85	85.png	Fence
+86	86.png	Pumpkin
+87	87.png	Netherstone
+88	88.png	Slow sand
+89	89.png	Lightstone
+90	90.png	Portal
+91	91.png	Jack-o'-lantern
 256	256.png	Iron shovel
 257	257.png	Iron pickaxe
 258	258.png	Iron axe
@@ -154,9 +160,15 @@
 338	338.png	Reed
 339	339.png	Paper
 340	340.png	Book
-341	341.png	Slime orb
+341	341.png	Slime ball
 342	342.png	Storage minecart
 343	343.png	Powered minecart
 344	344.png	Egg
+345	345.png	Compass
+346	346.png	Fishing rod
+347	347.png	Watch
+348	348.png	Lightstone dust
+349	349.png	Fish
+350	350.png	Cooked fish
 2256	2256.png	Gold record
 2257	2257.png	Green record

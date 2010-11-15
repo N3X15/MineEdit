@@ -464,7 +464,7 @@ namespace OpenMinecraft
 				Console.WriteLine("! {0}", c.Filename);
 				return null;
 			}
-			//try
+			try
 			{
 				chunk = new NbtFile(c.Filename);
 				chunk.LoadFile();
@@ -532,14 +532,14 @@ namespace OpenMinecraft
 				//Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
 				return c;
 			}
-			/*catch (Exception e)
+			catch (Exception e)
 			{
 				string err = string.Format(" *** ERROR: Chunk {0},{1} ({2}) failed to load:\n\n{3}", x, z, c.Filename, e);
 				Console.WriteLine(err);
 				if (CorruptChunk != null)
 					CorruptChunk(err, c.Filename);
 				return null;
-			}*/
+			}
 		}
 
 		private byte[, ,] DecompressBlocks(byte[] p)
@@ -1457,44 +1457,63 @@ namespace OpenMinecraft
 				if (Path.GetExtension(file) == "dat") continue;
 				if (file.EndsWith(".genlock")) continue;
 				NbtFile nf = new NbtFile(file);
-				try
-				{
-					nf.LoadFile();
-				}
-				catch (Exception e)
-				{
-					if(CorruptChunk!=null)
-						CorruptChunk(e.ToString(), file);
-					continue;
-				}
-				NbtCompound Level = (NbtCompound)nf.RootTag["Level"];
-				long x = (Level["xPos"] as NbtInt).Value;
-				long y = (Level["zPos"] as NbtInt).Value;
-				nf.Dispose();
-				cmd(x, y);
+                try
+                {
+                    nf.LoadFile();
+                    NbtCompound Level = (NbtCompound)nf.RootTag["Level"];
+                    long x = (Level["xPos"] as NbtInt).Value;
+                    long y = (Level["zPos"] as NbtInt).Value;
+                    nf.Dispose();
+                    cmd(x, y);
+                }
+                catch (Exception e)
+                {
+                    if(CorruptChunk!=null)
+                        CorruptChunk("["+Complete.ToString()+"]"+e.ToString(), file);
+                //    continue;
+                }
 			}
 			// This MUST be done.
 			ForEachProgress = null;
 		}
 
 		public Vector2i GetChunkCoordsFromFile(string file)
-		{
-			NbtFile f = new NbtFile(file);
-			try
-			{
-				f.LoadFile();
-			}
-			catch (Exception e)
-			{
-				if (CorruptChunk != null)
-					CorruptChunk(e.ToString(), file);
-				return null;
-			}
-			NbtCompound Level = (NbtCompound)f.RootTag["Level"];
-			Vector2i r = new Vector2i(0, 0);
-			r.X = (Level["xPos"] as NbtInt).Value;
-			r.Y = (Level["zPos"] as NbtInt).Value;
-			f.Dispose();
+        {
+            return GetChunkCoordsFromFile(file,false);
+        }
+        public Vector2i GetChunkCoordsFromFile(string file,bool test)
+        {
+            Vector2i r = new Vector2i(0, 0);
+            // cX.Y.dat
+            // X.Y.dat
+            string[] peices =Path.GetFileName(file.Substring(1)).Split('.');
+            long X;
+            long Y;
+            Radix.Decode(peices[0],36,out X);
+            Radix.Decode(peices[1],36,out Y);
+            r.X = (int)X;
+            r.Y = (int)Y;
+            if (test)
+            {
+                NbtFile f = new NbtFile(file);
+                try
+                {
+                    f.LoadFile();
+                }
+                catch (Exception e)
+                {
+                    if (CorruptChunk != null)
+                        CorruptChunk(e.ToString(), file);
+                    return null;
+                }
+                NbtCompound Level = (NbtCompound)f.RootTag["Level"];
+                Vector2i t = new Vector2i(0, 0);
+                t.X = (Level["xPos"] as NbtInt).Value;
+                t.Y = (Level["zPos"] as NbtInt).Value;
+                f.Dispose();
+                if (t != r)
+                    throw new Exception("Test failed.");
+            }
 			return r;
 		}
 

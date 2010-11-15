@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using OpenMinecraft;
+using System.Drawing.Text;
 
 namespace MineEdit
 {
@@ -82,9 +83,11 @@ namespace MineEdit
 		}
 		public void Render()
 		{
+            Font f = new Font(Font,FontStyle.Bold);
 			Icon = new Bitmap(32, 32);
 			Graphics g = Graphics.FromImage(Icon);
-			g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+			g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 			// Texture
 			if (Selected)
 			{
@@ -110,22 +113,27 @@ namespace MineEdit
 				g.DrawLine(Pens.Orange, 0, 0, 0, 31);
 				g.DrawLine(Pens.Orange, 31, 31, 31, 0);
 				g.DrawLine(Pens.Orange, 31, 31, 0, 31);
-			}
+            }
+            StringFormat upperleft = new StringFormat();
+            upperleft.Alignment = StringAlignment.Near; // Left
+            upperleft.LineAlignment = StringAlignment.Near; // Left
+
+            StringFormat lowerright = new StringFormat();
+            lowerright.Alignment = StringAlignment.Far; // Right
+            lowerright.LineAlignment = StringAlignment.Far; // Right
+
 			// Item count
 			if (Count > 1)
-			{
-				Font f = new Font(FontFamily.GenericSansSerif, 8);
-				SizeF size = g.MeasureString(Count.ToString(), f);
-				g.DrawString(Count.ToString(), f, Brushes.Black, 31 - (int)size.Width, 31 - (int)size.Height);
-				g.DrawString(Count.ToString(), f, Brushes.White, 30 - (int)size.Width, 30 - (int)size.Height);
+            {
+                g.DrawString(Count.ToString(), f, Brushes.Black, new Rectangle(1, 1, ClientRectangle.Width - 1, ClientRectangle.Width - 1), lowerright);
+                g.DrawString(Count.ToString(), f, Brushes.White, new Rectangle(0, 0, ClientRectangle.Width, ClientRectangle.Width), lowerright);
 			}
 			// Item damage
 			if (Damage > 0)
 			{
-				Font f = new Font(FontFamily.GenericSansSerif, 8);
-				SizeF size = g.MeasureString(Damage.ToString(), f);
-				g.DrawString(Damage.ToString(), f, Brushes.Black, 2,2);
-				g.DrawString(Damage.ToString(), f, Brushes.Red, 1,1);
+                // TODO: damage bar
+                g.DrawString(Damage.ToString(), f, Brushes.Black, new Rectangle(0, 0, ClientRectangle.Width, ClientRectangle.Width), upperleft);
+                g.DrawString(Damage.ToString(), f, Brushes.Red, new Rectangle(1, 1, ClientRectangle.Width - 1, ClientRectangle.Width - 1), upperleft);
 			}
 		}
 		public InventoryItemControl(short type,short damage,byte count)

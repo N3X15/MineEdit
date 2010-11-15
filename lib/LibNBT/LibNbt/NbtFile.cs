@@ -80,7 +80,8 @@ namespace LibNbt
             fileStream.Seek(0, SeekOrigin.Begin);
 
             // Make sure the first byte in this file is the tag for a TAG_Compound
-            if (fileStream.ReadByte() == (int)NbtTagType.TAG_Compound)
+            int b = fileStream.ReadByte();
+            if (b == (int)NbtTagType.TAG_Compound)
             {
                 var rootCompound = new NbtCompound();
                 rootCompound.ReadTag(fileStream);

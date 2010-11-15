@@ -30,15 +30,19 @@ namespace OpenMinecraft
                 MessageBox.Show("New version of MineEdit is available.  Please visit the thread to get the newest version.", "Update available");
                 System.Diagnostics.Process.Start("http://github.com/N3X15/MineEdit/downloads/");
             }
+
             lblStatus.Text = "Retrieving blocks...";
             pb.Style = ProgressBarStyle.Marquee;
             Blocks.UpdateBlocks();
 
             lblStatus.Text = "Retrieving items...";
             Blocks.UpdateItems();
+
+            //lblStatus.Text = "Parsing wiki...";
+            //Blocks.UpdateIDs();
+
             pb.Maximum = Blocks.TotalImages;
             lblStatus.Text = "Downloading images...";
-
             pb.Style = ProgressBarStyle.Continuous;
             timer.Elapsed += new ElapsedEventHandler(timer_Elapsed);
             timer.AutoReset = false;

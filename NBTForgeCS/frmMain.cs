@@ -504,6 +504,27 @@ namespace MineEdit
                     dlgLongTask dlt = new dlgLongTask();
                     dlt.Start(delegate()
                     {
+                        ///////////////////////////////////////////////////////////////
+                        // Set up corrupt chunk handlers.
+                        ///////////////////////////////////////////////////////////////
+                        (ActiveMdiChild as frmMap).Map.CorruptChunk -= OnCorruptChunk;
+                        frmReport report = new frmReport();
+                        report.Hide();
+                        CorruptChunkHandler cch = delegate(string error, string file)
+                        {
+                            //Console.WriteLine(file);
+                            Vector2i coords = (ActiveMdiChild as frmMap).Map.GetChunkCoordsFromFile(file);
+                            report.AddError(coords.X, coords.Y, error, delegate(long X, long Y)
+                            {
+                                File.Delete(file);
+                                return true;
+                            });
+                        };
+                        (ActiveMdiChild as frmMap).Map.CorruptChunk += cch;
+
+                        /////////////////////////////////////////////////////////////////
+                        // UI Stuff
+                        /////////////////////////////////////////////////////////////////
                         dlt.SetMarquees(true, true);
                         dlt.VocabSubtask = "Chunk";
                         dlt.VocabSubtasks = "Chunks";
@@ -535,8 +556,8 @@ namespace MineEdit
                         int hurr = 1;
                         int hurrT = 0;
                         int passes = 0;
-                        while (hurr != 0)
-                        {
+                        //while (hurr != 0)
+                        //{
                             passes++;
                             dlt.CurrentSubtask = string.Format("Fixing water (Pass #{0}, {1} blocks added)...", passes, hurrT);
                             hurr = mh.ExpandFluids(09, false, delegate(int Total,int Complete){
@@ -544,14 +565,14 @@ namespace MineEdit
                                 dlt.SubtasksComplete = Complete;
                             });
                             hurrT += hurr;
-                        }
+                        //}
                         dlt.SubtasksComplete++;
                         dlt.CurrentSubtask = "Fixing lava...";
                         passes = 0;
                         hurrT = 0;
                         hurr = 1;
-                        while (hurr != 0)
-                        {
+                        //while (hurr != 0)
+                        //{
                             passes++; 
                             dlt.CurrentSubtask = string.Format("Fixing lava ({0} passes, {1} blocks added)...", passes, hurrT);
                             hurr = mh.ExpandFluids(11, false, delegate(int Total, int Complete)
@@ -560,11 +581,15 @@ namespace MineEdit
                                 dlt.SubtasksComplete = Complete;
                             });
                             hurrT += hurr;
-                        }
+                        //}
                         dlt.SubtasksComplete++;
                         (ActiveMdiChild as frmMap).Map = mh;
                         dlt.Done();
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
+                        (ActiveMdiChild as frmMap).Map.CorruptChunk -= cch;
+                        (ActiveMdiChild as frmMap).Map.CorruptChunk += OnCorruptChunk;
+                        report.Repopulate();
+                        report.ShowDialog();
                     });
                     dlt.ShowDialog();
                 }
