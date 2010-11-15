@@ -46,58 +46,58 @@ namespace MineEdit
         {
             this.tabModes = new System.Windows.Forms.TabControl();
             this.tabBlocks = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.numBlkEndZ = new System.Windows.Forms.NumericUpDown();
+            this.numAreaZ = new System.Windows.Forms.NumericUpDown();
+            this.numBlkEndY = new System.Windows.Forms.NumericUpDown();
+            this.numBlkEndX = new System.Windows.Forms.NumericUpDown();
+            this.numAreaY = new System.Windows.Forms.NumericUpDown();
+            this.numAreaX = new System.Windows.Forms.NumericUpDown();
+            this.radArea = new System.Windows.Forms.RadioButton();
+            this.numBlkCY = new System.Windows.Forms.NumericUpDown();
+            this.numBlkCX = new System.Windows.Forms.NumericUpDown();
+            this.radSingleChunk = new System.Windows.Forms.RadioButton();
+            this.radAllChunks = new System.Windows.Forms.RadioButton();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbLoadBlockReplacement = new System.Windows.Forms.ToolStripButton();
-            this.blkReplace = new MineEdit.BlockSelector();
-            this.blkWith = new MineEdit.BlockSelector();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.tsbLoadBlockReplacement = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsbSaveBlockReplacement = new System.Windows.Forms.ToolStripButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cmdClear = new System.Windows.Forms.Button();
             this.cmdRemove = new System.Windows.Forms.Button();
-            this.cmdAdd = new System.Windows.Forms.Button();
             this.Replacements = new System.Windows.Forms.ListBox();
-            this.tsbSaveBlockReplacement = new System.Windows.Forms.ToolStripButton();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.radAllChunks = new System.Windows.Forms.RadioButton();
-            this.radSingleChunk = new System.Windows.Forms.RadioButton();
-            this.numBlkCX = new System.Windows.Forms.NumericUpDown();
-            this.numBlkCY = new System.Windows.Forms.NumericUpDown();
-            this.radArea = new System.Windows.Forms.RadioButton();
-            this.numAreaX = new System.Windows.Forms.NumericUpDown();
-            this.numAreaY = new System.Windows.Forms.NumericUpDown();
-            this.numAreaZ = new System.Windows.Forms.NumericUpDown();
-            this.numBlkEndX = new System.Windows.Forms.NumericUpDown();
-            this.numBlkEndY = new System.Windows.Forms.NumericUpDown();
-            this.numBlkEndZ = new System.Windows.Forms.NumericUpDown();
-            this.cmdCancel = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.cmdAdd = new System.Windows.Forms.Button();
+            this.blkWith = new MineEdit.BlockSelector();
+            this.blkReplace = new MineEdit.BlockSelector();
+            this.tabEntities = new System.Windows.Forms.TabPage();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.cmdOK = new System.Windows.Forms.Button();
+            this.cmdCancel = new System.Windows.Forms.Button();
             this.tabModes.SuspendLayout();
             this.tabBlocks.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndZ)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaZ)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkCY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkCX)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkCX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkCY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaZ)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndZ)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabModes
             // 
             this.tabModes.Controls.Add(this.tabBlocks);
-            this.tabModes.Controls.Add(this.tabPage2);
+            this.tabModes.Controls.Add(this.tabEntities);
             this.tabModes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabModes.Location = new System.Drawing.Point(0, 0);
             this.tabModes.Name = "tabModes";
@@ -119,39 +119,114 @@ namespace MineEdit
             this.tabBlocks.Text = "Blocks";
             this.tabBlocks.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
+            // groupBox3
             // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(192, 74);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.groupBox3.Controls.Add(this.numBlkEndZ);
+            this.groupBox3.Controls.Add(this.numAreaZ);
+            this.groupBox3.Controls.Add(this.numBlkEndY);
+            this.groupBox3.Controls.Add(this.numBlkEndX);
+            this.groupBox3.Controls.Add(this.numAreaY);
+            this.groupBox3.Controls.Add(this.numAreaX);
+            this.groupBox3.Controls.Add(this.radArea);
+            this.groupBox3.Controls.Add(this.numBlkCY);
+            this.groupBox3.Controls.Add(this.numBlkCX);
+            this.groupBox3.Controls.Add(this.radSingleChunk);
+            this.groupBox3.Controls.Add(this.radAllChunks);
+            this.groupBox3.Location = new System.Drawing.Point(8, 149);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(621, 154);
+            this.groupBox3.TabIndex = 2;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Replacement Options";
             // 
-            // panel1
+            // numBlkEndZ
             // 
-            this.panel1.Controls.Add(this.cmdOK);
-            this.panel1.Controls.Add(this.cmdCancel);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 331);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(640, 54);
-            this.panel1.TabIndex = 1;
+            this.numBlkEndZ.Location = new System.Drawing.Point(237, 94);
+            this.numBlkEndZ.Name = "numBlkEndZ";
+            this.numBlkEndZ.Size = new System.Drawing.Size(58, 20);
+            this.numBlkEndZ.TabIndex = 4;
             // 
-            // groupBox1
+            // numAreaZ
             // 
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.cmdAdd);
-            this.groupBox1.Controls.Add(this.blkWith);
-            this.groupBox1.Controls.Add(this.blkReplace);
-            this.groupBox1.Location = new System.Drawing.Point(8, 31);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(323, 112);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Replace Blocks";
+            this.numAreaZ.Location = new System.Drawing.Point(237, 68);
+            this.numAreaZ.Name = "numAreaZ";
+            this.numAreaZ.Size = new System.Drawing.Size(58, 20);
+            this.numAreaZ.TabIndex = 4;
+            // 
+            // numBlkEndY
+            // 
+            this.numBlkEndY.Location = new System.Drawing.Point(173, 94);
+            this.numBlkEndY.Name = "numBlkEndY";
+            this.numBlkEndY.Size = new System.Drawing.Size(58, 20);
+            this.numBlkEndY.TabIndex = 4;
+            // 
+            // numBlkEndX
+            // 
+            this.numBlkEndX.Location = new System.Drawing.Point(109, 94);
+            this.numBlkEndX.Name = "numBlkEndX";
+            this.numBlkEndX.Size = new System.Drawing.Size(58, 20);
+            this.numBlkEndX.TabIndex = 4;
+            // 
+            // numAreaY
+            // 
+            this.numAreaY.Location = new System.Drawing.Point(173, 68);
+            this.numAreaY.Name = "numAreaY";
+            this.numAreaY.Size = new System.Drawing.Size(58, 20);
+            this.numAreaY.TabIndex = 4;
+            // 
+            // numAreaX
+            // 
+            this.numAreaX.Location = new System.Drawing.Point(109, 68);
+            this.numAreaX.Name = "numAreaX";
+            this.numAreaX.Size = new System.Drawing.Size(58, 20);
+            this.numAreaX.TabIndex = 4;
+            // 
+            // radArea
+            // 
+            this.radArea.AutoSize = true;
+            this.radArea.Location = new System.Drawing.Point(21, 65);
+            this.radArea.Name = "radArea";
+            this.radArea.Size = new System.Drawing.Size(50, 17);
+            this.radArea.TabIndex = 3;
+            this.radArea.Text = "Area:";
+            this.radArea.UseVisualStyleBackColor = true;
+            // 
+            // numBlkCY
+            // 
+            this.numBlkCY.Location = new System.Drawing.Point(173, 42);
+            this.numBlkCY.Name = "numBlkCY";
+            this.numBlkCY.Size = new System.Drawing.Size(58, 20);
+            this.numBlkCY.TabIndex = 2;
+            // 
+            // numBlkCX
+            // 
+            this.numBlkCX.Location = new System.Drawing.Point(109, 42);
+            this.numBlkCX.Name = "numBlkCX";
+            this.numBlkCX.Size = new System.Drawing.Size(58, 20);
+            this.numBlkCX.TabIndex = 2;
+            // 
+            // radSingleChunk
+            // 
+            this.radSingleChunk.AutoSize = true;
+            this.radSingleChunk.Location = new System.Drawing.Point(21, 42);
+            this.radSingleChunk.Name = "radSingleChunk";
+            this.radSingleChunk.Size = new System.Drawing.Size(82, 17);
+            this.radSingleChunk.TabIndex = 1;
+            this.radSingleChunk.Text = "One Chunk:";
+            this.radSingleChunk.UseVisualStyleBackColor = true;
+            // 
+            // radAllChunks
+            // 
+            this.radAllChunks.AutoSize = true;
+            this.radAllChunks.Checked = true;
+            this.radAllChunks.Location = new System.Drawing.Point(21, 19);
+            this.radAllChunks.Name = "radAllChunks";
+            this.radAllChunks.Size = new System.Drawing.Size(75, 17);
+            this.radAllChunks.TabIndex = 0;
+            this.radAllChunks.TabStop = true;
+            this.radAllChunks.Text = "All Chunks";
+            this.radAllChunks.UseVisualStyleBackColor = true;
+            this.radAllChunks.CheckedChanged += new System.EventHandler(this.radAllChunks_CheckedChanged);
             // 
             // toolStrip1
             // 
@@ -183,50 +258,17 @@ namespace MineEdit
             this.tsbLoadBlockReplacement.Image = global::MineEdit.Properties.Resources.document_open;
             this.tsbLoadBlockReplacement.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbLoadBlockReplacement.Name = "tsbLoadBlockReplacement";
-            this.tsbLoadBlockReplacement.Size = new System.Drawing.Size(23, 22);
+            this.tsbLoadBlockReplacement.Size = new System.Drawing.Size(32, 22);
             this.tsbLoadBlockReplacement.Text = "toolStripButton1";
             // 
-            // blkReplace
+            // tsbSaveBlockReplacement
             // 
-            this.blkReplace.BlocksOnly = false;
-            this.blkReplace.DisplayMember = "Name";
-            this.blkReplace.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.blkReplace.FormattingEnabled = true;
-            this.blkReplace.Location = new System.Drawing.Point(74, 18);
-            this.blkReplace.Name = "blkReplace";
-            this.blkReplace.Size = new System.Drawing.Size(236, 21);
-            this.blkReplace.TabIndex = 0;
-            this.blkReplace.ValueMember = "ID";
-            // 
-            // blkWith
-            // 
-            this.blkWith.BlocksOnly = false;
-            this.blkWith.DisplayMember = "Name";
-            this.blkWith.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.blkWith.FormattingEnabled = true;
-            this.blkWith.Location = new System.Drawing.Point(74, 45);
-            this.blkWith.Name = "blkWith";
-            this.blkWith.Size = new System.Drawing.Size(236, 21);
-            this.blkWith.TabIndex = 0;
-            this.blkWith.ValueMember = "ID";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(18, 21);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(50, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Replace:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(36, 48);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(32, 13);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "With:";
+            this.tsbSaveBlockReplacement.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbSaveBlockReplacement.Image = global::MineEdit.Properties.Resources.document_save;
+            this.tsbSaveBlockReplacement.ImageTransparentColor = System.Drawing.Color.Transparent;
+            this.tsbSaveBlockReplacement.Name = "tsbSaveBlockReplacement";
+            this.tsbSaveBlockReplacement.Size = new System.Drawing.Size(23, 22);
+            this.tsbSaveBlockReplacement.Text = "toolStripButton1";
             // 
             // groupBox2
             // 
@@ -260,6 +302,47 @@ namespace MineEdit
             this.cmdRemove.UseVisualStyleBackColor = true;
             this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
             // 
+            // Replacements
+            // 
+            this.Replacements.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.Replacements.Location = new System.Drawing.Point(6, 19);
+            this.Replacements.Name = "Replacements";
+            this.Replacements.Size = new System.Drawing.Size(198, 82);
+            this.Replacements.TabIndex = 2;
+            this.Replacements.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.Replacements_DrawItem);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.cmdAdd);
+            this.groupBox1.Controls.Add(this.blkWith);
+            this.groupBox1.Controls.Add(this.blkReplace);
+            this.groupBox1.Location = new System.Drawing.Point(8, 31);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(323, 112);
+            this.groupBox1.TabIndex = 0;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Replace Blocks";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(36, 48);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(32, 13);
+            this.label2.TabIndex = 1;
+            this.label2.Text = "With:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(18, 21);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(50, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Replace:";
+            // 
             // cmdAdd
             // 
             this.cmdAdd.Location = new System.Drawing.Point(235, 72);
@@ -270,142 +353,49 @@ namespace MineEdit
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
             // 
-            // Replacements
+            // blkWith
             // 
-            this.Replacements.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.Replacements.Location = new System.Drawing.Point(6, 19);
-            this.Replacements.Name = "Replacements";
-            this.Replacements.Size = new System.Drawing.Size(198, 82);
-            this.Replacements.TabIndex = 2;
-            this.Replacements.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.Replacements_DrawItem);
+            this.blkWith.BlocksOnly = false;
+            this.blkWith.DisplayMember = "Name";
+            this.blkWith.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.blkWith.FormattingEnabled = true;
+            this.blkWith.Location = new System.Drawing.Point(74, 45);
+            this.blkWith.Name = "blkWith";
+            this.blkWith.Size = new System.Drawing.Size(236, 21);
+            this.blkWith.TabIndex = 0;
+            this.blkWith.ValueMember = "ID";
             // 
-            // tsbSaveBlockReplacement
+            // blkReplace
             // 
-            this.tsbSaveBlockReplacement.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbSaveBlockReplacement.Image = global::MineEdit.Properties.Resources.document_save;
-            this.tsbSaveBlockReplacement.ImageTransparentColor = System.Drawing.Color.Transparent;
-            this.tsbSaveBlockReplacement.Name = "tsbSaveBlockReplacement";
-            this.tsbSaveBlockReplacement.Size = new System.Drawing.Size(23, 22);
-            this.tsbSaveBlockReplacement.Text = "toolStripButton1";
+            this.blkReplace.BlocksOnly = false;
+            this.blkReplace.DisplayMember = "Name";
+            this.blkReplace.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.blkReplace.FormattingEnabled = true;
+            this.blkReplace.Location = new System.Drawing.Point(74, 18);
+            this.blkReplace.Name = "blkReplace";
+            this.blkReplace.Size = new System.Drawing.Size(236, 21);
+            this.blkReplace.TabIndex = 0;
+            this.blkReplace.ValueMember = "ID";
             // 
-            // groupBox3
+            // tabEntities
             // 
-            this.groupBox3.Controls.Add(this.numBlkEndZ);
-            this.groupBox3.Controls.Add(this.numAreaZ);
-            this.groupBox3.Controls.Add(this.numBlkEndY);
-            this.groupBox3.Controls.Add(this.numBlkEndX);
-            this.groupBox3.Controls.Add(this.numAreaY);
-            this.groupBox3.Controls.Add(this.numAreaX);
-            this.groupBox3.Controls.Add(this.radArea);
-            this.groupBox3.Controls.Add(this.numBlkCY);
-            this.groupBox3.Controls.Add(this.numBlkCX);
-            this.groupBox3.Controls.Add(this.radSingleChunk);
-            this.groupBox3.Controls.Add(this.radAllChunks);
-            this.groupBox3.Location = new System.Drawing.Point(8, 149);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(621, 154);
-            this.groupBox3.TabIndex = 2;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Replacement Options";
+            this.tabEntities.Location = new System.Drawing.Point(4, 22);
+            this.tabEntities.Name = "tabEntities";
+            this.tabEntities.Padding = new System.Windows.Forms.Padding(3);
+            this.tabEntities.Size = new System.Drawing.Size(632, 359);
+            this.tabEntities.TabIndex = 1;
+            this.tabEntities.Text = "Entities";
+            this.tabEntities.UseVisualStyleBackColor = true;
             // 
-            // radAllChunks
+            // panel1
             // 
-            this.radAllChunks.AutoSize = true;
-            this.radAllChunks.Checked = true;
-            this.radAllChunks.Location = new System.Drawing.Point(21, 19);
-            this.radAllChunks.Name = "radAllChunks";
-            this.radAllChunks.Size = new System.Drawing.Size(75, 17);
-            this.radAllChunks.TabIndex = 0;
-            this.radAllChunks.TabStop = true;
-            this.radAllChunks.Text = "All Chunks";
-            this.radAllChunks.UseVisualStyleBackColor = true;
-            this.radAllChunks.CheckedChanged += new System.EventHandler(this.radAllChunks_CheckedChanged);
-            // 
-            // radSingleChunk
-            // 
-            this.radSingleChunk.AutoSize = true;
-            this.radSingleChunk.Location = new System.Drawing.Point(21, 42);
-            this.radSingleChunk.Name = "radSingleChunk";
-            this.radSingleChunk.Size = new System.Drawing.Size(82, 17);
-            this.radSingleChunk.TabIndex = 1;
-            this.radSingleChunk.Text = "One Chunk:";
-            this.radSingleChunk.UseVisualStyleBackColor = true;
-            // 
-            // numBlkCX
-            // 
-            this.numBlkCX.Location = new System.Drawing.Point(109, 42);
-            this.numBlkCX.Name = "numBlkCX";
-            this.numBlkCX.Size = new System.Drawing.Size(58, 20);
-            this.numBlkCX.TabIndex = 2;
-            // 
-            // numBlkCY
-            // 
-            this.numBlkCY.Location = new System.Drawing.Point(173, 42);
-            this.numBlkCY.Name = "numBlkCY";
-            this.numBlkCY.Size = new System.Drawing.Size(58, 20);
-            this.numBlkCY.TabIndex = 2;
-            // 
-            // radArea
-            // 
-            this.radArea.AutoSize = true;
-            this.radArea.Location = new System.Drawing.Point(21, 65);
-            this.radArea.Name = "radArea";
-            this.radArea.Size = new System.Drawing.Size(50, 17);
-            this.radArea.TabIndex = 3;
-            this.radArea.Text = "Area:";
-            this.radArea.UseVisualStyleBackColor = true;
-            // 
-            // numAreaX
-            // 
-            this.numAreaX.Location = new System.Drawing.Point(109, 68);
-            this.numAreaX.Name = "numAreaX";
-            this.numAreaX.Size = new System.Drawing.Size(58, 20);
-            this.numAreaX.TabIndex = 4;
-            // 
-            // numAreaY
-            // 
-            this.numAreaY.Location = new System.Drawing.Point(173, 68);
-            this.numAreaY.Name = "numAreaY";
-            this.numAreaY.Size = new System.Drawing.Size(58, 20);
-            this.numAreaY.TabIndex = 4;
-            // 
-            // numAreaZ
-            // 
-            this.numAreaZ.Location = new System.Drawing.Point(237, 68);
-            this.numAreaZ.Name = "numAreaZ";
-            this.numAreaZ.Size = new System.Drawing.Size(58, 20);
-            this.numAreaZ.TabIndex = 4;
-            // 
-            // numBlkEndX
-            // 
-            this.numBlkEndX.Location = new System.Drawing.Point(109, 94);
-            this.numBlkEndX.Name = "numBlkEndX";
-            this.numBlkEndX.Size = new System.Drawing.Size(58, 20);
-            this.numBlkEndX.TabIndex = 4;
-            // 
-            // numBlkEndY
-            // 
-            this.numBlkEndY.Location = new System.Drawing.Point(173, 94);
-            this.numBlkEndY.Name = "numBlkEndY";
-            this.numBlkEndY.Size = new System.Drawing.Size(58, 20);
-            this.numBlkEndY.TabIndex = 4;
-            // 
-            // numBlkEndZ
-            // 
-            this.numBlkEndZ.Location = new System.Drawing.Point(237, 94);
-            this.numBlkEndZ.Name = "numBlkEndZ";
-            this.numBlkEndZ.Size = new System.Drawing.Size(58, 20);
-            this.numBlkEndZ.TabIndex = 4;
-            // 
-            // cmdCancel
-            // 
-            this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(558, 19);
-            this.cmdCancel.Name = "cmdCancel";
-            this.cmdCancel.Size = new System.Drawing.Size(75, 23);
-            this.cmdCancel.TabIndex = 0;
-            this.cmdCancel.Text = "&Cancel";
-            this.cmdCancel.UseVisualStyleBackColor = true;
+            this.panel1.Controls.Add(this.cmdOK);
+            this.panel1.Controls.Add(this.cmdCancel);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel1.Location = new System.Drawing.Point(0, 331);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(640, 54);
+            this.panel1.TabIndex = 1;
             // 
             // cmdOK
             // 
@@ -416,6 +406,16 @@ namespace MineEdit
             this.cmdOK.Text = "&OK";
             this.cmdOK.UseVisualStyleBackColor = true;
             this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
+            // 
+            // cmdCancel
+            // 
+            this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.cmdCancel.Location = new System.Drawing.Point(558, 19);
+            this.cmdCancel.Name = "cmdCancel";
+            this.cmdCancel.Size = new System.Drawing.Size(75, 23);
+            this.cmdCancel.TabIndex = 0;
+            this.cmdCancel.Text = "&Cancel";
+            this.cmdCancel.UseVisualStyleBackColor = true;
             // 
             // dlgReplace
             // 
@@ -431,34 +431,33 @@ namespace MineEdit
             this.tabModes.ResumeLayout(false);
             this.tabBlocks.ResumeLayout(false);
             this.tabBlocks.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndZ)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaZ)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkCY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlkCX)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkCX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkCY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaZ)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndZ)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         private System.Windows.Forms.TabControl tabModes;
         private System.Windows.Forms.TabPage tabBlocks;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabEntities;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripButton tsbLoadBlockReplacement;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
@@ -484,6 +483,7 @@ namespace MineEdit
         private System.Windows.Forms.ToolStripButton tsbSaveBlockReplacement;
         private System.Windows.Forms.Button cmdOK;
         private System.Windows.Forms.Button cmdCancel;
+        private ToolStripSplitButton tsbLoadBlockReplacement;
         #endregion
 
         IMapHandler _Map;

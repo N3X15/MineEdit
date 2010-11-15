@@ -1,33 +1,42 @@
-﻿using System.Drawing;
+﻿/*
+This is how MineEdit can quickly adapt to new entities.  Please do not remove this file.
+
+{DATA_DUMP}
+
+*/
+
+using System.Drawing;
 using LibNbt.Tags;
 
 namespace OpenMinecraft.Entities
 {
-    public class Zombie:LivingEntity
+    public class {ENTITY_NAME}:LivingEntity
     {
-
-		private static Image icon = new Bitmap("mobs/zombie.png");
-        public Zombie()
+		{NEW_VARS}
+		private static Image icon = new Bitmap("mobs/mobpig.png");
+        public {ENTITY_NAME}()
         {
         }
-        public Zombie(NbtCompound c)
+        public {ENTITY_NAME}(NbtCompound c)
             :base(c)
         {
+			{VAR_ASSIGNMENT}
         }
 
         public NbtCompound ToNBT()
         {
             NbtCompound c = base.ToNBT();
+			{TO_NBT}
             return c;
         }
         public override string ToString()
         {
-            return "Zombie";
+            return "{ENTITY_NAME}";
         }
 
         public override string GetID()
         {
-            return "Zombie";
+            return "{ENTITY_ID}";
         }
 
         public override Image Image

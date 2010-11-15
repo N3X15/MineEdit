@@ -746,7 +746,6 @@ namespace MineEdit
             this.invMain.Name = "invMain";
             this.invMain.Size = new System.Drawing.Size(610, 281);
             this.invMain.TabIndex = 0;
-            this.invMain.Load += new System.EventHandler(this.invMain_Load);
             // 
             // tabMaterials
             // 

@@ -1,0 +1,51 @@
+﻿/*
+This is how MineEdit can quickly adapt to new entities.  Please do not remove this file.
+
+{DATA_DUMP}
+
+*/
+
+using System.Drawing;
+using LibNbt.Tags;
+
+namespace OpenMinecraft.Entities
+{
+    public class {ENTITY_NAME}:Entity
+    {
+		{NEW_VARS}
+		private static Image icon = new Bitmap("mobs/notch.png");
+        public {ENTITY_NAME}()
+        {
+        }
+
+        public {ENTITY_NAME}(NbtCompound c)
+        {
+            SetBaseStuff(c);
+			{VAR_ASSIGNMENT}
+        }
+        public override NbtCompound ToNBT()
+        {
+            NbtCompound c = new NbtCompound();
+            Base2NBT(ref c, GetID());
+			{TO_NBT}
+            return c;
+        }
+        public override string ToString()
+        {
+            return "{ENTITY_NAME}";
+        }
+
+        public override string GetID()
+        {
+            return "{ENTITY_ID}";
+        }
+
+        public override Image Image
+        {
+            get
+            {
+                return icon;
+            }
+        }
+    }
+}

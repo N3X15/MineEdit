@@ -115,7 +115,7 @@ namespace MineEdit
 			Icon = new Bitmap(32, 32);
 			Graphics g = Graphics.FromImage(Icon);
 			g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 			// Texture
 			if (Selected)
 			{
@@ -153,16 +153,21 @@ namespace MineEdit
 			// Item count
 			if (Count > 1)
             {
-                g.DrawString(Count.ToString(), f, Brushes.Black, new Rectangle(1, 1, ClientRectangle.Width - 1, ClientRectangle.Width - 1), lowerright);
-                g.DrawString(Count.ToString(), f, Brushes.White, new Rectangle(0, 0, ClientRectangle.Width, ClientRectangle.Width), lowerright);
+                SizeF size = g.MeasureString(Count.ToString(), f);
+                g.DrawString(Count.ToString(), f, Brushes.Black, 31 - (int)size.Width, 31 - (int)size.Height);
+                g.DrawString(Count.ToString(), f, Brushes.White, 30 - (int)size.Width, 30 - (int)size.Height);
+                //g.DrawString(Count.ToString(), f, Brushes.Black, new Rectangle(0, 0, DisplayRectangle.Width, DisplayRectangle.Width), lowerright);
+                //g.DrawString(Count.ToString(), f, Brushes.White, new Rectangle(1, 1, DisplayRectangle.Width - 2, DisplayRectangle.Width - 2), lowerright);
 			}
 			// Item damage
 			if (Damage > 0)
 			{
                 // TODO: damage bar
-                g.DrawString(Damage.ToString(), f, Brushes.Black, new Rectangle(0, 0, ClientRectangle.Width, ClientRectangle.Width), upperleft);
-                g.DrawString(Damage.ToString(), f, Brushes.Red, new Rectangle(1, 1, ClientRectangle.Width - 1, ClientRectangle.Width - 1), upperleft);
+                g.DrawString(Damage.ToString(), f, Brushes.Black, 2,2);
+                g.DrawString(Damage.ToString(), f, Brushes.Red, 1,1);
 			}
+            g.Dispose();
+            Invalidate();
 		}
 		public InventoryItemControl(short type,short damage,byte count)
 		{
@@ -184,6 +189,7 @@ namespace MineEdit
 			this.KeyDown += new KeyEventHandler(InventoryItem_KeyDown);
 			this.KeyUp += new KeyEventHandler(InventoryItem_KeyUp);
 			Changed += Render;
+            Render();
 		}
 
 		public InventoryItemControl(byte myslot,ref InventoryCollection inventoryCollection)
@@ -206,7 +212,6 @@ namespace MineEdit
 			catch (Exception) { }
 			Img = b.Image;
 			_Name = b.Name;
-			Render();
 			this.Inventory = inventoryCollection;
 			this.Inventory.Changed += new InventoryCollection.InventoryChangedDelegate(inventoryCollection_Changed);
 			this.AllowDrop = true;
@@ -216,6 +221,7 @@ namespace MineEdit
 			this.KeyDown += new KeyEventHandler(InventoryItem_KeyDown);
 			this.KeyUp += new KeyEventHandler(InventoryItem_KeyUp);
 			Changed += Render;
+			Render();
 		}
 
 		void inventoryCollection_Changed(byte slot)
@@ -234,7 +240,6 @@ namespace MineEdit
 				Img = b.Image;
 				_Name = b.Name;
 				Render();
-				Refresh();
 			}
 		}
 		bool DoCopy = false;

@@ -13,6 +13,8 @@ namespace OpenMinecraft
 		public event CorruptChunkHandler CorruptChunk;
 		public event ForEachProgressHandler ForEachProgress;
 
+        // Oh jesus.
+        // TODO: Go through all these fucking variables and sort them
 		NbtFile root = new NbtFile();
 		NbtFile chunk = new NbtFile();
 
@@ -44,9 +46,9 @@ namespace OpenMinecraft
 		public Vector3i MapMin { get { return new Vector3i(-1000, -1000, 0); } }
 		public Vector3i MapMax { get { return new Vector3i(1000, 1000, 127); } }
 
-		/// <summary>
-		/// BROKEN:  infdev currently resets this to 0,64,0
-		/// </summary>
+        int BlockCount = 0;
+        private bool InTransaction;
+
 		public Vector3i Spawn
 		{
 			get
@@ -440,25 +442,16 @@ namespace OpenMinecraft
 
 		private Chunk _LoadChunk(int x, int z)
 		{
-			byte[] CurrentBlocks;
-			/*
-			if (CurrentBlock.X == x && CurrentBlock.Z == z)
-			{
-				Console.WriteLine("Already loaded...!");
-				return null;
-			}
-			*/
-			//x = (x < 0) ? x - 2 : x;
-			//z = (z < 0) ? z - 2 : z;
 			CurrentBlock.X = x;
 			CurrentBlock.Z = z;
-			string derp;
+
 			Chunk c = new Chunk(this);
 			c.Loading = true;
 			c.Filename = GetChunkFilename(x, z);
 			c.CreationDate = File.GetCreationTime(c.Filename);
 			c.Creator = "?";
 			c.Size = ChunkScale;
+
 			if (!File.Exists(c.Filename))
 			{
 				Console.WriteLine("! {0}", c.Filename);
@@ -563,8 +556,6 @@ namespace OpenMinecraft
 			foreach (NbtCompound c in ents.Tags)
 			{
 				Entity hurp = Entity.GetEntity(c);
-				//hurp.Pos.X += ((double)CX*16d);
-				//hurp.Pos.Y += ((double)CY*16d);
 				hurp.UUID = Guid.NewGuid();
 				cnk.Entities.Add(hurp.UUID, hurp);
 				_Entities.Add(hurp.UUID, hurp);
@@ -837,27 +828,36 @@ namespace OpenMinecraft
 
 		public void RemoveEntity(Entity e)
 		{
+            // Get our UUID (why UUIDs, Rob? WTF)
 			Guid ID = e.UUID;
+
+            // Is this entity loaded?
 			if (_Entities.ContainsKey(ID))
 				_Entities.Remove(ID);
 
+            // Try and translate global coords to chunk local coords
+            // TODO: What the fuck are you doing
 			int CX = (int)e.Pos.X / 16;
 			int CY = (int)e.Pos.Y / 16;
 			e.Pos.X = (int)e.Pos.X % 16;
 			e.Pos.Y = (int)e.Pos.Y % 16;
 
+            // Find parent chunk, remove
 			string f = GetChunkFilename(CX, CY);
 			if (!File.Exists(f))
 			{
+                // Can't find it, so don't bother.
 				Console.WriteLine("! {0}", f);
 				return;
 			}
 			try
 			{
+                // Chunk found.
 				chunk = new NbtFile(f);
 				chunk.LoadFile();
 				NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
 
+                // Find entity and nuke it.
 				NbtList ents = (NbtList)level["Entities"];
 				if (e.OrigPos != null)
 				{
@@ -880,8 +880,6 @@ namespace OpenMinecraft
 			}
 			catch (Exception) { }
 		}
-		int BlockCount = 0;
-		private bool InTransaction;
 
 		private int GetBlockIndex(int x, int y, int z)
 		{
