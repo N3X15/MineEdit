@@ -1,16 +1,39 @@
-﻿using System;
+﻿/**
+ * Copyright (c) 2010, Rob "N3X15" Nelson <nexis@7chan.org>
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without 
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice, 
+ *      this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright 
+ *      notice, this list of conditions and the following disclaimer in the 
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of MineEdit nor the names of its contributors 
+ *      may be used to endorse or promote products derived from this software 
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-
 using System.Drawing;
-
-using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using OpenMinecraft;
 using OpenMinecraft.Entities;
 using OpenMinecraft.TileEntities;
-using OpenMinecraft._3DRendering;
-using System.Threading;
 namespace MineEdit
 {
     public partial class frmMap : Form
@@ -19,7 +42,7 @@ namespace MineEdit
         // Use this TEMPORARILY.
         //protected MapControl mapCtrl;
         // Work towards using THIS.
-        protected Viewport mapCtrl;
+        //protected Viewport mapCtrl;
         private Inventory invMain;
         private TabPage tabMaterials;
         private Panel pnlMaterials;
@@ -86,24 +109,9 @@ namespace MineEdit
         public frmMap()
         {
             InitializeComponent();
-            /*
-            lblMapDisabled.Text = "Map is completely broken, so it has been disabled for the time being.\n\nIf you'd like to help, please contact me, 'cuz I'm stumped.";
-            lblMapDisabled.Dock = DockStyle.Fill;
-            lblMapDisabled.TextAlign = ContentAlignment.TopCenter;
-            tabMap.Controls.Add(lblMapDisabled);
-            tclMap.SelectedTab = tabInventory;
-            */
 
             //mapCtrl = new MapControl();
             tabControl.TabPages.Remove(tabMap);
-
-            /*
-            mapCtrl = new Viewport();
-            tabMap.Controls.Add(mapCtrl);
-            mapCtrl.Dock = DockStyle.Fill;
-            mapCtrl.MouseDown += new MouseEventHandler(mapCtrl_MouseDown);*/
-            //mapCtrl.EntityClicked += new MapControl.EntityClickHandler(mapCtrl_EntityClicked);
-//            mapCtrl.TileEntityClicked += new MapControl.TileEntityClickHandler(mapCtrl_TileEntityClicked);
 
             Replacements.DrawItem += new DrawItemEventHandler(Replacements_DrawItem);
             SetStyle(ControlStyles.ResizeRedraw, true);
