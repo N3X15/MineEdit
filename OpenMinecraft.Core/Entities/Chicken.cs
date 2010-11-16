@@ -68,7 +68,7 @@ namespace OpenMinecraft.Entities
     public class Chicken : LivingEntity
     {
 
-        private static Image icon = new Bitmap("mobs/notch.png");
+        private static Image icon = new Bitmap("mobs/chicken.png");
         public Chicken()
         {
         }
