@@ -44,26 +44,6 @@ namespace MineEdit
         // Work towards using THIS.
         //protected Viewport mapCtrl;
         private Inventory invMain;
-        private TabPage tabMaterials;
-        private Panel pnlMaterials;
-        private GroupBox grpReplacements;
-        private ToolStrip replacementsToolstrip;
-        private ToolStripLabel lblTemplatesReplacements;
-        private BlockSelector blkWith;
-        private Label lblWith;
-        private BlockSelector blkReplace;
-        private Label lblReplace;
-        private ListBox Replacements;
-        private ToolStripButton tsbOpenReplacement;
-        private ToolStripButton tsbSaveReplacement;
-        private ToolStripButton tsbNewReplacement;
-        private ToolStripSeparator toolStripSeparator1;
-        private ToolStripComboBox cmbReplacements;
-        private ToolStripButton tsbRefreshReplacements;
-        private Button cmdClear;
-        private Button cmdRemoveReplacement;
-        private Button cmdAddReplacement;
-        private Button cmdReplace;
         private TabPage tabCharacter;
         private TabPage tabEntities;
         private EntityEditor entityEditor1;
@@ -113,7 +93,6 @@ namespace MineEdit
             //mapCtrl = new MapControl();
             tabControl.TabPages.Remove(tabMap);
 
-            Replacements.DrawItem += new DrawItemEventHandler(Replacements_DrawItem);
             SetStyle(ControlStyles.ResizeRedraw, true);
             this.ViewingAngle = ViewAngle.TopDown;
 
@@ -147,48 +126,6 @@ namespace MineEdit
             mTooltip.SetToolTip(numFire,        "How on fire you are?\nA value of -200 appears to indicate you're not on fire.");
             mTooltip.SetToolTip(numAir,         "How much oxygen you have left (if underwater).\n300 = full air.");
             mTooltip.SetToolTip(numHurtTime,    "I have no idea what this is, but it will hurt you when you load the game if not set to 0.");
-        }
-        void Replacements_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            Graphics g = e.Graphics;
-            Rectangle area = e.Bounds;
-            Rectangle iconArea = area;
-            iconArea.Width = 16;
-            if (e.Index >= 0)
-            {
-                e.DrawBackground();
-                Block enta = Blocks.Get((short)((KeyValuePair<byte, byte>)Replacements.Items[e.Index]).Key);
-                Block entb = Blocks.Get((short)((KeyValuePair<byte, byte>)Replacements.Items[e.Index]).Value);
-
-                // Draw block icon A
-                g.DrawImage(enta.Image, iconArea);
-
-                // Block Name A
-                SizeF idaSz = g.MeasureString(enta.ToString(), this.Font);
-                Rectangle idAreaA = area;
-                idAreaA.X = iconArea.Right + 3;
-                idAreaA.Width = (int)idaSz.Width + 1;
-                g.DrawString(enta.ToString(), this.Font, new SolidBrush(Color.FromArgb(128, e.ForeColor)), idAreaA);
-
-                // Arrow
-                SizeF arrowsz = g.MeasureString("->", this.Font);
-                Rectangle ctxt = area;
-                ctxt.X = idAreaA.Right + 3;
-                ctxt.Width = (int)arrowsz.Width + 1;
-                g.DrawString("->", this.Font, new SolidBrush(e.ForeColor), ctxt);
-
-
-                // Draw block icon B
-                iconArea.X = ctxt.Right + 3;
-                g.DrawImage(entb.Image, iconArea);
-
-                // Block Name B
-                SizeF idbSz = g.MeasureString(entb.ToString(), this.Font);
-                Rectangle idAreaB = area;
-                idAreaB.X = iconArea.Right + 3;
-                idAreaB.Width = (int)idbSz.Width + 1;
-                g.DrawString(entb.ToString(), this.Font, new SolidBrush(Color.FromArgb(128, e.ForeColor)), idAreaB);
-            }
         }
 
         void mapCtrl_TileEntityClicked(TileEntity e)
@@ -473,7 +410,7 @@ namespace MineEdit
         {
             
         }
-
+        /*
         private void ClearSnow()
         {
             Replacements.Items.Clear();
@@ -484,78 +421,8 @@ namespace MineEdit
             Replacements.Items.Add(new KeyValuePair<byte, byte>(lolice, lolwater));
             DoReplace();
         }
-
-        private void DoReplace()
-        {
-            
-            this.Enabled = false;
-            string q = "Are you sure you want to do the following replacements:\n\n\t{0}\n\nTHIS WILL TAKE A VERY LONG TIME!";
-            List<string> reps = new List<string>();
-            foreach (KeyValuePair<byte, byte> rep in Replacements.Items)
-            {
-                reps.Add(string.Format("{0} to {1}",Blocks.Get((short)rep.Key).Name,Blocks.Get((short)rep.Value).Name));
-            }
-            DialogResult dr = MessageBox.Show(string.Format(q,string.Join("\n\t",reps.ToArray())), "Are you sure?", MessageBoxButtons.YesNo);
-
-
-            if (dr == DialogResult.Yes)
-            {
-                dlgLongTask dlt = new dlgLongTask();
-                dlt.Title = "Replacing blocks";
-                dlt.Subtitle = "This will take a long time, take a break.";
-                dlt.VocabSubtask = "subtask";
-                dlt.VocabSubtasks = "subtasks";
-                dlt.VocabTask = "chunk";
-                dlt.VocabTasks = "chunks";
-                dlt.Start(delegate()
-                {
-                    Map.ForEachProgress += new ForEachProgressHandler(delegate(int Total, int Progress)
-                    {
-                        dlt.TasksTotal = Total;
-                        dlt.TasksComplete = Progress;
-                    });
-                    dlt.CurrentTask = "Replacing blocks...";
-                    _Map.ForEachChunk(delegate(long X, long Y)
-                    {
-                        dlt.CurrentTask = string.Format("Replacing stuff in chunk {0} of {1}...", dlt.TasksComplete, dlt.TasksTotal);
-                        Dictionary<byte, byte> durr = new Dictionary<byte, byte>();
-                        foreach (KeyValuePair<byte, byte> derp in Replacements.Items)
-                        {
-                            durr.Add(derp.Key, derp.Value);
-                        }
-                        _Map.ReplaceBlocksIn(X, Y, durr);
-                        ++ProcessedChunks;
-                    });
-                });
-                dlt.ShowDialog();
-                (MdiParent as frmMain).ResetStatus();
-                dlt.Done();
-                MessageBox.Show("Done.", "Operation complete!");
-            }
-            this.Enabled = true;
-        }
-        private void chkSnow_CheckedChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void cmdDefrost_Click(object sender, EventArgs e)
-        {
-            ClearSnow();
-        }
-
-        private void cmdClear_Click(object sender, EventArgs e)
-        {
-            Replacements.Items.Clear();
-        }
-
-        private void cmdRemove_Click(object sender, EventArgs e)
-        {
-            if (Replacements.SelectedItem != null)
-            {
-                Replacements.Items.Remove(Replacements.SelectedItem);
-            }
-        }
-
+        */
+        /*
         private void cmdReplaceWaterWithLava_Click(object sender, EventArgs e)
         {
             Replacements.Items.Clear();
@@ -568,11 +435,7 @@ namespace MineEdit
 
             DoReplace();
         }
-
-        private void cmdReplace_Click(object sender, EventArgs e)
-        {
-            DoReplace();
-        }
+        */
 
         internal void FixLava()
         {
@@ -624,34 +487,11 @@ namespace MineEdit
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMap));
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabMap = new System.Windows.Forms.TabPage();
             this.tabInventory = new System.Windows.Forms.TabPage();
-            this.invMain = new MineEdit.Inventory();
-            this.tabMaterials = new System.Windows.Forms.TabPage();
-            this.pnlMaterials = new System.Windows.Forms.Panel();
-            this.grpReplacements = new System.Windows.Forms.GroupBox();
-            this.cmdClear = new System.Windows.Forms.Button();
-            this.cmdRemoveReplacement = new System.Windows.Forms.Button();
-            this.cmdAddReplacement = new System.Windows.Forms.Button();
-            this.cmdReplace = new System.Windows.Forms.Button();
-            this.replacementsToolstrip = new System.Windows.Forms.ToolStrip();
-            this.lblTemplatesReplacements = new System.Windows.Forms.ToolStripLabel();
-            this.tsbNewReplacement = new System.Windows.Forms.ToolStripButton();
-            this.tsbOpenReplacement = new System.Windows.Forms.ToolStripButton();
-            this.tsbSaveReplacement = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.cmbReplacements = new System.Windows.Forms.ToolStripComboBox();
-            this.tsbRefreshReplacements = new System.Windows.Forms.ToolStripButton();
-            this.blkWith = new MineEdit.BlockSelector();
-            this.lblWith = new System.Windows.Forms.Label();
-            this.blkReplace = new MineEdit.BlockSelector();
-            this.lblReplace = new System.Windows.Forms.Label();
-            this.Replacements = new System.Windows.Forms.ListBox();
             this.tabCharacter = new System.Windows.Forms.TabPage();
             this.grpTime = new System.Windows.Forms.GroupBox();
-            this.dlTime = new MineEdit.UIControls.Dial();
             this.lblTime = new System.Windows.Forms.Label();
             this.txtTime = new System.Windows.Forms.TextBox();
             this.cmdReset = new System.Windows.Forms.Button();
@@ -684,16 +524,14 @@ namespace MineEdit
             this.lblHealth = new System.Windows.Forms.Label();
             this.numHealth = new System.Windows.Forms.NumericUpDown();
             this.tabEntities = new System.Windows.Forms.TabPage();
-            this.entityEditor1 = new MineEdit.EntityEditor();
             this.tabTileEntities = new System.Windows.Forms.TabPage();
-            this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
             this.mTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.invMain = new MineEdit.Inventory();
+            this.dlTime = new MineEdit.UIControls.Dial();
+            this.entityEditor1 = new MineEdit.EntityEditor();
+            this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
             this.tabControl.SuspendLayout();
             this.tabInventory.SuspendLayout();
-            this.tabMaterials.SuspendLayout();
-            this.pnlMaterials.SuspendLayout();
-            this.grpReplacements.SuspendLayout();
-            this.replacementsToolstrip.SuspendLayout();
             this.tabCharacter.SuspendLayout();
             this.grpTime.SuspendLayout();
             this.grpPosition.SuspendLayout();
@@ -719,7 +557,6 @@ namespace MineEdit
             // 
             this.tabControl.Controls.Add(this.tabMap);
             this.tabControl.Controls.Add(this.tabInventory);
-            this.tabControl.Controls.Add(this.tabMaterials);
             this.tabControl.Controls.Add(this.tabCharacter);
             this.tabControl.Controls.Add(this.tabEntities);
             this.tabControl.Controls.Add(this.tabTileEntities);
@@ -751,219 +588,6 @@ namespace MineEdit
             this.tabInventory.Text = "Inventory";
             this.tabInventory.UseVisualStyleBackColor = true;
             // 
-            // invMain
-            // 
-            this.invMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.invMain.Location = new System.Drawing.Point(3, 3);
-            this.invMain.Map = null;
-            this.invMain.Name = "invMain";
-            this.invMain.Size = new System.Drawing.Size(610, 281);
-            this.invMain.TabIndex = 0;
-            // 
-            // tabMaterials
-            // 
-            this.tabMaterials.Controls.Add(this.pnlMaterials);
-            this.tabMaterials.Location = new System.Drawing.Point(4, 22);
-            this.tabMaterials.Name = "tabMaterials";
-            this.tabMaterials.Padding = new System.Windows.Forms.Padding(3);
-            this.tabMaterials.Size = new System.Drawing.Size(616, 287);
-            this.tabMaterials.TabIndex = 2;
-            this.tabMaterials.Text = "Materials";
-            this.tabMaterials.UseVisualStyleBackColor = true;
-            // 
-            // pnlMaterials
-            // 
-            this.pnlMaterials.Controls.Add(this.grpReplacements);
-            this.pnlMaterials.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlMaterials.Location = new System.Drawing.Point(3, 3);
-            this.pnlMaterials.Name = "pnlMaterials";
-            this.pnlMaterials.Size = new System.Drawing.Size(610, 281);
-            this.pnlMaterials.TabIndex = 0;
-            // 
-            // grpReplacements
-            // 
-            this.grpReplacements.Controls.Add(this.cmdClear);
-            this.grpReplacements.Controls.Add(this.cmdRemoveReplacement);
-            this.grpReplacements.Controls.Add(this.cmdAddReplacement);
-            this.grpReplacements.Controls.Add(this.cmdReplace);
-            this.grpReplacements.Controls.Add(this.replacementsToolstrip);
-            this.grpReplacements.Controls.Add(this.blkWith);
-            this.grpReplacements.Controls.Add(this.lblWith);
-            this.grpReplacements.Controls.Add(this.blkReplace);
-            this.grpReplacements.Controls.Add(this.lblReplace);
-            this.grpReplacements.Controls.Add(this.Replacements);
-            this.grpReplacements.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpReplacements.Location = new System.Drawing.Point(0, 0);
-            this.grpReplacements.Name = "grpReplacements";
-            this.grpReplacements.Size = new System.Drawing.Size(610, 161);
-            this.grpReplacements.TabIndex = 0;
-            this.grpReplacements.TabStop = false;
-            this.grpReplacements.Text = "Replace blocks";
-            // 
-            // cmdClear
-            // 
-            this.cmdClear.Location = new System.Drawing.Point(404, 121);
-            this.cmdClear.Name = "cmdClear";
-            this.cmdClear.Size = new System.Drawing.Size(75, 23);
-            this.cmdClear.TabIndex = 8;
-            this.cmdClear.Text = "Clear";
-            this.cmdClear.UseVisualStyleBackColor = true;
-            this.cmdClear.Click += new System.EventHandler(this.cmdClear_Click);
-            // 
-            // cmdRemoveReplacement
-            // 
-            this.cmdRemoveReplacement.Location = new System.Drawing.Point(404, 49);
-            this.cmdRemoveReplacement.Name = "cmdRemoveReplacement";
-            this.cmdRemoveReplacement.Size = new System.Drawing.Size(75, 23);
-            this.cmdRemoveReplacement.TabIndex = 7;
-            this.cmdRemoveReplacement.Text = "Remove";
-            this.cmdRemoveReplacement.UseVisualStyleBackColor = true;
-            this.cmdRemoveReplacement.Click += new System.EventHandler(this.cmdRemove_Click);
-            // 
-            // cmdAddReplacement
-            // 
-            this.cmdAddReplacement.Location = new System.Drawing.Point(186, 106);
-            this.cmdAddReplacement.Name = "cmdAddReplacement";
-            this.cmdAddReplacement.Size = new System.Drawing.Size(75, 23);
-            this.cmdAddReplacement.TabIndex = 5;
-            this.cmdAddReplacement.Text = "Add =>";
-            this.cmdAddReplacement.UseVisualStyleBackColor = true;
-            this.cmdAddReplacement.Click += new System.EventHandler(this.cmdAddReplacement_Click);
-            // 
-            // cmdReplace
-            // 
-            this.cmdReplace.Enabled = false;
-            this.cmdReplace.Location = new System.Drawing.Point(485, 49);
-            this.cmdReplace.Name = "cmdReplace";
-            this.cmdReplace.Size = new System.Drawing.Size(75, 95);
-            this.cmdReplace.TabIndex = 9;
-            this.cmdReplace.Text = "Replace!";
-            this.cmdReplace.UseVisualStyleBackColor = true;
-            this.cmdReplace.Click += new System.EventHandler(this.cmdReplace_Click);
-            // 
-            // replacementsToolstrip
-            // 
-            this.replacementsToolstrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.lblTemplatesReplacements,
-            this.tsbNewReplacement,
-            this.tsbOpenReplacement,
-            this.tsbSaveReplacement,
-            this.toolStripSeparator1,
-            this.cmbReplacements,
-            this.tsbRefreshReplacements});
-            this.replacementsToolstrip.Location = new System.Drawing.Point(3, 16);
-            this.replacementsToolstrip.Name = "replacementsToolstrip";
-            this.replacementsToolstrip.Size = new System.Drawing.Size(604, 25);
-            this.replacementsToolstrip.TabIndex = 0;
-            this.replacementsToolstrip.Text = "toolStrip1";
-            // 
-            // lblTemplatesReplacements
-            // 
-            this.lblTemplatesReplacements.Name = "lblTemplatesReplacements";
-            this.lblTemplatesReplacements.Size = new System.Drawing.Size(65, 22);
-            this.lblTemplatesReplacements.Text = "Templates:";
-            // 
-            // tsbNewReplacement
-            // 
-            this.tsbNewReplacement.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbNewReplacement.Image = ((System.Drawing.Image)(resources.GetObject("tsbNewReplacement.Image")));
-            this.tsbNewReplacement.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbNewReplacement.Name = "tsbNewReplacement";
-            this.tsbNewReplacement.Size = new System.Drawing.Size(23, 22);
-            this.tsbNewReplacement.Text = "New...";
-            // 
-            // tsbOpenReplacement
-            // 
-            this.tsbOpenReplacement.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbOpenReplacement.Image = global::MineEdit.Properties.Resources.document_open;
-            this.tsbOpenReplacement.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbOpenReplacement.Name = "tsbOpenReplacement";
-            this.tsbOpenReplacement.Size = new System.Drawing.Size(23, 22);
-            this.tsbOpenReplacement.Text = "Open...";
-            // 
-            // tsbSaveReplacement
-            // 
-            this.tsbSaveReplacement.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbSaveReplacement.Image = global::MineEdit.Properties.Resources.document_save;
-            this.tsbSaveReplacement.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbSaveReplacement.Name = "tsbSaveReplacement";
-            this.tsbSaveReplacement.Size = new System.Drawing.Size(23, 22);
-            this.tsbSaveReplacement.Text = "Save...";
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // cmbReplacements
-            // 
-            this.cmbReplacements.Name = "cmbReplacements";
-            this.cmbReplacements.Size = new System.Drawing.Size(121, 25);
-            this.cmbReplacements.Text = "Replacements...";
-            // 
-            // tsbRefreshReplacements
-            // 
-            this.tsbRefreshReplacements.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbRefreshReplacements.Image = global::MineEdit.Properties.Resources.view_refresh;
-            this.tsbRefreshReplacements.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbRefreshReplacements.Name = "tsbRefreshReplacements";
-            this.tsbRefreshReplacements.Size = new System.Drawing.Size(23, 22);
-            this.tsbRefreshReplacements.Text = "Refresh";
-            // 
-            // blkWith
-            // 
-            this.blkWith.BlocksOnly = false;
-            this.blkWith.DisplayMember = "Name";
-            this.blkWith.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.blkWith.FormattingEnabled = true;
-            this.blkWith.Location = new System.Drawing.Point(62, 79);
-            this.blkWith.Name = "blkWith";
-            this.blkWith.Size = new System.Drawing.Size(199, 21);
-            this.blkWith.TabIndex = 4;
-            this.blkWith.ValueMember = "ID";
-            this.blkWith.SelectedIndexChanged += new System.EventHandler(this.CheckIfAddAllowed);
-            // 
-            // lblWith
-            // 
-            this.lblWith.AutoSize = true;
-            this.lblWith.Location = new System.Drawing.Point(24, 82);
-            this.lblWith.Name = "lblWith";
-            this.lblWith.Size = new System.Drawing.Size(32, 13);
-            this.lblWith.TabIndex = 3;
-            this.lblWith.Text = "With:";
-            // 
-            // blkReplace
-            // 
-            this.blkReplace.BlocksOnly = false;
-            this.blkReplace.DisplayMember = "Name";
-            this.blkReplace.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.blkReplace.FormattingEnabled = true;
-            this.blkReplace.Location = new System.Drawing.Point(62, 49);
-            this.blkReplace.Name = "blkReplace";
-            this.blkReplace.Size = new System.Drawing.Size(199, 21);
-            this.blkReplace.TabIndex = 2;
-            this.blkReplace.ValueMember = "ID";
-            this.blkReplace.SelectedIndexChanged += new System.EventHandler(this.CheckIfAddAllowed);
-            // 
-            // lblReplace
-            // 
-            this.lblReplace.AutoSize = true;
-            this.lblReplace.Location = new System.Drawing.Point(6, 52);
-            this.lblReplace.Name = "lblReplace";
-            this.lblReplace.Size = new System.Drawing.Size(50, 13);
-            this.lblReplace.TabIndex = 1;
-            this.lblReplace.Text = "Replace:";
-            // 
-            // Replacements
-            // 
-            this.Replacements.FormattingEnabled = true;
-            this.Replacements.Location = new System.Drawing.Point(278, 49);
-            this.Replacements.Name = "Replacements";
-            this.Replacements.Size = new System.Drawing.Size(120, 95);
-            this.Replacements.TabIndex = 6;
-            this.Replacements.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.Replacements_DrawItem);
-            this.Replacements.SelectedIndexChanged += new System.EventHandler(this.Replacements_SelectedIndexChanged);
-            // 
             // tabCharacter
             // 
             this.tabCharacter.Controls.Add(this.grpTime);
@@ -990,20 +614,6 @@ namespace MineEdit
             this.grpTime.TabIndex = 4;
             this.grpTime.TabStop = false;
             this.grpTime.Text = "Time of Day";
-            // 
-            // dlTime
-            // 
-            this.dlTime.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.dlTime.Label = null;
-            this.dlTime.Location = new System.Drawing.Point(6, 13);
-            this.dlTime.Maximum = 24000D;
-            this.dlTime.Name = "dlTime";
-            this.dlTime.Size = new System.Drawing.Size(62, 66);
-            this.dlTime.TabIndex = 3;
-            this.mTooltip.SetToolTip(this.dlTime, "Upside-down graphical representation of sun angle, which is what this actually af" +
-                    "fects.");
-            this.dlTime.Value = 0D;
-            this.dlTime.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dlTime_MouseDown);
             // 
             // lblTime
             // 
@@ -1458,6 +1068,40 @@ namespace MineEdit
             this.tabEntities.Text = "Entities";
             this.tabEntities.UseVisualStyleBackColor = true;
             // 
+            // tabTileEntities
+            // 
+            this.tabTileEntities.Controls.Add(this.tileEntityEditor1);
+            this.tabTileEntities.Location = new System.Drawing.Point(4, 22);
+            this.tabTileEntities.Name = "tabTileEntities";
+            this.tabTileEntities.Padding = new System.Windows.Forms.Padding(3);
+            this.tabTileEntities.Size = new System.Drawing.Size(616, 287);
+            this.tabTileEntities.TabIndex = 5;
+            this.tabTileEntities.Text = "Tile Entities";
+            this.tabTileEntities.UseVisualStyleBackColor = true;
+            // 
+            // invMain
+            // 
+            this.invMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.invMain.Location = new System.Drawing.Point(3, 3);
+            this.invMain.Map = null;
+            this.invMain.Name = "invMain";
+            this.invMain.Size = new System.Drawing.Size(610, 281);
+            this.invMain.TabIndex = 0;
+            // 
+            // dlTime
+            // 
+            this.dlTime.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.dlTime.Label = null;
+            this.dlTime.Location = new System.Drawing.Point(6, 13);
+            this.dlTime.Maximum = 24000D;
+            this.dlTime.Name = "dlTime";
+            this.dlTime.Size = new System.Drawing.Size(62, 66);
+            this.dlTime.TabIndex = 3;
+            this.mTooltip.SetToolTip(this.dlTime, "Upside-down graphical representation of sun angle, which is what this actually af" +
+                    "fects.");
+            this.dlTime.Value = 0D;
+            this.dlTime.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dlTime_MouseDown);
+            // 
             // entityEditor1
             // 
             this.entityEditor1.CurrentEntity = null;
@@ -1469,17 +1113,7 @@ namespace MineEdit
             this.entityEditor1.Size = new System.Drawing.Size(610, 281);
             this.entityEditor1.SpawnPos = null;
             this.entityEditor1.TabIndex = 0;
-            // 
-            // tabTileEntities
-            // 
-            this.tabTileEntities.Controls.Add(this.tileEntityEditor1);
-            this.tabTileEntities.Location = new System.Drawing.Point(4, 22);
-            this.tabTileEntities.Name = "tabTileEntities";
-            this.tabTileEntities.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTileEntities.Size = new System.Drawing.Size(616, 287);
-            this.tabTileEntities.TabIndex = 5;
-            this.tabTileEntities.Text = "Tile Entities";
-            this.tabTileEntities.UseVisualStyleBackColor = true;
+            this.entityEditor1.EntityAdded += new MineEdit.EntityEditor.EntityHandler(this.entityEditor1_EntityAdded);
             // 
             // tileEntityEditor1
             // 
@@ -1502,12 +1136,6 @@ namespace MineEdit
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.tabControl.ResumeLayout(false);
             this.tabInventory.ResumeLayout(false);
-            this.tabMaterials.ResumeLayout(false);
-            this.pnlMaterials.ResumeLayout(false);
-            this.grpReplacements.ResumeLayout(false);
-            this.grpReplacements.PerformLayout();
-            this.replacementsToolstrip.ResumeLayout(false);
-            this.replacementsToolstrip.PerformLayout();
             this.tabCharacter.ResumeLayout(false);
             this.grpTime.ResumeLayout(false);
             this.grpTime.PerformLayout();
@@ -1534,31 +1162,6 @@ namespace MineEdit
 
         }
 
-        private void CheckIfAddAllowed(object sender, EventArgs e)
-        {
-            cmdAddReplacement.Enabled = (blkReplace.SelectedItem != null && blkWith.SelectedItem != null);
-        }
-
-        private void cmdAddReplacement_Click(object sender, EventArgs e)
-        {
-            byte a = (byte)(blkReplace.SelectedItem as Block).ID;
-            byte b = (byte)(blkWith.SelectedItem as Block).ID;
-            Replacements.Items.Add(new KeyValuePair<byte, byte>(a, b));
-            CheckReplaceButtons();
-        }
-
-        private void CheckReplaceButtons()
-        {
-            bool stuff = (Replacements.Items.Count > 0);
-            cmdReplace.Enabled = stuff;
-            cmdClear.Enabled = stuff;
-        }
-
-        private void Replacements_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            cmdRemoveReplacement.Enabled=(Replacements.SelectedItem != null);
-        }
-
         private void dlTime_MouseDown(object sender, MouseEventArgs e)
         {
             txtTime.Text = ((int)Math.Round(dlTime.Value)).ToString();
@@ -1576,6 +1179,11 @@ namespace MineEdit
             int nv = (int)val % (int)dlTime.Maximum; ;
             dlTime.Value = nv;
             _Map.Time = nv;
+        }
+
+        private void entityEditor1_EntityAdded(Entity e)
+        {
+
         }
 
    }

@@ -23,6 +23,10 @@ namespace OpenMinecraft.TileEntities
 	{
 		private static Image icon;
 		public string[] Text = new string[4];
+
+        // Needed for autoload
+        public Sign() { }
+
 		public Sign(int CX, int CY, int CS, LibNbt.Tags.NbtCompound c)
 			: base(CX, CY, CS, c)
 		{
@@ -69,5 +73,10 @@ namespace OpenMinecraft.TileEntities
 
 			return "Sign ("+Text.ToString()+")";
 		}
+
+        public override string GetID()
+        {
+            return "Sign";
+        }
 	}
 }

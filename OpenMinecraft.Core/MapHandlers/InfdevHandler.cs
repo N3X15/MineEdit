@@ -458,8 +458,10 @@ namespace OpenMinecraft
 				Console.WriteLine("! {0}", c.Filename);
 				return null;
 			}
+//#if !DEBUG
 			try
 			{
+//#endif
 				chunk = new NbtFile(c.Filename);
 				chunk.LoadFile();
 
@@ -525,7 +527,9 @@ namespace OpenMinecraft
 				//if (c>0)  Console.WriteLine("*** {0} spawners found.", c);
 				//Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
 				return c;
-			}
+
+//#if !DEBUG
+            }
 			catch (Exception e)
 			{
 				string err = string.Format(" *** ERROR: Chunk {0},{1} ({2}) failed to load:\n\n{3}", x, z, c.Filename, e);
@@ -534,6 +538,7 @@ namespace OpenMinecraft
 					CorruptChunk(err, c.Filename);
 				return null;
 			}
+//#endif
 		}
 
 		private byte[, ,] DecompressBlocks(byte[] p)

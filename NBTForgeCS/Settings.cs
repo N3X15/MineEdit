@@ -79,13 +79,18 @@ namespace MineEdit
             }
             if (File.Exists(".settings"))
             {
-                NbtFile f = new NbtFile(".settings");
-                f.LoadFile();
-                ShowGridLines = f.RootTag.Get<NbtByte>("GridLines").Value == 0x01 ? true : false;
-                ShowChunks = f.RootTag.Get<NbtByte>("ShowChunks").Value == 0x01 ? true : false;
-                ShowMapIcons = f.RootTag.Get<NbtByte>("ShowMapIcons").Value == 0x01 ? true : false;
-                ShowWaterDepth = f.RootTag.Get<NbtByte>("ShowWaterDepth").Value == 0x01 ? true : false;
-                f.Dispose();
+                try
+                {
+                    NbtFile f = new NbtFile(".settings");
+                    f.LoadFile();
+                    ShowGridLines = f.RootTag.Get<NbtByte>("GridLines").Value == 0x01 ? true : false;
+                    ShowChunks = f.RootTag.Get<NbtByte>("ShowChunks").Value == 0x01 ? true : false;
+                    ShowMapIcons = f.RootTag.Get<NbtByte>("ShowMapIcons").Value == 0x01 ? true : false;
+                    ShowWaterDepth = f.RootTag.Get<NbtByte>("ShowWaterDepth").Value == 0x01 ? true : false;
+                    f.Dispose();
+                }
+                catch (Exception)
+                { Save(); }
             }
         }
 

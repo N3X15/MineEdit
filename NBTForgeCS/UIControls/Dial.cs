@@ -82,15 +82,17 @@ namespace MineEdit.UIControls
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             bool DrawText = e.ClipRectangle.Height == e.ClipRectangle.Width && e.ClipRectangle.Width >= 64;
             Pen circlecolor = new Pen(Focused ? Color.Orange : SystemColors.ControlText,2f);
+
+            DrawNightMarker(ref g);
             // Draw dial radius
             g.DrawEllipse(circlecolor, 2, 2, e.ClipRectangle.Width - 5, e.ClipRectangle.Width - 5);
-            //g.DrawEllipse(Pens.Aqua, 4, 4, e.ClipRectangle.Width - 8, e.ClipRectangle.Width - 8);
-            //g.DrawEllipse(Pens.Orange, 1, 1, e.ClipRectangle.Width - 2, e.ClipRectangle.Width - 2);
             
             // Draw line at value
-
             mCenter = new PointF((ClientRectangle.Width / 2) - 1, (ClientRectangle.Width / 2) - 1);
+            
+            // Black = current value
             DrawAngle(ref g,lineValue, Pens.Red);
+            // Red = mouse-driven value
             DrawAngle(ref g,mValue,circlecolor);
 
             // Draw Text
@@ -98,11 +100,28 @@ namespace MineEdit.UIControls
             centerme.Alignment = StringAlignment.Center;
             centerme.LineAlignment = StringAlignment.Center;
 
-            string display = mValue.ToString("F")+"\n"+Value.ToString("F"); //string.Format("val:{0}\nmax:{1}", val, max);
+            string display = ((int)mValue).ToString()+"°\n"+((int)Value).ToString(); //string.Format("val:{0}\nmax:{1}", val, max);
             if(!string.IsNullOrEmpty(Label) && DrawText)
                 display=Label+"\n"+display;
             g.DrawString(display, this.Font,SystemBrushes.ControlText,e.ClipRectangle,centerme);
             //g.Dispose();
+        }
+
+        /// <summary>
+        /// Draw a transparent half-ellipse to mark the night side of the dial.
+        /// </summary>
+        /// <param name="g"></param>
+        private void DrawNightMarker(ref Graphics g)
+        {    // Create solid brush.
+            SolidBrush redBrush = new SolidBrush(Color.FromArgb(128,Color.Black));
+
+            Rectangle rect = new Rectangle(2, 2, DisplayRectangle.Width - 5, DisplayRectangle.Width - 5);
+            // Create start and sweep angles.
+            float startAngle = 180.0F;
+            float sweepAngle = 180.0F;
+
+            // Fill pie to screen.
+            g.FillPie(redBrush, rect, startAngle, sweepAngle);
         }
 
         private void DrawAngle(ref Graphics g, double ang,Pen c)

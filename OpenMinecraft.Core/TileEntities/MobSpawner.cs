@@ -11,6 +11,10 @@ namespace OpenMinecraft.TileEntities
     	private static System.Drawing.Image icon;
         public string EntityId = "Pig";
         public short Delay = 20;
+
+        // Needed for autoload
+        public MobSpawner() { }
+
         public MobSpawner(int CX, int CY, int CS, LibNbt.Tags.NbtCompound c)
             : base(CX, CY, CS, c)
         {
@@ -47,6 +51,11 @@ namespace OpenMinecraft.TileEntities
         public override string ToString()
         {
             return EntityId+" Spawner";
+        }
+
+        public override string GetID()
+        {
+            return "MobSpawner";
         }
     }
 }

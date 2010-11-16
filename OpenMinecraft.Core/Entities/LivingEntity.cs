@@ -1,23 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/**
+ * Copyright (c) 2010, Rob "N3X15" Nelson <nexis@7chan.org>
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without 
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice, 
+ *      this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright 
+ *      notice, this list of conditions and the following disclaimer in the 
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of MineEdit nor the names of its contributors 
+ *      may be used to endorse or promote products derived from this software 
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
-using System.Text;
-using LibNbt.Tags;
-using System.Drawing;
 using System.ComponentModel;
+using System.Drawing;
+using LibNbt.Tags;
 
 namespace OpenMinecraft.Entities
 {
     public class LivingEntity:Entity
     {
 
-		private static Image icon = new Bitmap("mobs/pig.png");
-        [Category("LivingEntity")]
-        [Description("Health of the living entity.")]
+		
+        [Category("LivingEntity"),Description("Health of the living entity.")]
         public short Health = 20;
 
-        [Category("LivingEntity")]
-        [Description("Affects what damage is currently being dealt.  (If left nonzero while healing, the entity will be sideways.)")]
+        [Category("LivingEntity"),Description("Affects what damage is currently being dealt.  (If left nonzero while healing, the entity will be sideways.)")]
         public short HurtTime = 0;
 
         [Category("LivingEntity")]
@@ -26,6 +48,8 @@ namespace OpenMinecraft.Entities
         [Category("LivingEntity")]
         public short DeathTime = 0;
 
+        private string lolID = ""; 
+        private static Image icon = new Bitmap("mobs/pig.png");
 
         public LivingEntity()
         {
@@ -33,6 +57,7 @@ namespace OpenMinecraft.Entities
         public LivingEntity(NbtCompound c)
         {
             SetBaseStuff(c);
+            lolID = (c["id"] as NbtString).Value;
             Health = (c["Health"] as NbtShort).Value;
             HurtTime = (c["HurtTime"] as NbtShort).Value;
             AttackTime = (c["AttackTime"] as NbtShort).Value;
@@ -43,22 +68,22 @@ namespace OpenMinecraft.Entities
         {
             NbtCompound c = new NbtCompound();
             Base2NBT(ref c,GetID());
-            c.Tags.Add(new NbtShort("Health", Health));
-            c.Tags.Add(new NbtShort("HurtTime", HurtTime));
-            c.Tags.Add(new NbtShort("AttackTime", AttackTime));
-            c.Tags.Add(new NbtShort("DeathTime", DeathTime));
+            c.Tags.Add(new NbtShort("Health",       Health));
+            c.Tags.Add(new NbtShort("HurtTime",     HurtTime));
+            c.Tags.Add(new NbtShort("AttackTime",   AttackTime));
+            c.Tags.Add(new NbtShort("DeathTime",    DeathTime));
             return c;
         }
+
         public override string ToString()
         {
-            return "_LIVINGENTITY_";
+            return lolID + "?";
         }
 
         public override string GetID()
         {
-            return "LivingEntity";
+            return lolID;
         }
-
 
         public override Image Image
         {

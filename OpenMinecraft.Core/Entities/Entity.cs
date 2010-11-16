@@ -1,26 +1,58 @@
-﻿using System;
+﻿/**
+ * Copyright (c) 2010, Rob "N3X15" Nelson <nexis@7chan.org>
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without 
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice, 
+ *      this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright 
+ *      notice, this list of conditions and the following disclaimer in the 
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of MineEdit nor the names of its contributors 
+ *      may be used to endorse or promote products derived from this software 
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+using System;
 using System.Collections.Generic;
-using System.Text;
-using LibNbt.Tags;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.ComponentModel;
+using System.Reflection;
+using LibNbt.Tags;
 
 namespace OpenMinecraft.Entities
 {
     public class Entity
     {
-		internal static Image PigIcon = new Bitmap("mobs/pig.png");
+		internal static Image PigIcon = new Bitmap("mobs/notch.png");
 		
         public Vector3d Pos;
         public Vector3d Motion;
 
         [Category("Entity"),Description("Amount of air this creature has left"),DefaultValue(300)]
         public short Air { get; set; }
+        
         [Category("Entity"), Description("OH GOD I'M ON FIRE"), DefaultValue(-20)]
         public short Fire { get; set; }
+        
         [Category("Entity"), Description("OH GOD I'M FALLING")]
         public float FallDistance { get; set; }
+
+
         public NbtTag Rotation;
         public byte OnGround;
         private NbtCompound orig;
@@ -47,6 +79,30 @@ namespace OpenMinecraft.Entities
             "AttackTime",
             "DeathTime"
         });
+
+        public static Dictionary<string, Type> EntityTypes = new Dictionary<string, Type>();
+
+        public static void LoadEntityTypes()
+        {
+            EntityTypes.Clear();
+            foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                if (t.IsSubclassOf(typeof(Entity)))
+                {
+                    Entity e = (Entity)t.GetConstructor(new Type[0]).Invoke(new Object[0]);
+                    EntityTypes.Add(e.GetID(), t);
+                    Console.WriteLine("[Entity] Added {0} handler.", e.GetID());
+                }
+            }
+        }
+
+        public static Entity InitHandlerFor(string entID,NbtCompound c)
+        {
+            if(EntityTypes.ContainsKey(entID))
+                return (Entity)EntityTypes[entID].GetConstructor(new Type[]{typeof(NbtCompound)}).Invoke(new Object[]{c});
+            return null;
+        }
+
         public virtual NbtCompound ToNBT()
         {
             return orig;
@@ -114,41 +170,22 @@ namespace OpenMinecraft.Entities
 
         public static Entity GetEntity(NbtCompound c)
         {
-            switch ((c["id"] as NbtString).Value)
-            {
-                case "FallingSand": 
-                    return new FallingSand(c);
-                case "Pig":
-                    return new Pig(c);
-                case "Skeleton":
-                    return new Skeleton(c);
-                case "Sheep":
-                    return new Sheep(c);
-                case "Creeper":
-                    return new Creeper(c);
-                case "Item":
-                    return new Item(c);
-                case "Spider":
-                    return new Spider(c);
-                case "Zombie":
-                    return new Zombie(c);
-                case "Slime":
-                    return new Slime(c);
-                default: 
-                    // Try to figure out what the hell this is.
-                    return NewEntity(c);            }
-        }
+            string entID = c.Get<NbtString>("id").Value;
+            if (EntityTypes.ContainsKey(entID))
+                return (Entity)EntityTypes[entID].GetConstructor(new Type[] { typeof(NbtCompound) }).Invoke(new Object[] { c });
+            
+            // Try to figure out what the hell this is.
 
-        private static Entity NewEntity(NbtCompound c)
-        {
+            if (!Directory.Exists("Entities"))
+                Directory.CreateDirectory("Entities");
+
             // Do we have a LivingEntity or just an Entity?
             // Quick and simple test: health.
             if (c.Get("Health") != null)
             {
-                LivingEntity e = new LivingEntity(c);
                 GenTemplate(c, "livingentity.template");
                 // Goodie, just whip up a new LivingEntity and we're relatively home free.
-                return e;
+                return  new LivingEntity(c);
             }
             else
             {
@@ -164,7 +201,7 @@ namespace OpenMinecraft.Entities
             string ID = c.Get<NbtString>("id").Value;
             string Name = ID.Substring(0, 1).ToUpper() + ID.Substring(1);
 
-            string newthing = File.ReadAllText(tpl);
+            string newthing = File.ReadAllText("Entities/"+tpl);
 
             // Construct variables
             string vardec = "";
@@ -206,7 +243,9 @@ namespace OpenMinecraft.Entities
             newthing = newthing.Replace("{VAR_ASSIGNMENT}", varassn);
             newthing = newthing.Replace("{TO_NBT}", nbtassn);
 
-            File.WriteAllText(Name + ".ENTITY.cs", newthing);
+            File.WriteAllText("Entities/"+Name + ".cs", newthing);
+
+            // TODO: Compile?
         }
 
         private static string GetNativeType(NbtTag t)

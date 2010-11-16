@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using OpenMinecraft;
+using System.IO;
 
 namespace MineEdit
 {
@@ -47,15 +48,15 @@ namespace MineEdit
             this.tabModes = new System.Windows.Forms.TabControl();
             this.tabBlocks = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.numBlkEndZ = new System.Windows.Forms.NumericUpDown();
-            this.numAreaZ = new System.Windows.Forms.NumericUpDown();
-            this.numBlkEndY = new System.Windows.Forms.NumericUpDown();
-            this.numBlkEndX = new System.Windows.Forms.NumericUpDown();
-            this.numAreaY = new System.Windows.Forms.NumericUpDown();
-            this.numAreaX = new System.Windows.Forms.NumericUpDown();
+            this.numAreaEndZ = new System.Windows.Forms.NumericUpDown();
+            this.numAreaBeginZ = new System.Windows.Forms.NumericUpDown();
+            this.numAreaEndY = new System.Windows.Forms.NumericUpDown();
+            this.numAreaEndX = new System.Windows.Forms.NumericUpDown();
+            this.numAreaBeginY = new System.Windows.Forms.NumericUpDown();
+            this.numAreaBeginX = new System.Windows.Forms.NumericUpDown();
             this.radArea = new System.Windows.Forms.RadioButton();
-            this.numBlkCY = new System.Windows.Forms.NumericUpDown();
-            this.numBlkCX = new System.Windows.Forms.NumericUpDown();
+            this.numChunkY = new System.Windows.Forms.NumericUpDown();
+            this.numChunkX = new System.Windows.Forms.NumericUpDown();
             this.radSingleChunk = new System.Windows.Forms.RadioButton();
             this.radAllChunks = new System.Windows.Forms.RadioButton();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -71,23 +72,23 @@ namespace MineEdit
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.cmdAdd = new System.Windows.Forms.Button();
-            this.blkWith = new MineEdit.BlockSelector();
-            this.blkReplace = new MineEdit.BlockSelector();
             this.tabEntities = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.cmdOK = new System.Windows.Forms.Button();
             this.cmdCancel = new System.Windows.Forms.Button();
+            this.blkWith = new MineEdit.BlockSelector();
+            this.blkReplace = new MineEdit.BlockSelector();
             this.tabModes.SuspendLayout();
             this.tabBlocks.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndZ)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaZ)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkCY)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkCX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaEndZ)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginZ)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaEndY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaEndX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numChunkY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numChunkX)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -121,15 +122,15 @@ namespace MineEdit
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.numBlkEndZ);
-            this.groupBox3.Controls.Add(this.numAreaZ);
-            this.groupBox3.Controls.Add(this.numBlkEndY);
-            this.groupBox3.Controls.Add(this.numBlkEndX);
-            this.groupBox3.Controls.Add(this.numAreaY);
-            this.groupBox3.Controls.Add(this.numAreaX);
+            this.groupBox3.Controls.Add(this.numAreaEndZ);
+            this.groupBox3.Controls.Add(this.numAreaBeginZ);
+            this.groupBox3.Controls.Add(this.numAreaEndY);
+            this.groupBox3.Controls.Add(this.numAreaEndX);
+            this.groupBox3.Controls.Add(this.numAreaBeginY);
+            this.groupBox3.Controls.Add(this.numAreaBeginX);
             this.groupBox3.Controls.Add(this.radArea);
-            this.groupBox3.Controls.Add(this.numBlkCY);
-            this.groupBox3.Controls.Add(this.numBlkCX);
+            this.groupBox3.Controls.Add(this.numChunkY);
+            this.groupBox3.Controls.Add(this.numChunkX);
             this.groupBox3.Controls.Add(this.radSingleChunk);
             this.groupBox3.Controls.Add(this.radAllChunks);
             this.groupBox3.Location = new System.Drawing.Point(8, 149);
@@ -139,47 +140,47 @@ namespace MineEdit
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Replacement Options";
             // 
-            // numBlkEndZ
+            // numAreaEndZ
             // 
-            this.numBlkEndZ.Location = new System.Drawing.Point(237, 94);
-            this.numBlkEndZ.Name = "numBlkEndZ";
-            this.numBlkEndZ.Size = new System.Drawing.Size(58, 20);
-            this.numBlkEndZ.TabIndex = 4;
+            this.numAreaEndZ.Location = new System.Drawing.Point(237, 94);
+            this.numAreaEndZ.Name = "numAreaEndZ";
+            this.numAreaEndZ.Size = new System.Drawing.Size(58, 20);
+            this.numAreaEndZ.TabIndex = 4;
             // 
-            // numAreaZ
+            // numAreaBeginZ
             // 
-            this.numAreaZ.Location = new System.Drawing.Point(237, 68);
-            this.numAreaZ.Name = "numAreaZ";
-            this.numAreaZ.Size = new System.Drawing.Size(58, 20);
-            this.numAreaZ.TabIndex = 4;
+            this.numAreaBeginZ.Location = new System.Drawing.Point(237, 68);
+            this.numAreaBeginZ.Name = "numAreaBeginZ";
+            this.numAreaBeginZ.Size = new System.Drawing.Size(58, 20);
+            this.numAreaBeginZ.TabIndex = 4;
             // 
-            // numBlkEndY
+            // numAreaEndY
             // 
-            this.numBlkEndY.Location = new System.Drawing.Point(173, 94);
-            this.numBlkEndY.Name = "numBlkEndY";
-            this.numBlkEndY.Size = new System.Drawing.Size(58, 20);
-            this.numBlkEndY.TabIndex = 4;
+            this.numAreaEndY.Location = new System.Drawing.Point(173, 94);
+            this.numAreaEndY.Name = "numAreaEndY";
+            this.numAreaEndY.Size = new System.Drawing.Size(58, 20);
+            this.numAreaEndY.TabIndex = 4;
             // 
-            // numBlkEndX
+            // numAreaEndX
             // 
-            this.numBlkEndX.Location = new System.Drawing.Point(109, 94);
-            this.numBlkEndX.Name = "numBlkEndX";
-            this.numBlkEndX.Size = new System.Drawing.Size(58, 20);
-            this.numBlkEndX.TabIndex = 4;
+            this.numAreaEndX.Location = new System.Drawing.Point(109, 94);
+            this.numAreaEndX.Name = "numAreaEndX";
+            this.numAreaEndX.Size = new System.Drawing.Size(58, 20);
+            this.numAreaEndX.TabIndex = 4;
             // 
-            // numAreaY
+            // numAreaBeginY
             // 
-            this.numAreaY.Location = new System.Drawing.Point(173, 68);
-            this.numAreaY.Name = "numAreaY";
-            this.numAreaY.Size = new System.Drawing.Size(58, 20);
-            this.numAreaY.TabIndex = 4;
+            this.numAreaBeginY.Location = new System.Drawing.Point(173, 68);
+            this.numAreaBeginY.Name = "numAreaBeginY";
+            this.numAreaBeginY.Size = new System.Drawing.Size(58, 20);
+            this.numAreaBeginY.TabIndex = 4;
             // 
-            // numAreaX
+            // numAreaBeginX
             // 
-            this.numAreaX.Location = new System.Drawing.Point(109, 68);
-            this.numAreaX.Name = "numAreaX";
-            this.numAreaX.Size = new System.Drawing.Size(58, 20);
-            this.numAreaX.TabIndex = 4;
+            this.numAreaBeginX.Location = new System.Drawing.Point(109, 68);
+            this.numAreaBeginX.Name = "numAreaBeginX";
+            this.numAreaBeginX.Size = new System.Drawing.Size(58, 20);
+            this.numAreaBeginX.TabIndex = 4;
             // 
             // radArea
             // 
@@ -190,20 +191,21 @@ namespace MineEdit
             this.radArea.TabIndex = 3;
             this.radArea.Text = "Area:";
             this.radArea.UseVisualStyleBackColor = true;
+            this.radArea.CheckedChanged += new System.EventHandler(this.radArea_CheckedChanged);
             // 
-            // numBlkCY
+            // numChunkY
             // 
-            this.numBlkCY.Location = new System.Drawing.Point(173, 42);
-            this.numBlkCY.Name = "numBlkCY";
-            this.numBlkCY.Size = new System.Drawing.Size(58, 20);
-            this.numBlkCY.TabIndex = 2;
+            this.numChunkY.Location = new System.Drawing.Point(173, 42);
+            this.numChunkY.Name = "numChunkY";
+            this.numChunkY.Size = new System.Drawing.Size(58, 20);
+            this.numChunkY.TabIndex = 2;
             // 
-            // numBlkCX
+            // numChunkX
             // 
-            this.numBlkCX.Location = new System.Drawing.Point(109, 42);
-            this.numBlkCX.Name = "numBlkCX";
-            this.numBlkCX.Size = new System.Drawing.Size(58, 20);
-            this.numBlkCX.TabIndex = 2;
+            this.numChunkX.Location = new System.Drawing.Point(109, 42);
+            this.numChunkX.Name = "numChunkX";
+            this.numChunkX.Size = new System.Drawing.Size(58, 20);
+            this.numChunkX.TabIndex = 2;
             // 
             // radSingleChunk
             // 
@@ -214,6 +216,7 @@ namespace MineEdit
             this.radSingleChunk.TabIndex = 1;
             this.radSingleChunk.Text = "One Chunk:";
             this.radSingleChunk.UseVisualStyleBackColor = true;
+            this.radSingleChunk.CheckedChanged += new System.EventHandler(this.radSingleChunk_CheckedChanged);
             // 
             // radAllChunks
             // 
@@ -260,6 +263,7 @@ namespace MineEdit
             this.tsbLoadBlockReplacement.Name = "tsbLoadBlockReplacement";
             this.tsbLoadBlockReplacement.Size = new System.Drawing.Size(32, 22);
             this.tsbLoadBlockReplacement.Text = "toolStripButton1";
+            this.tsbLoadBlockReplacement.ButtonClick += new System.EventHandler(this.tsbLoadBlockReplacement_ButtonClick);
             // 
             // tsbSaveBlockReplacement
             // 
@@ -269,6 +273,7 @@ namespace MineEdit
             this.tsbSaveBlockReplacement.Name = "tsbSaveBlockReplacement";
             this.tsbSaveBlockReplacement.Size = new System.Drawing.Size(23, 22);
             this.tsbSaveBlockReplacement.Text = "toolStripButton1";
+            this.tsbSaveBlockReplacement.Click += new System.EventHandler(this.tsbSaveBlockReplacement_Click);
             // 
             // groupBox2
             // 
@@ -310,6 +315,7 @@ namespace MineEdit
             this.Replacements.Size = new System.Drawing.Size(198, 82);
             this.Replacements.TabIndex = 2;
             this.Replacements.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.Replacements_DrawItem);
+            this.Replacements.SelectedIndexChanged += new System.EventHandler(this.CheckRemoveClearPerms);
             // 
             // groupBox1
             // 
@@ -345,6 +351,7 @@ namespace MineEdit
             // 
             // cmdAdd
             // 
+            this.cmdAdd.Enabled = false;
             this.cmdAdd.Location = new System.Drawing.Point(235, 72);
             this.cmdAdd.Name = "cmdAdd";
             this.cmdAdd.Size = new System.Drawing.Size(75, 23);
@@ -352,30 +359,6 @@ namespace MineEdit
             this.cmdAdd.Text = "Add";
             this.cmdAdd.UseVisualStyleBackColor = true;
             this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
-            // 
-            // blkWith
-            // 
-            this.blkWith.BlocksOnly = false;
-            this.blkWith.DisplayMember = "Name";
-            this.blkWith.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.blkWith.FormattingEnabled = true;
-            this.blkWith.Location = new System.Drawing.Point(74, 45);
-            this.blkWith.Name = "blkWith";
-            this.blkWith.Size = new System.Drawing.Size(236, 21);
-            this.blkWith.TabIndex = 0;
-            this.blkWith.ValueMember = "ID";
-            // 
-            // blkReplace
-            // 
-            this.blkReplace.BlocksOnly = false;
-            this.blkReplace.DisplayMember = "Name";
-            this.blkReplace.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.blkReplace.FormattingEnabled = true;
-            this.blkReplace.Location = new System.Drawing.Point(74, 18);
-            this.blkReplace.Name = "blkReplace";
-            this.blkReplace.Size = new System.Drawing.Size(236, 21);
-            this.blkReplace.TabIndex = 0;
-            this.blkReplace.ValueMember = "ID";
             // 
             // tabEntities
             // 
@@ -416,6 +399,33 @@ namespace MineEdit
             this.cmdCancel.TabIndex = 0;
             this.cmdCancel.Text = "&Cancel";
             this.cmdCancel.UseVisualStyleBackColor = true;
+            this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
+            // 
+            // blkWith
+            // 
+            this.blkWith.BlocksOnly = false;
+            this.blkWith.DisplayMember = "Name";
+            this.blkWith.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.blkWith.FormattingEnabled = true;
+            this.blkWith.Location = new System.Drawing.Point(74, 45);
+            this.blkWith.Name = "blkWith";
+            this.blkWith.Size = new System.Drawing.Size(236, 21);
+            this.blkWith.TabIndex = 0;
+            this.blkWith.ValueMember = "ID";
+            this.blkWith.SelectedIndexChanged += new System.EventHandler(this.CheckIfAddAllowed);
+            // 
+            // blkReplace
+            // 
+            this.blkReplace.BlocksOnly = false;
+            this.blkReplace.DisplayMember = "Name";
+            this.blkReplace.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.blkReplace.FormattingEnabled = true;
+            this.blkReplace.Location = new System.Drawing.Point(74, 18);
+            this.blkReplace.Name = "blkReplace";
+            this.blkReplace.Size = new System.Drawing.Size(236, 21);
+            this.blkReplace.TabIndex = 0;
+            this.blkReplace.ValueMember = "ID";
+            this.blkReplace.SelectedIndexChanged += new System.EventHandler(this.CheckIfAddAllowed);
             // 
             // dlgReplace
             // 
@@ -433,14 +443,14 @@ namespace MineEdit
             this.tabBlocks.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndZ)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaZ)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkEndX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAreaX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkCY)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numBlkCX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaEndZ)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginZ)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaEndY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaEndX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numChunkY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numChunkX)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -469,15 +479,15 @@ namespace MineEdit
         private System.Windows.Forms.Button cmdAdd;
         private System.Windows.Forms.ListBox Replacements;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.NumericUpDown numBlkEndZ;
-        private System.Windows.Forms.NumericUpDown numAreaZ;
-        private System.Windows.Forms.NumericUpDown numBlkEndY;
-        private System.Windows.Forms.NumericUpDown numBlkEndX;
-        private System.Windows.Forms.NumericUpDown numAreaY;
-        private System.Windows.Forms.NumericUpDown numAreaX;
+        private System.Windows.Forms.NumericUpDown numAreaEndZ;
+        private System.Windows.Forms.NumericUpDown numAreaBeginZ;
+        private System.Windows.Forms.NumericUpDown numAreaEndY;
+        private System.Windows.Forms.NumericUpDown numAreaEndX;
+        private System.Windows.Forms.NumericUpDown numAreaBeginY;
+        private System.Windows.Forms.NumericUpDown numAreaBeginX;
         private System.Windows.Forms.RadioButton radArea;
-        private System.Windows.Forms.NumericUpDown numBlkCY;
-        private System.Windows.Forms.NumericUpDown numBlkCX;
+        private System.Windows.Forms.NumericUpDown numChunkY;
+        private System.Windows.Forms.NumericUpDown numChunkX;
         private System.Windows.Forms.RadioButton radSingleChunk;
         private System.Windows.Forms.RadioButton radAllChunks;
         private System.Windows.Forms.ToolStripButton tsbSaveBlockReplacement;
@@ -491,6 +501,8 @@ namespace MineEdit
         {
             _Map=mh;
             InitializeComponent();
+            LockChunkPos(true);
+            LockRect(true);
         }
 
         private void Replacements_DrawItem(object sender, DrawItemEventArgs e)
@@ -539,9 +551,13 @@ namespace MineEdit
 
         private void cmdAdd_Click(object sender, EventArgs e)
         {
-            byte a = (byte)(blkReplace.SelectedItem as Block).ID;
-            byte b = (byte)(blkWith.SelectedItem as Block).ID;
-            Replacements.Items.Add(new KeyValuePair<byte, byte>(a, b));
+            if (blkReplace.SelectedItem != null && blkWith.SelectedItem != null)
+            {
+                byte a = (byte)(blkReplace.SelectedItem as Block).ID;
+                byte b = (byte)(blkWith.SelectedItem as Block).ID;
+                Replacements.Items.Add(new KeyValuePair<byte, byte>(a, b));
+            }
+            else cmdAdd.Enabled = false;
         }
 
         private void cmdRemove_Click(object sender, EventArgs e)
@@ -559,10 +575,47 @@ namespace MineEdit
 
         private void radAllChunks_CheckedChanged(object sender, EventArgs e)
         {
-
+            LockChunkPos(true);
+            LockRect(true);
         }
-        private void DoReplaceBlocks(long X, long Y)
+
+        private void LockRect(bool p)
         {
+            numAreaBeginX.Enabled = !p;
+            numAreaBeginY.Enabled = !p;
+            numAreaBeginZ.Enabled = !p;
+            numAreaEndX.Enabled = !p;
+            numAreaEndY.Enabled = !p;
+            numAreaEndZ.Enabled = !p;
+        }
+
+        private void LockChunkPos(bool p)
+        {
+            numChunkX.Enabled = !p;
+            numChunkY.Enabled = !p;
+        }
+        private void ReplaceBlocks(long X, long Y)
+        {
+            this.Enabled = false;
+            string q = "Are you sure you want to do the following replacements:\n\n\t{0}";
+            List<string> reps = new List<string>();
+            foreach (KeyValuePair<byte, byte> rep in Replacements.Items)
+            {
+                reps.Add(string.Format("{0} to {1}", Blocks.Get((short)rep.Key).Name, Blocks.Get((short)rep.Value).Name));
+            }
+            DialogResult dr = MessageBox.Show(string.Format(q, string.Join("\n\t", reps.ToArray())), "Clear snow?", MessageBoxButtons.YesNo);
+
+            long nchunks = (_Map.MapMax.X - _Map.MapMin.X) * (_Map.MapMax.Y - _Map.MapMin.Y);
+            if (dr == DialogResult.Yes)
+            {
+                Dictionary<byte, byte> replacers = new Dictionary<byte, byte>();
+                foreach (KeyValuePair<byte, byte> kvp in Replacements.Items)
+                    replacers.Add(kvp.Key, kvp.Value);
+                _Map.ReplaceBlocksIn(X, Y, replacers);
+                MessageBox.Show("Done, lighting was removed, so minecraft may freeze while it recalculates lighting.", "Done.");
+                Close();
+            }
+            this.Enabled = true;
         }
         private void ReplaceBlocks()
         {
@@ -576,10 +629,11 @@ namespace MineEdit
             DialogResult dr = MessageBox.Show(string.Format(q, string.Join("\n\t", reps.ToArray())), "Clear snow?", MessageBoxButtons.YesNo);
 
             long nchunks = (_Map.MapMax.X - _Map.MapMin.X) * (_Map.MapMax.Y - _Map.MapMin.Y);
-            int NumChunks = 0;
-            int ProcessedChunks = 0;
             if (dr == DialogResult.Yes)
             {
+                Dictionary<byte, byte> replacers = new Dictionary<byte, byte>();
+                foreach (KeyValuePair<byte, byte> kvp in Replacements.Items)
+                    replacers.Add(kvp.Key, kvp.Value);
                 dlgLongTask dlt = new dlgLongTask();
                 dlt.Title = "Replacing blocks";
                 dlt.Subtitle = "This will take a long time.  Take a break.";
@@ -589,12 +643,13 @@ namespace MineEdit
                 dlt.VocabTasks = "chunks";
                 dlt.CurrentSubtask = "";
                 dlt.CurrentTask = "Counting chunks...";
-                dlt.Start(delegate() {
+                dlt.Start(delegate()
+                {
                     _Map.ForEachChunk(delegate(long X, long Y)
                     {
                         if (dlt.STOP) return;
                         ++dlt.TasksTotal;
-                        dlt.CurrentSubtask="Counted "+dlt.TasksTotal.ToString()+" chunks so far...";
+                        dlt.CurrentSubtask = "Counted " + dlt.TasksTotal.ToString() + " chunks so far...";
                     });
 
                     Dictionary<byte, byte> durr = new Dictionary<byte, byte>();
@@ -602,41 +657,101 @@ namespace MineEdit
                     {
                         durr.Add(derp.Key, derp.Value);
                     }
-                    _Map.ForEachChunk(delegate(long X, long Y) {
+                    _Map.ForEachChunk(delegate(long X, long Y)
+                    {
                         if (dlt.STOP) return;
-                        Chunk c = _Map.GetChunk(X, Y);
-                        dlt.SubtasksTotal = (int)c.Size.Z;
-                        for (int z = 0; z < c.Size.Z; z++)
-                        {
-                            dlt.SubtasksComplete = z+1;
-                            for (int y = 0; y < c.Size.Y; y++)
-                            {
-                                for (int x = 0; x < c.Size.X; x++)
-                                {
-                                    if (durr.ContainsKey(c.Blocks[x, y, z]))
-                                    {
-                                        c.Blocks[x, y, z] = durr[c.Blocks[x, y, z]];
-                                    }
-                                }
-                            }
-                        }
-                        c.Save();
+
+                        _Map.ReplaceBlocksIn(X, Y, replacers);
                     });
+                    dlt.Done();
                 });
                 if (dlt.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    MessageBox.Show("Done, lighting was removed so minecraft may freeze while it recalculates lighting.", "Done.");
+                    MessageBox.Show("Done, lighting was removed, so minecraft may freeze while it recalculates lighting.", "Done.");
                 }
             }
             this.Enabled = true;
+        }
+
+        private void LongTaskSetup_AllReplace()
+        {
         }
         private void cmdOK_Click(object sender, EventArgs e)
         {
             if (tabModes.SelectedTab == tabBlocks)
             {
-                ReplaceBlocks();
+                if (radAllChunks.Checked)
+                    ReplaceBlocks();
+                else if (radSingleChunk.Checked)
+                    ReplaceBlocks((long)numChunkX.Value, (long)numChunkY.Value);
                 Close();
             }
+        }
+
+        private void cmdCancel_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void CheckIfAddAllowed(object sender, EventArgs e)
+        {
+            cmdAdd.Enabled = (blkReplace.SelectedItem != null && blkWith.SelectedItem != null);
+        }
+
+        private void CheckRemoveClearPerms(object sender, EventArgs e)
+        {
+            bool IsAnythingSelected = (Replacements.SelectedItem != null);
+            cmdRemove.Enabled = IsAnythingSelected;
+            cmdClear.Enabled = IsAnythingSelected;
+        }
+
+        private void radSingleChunk_CheckedChanged(object sender, EventArgs e)
+        {
+            LockChunkPos(false);
+            LockRect(true);
+        }
+
+        private void radArea_CheckedChanged(object sender, EventArgs e)
+        {
+
+            LockChunkPos(true);
+            LockRect(false);
+        }
+
+        private void tsbLoadBlockReplacement_ButtonClick(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "MineEdit Replacement Template|*.mrt";
+            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "templates"));
+            ofd.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), "templates");
+            if (ofd.ShowDialog() == DialogResult.Cancel) return;
+            if (!File.Exists(ofd.FileName))
+                return;
+            Replacements.Items.Clear();
+            foreach (string ln in File.ReadAllLines(ofd.FileName))
+            {
+                if (ln.StartsWith("#")) continue;
+                string[] chunks = ln.Split('\t');
+                Replacements.Items.Add(new KeyValuePair<byte, byte>(byte.Parse(chunks[0]),byte.Parse(chunks[1])));
+            }
+            Refresh();
+        }
+
+        private void tsbSaveBlockReplacement_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "MineEdit Replacement Template|*.mrt";
+            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "templates"));
+            sfd.InitialDirectory = Path.Combine(Directory.GetCurrentDirectory(), "templates");
+            if (sfd.ShowDialog() == DialogResult.Cancel) return;
+            List<string> mrt = new List<string>();
+            mrt.Add("# MINEEDIT REPLACEMENT TEMPLATE");
+            mrt.Add("# Don't edit this file or you'll mess it up.  Trust me.");
+            foreach(KeyValuePair<byte,byte> rep in Replacements.Items)
+            {
+                mrt.Add(string.Format("{0}\t{1}", rep.Key,rep.Value));
+            }
+            File.WriteAllLines(sfd.FileName, mrt.ToArray());
         }
     }
 }
