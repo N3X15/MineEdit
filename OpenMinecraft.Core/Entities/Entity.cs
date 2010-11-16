@@ -40,8 +40,8 @@ namespace OpenMinecraft.Entities
     {
 		internal static Image PigIcon = new Bitmap("mobs/notch.png");
 		
-        public Vector3d Pos;
-        public Vector3d Motion;
+        public Vector3d Pos = new Vector3d();
+        public Vector3d Motion = new Vector3d();
 
         [Category("Entity"),Description("Amount of air this creature has left"),DefaultValue(300)]
         public short Air { get; set; }
@@ -53,8 +53,11 @@ namespace OpenMinecraft.Entities
         public float FallDistance { get; set; }
 
 
-        public NbtTag Rotation;
-        public byte OnGround;
+        public NbtTag Rotation=new NbtList("Rotation", new NbtDouble[] { 
+            new NbtDouble(0d),
+            new NbtDouble(0d)
+        });
+        public byte OnGround=0x00;
         private NbtCompound orig;
         private string id;
         public int ChunkX=0;
@@ -100,6 +103,13 @@ namespace OpenMinecraft.Entities
         {
             if(EntityTypes.ContainsKey(entID))
                 return (Entity)EntityTypes[entID].GetConstructor(new Type[]{typeof(NbtCompound)}).Invoke(new Object[]{c});
+            return null;
+        }
+
+        public static Entity Get(string entID)
+        {
+            if (EntityTypes.ContainsKey(entID))
+                return (Entity)EntityTypes[entID].GetConstructor(new Type[0]).Invoke(new Object[0]);
             return null;
         }
 

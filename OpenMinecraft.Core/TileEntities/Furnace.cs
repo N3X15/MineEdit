@@ -84,7 +84,7 @@ namespace OpenMinecraft.TileEntities
 
 						}
 					}
-					catch (Exception ex)
+					catch (Exception)
 					{
 					}
 			}

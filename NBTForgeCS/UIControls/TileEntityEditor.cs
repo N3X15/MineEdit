@@ -96,7 +96,7 @@ namespace MineEdit
             }
         }
 
-        public void Load(ref IMapHandler map)
+        public new void Load(ref IMapHandler map)
         {
             PlayerPos = map.PlayerPos;
             List<TileEntity> LOLSORT = new List<TileEntity>();

@@ -44,7 +44,7 @@ namespace OpenMinecraft.Entities
             Tile = (c["Tile"] as NbtByte).Value;
         }
 
-        public NbtCompound ToNBT()
+        public override NbtCompound ToNBT()
         {
             NbtCompound c = new NbtCompound();
             Base2NBT(ref c,GetID());

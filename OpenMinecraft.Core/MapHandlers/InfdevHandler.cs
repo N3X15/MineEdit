@@ -13,47 +13,30 @@ namespace OpenMinecraft
 		public event CorruptChunkHandler CorruptChunk;
 		public event ForEachProgressHandler ForEachProgress;
 
-        // Oh jesus.
-        // TODO: Go through all these fucking variables and sort them
-		NbtFile root = new NbtFile();
-		NbtFile chunk = new NbtFile();
-
+        private string mFolder;
 		private const int ChunkX = 16;
 		private const int ChunkY = 16;
-		private const int ChunkZ = 128;
+        private const int ChunkZ = 128;
+
+		NbtFile mRoot = new NbtFile();
+		NbtFile mChunk = new NbtFile();
+		Dictionary<string, Chunk> mChunks = new Dictionary<string, Chunk>();
+		List<string> mChangedChunks = new List<string>();
+		Dictionary<Guid, Entity> mEntities = new Dictionary<Guid, Entity>();
+		Dictionary<Guid, TileEntity> mTileEntities = new Dictionary<Guid, TileEntity>();
 
 		public string Filename {get;set;}
 		public int InventoryCapacity { get { return 9*4; } }
-		private string FilesName;
-		private string Folder;
-
-		Dictionary<string, Chunk> Chunks = new Dictionary<string, Chunk>();
-
-		List<string> ChangedChunks = new List<string>();
-
-		// Using UUIDs since they're globally unique and native to C#.
-		Dictionary<Guid, Entity> _Entities = new Dictionary<Guid, Entity>();
-		Dictionary<Guid, TileEntity> _TileEntities = new Dictionary<Guid, TileEntity>();
-
-		Vector3i CurrentBlock = new Vector3i(0, 0, 0);
-		byte[] CurrentBlocks;
-
-
 		public Vector3i ChunkScale { get { return new Vector3i(16, 16, 128); } }
 		public bool HasMultipleChunks { get { return true; } }
-		//public Vector3i MapMin { get { return new Vector3i(int.MinValue, int.MinValue, 0); } }
-		//public Vector3i MapMax { get { return new Vector3i(int.MaxValue, int.MaxValue, 128); } }
 		public Vector3i MapMin { get { return new Vector3i(-1000, -1000, 0); } }
 		public Vector3i MapMax { get { return new Vector3i(1000, 1000, 127); } }
-
-        int BlockCount = 0;
-        private bool InTransaction;
 
 		public Vector3i Spawn
 		{
 			get
 			{
-				NbtCompound Data = root.Query<NbtCompound>("//Data");
+				NbtCompound Data = mRoot.Query<NbtCompound>("//Data");
 				return new Vector3i(
 					(Data["SpawnX"] as NbtInt).Value,
 					(Data["SpawnY"] as NbtInt).Value,
@@ -62,7 +45,7 @@ namespace OpenMinecraft
 
 			set
 			{
-				NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
 				Player.Tags.Remove(Player["SpawnX"]);
 				Player.Tags.Remove(Player["SpawnY"]);
@@ -72,11 +55,9 @@ namespace OpenMinecraft
 				Player.Tags.Add(new NbtInt("SpawnZ", (int)value.Z));
 				// BROKEN root.SetTag("/Data/Player", h);
 				Data["Player"] = Player;
-				root.RootTag["Data"] = Data;
+				mRoot.RootTag["Data"] = Data;
 			}
 		}
-
-
 
 		public int Height
 		{
@@ -124,22 +105,25 @@ namespace OpenMinecraft
 			get
 			{
 				// /Player/Health;
-				NbtShort h = root.Query<NbtShort>("//Data/Player/Health");
+				NbtShort h = mRoot.Query<NbtShort>("//Data/Player/Health");
 				return (int)h.Value;
 			}
 			set
 			{
 				// Clamp value to between -1 and 21
+                mRoot.SetQuery<short>("//Data/Player/Health", (short)Utils.Clamp(value, -1, 21));
+                /*
 				NbtShort h = new NbtShort("Health", (short)Utils.Clamp(value, -1, 21));
 				//root.SetTag("/Data/Player/Health",h);
-				NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
 				NbtShort oh = (NbtShort)Player["Health"];
 				Console.WriteLine("Health: {0}->{1}", oh.Value, h.Value);
 				Player.Tags.Remove(oh);
 				Player.Tags.Add(h);
 				Data["Player"] = Player;
-				root.RootTag["Data"] = Data;
+				mRoot.RootTag["Data"] = Data;
+                */
 			}
 		}
 
@@ -148,21 +132,23 @@ namespace OpenMinecraft
 		{
 			get
 			{
-				NbtShort h = root.Query<NbtShort>("//Data/Player/HurtTime");
+				NbtShort h = mRoot.Query<NbtShort>("//Data/Player/HurtTime");
 				return (int)h.Value;
 			}
 			set
 			{
-				// TODO: Find value range.
-				NbtShort h = new NbtShort("HurtTime", (short)/*Utils.Clamp(*/value/*, 0, 21)*/);
+                // TODO: Find value range.
+                mRoot.SetQuery<short>("//Data/Player/HurtTime",(short)value);
+                /*
 				//root.SetTag("/Data/Player/HurtTime",h);
-				NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
 				NbtShort oh = (NbtShort)Player["HurtTime"];
 				Player.Tags.Remove(oh);
 				Player.Tags.Add(h);
 				Data["Player"] = Player;
-				root.RootTag["Data"] = Data;
+				mRoot.RootTag["Data"] = Data;
+                */
 			}
 		}
 		// Don't clamp, all sorts of weird shit can be done here.
@@ -171,20 +157,23 @@ namespace OpenMinecraft
 			get
 			{
 				// /Player/Air;
-				NbtShort h = root.Query<NbtShort>("//Data/Player/Air");
+				NbtShort h = mRoot.Query<NbtShort>("//Data/Player/Air");
 				return (int)h.Value;
 			}
 			set
 			{
+                mRoot.SetQuery<short>("//Data/Player/Air",(short)value);
+                /*
 				NbtShort h = new NbtShort("Air", (short)value);
 				//root.SetTag("/Data/Player/Air", h); ;
 
-				NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
 				Player.Tags.Remove(Player["Air"]);
 				Player.Tags.Add(h);
 				Data["Player"] = Player;
-				root.RootTag["Data"] = Data;
+				mRoot.RootTag["Data"] = Data;
+                */
 			}
 		}
 
@@ -193,19 +182,19 @@ namespace OpenMinecraft
 		{
 			get
 			{
-				NbtShort h = root.Query<NbtShort>("//Data/Player/Fire");
+				NbtShort h = mRoot.Query<NbtShort>("//Data/Player/Fire");
 				return (int)h.Value;
 			}
 			set
 			{
 				NbtShort f = new NbtShort("Fire", (short)value);
 				// BROKEN root.SetTag("/Data/Player/Fire", h);
-				NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
 				Player.Tags.Remove(Player["Fire"]);
 				Player.Tags.Add(f);
 				Data["Player"] = Player;
-				root.RootTag["Data"] = Data;
+				mRoot.RootTag["Data"] = Data;
 			}
 		}
 
@@ -214,18 +203,11 @@ namespace OpenMinecraft
 		{
 			get
 			{
-				NbtLong h = root.Query<NbtLong>("//Data/Time");
-				return (int)h.Value;
+				return (int)mRoot.Query<NbtLong>("//Data/Time").Value;
 			}
 			set
 			{
-                root.SetQuery("//Data/Time",(object)value);
-                //NbtLong f = new NbtLong("Time", (short)value);
-                //// BROKEN root.SetTag("/Data/Time", h);
-                //NbtCompound Data = (NbtCompound)root.RootTag["Data"];
-                //Data.Tags.Remove(Data["Time"]);
-                //Data.Tags.Add(f);
-                //root.RootTag["Data"] = Data;
+                mRoot.SetQuery("//Data/Time",(object)value);
 			}
 		}
 
@@ -233,7 +215,7 @@ namespace OpenMinecraft
 		{
 			get
 			{
-				NbtList h = root.Query<NbtList>("//Data/Player/Pos");
+				NbtList h = mRoot.Query<NbtList>("//Data/Player/Pos");
 				Vector3d pos = new Vector3d();
 				pos.X = (h[0] as NbtDouble).Value;
 				pos.Y = (h[1] as NbtDouble).Value;
@@ -248,12 +230,12 @@ namespace OpenMinecraft
 				h.Tags.Add(new NbtDouble("", Utils.Clamp(value.Y, 0, 128)));
 				h.Tags.Add(new NbtDouble("", value.Z));
 				// BROKEN root.SetTag("/Data/Player/Pos", h);
-				NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
 				Player.Tags.Remove(Player["Pos"]);
 				Player.Tags.Add(h);
 				Data["Player"] = Player;
-				root.RootTag["Data"] = Data;
+				mRoot.RootTag["Data"] = Data;
 
 			}
 		}
@@ -262,7 +244,7 @@ namespace OpenMinecraft
 		{
 			get
 			{
-				return _Entities;
+				return mEntities;
 			}
 		}
 
@@ -270,7 +252,7 @@ namespace OpenMinecraft
 		{
 			get
 			{
-				return _TileEntities;
+				return mTileEntities;
 			}
 		}
 
@@ -278,18 +260,18 @@ namespace OpenMinecraft
 		{
 			get
 			{
-				return root.Query<NbtLong>("//Data/RandomSeed").Value;
+				return mRoot.Query<NbtLong>("//Data/RandomSeed").Value;
 			}
 			set
 			{
-				NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				try
 				{
 					Data.Tags.Remove(Data["RandomSeed"]);
 				}
 				catch (Exception) { }
 				Data.Tags.Add(new NbtLong("RandomSeed", value));
-				root.RootTag["Data"] = Data;
+				mRoot.RootTag["Data"] = Data;
 			}
 		}
 
@@ -301,13 +283,12 @@ namespace OpenMinecraft
 		{
 			try
 			{
-				Chunks.Clear();
-				CurrentBlock = new Vector3i(0, 0, 0);
-				CurrentBlocks = null;
+				mChunks.Clear();
+				//CurrentBlock = new Vector3i(0, 0, 0);
 				Filename = filename;
-				Folder = Path.GetDirectoryName(filename);
-				root = new NbtFile(filename);
-				root.LoadFile();
+				mFolder = Path.GetDirectoryName(filename);
+				mRoot = new NbtFile(filename);
+				mRoot.LoadFile();
 			}
 			catch (Exception)
 			{
@@ -443,8 +424,8 @@ namespace OpenMinecraft
 
 		private Chunk _LoadChunk(int x, int z)
 		{
-			CurrentBlock.X = x;
-			CurrentBlock.Z = z;
+			//CurrentBlock.X = x;
+			//CurrentBlock.Z = z;
 
 			Chunk c = new Chunk(this);
 			c.Loading = true;
@@ -462,10 +443,10 @@ namespace OpenMinecraft
 			try
 			{
 //#endif
-				chunk = new NbtFile(c.Filename);
-				chunk.LoadFile();
+				mChunk = new NbtFile(c.Filename);
+				mChunk.LoadFile();
 
-				NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
+				NbtCompound level = (NbtCompound)mChunk.RootTag["Level"];
 
 				c.Position = new Vector3i(
 					level.Get<NbtInt>("xPos").Value,
@@ -499,9 +480,9 @@ namespace OpenMinecraft
 				c.UpdateOverview();
 
 				string ci = string.Format("{0},{1}", x, z);
-				if (Chunks.ContainsKey(ci))
-					return Chunks[ci];
-				Chunks.Add(ci, c);
+				if (mChunks.ContainsKey(ci))
+					return mChunks[ci];
+				mChunks.Add(ci, c);
 				/*
 				@TODO: Make Pig spawner converter.
 				for (int Z = 0; Z < ChunkScale.X; Z++)
@@ -564,7 +545,7 @@ namespace OpenMinecraft
 				Entity hurp = Entity.GetEntity(c);
 				hurp.UUID = Guid.NewGuid();
 				cnk.Entities.Add(hurp.UUID, hurp);
-				_Entities.Add(hurp.UUID, hurp);
+				mEntities.Add(hurp.UUID, hurp);
 			}
 		}
 
@@ -581,7 +562,7 @@ namespace OpenMinecraft
 					//Environment.Exit(0);
 				}
 				hurp.UUID = Guid.NewGuid();
-				_TileEntities.Add(hurp.UUID, hurp);
+				mTileEntities.Add(hurp.UUID, hurp);
 			}
 		}
 		
@@ -593,9 +574,9 @@ namespace OpenMinecraft
 
 			try
 			{
-				chunk = new NbtFile(f);
-				chunk.LoadFile();
-				NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
+				mChunk = new NbtFile(f);
+				mChunk.LoadFile();
+				NbtCompound level = (NbtCompound)mChunk.RootTag["Level"];
 
 				NbtList tents = (NbtList)level["TileEntities"];
 				int found = -1;
@@ -613,8 +594,8 @@ namespace OpenMinecraft
 					tents.Tags.Add(e.ToNBT());
 
 				level["TileEntities"] = tents;
-				chunk.RootTag["Level"] = level;
-				chunk.SaveFile(f);
+				mChunk.RootTag["Level"] = level;
+				mChunk.SaveFile(f);
 			}
 			catch (Exception) { }
 		}
@@ -627,9 +608,9 @@ namespace OpenMinecraft
 
 			try
 			{
-				chunk = new NbtFile(f);
-				chunk.LoadFile();
-				NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
+				mChunk = new NbtFile(f);
+				mChunk.LoadFile();
+				NbtCompound level = (NbtCompound)mChunk.RootTag["Level"];
 
 				NbtList TileEntities = (NbtList)level["TileEntities"];
 				int found = -1;
@@ -645,8 +626,8 @@ namespace OpenMinecraft
 					TileEntities.Tags.RemoveAt(found);
 
 				level["TileEntities"] = TileEntities;
-				chunk.RootTag["Level"] = level;
-				chunk.SaveFile(f);
+				mChunk.RootTag["Level"] = level;
+				mChunk.SaveFile(f);
 			}
 			catch (Exception) { }
 		}
@@ -656,16 +637,29 @@ namespace OpenMinecraft
 			string file = "c." + Utils.IntToBase(x, 36) + "." + Utils.IntToBase(z, 36) + ".dat";
 			string dirX = Utils.IntToBase(x & 0x3F, 36);
 			string dirY = Utils.IntToBase(z & 0x3F, 36);
-			string f= 
-				Path.Combine(Folder,
-					Path.Combine(dirX,
-						Path.Combine(dirY,
-							file
-						)
-					)
-				);
-			//Console.WriteLine("{0},{1} = {2}",x,z,f);
-			return f;
+            string dirDimension = string.Format("DIM-{0}", mDimension);
+            if (mDimension != 0)
+            {
+                return Path.Combine(mFolder,
+                    Path.Combine(dirDimension,
+                        Path.Combine(dirX,
+                            Path.Combine(dirY,
+                                file
+                            )
+                        )
+                    )
+                );
+            }
+            else
+            {
+                return Path.Combine(mFolder,
+                    Path.Combine(dirX,
+                        Path.Combine(dirY,
+                            file
+                        )
+                    )
+                );
+            }
 		}
 		private void SaveChunk(int x, int z)
 		{
@@ -679,13 +673,12 @@ namespace OpenMinecraft
 		{
 			string id = x.ToString() + "," + z.ToString();
 			Chunk c;
-			if (!Chunks.TryGetValue(id, out c))
+			if (!mChunks.TryGetValue(id, out c))
 			{
 				if(File.Exists(GetChunkFilename(x,z)))
 					return _LoadChunk(x, z);
 				if (GenerateNewChunkIfNeeded)
 				{
-					int fa;
 					Generate(this, x, z);
 					return GetChunk(x, z);
 				}
@@ -697,10 +690,10 @@ namespace OpenMinecraft
 		public void SetChunk(Chunk cnk)
 		{
 			string id = cnk.Position.ToString() + "," + cnk.Position.Y.ToString();
-			if(Chunks.ContainsKey(id))
-				Chunks[id]=cnk;
+			if(mChunks.ContainsKey(id))
+				mChunks[id]=cnk;
 			else
-				Chunks.Add(id,cnk);
+				mChunks.Add(id,cnk);
 		}
 		public void SaveChunk(Chunk cnk)
 		{
@@ -765,6 +758,7 @@ namespace OpenMinecraft
 			Level.Tags.Add(tents);
 
 			c.RootTag["Level"] = Level;
+            Console.WriteLine(c.ToString());
 			//try
 			//{
 				c.SaveFile(cnk.Filename);
@@ -792,28 +786,57 @@ namespace OpenMinecraft
 			}
 			*/
 			File.Copy(Filename, Path.ChangeExtension(Filename, "bak"),true);
-			root.SaveFile(Filename);
+			mRoot.SaveFile(Filename);
 			return true;
 		}
 
 		public bool Save(string filename)
 		{
 			File.Copy(Filename, Path.ChangeExtension(Filename, "bak"),true);
-			root.SaveFile(filename);
+			mRoot.SaveFile(filename);
 			return true;
 		}
+        public void AddEntity(Entity e)
+        {
+            e.UUID = Guid.NewGuid();
+            mEntities.Add(e.UUID, e);
+
+            int CX = (int)e.Pos.X / 16;
+            int CZ = (int)e.Pos.Z / 16; // DURP
+            //e.Pos.X = (int)e.Pos.X - CX;
+            //e.Pos.Y = (int)e.Pos.Y - CY;
+
+            string f = GetChunkFilename(CX, CZ);
+            if (!File.Exists(f))
+            {
+                Console.WriteLine("! {0}", f);
+                return;
+            }
+            try
+            {
+                Chunk c = GetChunk(CX, CZ);
+                if (c.Entities.ContainsKey(e.UUID))
+                    c.Entities.Remove(e.UUID);
+                c.Entities.Add(e.UUID, e);
+                c.Save();
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
 		public void SetEntity(Entity e)
 		{
 			Guid ID = e.UUID;
 
-			if (_Entities.ContainsKey(ID))
-				_Entities.Remove(ID);
-			_Entities.Add(ID, e);
+			if (mEntities.ContainsKey(ID))
+				mEntities.Remove(ID);
+			mEntities.Add(ID, e);
 
 			int CX = (int)e.Pos.X / 16;
-			int CY = (int)e.Pos.Y / 16;
-			e.Pos.X = (int)e.Pos.X - CX;
-			e.Pos.Y = (int)e.Pos.Y - CY;
+			int CY = (int)e.Pos.Z / 16; // DURP
+			//e.Pos.X = (int)e.Pos.X - CX;
+			//e.Pos.Y = (int)e.Pos.Y - CY;
 
 			string f = GetChunkFilename(CX, CY);
 			if (!File.Exists(f))
@@ -838,8 +861,8 @@ namespace OpenMinecraft
 			Guid ID = e.UUID;
 
             // Is this entity loaded?
-			if (_Entities.ContainsKey(ID))
-				_Entities.Remove(ID);
+			if (mEntities.ContainsKey(ID))
+				mEntities.Remove(ID);
 
             // Try and translate global coords to chunk local coords
             // TODO: What the fuck are you doing
@@ -859,9 +882,9 @@ namespace OpenMinecraft
 			try
 			{
                 // Chunk found.
-				chunk = new NbtFile(f);
-				chunk.LoadFile();
-				NbtCompound level = (NbtCompound)chunk.RootTag["Level"];
+				mChunk = new NbtFile(f);
+				mChunk.LoadFile();
+				NbtCompound level = (NbtCompound)mChunk.RootTag["Level"];
 
                 // Find entity and nuke it.
 				NbtList ents = (NbtList)level["Entities"];
@@ -881,8 +904,8 @@ namespace OpenMinecraft
 						ents.Tags.Remove(dc);
 				}
 				level["Entities"] = ents;
-				chunk.RootTag["Level"] = level;
-				chunk.SaveFile(f);
+				mChunk.RootTag["Level"] = level;
+				mChunk.SaveFile(f);
 			}
 			catch (Exception) { }
 		}
@@ -923,22 +946,24 @@ namespace OpenMinecraft
 		private void SetChunk(int X, int Y, Chunk c)
 		{
 			string id = X.ToString() + "," + Y.ToString();
-			if (!Chunks.ContainsKey(id))
+			if (!mChunks.ContainsKey(id))
 			{
-				Chunks.Add(id, c);
+				mChunks.Add(id, c);
 			}
 			else
 			{
-				Chunks[id] = c;
+				mChunks[id] = c;
 			}
-			if (!ChangedChunks.Contains(id))
-				ChangedChunks.Add(id);
+			if (!mChangedChunks.Contains(id))
+				mChangedChunks.Add(id);
 		}
 
 		private void UnloadChunks()
 		{
-			Chunks.Clear();
-			ChangedChunks.Clear();
+			mChunks.Clear();
+			mChangedChunks.Clear();
+            mEntities.Clear();
+            mTileEntities.Clear();
 		}
 
 
@@ -1131,11 +1156,11 @@ namespace OpenMinecraft
 			}
 			if(!bu) return;
 			string ci = string.Format("{0},{1}", X, Y);
-			if (Chunks.ContainsKey(ci))
+			if (mChunks.ContainsKey(ci))
 			{
-				Chunks.Remove(ci);
+				mChunks.Remove(ci);
 			}
-			Chunks.Add(ci,c);
+			mChunks.Add(ci,c);
 			//if(!ChangedChunks.Contains(ci))
 			//    ChangedChunks.Add(ci);
 
@@ -1197,10 +1222,10 @@ namespace OpenMinecraft
 			int i = GetBlockIndex((int)pos.X, (int)pos.Y, (int)pos.Z);
 			//try
 			//{
-			if (Chunks.ContainsKey(ci))
+			if (mChunks.ContainsKey(ci))
 			{
-				if (Chunks[ci] == null) return 0x00;
-				return Chunks[ci].Blocks[(int)pos.X, (int)pos.Y, (int)pos.Z];
+				if (mChunks[ci] == null) return 0x00;
+				return mChunks[ci].Blocks[(int)pos.X, (int)pos.Y, (int)pos.Z];
 			}
 			//}
 			//catch (Exception)
@@ -1209,8 +1234,8 @@ namespace OpenMinecraft
 			//}
 			Chunk c = _LoadChunk((int)CX, (int)CY);
 
-			if (!Chunks.ContainsKey(ci))
-				Chunks.Add(ci, c);
+			if (!mChunks.ContainsKey(ci))
+				mChunks.Add(ci, c);
 
 			try
 			{
@@ -1225,8 +1250,8 @@ namespace OpenMinecraft
 		public void CullChunk(long X, long Y)
 		{
 			string ci = string.Format("{0},{1}", X, Y);
-			if(Chunks.ContainsKey(ci))
-				Chunks.Remove(ci);
+			if(mChunks.ContainsKey(ci))
+				mChunks.Remove(ci);
 		}
 		public void LoadChunk(long X, long Y)
 		{
@@ -1242,9 +1267,9 @@ namespace OpenMinecraft
 			string ci = string.Format("{0},{1}", CX, CY);
 			//try
 			//{
-			if (Chunks.ContainsKey(ci))
+			if (mChunks.ContainsKey(ci))
 			{
-				Chunks[ci].Blocks[(int)pos.X,(int)pos.Y,(int)pos.Z] = type;
+				mChunks[ci].Blocks[(int)pos.X,(int)pos.Y,(int)pos.Z] = type;
 				return;
 			}
 			// Don't mess with unloaded blocks.
@@ -1257,20 +1282,18 @@ namespace OpenMinecraft
 
 		public void BeginTransaction()
 		{
-			InTransaction = true;
-			ChangedChunks.Clear();
+			mChangedChunks.Clear();
 			Console.WriteLine("BEGIN TRANSACTION");
 		}
 		public void CommitTransaction()
 		{
-			Console.WriteLine("{0} chunks changed.", ChangedChunks.Count);
-			foreach (string v in ChangedChunks)
+			Console.WriteLine("{0} chunks changed.", mChangedChunks.Count);
+			foreach (string v in mChangedChunks)
 			{
 				string[] chunks = v.Split(',');
 				SaveChunk(int.Parse(chunks[0]), int.Parse(chunks[1]));
 			}
 			Console.WriteLine("COMMIT TRANSACTION");
-			InTransaction = false;
 		}
 		public void SetBlockAt(Vector3i p, byte id)
 		{
@@ -1291,14 +1314,14 @@ namespace OpenMinecraft
 				return;
 			}
 			string ci = string.Format("{0},{1}", CX, CZ);
-			if (!Chunks.ContainsKey(ci))
+			if (!mChunks.ContainsKey(ci))
 				return;
-			Chunk c = Chunks[ci];
+			Chunk c = mChunks[ci];
 			c.Blocks[x,y,z]=id;
-			Chunks[ci] = c;
-			if (!ChangedChunks.Contains(ci))
+			mChunks[ci] = c;
+			if (!mChangedChunks.Contains(ci))
 			{
-				ChangedChunks.Add(ci);
+				mChangedChunks.Add(ci);
 				Console.WriteLine(ci+" has changed");
 			}
 		}
@@ -1325,12 +1348,12 @@ namespace OpenMinecraft
 			Count = 0;
 			failreason = "No error.";
 			// /Player/Inventory/
-			if (root == null)
+			if (mRoot == null)
 			{
 				failreason = "root==null";
 				return false;
 			}
-			if (root.RootTag == null)
+			if (mRoot.RootTag == null)
 			{
 				failreason = "root.RootTag==null";
 				return false;
@@ -1338,7 +1361,7 @@ namespace OpenMinecraft
 			//NbtCompound Data = (NbtCompound)root.RootTag["Data"];
 			//NbtCompound Player = (NbtCompound)Data["Player"];
 			//NbtList pi = (NbtList)Player["Inventory"];
-			NbtList pi = root.Query<NbtList>("//Data/Player/Inventory");
+			NbtList pi = mRoot.Query<NbtList>("//Data/Player/Inventory");
 			foreach (NbtTag t in pi.Tags)
 			{
 				NbtCompound s = (NbtCompound)t;
@@ -1363,7 +1386,7 @@ namespace OpenMinecraft
 			Slot.Tags.Add(new NbtShort("Damage",(short)Damage));
 			Slot.Tags.Add(new NbtByte("Slot", (byte)slot));
 
-			NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+			NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 			NbtCompound Player = (NbtCompound)Data["Player"];
 			NbtList pi = (NbtList)Player["Inventory"];
 			bool Found = false;
@@ -1379,7 +1402,7 @@ namespace OpenMinecraft
 				pi.Tags.Add(Slot);
 			Player["Inventory"] = pi;
 			Data["Player"] = Player;
-			root.RootTag["Data"] = Data;
+			mRoot.RootTag["Data"] = Data;
 			return true;
 		}
 
@@ -1429,12 +1452,12 @@ namespace OpenMinecraft
 		}
 		public void ClearInventory()
 		{
-			NbtCompound Data = (NbtCompound)root.RootTag["Data"];
+			NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 			NbtCompound Player = (NbtCompound)Data["Player"];
 			NbtList pi = (NbtList)Player["Inventory"];
 			Player["Inventory"] = pi;
 			Data["Player"] = Player;
-			root.RootTag["Data"] = Data;
+			mRoot.RootTag["Data"] = Data;
 		}
 		public void Repair()
 		{
@@ -1442,7 +1465,7 @@ namespace OpenMinecraft
 		}
 		public void ForEachCachedChunk(CachedChunkDelegate cmd)
 		{
-			Dictionary<string, Chunk> C = new Dictionary<string, Chunk>(Chunks);
+			Dictionary<string, Chunk> C = new Dictionary<string, Chunk>(mChunks);
 			foreach (KeyValuePair<string, Chunk> k in C)
 			{
 				cmd(k.Value.Position.X, k.Value.Position.Y, k.Value);
@@ -1450,7 +1473,7 @@ namespace OpenMinecraft
 		}
 		public void ForEachChunk(Chunk.ChunkModifierDelegate cmd)
 		{
-			string[] f = Directory.GetFiles(Folder,"c*.*.dat",SearchOption.AllDirectories);
+			string[] f = Directory.GetFiles(mFolder,"c*.*.dat",SearchOption.AllDirectories);
 			int Complete=0;
 			foreach (string file in f)
 			{
@@ -1522,6 +1545,7 @@ namespace OpenMinecraft
 		}
 
 		IMapGenerator _Generator = new DefaultMapGenerator(0);
+        private int mDimension;
 		public IMapGenerator Generator
 		{
 			get
@@ -1537,18 +1561,18 @@ namespace OpenMinecraft
 
 		private void SaveMapGenerator()
 		{
-			File.WriteAllText(_Generator.GetType().Name, Path.Combine(Folder, "mapgen.id"));
-			_Generator.Save(Folder);
+			File.WriteAllText(_Generator.GetType().Name, Path.Combine(mFolder, "mapgen.id"));
+			_Generator.Save(mFolder);
 		}
 
 		private void LoadMapGenerator()
 		{
-			string f = Path.Combine(Folder, "mapgen.id");
+			string f = Path.Combine(mFolder, "mapgen.id");
 			if (File.Exists(f))
 			{
 				string mg = File.ReadAllText(f);
 				_Generator = MapGenerators.Get(mg, RandomSeed);
-				_Generator.Load(Folder);
+				_Generator.Load(mFolder);
 			}
 		}
 
@@ -1561,5 +1585,20 @@ namespace OpenMinecraft
 		{
 			return GetChunk((int)x, (int)y, false);
 		}
+
+        public IEnumerable<Dimension> GetDimensions()
+        {
+            return new Dimension[]
+            {
+                new Dimension(0,"Default",""),
+                new Dimension(1,"Nether","")
+            };
+        }
+
+        public void SetDimension(int ID)
+        {
+            mDimension = ID;
+            UnloadChunks();
+        }
 	}
 }

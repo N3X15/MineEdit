@@ -13,7 +13,7 @@ using System.Drawing.Imaging;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace OpenMinecraft._3DRendering
+namespace OpenMinecraft.Rendering3D
 {
 	public class Texture
 	{

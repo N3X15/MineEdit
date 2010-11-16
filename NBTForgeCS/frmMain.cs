@@ -38,6 +38,8 @@ namespace MineEdit
     {
         private int childFormNumber = 0;
         List<IMapHandler> FileHandlers = new List<IMapHandler>();
+        private ToolStripSeparator toolStripSeparator5;
+        private ToolStripComboBox tsbDimension;
         List<frmMap> OpenFiles = new List<frmMap>();
 
         #region Windows Form Designer generated code
@@ -123,6 +125,8 @@ namespace MineEdit
             this.tsbStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsbProgress = new System.Windows.Forms.ToolStripProgressBar();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbDimension = new System.Windows.Forms.ToolStripComboBox();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -622,7 +626,9 @@ namespace MineEdit
             this.tsbHeal,
             this.tsbGoHome,
             this.toolStripSeparator2,
-            this.helpToolStripButton});
+            this.helpToolStripButton,
+            this.toolStripSeparator5,
+            this.tsbDimension});
             this.toolStrip.Location = new System.Drawing.Point(0, 24);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(632, 25);
@@ -734,6 +740,20 @@ namespace MineEdit
             // 
             this.tsbProgress.Name = "tsbProgress";
             this.tsbProgress.Size = new System.Drawing.Size(100, 16);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsbDimension
+            // 
+            this.tsbDimension.Items.AddRange(new object[] {
+            "Normal",
+            "Nether"});
+            this.tsbDimension.Name = "tsbDimension";
+            this.tsbDimension.Size = new System.Drawing.Size(121, 25);
+            this.tsbDimension.SelectedIndexChanged += new System.EventHandler(this.tsbDimension_SelectedIndexChanged);
             // 
             // frmMain
             // 
@@ -905,6 +925,14 @@ namespace MineEdit
                 string mn = NewForm();
                 frmMap map = GetMap(mn);
                 map.Map = mh;
+                
+                map.Map.SetDimension(0);
+                tsbDimension.Items.Clear();
+                foreach (Dimension d in map.Map.GetDimensions())
+                {
+                    tsbDimension.Items.Add(d);
+                }
+                tsbDimension.SelectedIndex = 0;
 
                 map.Show();
                 SetMap(mn, map);
@@ -1040,13 +1068,14 @@ namespace MineEdit
 #else
             Text = string.Format("MineEdit - v.{0}", Blocks.Version);
 #endif
+
         }
 
         private void LUF_Click(object s, EventArgs derp)
         {
             string FileName = (s as ToolStripMenuItem).Text;
 
-            Open(FileName);
+            Open(FileName,0);
         }
         public void SetStatus(string p)
         {
@@ -1136,13 +1165,11 @@ namespace MineEdit
         private void mnuWorld1_Click(object sender, EventArgs e)
         {
             string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            Open(Path.Combine(appdata, @".minecraft\saves\World1\level.dat"));
+            Open(Path.Combine(appdata, @".minecraft\saves\World1\level.dat"),0);
         }
 
-        private void Open(string FileName)
+        private void Open(string FileName,int dim)
         {
-
-
             IMapHandler mh;
             if (!GetFileHandler(FileName, out mh))
             {
@@ -1151,6 +1178,7 @@ namespace MineEdit
             }
             mh.CorruptChunk +=new CorruptChunkHandler(OnCorruptChunk);
             mh.Load(FileName);
+            mh.SetDimension(dim);
 
             dlgLoading load = new dlgLoading(mh);
             load.ShowDialog();
@@ -1159,7 +1187,15 @@ namespace MineEdit
             frmMap map = GetMap(mn);
             map.Map = mh;
 
+            tsbDimension.Items.Clear();
+            foreach (Dimension d in map.Map.GetDimensions())
+            {
+                tsbDimension.Items.Add(d);
+            }
+            tsbDimension.SelectedIndex = 0;
+
             map.Show();
+
             SetMap(mn, map);
 
             Settings.SetLUF(FileName);
@@ -1168,25 +1204,25 @@ namespace MineEdit
         private void mnuWorld2_Click(object sender, EventArgs e)
         {
             string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            Open(Path.Combine(appdata, @".minecraft\saves\World2\level.dat"));
+            Open(Path.Combine(appdata, @".minecraft\saves\World2\level.dat"),0);
         }
 
         private void mnuWorld3_Click(object sender, EventArgs e)
         {
             string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            Open(Path.Combine(appdata, @".minecraft\saves\World3\level.dat"));
+            Open(Path.Combine(appdata, @".minecraft\saves\World3\level.dat"),0);
         }
 
         private void mnuWorld4_Click(object sender, EventArgs e)
         {
             string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            Open(Path.Combine(appdata, @".minecraft\saves\World4\level.dat"));
+            Open(Path.Combine(appdata, @".minecraft\saves\World4\level.dat"),0);
         }
 
         private void mnuWorld5_Click(object sender, EventArgs e)
         {
             string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            Open(Path.Combine(appdata, @".minecraft\saves\World5\level.dat"));
+            Open(Path.Combine(appdata, @".minecraft\saves\World5\level.dat"),0);
         }
 
         private void randomSeedToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1442,7 +1478,6 @@ namespace MineEdit
                     dlgLongTask dlt = new dlgLongTask();
                     dlt.Start(delegate()
                     {
-                        int NumChunks = 0;
                         dlt.VocabSubtask = "Chunk";
                         dlt.VocabSubtasks = "Chunks";
                         dlt.Title = "Stripping lighting from chunks.";
@@ -1488,6 +1523,25 @@ namespace MineEdit
                 {
                     dlgReplace rep = new dlgReplace((ActiveMdiChild as frmMap).Map);
                     rep.ShowDialog();
+                }
+            }
+        }
+
+        private void tsbDimension_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(tsbDimension.SelectedItem==null) return;
+
+            if (ActiveMdiChild != null)
+            {
+                if ((ActiveMdiChild as frmMap).Map != null)
+                {
+                    (ActiveMdiChild as frmMap).Map.SetDimension((tsbDimension.SelectedItem as Dimension).ID);
+
+                    dlgLoading load = new dlgLoading((ActiveMdiChild as frmMap).Map);
+                    load.ShowDialog();
+
+                    ResetStatus();
+                    (ActiveMdiChild as frmMap).ReloadAll();
                 }
             }
         }

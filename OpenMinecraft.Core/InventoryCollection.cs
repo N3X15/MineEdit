@@ -27,13 +27,13 @@ namespace OpenMinecraft
             SlotChanged(c.Slot);
         }
 
-        public void Add(byte slot, InventoryItem i)
+        public new void Add(byte slot, InventoryItem i)
         {
             base.Add(slot, i);
             SlotChanged(slot);
         }
 
-        public void Remove(byte ID)
+        public new void Remove(byte ID)
         {
             base.Remove(ID);
             SlotChanged(ID);

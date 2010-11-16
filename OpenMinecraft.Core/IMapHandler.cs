@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using System.Text;
 using OpenMinecraft.Entities;
 using OpenMinecraft.TileEntities;
 
@@ -108,5 +107,11 @@ namespace OpenMinecraft
         void SetBlockAt(int x, int y, int z, byte val);
 
         int ExpandFluids(byte fluidID, bool CompleteRegen, ForEachProgressHandler ph);
+
+        // Dimensions (Nether, etc)
+        void SetDimension(int p);
+        IEnumerable<Dimension> GetDimensions();
+
+        void AddEntity(Entity e);
     }
 }

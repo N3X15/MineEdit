@@ -55,7 +55,7 @@ namespace MineEdit
         public Vector3i ChunkSize = new Vector3i(0, 0, 0);
         Bitmap bmp;
         Chunk MyChunk;
-        int lh = 1, lw = 1, ly=0;
+        //int lh = 1, lw = 1, ly=0;
 
         public MapChunkControl()
         {

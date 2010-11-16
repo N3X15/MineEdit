@@ -56,7 +56,6 @@ namespace OpenMinecraft
         public static Dictionary<string,string> GetList()
         {
             Dictionary<string, string> Gens = new Dictionary<string, string>();
-            int i = 0;
             foreach (KeyValuePair<string, Type> k in Generators)
             {
                 if (!Gens.ContainsKey(k.Key))

@@ -72,7 +72,7 @@ namespace OpenMinecraft
             Frequency = 0.03;
             Lacunarity = 0.01;
             Persistance = 0.01;
-            OctaveCount = 1;
+            OctaveCount = ContinentNoiseOctaves = 1;
 
             Seed = seed;
             TerrainNoise = new FastNoise();
@@ -96,7 +96,7 @@ namespace OpenMinecraft
 
             ContinentNoise.Frequency = ContinentNoiseFrequency;
             ContinentNoise.NoiseQuality = NoiseQuality;
-            ContinentNoise.OctaveCount = OctaveCount;
+            ContinentNoise.OctaveCount = ContinentNoiseOctaves;
             ContinentNoise.Lacunarity = Lacunarity;
             ContinentNoise.Persistence = Persistance;
 

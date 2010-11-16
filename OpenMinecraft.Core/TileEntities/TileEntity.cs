@@ -119,7 +119,6 @@ namespace OpenMinecraft.TileEntities
         public static TileEntity GetEntity(int CX, int CY, int CS, NbtCompound c)
         {
             string entID = c.Get<NbtString>("id").Value;
-            TileEntity e;
             if (TileEntityTypes.ContainsKey(entID))
                 return (TileEntity)TileEntityTypes[entID].GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(NbtCompound) }).Invoke(new Object[] { CX,CY,CS,c });
 

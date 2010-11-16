@@ -5,7 +5,7 @@ using System.Text;
 using System.Drawing;
 using OpenMinecraft.Entities;
 
-namespace OpenMinecraft._2DRendering
+namespace OpenMinecraft.Rendering2D
 {
     public class MapRenderer
     {

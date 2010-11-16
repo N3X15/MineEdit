@@ -26,9 +26,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using OpenMinecraft;
@@ -397,7 +395,6 @@ namespace MineEdit
         public int NumChunks = 0;
         public int ProcessedChunks = 0;
 
-        int lastpct = 0;
         private TabControl tabControl;
         private TabPage tabMap;
         private TabPage tabInventory;
@@ -410,32 +407,6 @@ namespace MineEdit
         {
             
         }
-        /*
-        private void ClearSnow()
-        {
-            Replacements.Items.Clear();
-            byte lolsnow = 78;
-            byte lolice = 79;
-            byte lolwater = 9;
-            Replacements.Items.Add(new KeyValuePair<byte, byte>(lolsnow, 0));
-            Replacements.Items.Add(new KeyValuePair<byte, byte>(lolice, lolwater));
-            DoReplace();
-        }
-        */
-        /*
-        private void cmdReplaceWaterWithLava_Click(object sender, EventArgs e)
-        {
-            Replacements.Items.Clear();
-            byte lollava = 11;
-            byte lolobsidian = 49;
-            byte lolwater = 9;
-            byte lolsand = 12;
-            Replacements.Items.Add(new KeyValuePair<byte, byte>(lolwater,lollava));
-            Replacements.Items.Add(new KeyValuePair<byte, byte>(lolsand, lolobsidian));
-
-            DoReplace();
-        }
-        */
 
         internal void FixLava()
         {
@@ -1183,8 +1154,7 @@ namespace MineEdit
 
         private void entityEditor1_EntityAdded(Entity e)
         {
-
+            this.Map.AddEntity(e);
         }
-
-   }
+    }
 }

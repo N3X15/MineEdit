@@ -31,11 +31,13 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using OpenMinecraft.Entities;
 
 namespace MineEdit
 {
     public partial class dlgAddEntity : Form
     {
+        public Entity ent=null;
 
         #region Windows Form Designer generated code
 
@@ -54,7 +56,7 @@ namespace MineEdit
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.lblNote = new System.Windows.Forms.Label();
+            this.cmbType = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.numPosX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPosY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPosZ)).BeginInit();
@@ -62,6 +64,7 @@ namespace MineEdit
             // 
             // numPosX
             // 
+            this.numPosX.Enabled = false;
             this.numPosX.Location = new System.Drawing.Point(164, 25);
             this.numPosX.Maximum = new decimal(new int[] {
             320000,
@@ -75,10 +78,11 @@ namespace MineEdit
             -2147483648});
             this.numPosX.Name = "numPosX";
             this.numPosX.Size = new System.Drawing.Size(82, 20);
-            this.numPosX.TabIndex = 1;
+            this.numPosX.TabIndex = 3;
             // 
             // numPosY
             // 
+            this.numPosY.Enabled = false;
             this.numPosY.Location = new System.Drawing.Point(252, 25);
             this.numPosY.Maximum = new decimal(new int[] {
             320000,
@@ -92,10 +96,11 @@ namespace MineEdit
             -2147483648});
             this.numPosY.Name = "numPosY";
             this.numPosY.Size = new System.Drawing.Size(82, 20);
-            this.numPosY.TabIndex = 1;
+            this.numPosY.TabIndex = 5;
             // 
             // numPosZ
             // 
+            this.numPosZ.Enabled = false;
             this.numPosZ.Location = new System.Drawing.Point(340, 25);
             this.numPosZ.Maximum = new decimal(new int[] {
             320000,
@@ -109,23 +114,26 @@ namespace MineEdit
             -2147483648});
             this.numPosZ.Name = "numPosZ";
             this.numPosZ.Size = new System.Drawing.Size(82, 20);
-            this.numPosZ.TabIndex = 1;
+            this.numPosZ.TabIndex = 7;
             // 
             // cmdOK
             // 
+            this.cmdOK.Enabled = false;
             this.cmdOK.Location = new System.Drawing.Point(296, 58);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(75, 23);
-            this.cmdOK.TabIndex = 2;
+            this.cmdOK.TabIndex = 8;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
+            this.cmdOK.Click += new System.EventHandler(this.cmdOK_Click);
             // 
             // cmdCancel
             // 
+            this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cmdCancel.Location = new System.Drawing.Point(377, 57);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(75, 23);
-            this.cmdCancel.TabIndex = 2;
+            this.cmdCancel.TabIndex = 9;
             this.cmdCancel.Text = "Cancel";
             this.cmdCancel.UseVisualStyleBackColor = true;
             // 
@@ -135,7 +143,7 @@ namespace MineEdit
             this.label1.Location = new System.Drawing.Point(9, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(58, 13);
-            this.label1.TabIndex = 3;
+            this.label1.TabIndex = 0;
             this.label1.Text = "Mob Type:";
             // 
             // label2
@@ -144,7 +152,7 @@ namespace MineEdit
             this.label2.Location = new System.Drawing.Point(164, 9);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(17, 13);
-            this.label2.TabIndex = 4;
+            this.label2.TabIndex = 2;
             this.label2.Text = "X:";
             // 
             // label3
@@ -153,7 +161,7 @@ namespace MineEdit
             this.label3.Location = new System.Drawing.Point(249, 9);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(17, 13);
-            this.label3.TabIndex = 5;
+            this.label3.TabIndex = 4;
             this.label3.Text = "Y:";
             // 
             // label4
@@ -165,21 +173,23 @@ namespace MineEdit
             this.label4.TabIndex = 6;
             this.label4.Text = "Z:";
             // 
-            // lblNote
+            // cmbType
             // 
-            this.lblNote.AutoSize = true;
-            this.lblNote.Location = new System.Drawing.Point(20, 62);
-            this.lblNote.Name = "lblNote";
-            this.lblNote.Size = new System.Drawing.Size(270, 13);
-            this.lblNote.TabIndex = 7;
-            this.lblNote.Text = "Note:  Minecraft uses X,Z,Y, and MineEdit uses X,Y,Z.  ";
+            this.cmbType.FormattingEnabled = true;
+            this.cmbType.Location = new System.Drawing.Point(12, 25);
+            this.cmbType.Name = "cmbType";
+            this.cmbType.Size = new System.Drawing.Size(146, 21);
+            this.cmbType.TabIndex = 1;
+            this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
             // 
             // dlgAddEntity
             // 
+            this.AcceptButton = this.cmdOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.cmdCancel;
             this.ClientSize = new System.Drawing.Size(460, 92);
-            this.Controls.Add(this.lblNote);
+            this.Controls.Add(this.cmbType);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -213,13 +223,46 @@ namespace MineEdit
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label lblNote;
+        private ComboBox cmbType;
 
         #endregion
 
         public dlgAddEntity()
         {
             InitializeComponent();
+            foreach (string typename in Entity.EntityTypes.Keys)
+            {
+                cmbType.Items.Add(typename);
+            }
+        }
+
+        private void cmbType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (String.IsNullOrEmpty((string)cmbType.SelectedItem))
+                return;
+            Console.WriteLine("dlgAddEntity: Selected " + (string)cmbType.SelectedItem);
+            ent = Entity.Get((string)cmbType.SelectedItem);
+
+            bool locked = ent == null;
+            numPosX.Enabled = !locked;
+            numPosY.Enabled = !locked;
+            numPosZ.Enabled = !locked;
+            cmdOK.Enabled = !locked;
+        }
+
+        private void NumBoxChange(object sender, EventArgs e)
+        {
+            if (ent != null)
+            {
+                ent.Pos.X = (double)numPosX.Value;
+                ent.Pos.Y = (double)numPosY.Value;
+                ent.Pos.Z = (double)numPosZ.Value;
+            }
+        }
+
+        private void cmdOK_Click(object sender, EventArgs e)
+        {
+            DialogResult = System.Windows.Forms.DialogResult.OK;
         }
     }
 }

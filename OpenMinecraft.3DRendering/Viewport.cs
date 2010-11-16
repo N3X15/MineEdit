@@ -14,7 +14,7 @@ using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace OpenMinecraft._3DRendering
+namespace OpenMinecraft.Rendering3D
 {
 	/// <summary>
 	/// Description of Viewport.

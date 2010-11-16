@@ -54,7 +54,7 @@ TAG_Compound: 13 entries
             Saddle = (c["Saddle"] as NbtByte).Value==1;
         }
 
-        public NbtCompound ToNBT()
+        public override NbtCompound ToNBT()
         {
             NbtCompound c = base.ToNBT();
             c.Tags.Add(new NbtByte("Saddle", Saddle ? (byte)1:(byte)0));

@@ -122,13 +122,13 @@ namespace MineEdit
             // 
             // cmdAddEntity
             // 
-            this.cmdAddEntity.Enabled = false;
             this.cmdAddEntity.Location = new System.Drawing.Point(430, 3);
             this.cmdAddEntity.Name = "cmdAddEntity";
             this.cmdAddEntity.Size = new System.Drawing.Size(51, 23);
             this.cmdAddEntity.TabIndex = 1;
             this.cmdAddEntity.Text = "Add...";
             this.cmdAddEntity.UseVisualStyleBackColor = true;
+            this.cmdAddEntity.Click += new System.EventHandler(this.cmdAddEntity_Click);
             // 
             // cmbEntities
             // 
@@ -313,7 +313,7 @@ namespace MineEdit
             }
         }
 
-        public void Load(ref IMapHandler map)
+        public new void Load(ref IMapHandler map)
         {
             PlayerPos = map.PlayerPos;
             List<Entity> LOLSORT = new List<Entity>();
@@ -434,6 +434,16 @@ namespace MineEdit
         internal void SetSelectedEnt(Entity e)
         {
             cmbEntities.SelectedItem = e;
+        }
+
+        private void cmdAddEntity_Click(object sender, EventArgs e)
+        {
+            dlgAddEntity d = new dlgAddEntity();
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                if (d.ent != null && EntityAdded != null)
+                    EntityAdded(d.ent);
+            }
         }
     }
 

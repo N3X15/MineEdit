@@ -15,7 +15,7 @@ namespace OpenMinecraft.Entities
         {
         }
 
-        public NbtCompound ToNBT()
+        public override NbtCompound ToNBT()
         {
             NbtCompound c = base.ToNBT();
             return c;

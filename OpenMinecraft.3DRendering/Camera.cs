@@ -8,7 +8,7 @@ using OpenTK.Input;
 using Vector3d = OpenTK.Vector3d;
 using Vector2 = OpenTK.Vector2;
 using System.Diagnostics;
-namespace OpenMinecraft._3DRendering
+namespace OpenMinecraft.Rendering3D
 {
 	public class Camera
 	{

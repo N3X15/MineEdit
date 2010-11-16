@@ -22,7 +22,6 @@ namespace OpenMinecraft
         public double _CaveThreshold = 0.85d;//0.70d;
         public int WaterHeight = 65;
         public int DERT_DEPTH = 6;
-        private int ContinentNoiseOctaves;
         [Description("Frequency of the terrain noise.")]
         public double Frequency { get; set; }
         [Description("Quality of the noise generated (lower = faster)")]

@@ -46,13 +46,13 @@ namespace MineEdit
 
         private Vector3i _CurrentPosition = new Vector3i(0, 0, 127);
         private Vector3i _SelectedVoxel = new Vector3i(-1, -1, -1);
-        private bool Drawing = false;
+        //private bool Drawing = false;
         private IMapHandler _Map;
         private ViewAngle _ViewingAngle = ViewAngle.TopDown;
         private Dictionary<Vector3i, MapChunkControl> Chunks = new Dictionary<Vector3i, MapChunkControl>();
         private List<Button> EntityControls = new List<Button>();
         private int _ZoomLevel = 8;
-        private bool Dragging = false;
+
         /// <summary>
         /// Currently active brush material.
         /// </summary>
@@ -78,7 +78,6 @@ namespace MineEdit
                     break;
                 case System.Windows.Forms.MouseButtons.Middle:
                     this.Cursor = Cursors.Hand;
-                    this.Dragging = true;
                     break;
             }
         }
@@ -333,7 +332,6 @@ namespace MineEdit
                     new MenuItem("Replace..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
                     new MenuItem("Paint..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
                     new MenuItem("Generate...",new EventHandler(delegate(object s,EventArgs ea){
-                        int fa;
                         Map.Generate(Map, mcc.AssignedChunk.X,mcc.AssignedChunk.Y);
                         Map.LoadChunk(mcc.AssignedChunk.X, mcc.AssignedChunk.Y);
                         mcc.Render();

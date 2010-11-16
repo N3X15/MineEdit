@@ -9,7 +9,7 @@
 using System;
 using OpenTK.Graphics.OpenGL;
 using OpenMinecraft;
-namespace OpenMinecraft._3DRendering
+namespace OpenMinecraft.Rendering3D
 {
 	/// <summary>
 	/// Description of ChunkRenderer.
