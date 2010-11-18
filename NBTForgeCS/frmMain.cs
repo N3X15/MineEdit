@@ -120,13 +120,13 @@ namespace MineEdit
             this.tsbGoHome = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbDimension = new System.Windows.Forms.ToolStripComboBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsbStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsbProgress = new System.Windows.Forms.ToolStripProgressBar();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbDimension = new System.Windows.Forms.ToolStripComboBox();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -713,6 +713,20 @@ namespace MineEdit
             this.helpToolStripButton.Size = new System.Drawing.Size(23, 22);
             this.helpToolStripButton.Text = "Help";
             // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsbDimension
+            // 
+            this.tsbDimension.Items.AddRange(new object[] {
+            "Normal",
+            "Nether"});
+            this.tsbDimension.Name = "tsbDimension";
+            this.tsbDimension.Size = new System.Drawing.Size(121, 25);
+            this.tsbDimension.SelectedIndexChanged += new System.EventHandler(this.tsbDimension_SelectedIndexChanged);
+            // 
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -740,20 +754,6 @@ namespace MineEdit
             // 
             this.tsbProgress.Name = "tsbProgress";
             this.tsbProgress.Size = new System.Drawing.Size(100, 16);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tsbDimension
-            // 
-            this.tsbDimension.Items.AddRange(new object[] {
-            "Normal",
-            "Nether"});
-            this.tsbDimension.Name = "tsbDimension";
-            this.tsbDimension.Size = new System.Drawing.Size(121, 25);
-            this.tsbDimension.SelectedIndexChanged += new System.EventHandler(this.tsbDimension_SelectedIndexChanged);
             // 
             // frmMain
             // 
@@ -941,14 +941,34 @@ namespace MineEdit
             }
         }
 
+        public frmReport BrokenShit = new frmReport();
         void OnCorruptChunk(string error, string file)
         {
+            /*
             DialogResult dr = MessageBox.Show("A chunk is corrupt.  Would you like to delete and regenerate it?\n\n"+error, "Corrupt chunk!", MessageBoxButtons.YesNo);
             if (dr == DialogResult.Yes)
             {
                 File.Delete(file);
                 MessageBox.Show(file + " deleted!");
             }
+            */
+            Vector2i chunkpos = (ActiveMdiChild as frmMap).Map.GetChunkCoordsFromFile(file);
+            BrokenShit.AddError(chunkpos.X, chunkpos.Y, "This chunk is corrupt.  Fixing will completely delete it.\n" + error, delegate(long X, long Y)
+            {
+                File.Delete(file);
+                return true;
+            });
+        }
+
+        public void ShowReport()
+        {
+            if (BrokenShit.Errors > 0 || BrokenShit.Warnings > 0)
+                BrokenShit.ShowDialog();
+        }
+
+        public void ClearReport()
+        {
+            BrokenShit.Clear();
         }
 
         private bool GetFileHandler(string FileName, out IMapHandler mh)
@@ -1180,8 +1200,8 @@ namespace MineEdit
             mh.Load(FileName);
             mh.SetDimension(dim);
 
-            dlgLoading load = new dlgLoading(mh);
-            load.ShowDialog();
+            //dlgLoading load = new dlgLoading(mh);
+            //load.ShowDialog();
 
             string mn = NewForm();
             frmMap map = GetMap(mn);
@@ -1368,7 +1388,6 @@ namespace MineEdit
                         ///////////////////////////////////////////////////////////////
                         (ActiveMdiChild as frmMap).Map.CorruptChunk -= OnCorruptChunk;
                         frmReport report = new frmReport();
-                        report.Hide();
                         CorruptChunkHandler cch = delegate(string error, string file)
                         {
                             //Console.WriteLine(file);
@@ -1537,8 +1556,12 @@ namespace MineEdit
                 {
                     (ActiveMdiChild as frmMap).Map.SetDimension((tsbDimension.SelectedItem as Dimension).ID);
 
+                    ClearReport();
+
                     dlgLoading load = new dlgLoading((ActiveMdiChild as frmMap).Map);
                     load.ShowDialog();
+
+                    ShowReport();
 
                     ResetStatus();
                     (ActiveMdiChild as frmMap).ReloadAll();

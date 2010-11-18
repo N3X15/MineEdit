@@ -165,5 +165,16 @@ namespace MineEdit
             }
             MessageBox.Show(mFixed.ToString() + " chunks fixed.");
         }
+
+        public int Errors { get { return Counts[ChunkMessageType.ERROR]; } }
+        public int Warnings { get { return Counts[ChunkMessageType.WARNING]; } }
+        public int Infos { get { return Counts[ChunkMessageType.INFO]; } }
+        public int DebugMessages { get { return Counts[ChunkMessageType.DEBUG]; } }
+
+        internal void Clear()
+        {
+            Messages.Clear();
+            Repopulate();
+        }
     }
 }

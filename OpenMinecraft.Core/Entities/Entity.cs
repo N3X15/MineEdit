@@ -40,10 +40,10 @@ namespace OpenMinecraft.Entities
     {
 		internal static Image PigIcon = new Bitmap("mobs/notch.png");
 		
-        public Vector3d Pos = new Vector3d();
-        public Vector3d Motion = new Vector3d();
+        public Vector3d Pos = new Vector3d(0,0,0);
+        public Vector3d Motion = new Vector3d(0,0,0);
 
-        [Category("Entity"),Description("Amount of air this creature has left"),DefaultValue(300)]
+        [Category("Entity"),Description("Amount of air this creature has left"),DefaultValue(200)]
         public short Air { get; set; }
         
         [Category("Entity"), Description("OH GOD I'M ON FIRE"), DefaultValue(-20)]
@@ -52,11 +52,13 @@ namespace OpenMinecraft.Entities
         [Category("Entity"), Description("OH GOD I'M FALLING")]
         public float FallDistance { get; set; }
 
+        [Category("Entity"), Description("Entity rotation in degrees. (0,0) = Facing west.")]
+        public Rotation Rotation {
+            get { return mRotation; }
+            set { mRotation = value; }
+        }
 
-        public NbtTag Rotation=new NbtList("Rotation", new NbtDouble[] { 
-            new NbtDouble(0d),
-            new NbtDouble(0d)
-        });
+        public Rotation mRotation=new Rotation(0,0);
         public byte OnGround=0x00;
         private NbtCompound orig;
         private string id;
@@ -146,7 +148,7 @@ namespace OpenMinecraft.Entities
             OnGround = c.Get<NbtByte>("OnGround").Value;
             /* TempSMS is a dirty liar. */
             Pos = new Vector3d(Pos.X, Pos.Z, Pos.Y);
-            Rotation = c["Rotation"];
+            Rotation = Rotation.FromNbt(c.Get<NbtList>("Rotation"));
             Console.WriteLine("Loaded entity {0} @ {1}", (c["id"] as NbtString).Value, Pos);
         }
 
@@ -171,7 +173,7 @@ namespace OpenMinecraft.Entities
                 new NbtDouble("", Pos.Y)
             });
             c.Tags.Add(pos);
-            c.Tags.Add(Rotation);
+            c.Tags.Add(Rotation.ToNBT());
         }
         public override string ToString()
         {
