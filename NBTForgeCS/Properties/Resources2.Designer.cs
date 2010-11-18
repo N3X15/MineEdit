@@ -22,7 +22,7 @@ namespace MineEdit.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace MineEdit.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MineEdit.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace MineEdit.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -60,98 +60,133 @@ namespace MineEdit.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap document_open {
+        public static System.Drawing.Bitmap dialog_error {
+            get {
+                object obj = ResourceManager.GetObject("dialog_error", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        public static System.Drawing.Bitmap dialog_information {
+            get {
+                object obj = ResourceManager.GetObject("dialog_information", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        public static System.Drawing.Bitmap dialog_warning {
+            get {
+                object obj = ResourceManager.GetObject("dialog_warning", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        public static System.Drawing.Bitmap document_new {
+            get {
+                object obj = ResourceManager.GetObject("document_new", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        public static System.Drawing.Bitmap document_open {
             get {
                 object obj = ResourceManager.GetObject("document_open", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap document_save {
+        public static System.Drawing.Bitmap document_save {
             get {
                 object obj = ResourceManager.GetObject("document_save", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap go_bottom {
+        public static System.Drawing.Bitmap edit_find_replace {
+            get {
+                object obj = ResourceManager.GetObject("edit_find_replace", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        public static System.Drawing.Bitmap go_bottom {
             get {
                 object obj = ResourceManager.GetObject("go_bottom", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap go_down {
+        public static System.Drawing.Bitmap go_down {
             get {
                 object obj = ResourceManager.GetObject("go_down", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap go_home {
+        public static System.Drawing.Bitmap go_home {
             get {
                 object obj = ResourceManager.GetObject("go_home", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap go_next {
+        public static System.Drawing.Bitmap go_next {
             get {
                 object obj = ResourceManager.GetObject("go_next", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap go_previous {
+        public static System.Drawing.Bitmap go_previous {
             get {
                 object obj = ResourceManager.GetObject("go_previous", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap go_top {
+        public static System.Drawing.Bitmap go_top {
             get {
                 object obj = ResourceManager.GetObject("go_top", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap go_up {
+        public static System.Drawing.Bitmap go_up {
             get {
                 object obj = ResourceManager.GetObject("go_up", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap list_add {
+        public static System.Drawing.Bitmap list_add {
             get {
                 object obj = ResourceManager.GetObject("list_add", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap LOGOBAR {
+        public static System.Drawing.Bitmap LOGOBAR {
             get {
                 object obj = ResourceManager.GetObject("LOGOBAR", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap MineEdit {
+        public static System.Drawing.Bitmap MineEdit {
             get {
                 object obj = ResourceManager.GetObject("MineEdit", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap Terragen_Logo {
+        public static System.Drawing.Bitmap Terragen_Logo {
             get {
                 object obj = ResourceManager.GetObject("Terragen_Logo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap view_refresh {
+        public static System.Drawing.Bitmap view_refresh {
             get {
                 object obj = ResourceManager.GetObject("view_refresh", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
