@@ -64,8 +64,6 @@ TAG_Compound: 12 entries
 	TAG_Short("DeathTime"): 0
 }
 */
-		
-		private static Image icon = new Bitmap("mobs/ghast.png");
         public Ghast()
         {
         }
@@ -95,7 +93,7 @@ TAG_Compound: 12 entries
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/ghast.png");
             }
         }
     }

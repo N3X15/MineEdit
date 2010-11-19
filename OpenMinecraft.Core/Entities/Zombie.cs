@@ -5,8 +5,6 @@ namespace OpenMinecraft.Entities
 {
     public class Zombie:LivingEntity
     {
-
-		private static Image icon = new Bitmap("mobs/zombie.png");
         public Zombie()
         {
         }
@@ -34,7 +32,7 @@ namespace OpenMinecraft.Entities
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/zombie.png"); 
             }
         }
     }

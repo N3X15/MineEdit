@@ -38,7 +38,6 @@ namespace OpenMinecraft.Entities
 {
     public class Entity
     {
-		internal static Image PigIcon = new Bitmap("mobs/notch.png");
 		
         public Vector3d Pos = new Vector3d(0,0,0);
         public Vector3d Motion = new Vector3d(0,0,0);
@@ -306,7 +305,7 @@ namespace OpenMinecraft.Entities
         public virtual Image Image {
             get
             {
-                return PigIcon;
+                return new Bitmap("mobs/notch.png");
             }
         }
 

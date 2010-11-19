@@ -41,8 +41,6 @@ TAG_Compound: 12 entries
 }
          */
 
-		private static Image icon = new Bitmap("mobs/skeleton.png");
-
         public Skeleton()
         {
         }
@@ -70,7 +68,7 @@ TAG_Compound: 12 entries
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/skeleton.png"); 
             }
         }
     }

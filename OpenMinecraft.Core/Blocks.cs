@@ -175,10 +175,17 @@ namespace OpenMinecraft
         public static string Version = "11182010";
 
         /// <summary>
+        /// Don't allow saving if past this date.
+        /// </summary>
+        public static string BrokenBefore = "11182010";
+
+        /// <summary>
         /// Total images for download.
         /// </summary>
         public static int TotalImages = 0;
         public static byte Water=9;
+
+        public static bool Broken=false;
 
         /// <summary>
         /// Load blocks, update if needed.
@@ -224,6 +231,14 @@ namespace OpenMinecraft
             }
         }
 
+        private static long VersionToTicks(string v)
+        {
+            int month = int.Parse(v.Substring(0, 2));
+            int day = int.Parse(v.Substring(2, 2));
+            int year = int.Parse(v.Substring(4, 4));
+            DateTime dt = new DateTime(year, month, day);
+            return dt.Ticks;
+        }
         public static bool CheckForUpdates()
         {
             WebClient wc = new WebClient();
@@ -239,6 +254,12 @@ namespace OpenMinecraft
             foreach (string l in hurp.Split('\n'))
             {
                 string line = l.Trim();
+                if (line.StartsWith("public static string BrokenBefore = "))
+                {
+                    string v = line.Substring("public static string BrokenBefore = ".Length + 1, 8);
+                    Blocks.Broken = (VersionToTicks(Blocks.BrokenBefore) < VersionToTicks(v));
+                    return true;
+                }
                 if (line.StartsWith("public static string Version = "))
                 {
                     string v = line.Substring("public static string Version = ".Length + 1, 8);

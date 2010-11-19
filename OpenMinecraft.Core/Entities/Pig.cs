@@ -41,7 +41,6 @@ TAG_Compound: 13 entries
      */
     public class Pig:LivingEntity
     {
-		private static Image icon = new Bitmap("mobs/pig.png");
         //.Pig-only stuff
         public bool Saddle = false;
 
@@ -75,7 +74,7 @@ TAG_Compound: 13 entries
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/pig.png");
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define CATCH_CHUNK_ERRORS
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using LibNbt;
@@ -440,7 +442,7 @@ namespace OpenMinecraft
 				Console.WriteLine("! {0}", c.Filename);
 				return null;
 			}
-#if !DEBUG
+#if !DEBUG || CATCH_CHUNK_ERRORS
 			try
 			{
 #endif
@@ -510,18 +512,18 @@ namespace OpenMinecraft
 				//Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
 				return c;
 
-#if !DEBUG
+#if !DEBUG || CATCH_CHUNK_ERRORS
             }
 			catch (Exception e)
 			{
 				string err = string.Format(" *** ERROR: Chunk {0},{1} ({2}) failed to load:\n\n{3}", x, z, c.Filename, e);
 				Console.WriteLine(err);
 				if (CorruptChunk != null)
-					CorruptChunk(err, c.Filename);
+					CorruptChunk(x,z,err, c.Filename);
 				return null;
 			}
 #endif
-		}
+        }
 
 		private byte[, ,] DecompressBlocks(byte[] p)
 		{
@@ -796,6 +798,7 @@ namespace OpenMinecraft
 		public bool Save(string filename)
         {
             mFolder = Path.GetDirectoryName(filename);
+            Filename = filename;
             if (File.Exists(filename))
             {
                 File.Copy(filename, Path.ChangeExtension(filename, "bak"), true);
@@ -807,25 +810,23 @@ namespace OpenMinecraft
             }
             return true;
 		}
-        public void AddEntity(Entity e)
+        public void AddEntity(Entity e, long CX, long CZ)
         {
             e.UUID = Guid.NewGuid();
             mEntities.Add(e.UUID, e);
 
-            int CX = (int)e.Pos.X / 16;
-            int CZ = (int)e.Pos.Z / 16; // DURP
-            //e.Pos.X = (int)e.Pos.X - CX;
-            //e.Pos.Y = (int)e.Pos.Y - CY;
-
-            string f = GetChunkFilename(CX, CZ);
+            string f = GetChunkFilename((int)CX, (int)CZ);
+            Chunk c;
             if (!File.Exists(f))
             {
-                Console.WriteLine("! {0}", f);
-                return;
+                c = NewChunk(CX, CZ);
+            }
+            else
+            {
+                c = GetChunk(CX, CZ);
             }
             try
             {
-                Chunk c = GetChunk(CX, CZ);
                 if (c.Entities.ContainsKey(e.UUID))
                     c.Entities.Remove(e.UUID);
                 c.Entities.Add(e.UUID, e);
@@ -1115,17 +1116,31 @@ namespace OpenMinecraft
 		}
 
 		public Chunk NewChunk(long X, long Y)
-		{
-			NbtCompound c = NewNBTChunk(X, Y);
+        {
+            NbtCompound c = NewNBTChunk(X, Y);
             string f = GetChunkFilename((int)X, (int)Y);
-            FileStream fs = File.Create(f); // Get around crash where Windows doesn't like creating new files in Write mode for some fucking stupid reason
-            fs.Close();
-			NbtFile cf = new NbtFile(f);
-			cf.RootTag = c;
-			cf.SaveFile(GetChunkFilename((int)X, (int)Y));
 
-			return GetChunk(X, Y);
-		}
+            // Create folder first.
+            string d = Path.GetDirectoryName(f);
+            
+            if(!Directory.Exists(d))
+                Directory.CreateDirectory(d);
+
+            // Get around crash where Windows doesn't like creating new files in Write mode for some fucking stupid reason
+            {
+                FileInfo fi = new FileInfo(f);
+                FileStream fs = fi.Create();
+                fs.Close();
+            }
+
+            // Create the damn file.
+            NbtFile cf = new NbtFile(f);
+            cf.RootTag = c;
+            cf.SaveFile(f);
+            cf.Dispose(); // Pray.
+
+            return GetChunk(X, Y);
+        }
 
 		protected NbtCompound NewNBTChunk(long X, long Y)
 		{
@@ -1509,8 +1524,11 @@ namespace OpenMinecraft
                 }
                 catch (Exception e)
                 {
-                    if(CorruptChunk!=null)
-                        CorruptChunk("["+Complete.ToString()+"]"+e.ToString(), file);
+                    if (CorruptChunk != null)
+                    {
+                        Vector2i pos = GetChunkCoordsFromFile(file);
+                        CorruptChunk(pos.X,pos.Y,"[" + Complete.ToString() + "]" + e.ToString(), file);
+                    }
                 //    continue;
                 }
 			}
@@ -1544,7 +1562,7 @@ namespace OpenMinecraft
                 catch (Exception e)
                 {
                     if (CorruptChunk != null)
-                        CorruptChunk(e.ToString(), file);
+                        CorruptChunk(X,Y,e.ToString(), file);
                     return null;
                 }
                 NbtCompound Level = (NbtCompound)f.RootTag["Level"];

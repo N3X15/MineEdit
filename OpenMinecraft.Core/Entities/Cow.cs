@@ -67,8 +67,6 @@ namespace OpenMinecraft.Entities
 {
     public class Cow : LivingEntity
     {
-
-        private static Image icon = new Bitmap("mobs/cow.png");
         public Cow()
         {
         }
@@ -98,7 +96,7 @@ namespace OpenMinecraft.Entities
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/cow.png");
             }
         }
     }

@@ -69,8 +69,6 @@ TAG_Compound: 13 entries
 		
 		[Category("PigZombie"), Description("How much you've pissed it off.")]
 		public short Anger {get;set;}
-
-		private static Image icon = new Bitmap("mobs/pigzombie.png");
         public PigZombie()
         {
         }
@@ -102,7 +100,7 @@ TAG_Compound: 13 entries
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/pigzombie.png");
             }
         }
     }

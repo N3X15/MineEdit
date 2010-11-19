@@ -61,7 +61,6 @@ TAG_Compound: 8 entries
     public class Boat:Entity
     {
 		
-		private static Image icon = new Bitmap("items/333.png"); // Boat
         public Boat()
         {
         }
@@ -92,7 +91,7 @@ TAG_Compound: 8 entries
         {
             get
             {
-                return icon;
+                return new Bitmap("items/333.png"); // Boat;
             }
         }
     }

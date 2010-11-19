@@ -43,8 +43,15 @@ namespace MineEdit
             SetText("Checking version...");
             if (!Blocks.CheckForUpdates())
             {
-                MessageBox.Show("New version of MineEdit is available.  Please visit the thread to get the newest version.", "Update available");
-                System.Diagnostics.Process.Start("http://github.com/N3X15/MineEdit/downloads/");
+                DialogResult dr = MessageBox.Show("New version of MineEdit is available.\n\nWould you like to visit the download site to get the newest version?", "Update available", MessageBoxButtons.YesNo);
+                if (dr == System.Windows.Forms.DialogResult.Yes)
+                    System.Diagnostics.Process.Start("http://github.com/N3X15/MineEdit/downloads/");
+            }
+
+            if (Blocks.Broken)
+            {
+                MessageBox.Show("Update required due to a danger of damaging your saves.  Exiting...");
+                Environment.Exit(0);
             }
 
             SetText("Loading blocks...");

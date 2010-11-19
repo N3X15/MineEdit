@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using System.IO;
 using OpenMinecraft;
+using OpenMinecraft.Entities;
 
 namespace OpenMinecraft.Tests
 {
@@ -51,7 +52,7 @@ namespace OpenMinecraft.Tests
             InfdevHandler mh = new InfdevHandler();
             mh.Save("002/level.dat");
             mh.SetDimension(0);
-            
+
             Chunk cnkA = mh.NewChunk(0, 0);
             cnkA.Blocks[0, 0, 0] = 0x01;
             cnkA.Blocks[0, 0, 1] = 0x02;
@@ -61,13 +62,82 @@ namespace OpenMinecraft.Tests
 
             FileInfo fA = new FileInfo(cnkA.Filename);
 
-            Assert.Greater(0, fA.Length, "System writing zero-length chunks.");
+            Assert.Greater(fA.Length, 0, "System writing zero-length chunks.");
 
             Chunk cnkB = mh.GetChunk(0, 0);
             Assert.AreEqual(cnkB.Blocks[0, 0, 0], 0x01);
             Assert.AreEqual(cnkB.Blocks[0, 0, 1], 0x02);
             Assert.AreEqual(cnkB.Blocks[0, 0, 2], 0x03);
             Assert.AreEqual(cnkB.Blocks[0, 0, 3], 0x04);
+
+        }
+
+        // Test changing map settings.
+        [Test]
+        public void TEST003_EditLevel()
+        {
+
+            if (Directory.Exists("003"))
+                Directory.Delete("003", true);
+            Directory.CreateDirectory("003"); // Copies map here.
+            Utils.CopyRecursive("001_PRISTINE", "003");
+
+            {
+                InfdevHandler a = new InfdevHandler();
+                a.Load("003/level.dat");
+                a.SetDimension(0);
+
+                a.Health = 10;
+
+                a.Save();
+            }
+            InfdevHandler b = new InfdevHandler();
+            b.Load("003/level.dat");
+            b.SetDimension(0);
+
+            Assert.True(b.Health == 10);
+        }
+
+        // Test adding entities.
+        [Test]
+        public void TEST004_AddEntities()
+        {
+
+            if (Directory.Exists("004"))
+                Directory.Delete("004", true);
+            Directory.CreateDirectory("004"); // Copies map here.
+
+            {
+                InfdevHandler a = new InfdevHandler();
+                a.Save("004/level.dat");
+                a.SetDimension(0);
+
+                Sheep b = new Sheep();
+                b.Air = 300;
+                b.AttackTime = 0;
+                b.ChunkX = 0;
+                b.ChunkY = 0;
+                b.DeathTime = 0;
+                b.FallDistance = 0;
+                b.Fire = -1;
+                b.Health = 20;
+                b.Sheared = false;
+                b.UUID = Guid.NewGuid();
+                b.Pos = new Vector3d(100, 8, 8);
+                b.Rotation = new Rotation(0, 0);
+
+                a.AddEntity(b,0,0);
+
+                a.Save();
+            }
+
+            {
+                InfdevHandler a = new InfdevHandler();
+                a.Load("004/level.dat");
+                a.SetDimension(0);
+                Chunk chunk = a.GetChunk(0, 0);
+                Assert.AreEqual(1,chunk.Entities.Count,"The sheep didn't get saved.");
+            }
 
         }
     }

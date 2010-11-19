@@ -8,8 +8,6 @@ namespace OpenMinecraft.Entities
 {
     public class Spider:LivingEntity
     {
-
-		private static Image icon = new Bitmap("mobs/spider.png");
         public Spider()
         {
         }
@@ -37,7 +35,7 @@ namespace OpenMinecraft.Entities
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/spider.png"); 
             }
         }
     }

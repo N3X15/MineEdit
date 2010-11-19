@@ -942,7 +942,7 @@ namespace MineEdit
         }
 
         public frmReport BrokenShit = new frmReport();
-        void OnCorruptChunk(string error, string file)
+        void OnCorruptChunk(long X, long Y, string error, string file)
         {
             /*
             DialogResult dr = MessageBox.Show("A chunk is corrupt.  Would you like to delete and regenerate it?\n\n"+error, "Corrupt chunk!", MessageBoxButtons.YesNo);
@@ -952,8 +952,8 @@ namespace MineEdit
                 MessageBox.Show(file + " deleted!");
             }
             */
-            Vector2i chunkpos = (ActiveMdiChild as frmMap).Map.GetChunkCoordsFromFile(file);
-            BrokenShit.AddError(chunkpos.X, chunkpos.Y, "This chunk is corrupt.  Fixing will completely delete it.\n" + error, delegate(long X, long Y)
+
+            BrokenShit.AddError(X, Y, "This chunk is corrupt.  Fixing will completely delete it.\n" + error, delegate(long x, long y)
             {
                 File.Delete(file);
                 return true;
@@ -1388,11 +1388,10 @@ namespace MineEdit
                         ///////////////////////////////////////////////////////////////
                         (ActiveMdiChild as frmMap).Map.CorruptChunk -= OnCorruptChunk;
                         frmReport report = new frmReport();
-                        CorruptChunkHandler cch = delegate(string error, string file)
+                        CorruptChunkHandler cch = delegate(long X, long Y, string error, string file)
                         {
                             //Console.WriteLine(file);
-                            Vector2i coords = (ActiveMdiChild as frmMap).Map.GetChunkCoordsFromFile(file);
-                            report.AddError(coords.X, coords.Y, error, delegate(long X, long Y)
+                            report.AddError(X, Y, error, delegate(long x, long y)
                             {
                                 File.Delete(file);
                                 return true;
@@ -1467,7 +1466,7 @@ namespace MineEdit
                         (ActiveMdiChild as frmMap).Map.CorruptChunk -= cch;
                         (ActiveMdiChild as frmMap).Map.CorruptChunk += OnCorruptChunk;
                         report.Repopulate();
-                        report.ShowDialog();
+                        report.Show();
                     });
                     dlt.ShowDialog();
                 }

@@ -13,7 +13,7 @@ namespace OpenMinecraft
         Legs,
         Boots
     }
-    public delegate void CorruptChunkHandler(string error, string file);
+    public delegate void CorruptChunkHandler(long X, long Y, string error, string file);
     public delegate void ForEachProgressHandler(int Total, int Complete);
 	public delegate void CachedChunkDelegate(long x, long y,Chunk c);
     public interface IMapHandler
@@ -112,6 +112,6 @@ namespace OpenMinecraft
         void SetDimension(int p);
         IEnumerable<Dimension> GetDimensions();
 
-        void AddEntity(Entity e);
+        void AddEntity(Entity e, long CX, long CY);
     }
 }

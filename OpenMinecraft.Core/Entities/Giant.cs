@@ -34,8 +34,6 @@ namespace OpenMinecraft.Entities
     public class Giant:LivingEntity
     {
 
-		private static Image icon = new Bitmap("mobs/notch.png");
-
         public Giant()
         {
         }
@@ -63,7 +61,7 @@ namespace OpenMinecraft.Entities
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/notch.png");
             }
         }
     }

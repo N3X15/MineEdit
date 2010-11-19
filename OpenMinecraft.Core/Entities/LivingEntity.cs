@@ -50,7 +50,6 @@ namespace OpenMinecraft.Entities
         public short DeathTime = 0;
 
         private string lolID = ""; 
-        private static Image icon = new Bitmap("mobs/pig.png");
 
         public LivingEntity()
         {
@@ -95,7 +94,7 @@ namespace OpenMinecraft.Entities
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/pig.png");
             }
         }
     }

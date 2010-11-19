@@ -1154,7 +1154,7 @@ namespace MineEdit
 
         private void entityEditor1_EntityAdded(Entity e)
         {
-            this.Map.AddEntity(e);
+            this.Map.AddEntity(e,0,0); // TODO: Add chunk X/Z
         }
     }
 }

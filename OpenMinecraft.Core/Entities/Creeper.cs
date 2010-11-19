@@ -66,8 +66,6 @@ TAG_Compound: 12 entries
 }
 */
 
-		private static Image icon = new Bitmap("mobs/creeper.png");
-
         public Creeper()
         {
         }
@@ -95,7 +93,7 @@ TAG_Compound: 12 entries
         {
             get
             {
-                return icon;
+                return new Bitmap("mobs/creeper.png");
             }
         }
     }
