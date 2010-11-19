@@ -124,6 +124,27 @@ namespace LibNbt.Tags
 		{
 			return Get<NbtTag>(tagName);
 		}
+        public bool Has(string tagName)
+        {
+            if (TagCache.ContainsKey(tagName))
+                return true;
+
+            foreach (NbtTag tag in Tags)
+            {
+                if (tag.Name.Equals(tagName))
+                {
+                    lock (TagCache)
+                    {
+                        if (!TagCache.ContainsKey(tagName))
+                        {
+                            TagCache.Add(tagName, tag);
+                        }
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
 		public T Get<T>(string tagName) where T : NbtTag
 		{
 			if (TagCache.ContainsKey(tagName) &&
@@ -145,7 +166,7 @@ namespace LibNbt.Tags
 					return (T)tag;
 				}
 			}
-			throw new KeyNotFoundException();
+			throw new KeyNotFoundException(tagName); // Make it a LITTLE more helpful.
 		}
 		public void Set(string tagName, NbtTag tag)
 		{

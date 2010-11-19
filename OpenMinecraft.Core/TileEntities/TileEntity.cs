@@ -244,5 +244,10 @@ namespace OpenMinecraft.TileEntities
                     return t.GetType().Name;
             }
         }
+
+        public static void Cleanup()
+        {
+            TileEntityTypes.Clear();
+        }
     }
 }

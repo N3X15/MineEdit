@@ -29,6 +29,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using LibNbt.Tags;
+using System;
 
 namespace OpenMinecraft.Entities
 {
@@ -57,6 +58,11 @@ namespace OpenMinecraft.Entities
         public LivingEntity(NbtCompound c)
         {
             SetBaseStuff(c);
+            if (!c.Has("HurtTime"))
+            {
+                Console.WriteLine(c);
+                return;
+            }
             lolID = (c["id"] as NbtString).Value;
             Health = (c["Health"] as NbtShort).Value;
             HurtTime = (c["HurtTime"] as NbtShort).Value;

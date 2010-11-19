@@ -31,6 +31,7 @@
         <NoStdLib>false</NoStdLib>
       </Options>
     </Configuration>
+	
     <Project frameworkVersion="v3_5" name="LibNBT" path="lib/LibNBT/" type="Library">
       <Configuration name="Debug">
         <Options>
@@ -46,9 +47,30 @@
       <ReferencePath>../../bin/</ReferencePath>
       <Reference name="System"/>
       <Reference name="log4net.dll"/>
-
       <Files>
-        <Match pattern="*.cs" recurse="true" />
+        <Match path="LibNbt" pattern="*.cs" recurse="true" />
+      </Files>
+    </Project>
+	
+    <Project frameworkVersion="v3_5" name="LibNBT.Tests" path="lib/LibNBT/" type="Library">
+      <Configuration name="Debug">
+        <Options>
+          <OutputPath>../../bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release">
+        <Options>
+          <OutputPath>../../bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <ReferencePath>../../bin/</ReferencePath>
+      <Reference name="System"/>
+      <Reference name="LibNBT"/>
+      <Reference name="NUnit.Framework"/>
+      <Reference name="log4net.dll"/>
+      <Files>
+        <Match path="LibNbt.Test" pattern="*.cs" recurse="true" />
       </Files>
     </Project>
 
@@ -75,9 +97,35 @@
       <Reference name="System.Windows.Forms"/> <!-- Updater control -->
       <Reference name="log4net.dll"/>
       <Files>
-        <Match pattern="*.cs" recurse="true" />
+        <Match pattern="*.cs" recurse="true">
+			<Exclude pattern="Tests" />
+		</Match>
         <Match pattern="*.resx" recurse="true" />
 		<Match pattern="*.png" path="Resources" recurse="false" buildAction="EmbeddedResource" />
+      </Files>
+    </Project>
+	
+	
+    <Project frameworkVersion="v3_5" name="OpenMinecraft.Tests" path="OpenMinecraft.Tests/" type="Library">
+      <Configuration name="Debug">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release">
+        <Options>
+          <OutputPath>../bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <ReferencePath>../bin/</ReferencePath>
+      <Reference name="System"/>
+      <Reference name="LibNBT"/>
+      <Reference name="OpenMinecraft.Core"/>
+      <Reference name="NUnit.Framework"/>
+      <Reference name="log4net.dll"/>
+      <Files>
+        <Match pattern="*.cs" recurse="true" />
       </Files>
     </Project>
 

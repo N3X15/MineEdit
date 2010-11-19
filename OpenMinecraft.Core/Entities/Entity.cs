@@ -94,6 +94,7 @@ namespace OpenMinecraft.Entities
             {
                 if (t.IsSubclassOf(typeof(Entity)))
                 {
+                    Console.WriteLine("[Entity] Adding {0}...", t.Name);
                     Entity e = (Entity)t.GetConstructor(new Type[0]).Invoke(new Object[0]);
                     EntityTypes.Add(e.GetID(), t);
                     Console.WriteLine("[Entity] Added {0} handler.", e.GetID());
@@ -184,7 +185,17 @@ namespace OpenMinecraft.Entities
         {
             string entID = c.Get<NbtString>("id").Value;
             if (EntityTypes.ContainsKey(entID))
-                return (Entity)EntityTypes[entID].GetConstructor(new Type[] { typeof(NbtCompound) }).Invoke(new Object[] { c });
+            {
+                try
+                {
+                    return (Entity)EntityTypes[entID].GetConstructor(new Type[] { typeof(NbtCompound) }).Invoke(new Object[] { c });
+                }
+                catch (TargetInvocationException e)
+                {
+                    Console.WriteLine("Failed to load " + entID + ": \n" + e.InnerException.ToString());
+                    throw e.InnerException;
+                }
+            }
             
             // Try to figure out what the hell this is.
 
@@ -193,11 +204,11 @@ namespace OpenMinecraft.Entities
 
             // Do we have a LivingEntity or just an Entity?
             // Quick and simple test: health.
-            if (c.Get("Health") != null)
+            if (c.Has("Health") && entID!="Item")
             {
                 GenTemplate(c, "livingentity.template");
                 // Goodie, just whip up a new LivingEntity and we're relatively home free.
-                return  new LivingEntity(c);
+                return new LivingEntity(c);
             }
             else
             {
@@ -312,6 +323,11 @@ namespace OpenMinecraft.Entities
             };
             int i = r.Next(0, mobids.Length-1);
             return mobids[i];
+        }
+
+        public static void Cleanup()
+        {
+            KnownEntityVars.Clear();
         }
     }
 }

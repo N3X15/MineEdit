@@ -1,0 +1,12 @@
+﻿Test NBT File Details
+---
+
+This is the test NBT file Notch released with his NBT file spec. The file can
+be found at: http://www.minecraft.net/docs/test.nbt
+
+The file's layout is:
+
+	TAG_Compound("hello world"): 1 entries
+	{
+	   TAG_String("name"): Bananrama
+	}

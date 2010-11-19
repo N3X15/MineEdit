@@ -290,8 +290,9 @@ namespace OpenMinecraft
 				mRoot = new NbtFile(filename);
 				mRoot.LoadFile();
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
+                Console.WriteLine(e);
 				System.Windows.Forms.DialogResult dr = System.Windows.Forms.MessageBox.Show("Your level.dat is broken. Copying over level.dat_old...","ERROR",System.Windows.Forms.MessageBoxButtons.OKCancel);
 				if (dr == System.Windows.Forms.DialogResult.OK)
 				{
@@ -439,10 +440,10 @@ namespace OpenMinecraft
 				Console.WriteLine("! {0}", c.Filename);
 				return null;
 			}
-//#if !DEBUG
+#if !DEBUG
 			try
 			{
-//#endif
+#endif
 				mChunk = new NbtFile(c.Filename);
 				mChunk.LoadFile();
 
@@ -509,7 +510,7 @@ namespace OpenMinecraft
 				//Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
 				return c;
 
-//#if !DEBUG
+#if !DEBUG
             }
 			catch (Exception e)
 			{
@@ -519,7 +520,7 @@ namespace OpenMinecraft
 					CorruptChunk(err, c.Filename);
 				return null;
 			}
-//#endif
+#endif
 		}
 
 		private byte[, ,] DecompressBlocks(byte[] p)
@@ -540,6 +541,7 @@ namespace OpenMinecraft
 
 		private void LoadEnts(ref Chunk cnk, int CX, int CY, NbtList ents)
 		{
+            Console.WriteLine("Loading {0} entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CY, cnk.Filename);
 			foreach (NbtCompound c in ents.Tags)
 			{
 				Entity hurp = Entity.GetEntity(c);
@@ -550,17 +552,18 @@ namespace OpenMinecraft
 		}
 
 		private void LoadTileEnts(ref Chunk cnk, int CX,int CY,NbtList ents)
-		{
+        {
+            Console.WriteLine("Loading {0} tile entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CY, cnk.Filename);
 			foreach (NbtCompound c in ents.Tags)
 			{
 				TileEntity hurp = TileEntity.GetEntity(CX,CY,(int)ChunkScale.X,c);
-				int _CX = (int)(hurp.Pos.X / 16);
+				/*int _CX = (int)(hurp.Pos.X / 16);
 				int _CY = (int)(hurp.Pos.Y / 16);
 				if (_CX != CX || _CY != CY)
 				{
 					Console.WriteLine("TileEntity at {4} is not in chunk {0},{1};  It's in chunk {2},{3}!", CX, CY, _CX, _CY, hurp.Pos);
 					//Environment.Exit(0);
-				}
+				}*/
 				hurp.UUID = Guid.NewGuid();
 				mTileEntities.Add(hurp.UUID, hurp);
 			}
@@ -791,10 +794,18 @@ namespace OpenMinecraft
 		}
 
 		public bool Save(string filename)
-		{
-			File.Copy(Filename, Path.ChangeExtension(Filename, "bak"),true);
-			mRoot.SaveFile(filename);
-			return true;
+        {
+            mFolder = Path.GetDirectoryName(filename);
+            if (File.Exists(filename))
+            {
+                File.Copy(filename, Path.ChangeExtension(filename, "bak"), true);
+                mRoot.SaveFile(filename);
+            }
+            else
+            {
+                mRoot.SaveFile(filename);
+            }
+            return true;
 		}
         public void AddEntity(Entity e)
         {
@@ -1106,7 +1117,10 @@ namespace OpenMinecraft
 		public Chunk NewChunk(long X, long Y)
 		{
 			NbtCompound c = NewNBTChunk(X, Y);
-			NbtFile cf = new NbtFile(GetChunkFilename((int)X, (int)Y));
+            string f = GetChunkFilename((int)X, (int)Y);
+            FileStream fs = File.Create(f); // Get around crash where Windows doesn't like creating new files in Write mode for some fucking stupid reason
+            fs.Close();
+			NbtFile cf = new NbtFile(f);
 			cf.RootTag = c;
 			cf.SaveFile(GetChunkFilename((int)X, (int)Y));
 

@@ -29,6 +29,7 @@
 using System;
 using System.Drawing;
 using LibNbt.Tags;
+using System.ComponentModel;
 
 namespace OpenMinecraft.TileEntities
 {

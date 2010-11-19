@@ -28,6 +28,7 @@
 
 using System.Drawing;
 using LibNbt.Tags;
+using System.ComponentModel;
 
 namespace OpenMinecraft.Entities
 {
@@ -36,7 +37,7 @@ namespace OpenMinecraft.Entities
 */
     public class {ENTITY_NAME}:Entity
     {
-		{NEW_VARS}
+{NEW_VARS}
 		private static Image icon = new Bitmap("mobs/notch.png");
         public {ENTITY_NAME}()
         {
@@ -45,13 +46,13 @@ namespace OpenMinecraft.Entities
         public {ENTITY_NAME}(NbtCompound c)
         {
             SetBaseStuff(c);
-			{VAR_ASSIGNMENT}
+{VAR_ASSIGNMENT}
         }
         public override NbtCompound ToNBT()
         {
             NbtCompound c = new NbtCompound();
             Base2NBT(ref c, GetID());
-			{TO_NBT}
+{TO_NBT}
             return c;
         }
         public override string ToString()

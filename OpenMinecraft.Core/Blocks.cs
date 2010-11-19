@@ -172,7 +172,7 @@ namespace OpenMinecraft
         /// <summary>
         /// Version number.  MMDDYYYY format.
         /// </summary>
-        public static string Version = "07122010";
+        public static string Version = "11182010";
 
         /// <summary>
         /// Total images for download.
