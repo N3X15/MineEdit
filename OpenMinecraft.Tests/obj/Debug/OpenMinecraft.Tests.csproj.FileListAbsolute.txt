@@ -1,5 +1,0 @@
-C:\Users\Rob\Documents\MineEdit\OpenMinecraft.Tests\obj\Debug\ResolveAssemblyReference.cache
-C:\Users\Rob\Documents\MineEdit\bin\OpenMinecraft.Tests.dll
-C:\Users\Rob\Documents\MineEdit\bin\OpenMinecraft.Tests.pdb
-C:\Users\Rob\Documents\MineEdit\OpenMinecraft.Tests\obj\Debug\OpenMinecraft.Tests.dll
-C:\Users\Rob\Documents\MineEdit\OpenMinecraft.Tests\obj\Debug\OpenMinecraft.Tests.pdb
