@@ -45,7 +45,7 @@ namespace OpenMinecraft.Rendering2D
         private void Render(Chunk c)
         {
             int x = (int)c.Position.X;
-            int y = (int)c.Position.X;
+            int y = (int)c.Position.Y;
             int HS = (int)Map.ChunkScale.X;
             if (x < Minimum.X || y < Minimum.Y || x < Maximum.X || y < Maximum.Y)
             {

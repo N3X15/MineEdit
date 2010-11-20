@@ -140,17 +140,8 @@ namespace OpenMinecraft
 			set
 			{
                 // TODO: Find value range.
-                mRoot.SetQuery<short>("//Data/Player/HurtTime",(short)value);
-                /*
-				//root.SetTag("/Data/Player/HurtTime",h);
-				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
-				NbtCompound Player = (NbtCompound)Data["Player"];
-				NbtShort oh = (NbtShort)Player["HurtTime"];
-				Player.Tags.Remove(oh);
-				Player.Tags.Add(h);
-				Data["Player"] = Player;
-				mRoot.RootTag["Data"] = Data;
-                */
+                mRoot.SetQuery<short>("//Data/Player/HurtTime", (short)value);
+
 			}
 		}
 		// Don't clamp, all sorts of weird shit can be done here.
@@ -466,10 +457,10 @@ namespace OpenMinecraft
 					LoadTileEnts(ref c, (int)x, (int)z, TileEntities);
 				}
 
-				NbtList Entities = (NbtList)level["Entities"];
+                NbtList Entities = (NbtList)level["Entities"];
+                Console.WriteLine("*** Found {0} Entities.",Entities.Tags.Count);
 				if (Entities.Tags.Count > 0)
 				{
-					//Console.WriteLine("*** Found Entities.");
 					LoadEnts(ref c, (int)x, (int)z, Entities);
 				}
 
@@ -486,28 +477,26 @@ namespace OpenMinecraft
 				if (mChunks.ContainsKey(ci))
 					return mChunks[ci];
 				mChunks.Add(ci, c);
-				/*
-				@TODO: Make Pig spawner converter.
+				//TODO: Make Pig spawner converter.
 				for (int Z = 0; Z < ChunkScale.X; Z++)
 				{
 					for (int Y = 0; Y < ChunkScale.Y; Y++)
 					{
 						for (int X = 0; X < ChunkScale.X; X++)
 						{
-							long index = X + (Z * ChunkY + Y) * ChunkZ;
-							byte b = CurrentChunks[index];
-							if (b == Blocks.Find("Mob spawner").ID)
+                            byte b = c.Blocks[X, Y, Z];
+							if (b == 52)
 							{
-								MobSpawner ms = new MobSpawner(X + (int)(x * ChunkScale.X), Y + (int)(z * ChunkScale.Y), Z, "Pig", 20);
-								ms.id = "MobSpawner";
+								MobSpawner ms = new MobSpawner();
+                                ms.Pos=new Vector3i(X, Y, Z);
+                                ms.EntityId = "Pig";
 								ms.UUID = Guid.NewGuid();
-								_TileEntities.Add(ms.UUID, ms);
-								c++;
+								mTileEntities.Add(ms.UUID, ms);
+								//c++;
 							}
 						}
 					}
 				}
-					*/
 				//if (c>0)  Console.WriteLine("*** {0} spawners found.", c);
 				//Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
 				return c;
@@ -541,33 +530,37 @@ namespace OpenMinecraft
 			return NewBlocks;
 		}
 
-		private void LoadEnts(ref Chunk cnk, int CX, int CY, NbtList ents)
+		private void LoadEnts(ref Chunk cnk, int CX, int CZ, NbtList ents)
 		{
-            Console.WriteLine("Loading {0} entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CY, cnk.Filename);
+            Console.WriteLine("Loading {0} entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CZ, cnk.Filename);
 			foreach (NbtCompound c in ents.Tags)
 			{
-				Entity hurp = Entity.GetEntity(c);
-				hurp.UUID = Guid.NewGuid();
-				cnk.Entities.Add(hurp.UUID, hurp);
-				mEntities.Add(hurp.UUID, hurp);
+                Entity e = Entity.GetEntity(c);
+                
+                // TODO: Verify entity positioning.
+                e.Pos.X = (e.Pos.X * 16d) + CX;
+                e.Pos.Z = (e.Pos.Z * 16d) + CZ;
+
+				e.UUID = Guid.NewGuid();
+
+				cnk.Entities.Add(e.UUID, e);
+				mEntities.Add(e.UUID, e);
 			}
 		}
 
-		private void LoadTileEnts(ref Chunk cnk, int CX,int CY,NbtList ents)
+		private void LoadTileEnts(ref Chunk cnk, int CX,int CZ,NbtList ents)
         {
-            Console.WriteLine("Loading {0} tile entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CY, cnk.Filename);
+            Console.WriteLine("Loading {0} tile entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CZ, cnk.Filename);
 			foreach (NbtCompound c in ents.Tags)
 			{
-				TileEntity hurp = TileEntity.GetEntity(CX,CY,(int)ChunkScale.X,c);
-				/*int _CX = (int)(hurp.Pos.X / 16);
-				int _CY = (int)(hurp.Pos.Y / 16);
-				if (_CX != CX || _CY != CY)
-				{
-					Console.WriteLine("TileEntity at {4} is not in chunk {0},{1};  It's in chunk {2},{3}!", CX, CY, _CX, _CY, hurp.Pos);
-					//Environment.Exit(0);
-				}*/
-				hurp.UUID = Guid.NewGuid();
-				mTileEntities.Add(hurp.UUID, hurp);
+                TileEntity te = TileEntity.GetEntity(CX, CZ, (int)ChunkScale.X, c);
+                
+                // TODO: Verify TileEntity positioning.
+                te.Pos.X = (te.Pos.X * 16) + CX;
+                te.Pos.Z = (te.Pos.Z * 16) + CZ;
+
+				te.UUID = Guid.NewGuid();
+				mTileEntities.Add(te.UUID, te);
 			}
 		}
 		
@@ -703,12 +696,10 @@ namespace OpenMinecraft
 		public void SaveChunk(Chunk cnk)
 		{
 			NbtFile c = new NbtFile(cnk.Filename);
-			c.LoadFile();
-			//Console.WriteLine("Saving "+f);
 
-			NbtCompound Level = (NbtCompound)c.RootTag["Level"];
-			//string ci = string.Format("{0},{1}", x, z);
-			Level.Tags.Remove(Level["Blocks"]);
+            // TODO: PosY -> PosZ
+            c.RootTag = NewNBTChunk(cnk.Position.X, cnk.Position.Y);
+            NbtCompound Level = (NbtCompound)c.RootTag["Level"];
 
 			// BLOCKS /////////////////////////////////////////////////////
 			byte[] blocks = new byte[ChunkX * ChunkY * ChunkZ];
@@ -762,16 +753,12 @@ namespace OpenMinecraft
 			}
 			Level.Tags.Add(tents);
 
-			c.RootTag["Level"] = Level;
-            Console.WriteLine(c.ToString());
-			//try
-			//{
-				c.SaveFile(cnk.Filename);
-			//}
-			//catch (Exception e)
-			//{
-			//    Console.WriteLine(e);
-			//}
+			c.RootTag.Set("Level",Level);
+			
+            c.SaveFile(cnk.Filename);
+			
+            // For debuggan
+            File.WriteAllText(cnk.Filename + ".txt", c.RootTag.ToString());
 		}
 
 		public bool IsMyFiletype(string f)
@@ -810,9 +797,15 @@ namespace OpenMinecraft
             }
             return true;
 		}
-        public void AddEntity(Entity e, long CX, long CZ)
+        public void AddEntity(Entity e)
         {
+            int CX = (int)(e.Pos.X / 16d);
+            int CZ = (int)(e.Pos.Z / 16d);
+            e.Pos.X = (int)e.Pos.X % 16;
+            e.Pos.Z = (int)e.Pos.Z % 16;
+
             e.UUID = Guid.NewGuid();
+
             mEntities.Add(e.UUID, e);
 
             string f = GetChunkFilename((int)CX, (int)CZ);
@@ -827,6 +820,7 @@ namespace OpenMinecraft
             }
             try
             {
+                Console.WriteLine("Saving {0} to chunk {1},{2}...", e.ToString(), CX, CZ);
                 if (c.Entities.ContainsKey(e.UUID))
                     c.Entities.Remove(e.UUID);
                 c.Entities.Add(e.UUID, e);
@@ -845,12 +839,12 @@ namespace OpenMinecraft
 				mEntities.Remove(ID);
 			mEntities.Add(ID, e);
 
-			int CX = (int)e.Pos.X / 16;
-			int CY = (int)e.Pos.Z / 16; // DURP
-			//e.Pos.X = (int)e.Pos.X - CX;
-			//e.Pos.Y = (int)e.Pos.Y - CY;
+            int CX = (int)(e.Pos.X / 16d);
+            int CZ = (int)(e.Pos.Z / 16d);
+            e.Pos.X = (int)e.Pos.X % 16;
+            e.Pos.Z = (int)e.Pos.Z % 16;
 
-			string f = GetChunkFilename(CX, CY);
+			string f = GetChunkFilename(CX, CZ);
 			if (!File.Exists(f))
 			{
 				Console.WriteLine("! {0}", f);
@@ -858,7 +852,7 @@ namespace OpenMinecraft
 			}
 			try
 			{
-				Chunk c = GetChunk(CX, CY);
+				Chunk c = GetChunk(CX, CZ);
 				if (c.Entities.ContainsKey(e.UUID))
 					c.Entities.Remove(e.UUID);
 				c.Entities.Add(e.UUID, e);
@@ -879,12 +873,12 @@ namespace OpenMinecraft
             // Try and translate global coords to chunk local coords
             // TODO: What the fuck are you doing
 			int CX = (int)e.Pos.X / 16;
-			int CY = (int)e.Pos.Y / 16;
+			int CZ = (int)e.Pos.Z / 16;
 			e.Pos.X = (int)e.Pos.X % 16;
-			e.Pos.Y = (int)e.Pos.Y % 16;
+			e.Pos.Z = (int)e.Pos.Z % 16;
 
             // Find parent chunk, remove
-			string f = GetChunkFilename(CX, CY);
+			string f = GetChunkFilename(CX, CZ);
 			if (!File.Exists(f))
 			{
                 // Can't find it, so don't bother.
@@ -893,31 +887,9 @@ namespace OpenMinecraft
 			}
 			try
 			{
-                // Chunk found.
-				mChunk = new NbtFile(f);
-				mChunk.LoadFile();
-				NbtCompound level = (NbtCompound)mChunk.RootTag["Level"];
-
-                // Find entity and nuke it.
-				NbtList ents = (NbtList)level["Entities"];
-				if (e.OrigPos != null)
-				{
-					NbtCompound dc = null;
-					foreach (NbtCompound c in ents.Tags)
-					{
-						Entity ent = new Entity(c);
-						if (e.Pos == ent.Pos)
-						{
-							dc = c;
-							break;
-						}
-					}
-					if (dc != null)
-						ents.Tags.Remove(dc);
-				}
-				level["Entities"] = ents;
-				mChunk.RootTag["Level"] = level;
-				mChunk.SaveFile(f);
+                Chunk c = GetChunk(CX,CZ);
+                c.Entities.Remove(e.UUID);
+                c.Save();
 			}
 			catch (Exception) { }
 		}

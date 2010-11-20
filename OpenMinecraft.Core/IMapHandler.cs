@@ -21,6 +21,9 @@ namespace OpenMinecraft
         event CorruptChunkHandler CorruptChunk;
         event ForEachProgressHandler ForEachProgress;
 
+        Dictionary<Guid, Entity> Entities { get; }
+        Dictionary<Guid, TileEntity> TileEntities { get; }
+
         void Load(string filename);
         bool Save();
         bool Save(string filename);
@@ -63,16 +66,14 @@ namespace OpenMinecraft
 
         int Time { get; set; }
 
-        Dictionary<Guid, Entity> Entities {get;}
-        Dictionary<Guid, TileEntity> TileEntities { get; }
-
         bool HasMultipleChunks { get; }
 
         void LoadChunk(long X, long Y);
 
         void CullChunk(long X, long Y);
 
-        void SetEntity(Entity ent);
+        void AddEntity(Entity e);
+        void SetEntity(Entity e);
         void RemoveEntity(Entity e);
 
         void SetTileEntity(TileEntity e);
@@ -112,6 +113,5 @@ namespace OpenMinecraft
         void SetDimension(int p);
         IEnumerable<Dimension> GetDimensions();
 
-        void AddEntity(Entity e, long CX, long CY);
     }
 }

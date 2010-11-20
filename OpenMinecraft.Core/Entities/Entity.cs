@@ -61,8 +61,6 @@ namespace OpenMinecraft.Entities
         public byte OnGround=0x00;
         private NbtCompound orig;
         private string id;
-        public int ChunkX=0;
-        public int ChunkY=0;
         public Vector3d OrigPos;
         public Guid UUID;
 
@@ -134,7 +132,6 @@ namespace OpenMinecraft.Entities
             Console.WriteLine("*** BUG: Unknown entity (ID: {0})",id);
             Console.WriteLine(orig);
 #endif
-            File.WriteAllText("UnknownEntity." + id + ".txt", orig.ToString().Replace("\n","\r\n"));
         }
 
 
@@ -146,8 +143,6 @@ namespace OpenMinecraft.Entities
             Motion = new Vector3d(c["Motion"] as NbtList);
             Pos = new Vector3d(c["Pos"] as NbtList);
             OnGround = c.Get<NbtByte>("OnGround").Value;
-            /* TempSMS is a dirty liar. */
-            Pos = new Vector3d(Pos.X, Pos.Z, Pos.Y);
             Rotation = Rotation.FromNbt(c.Get<NbtList>("Rotation"));
             Console.WriteLine("Loaded entity {0} @ {1}", (c["id"] as NbtString).Value, Pos);
         }
@@ -168,9 +163,9 @@ namespace OpenMinecraft.Entities
             c.Tags.Add(motion);
             NbtList pos = new NbtList("Pos");
             pos.Tags.AddRange(new NbtDouble[]{
-                new NbtDouble("", Pos.X),
-                new NbtDouble("", Pos.Z),
-                new NbtDouble("", Pos.Y)
+                new NbtDouble("", Math.IEEERemainder(Pos.X,16)),
+                new NbtDouble("", Pos.Y),
+                new NbtDouble("", Math.IEEERemainder(Pos.Z,16))
             });
             c.Tags.Add(pos);
             c.Tags.Add(Rotation.ToNBT());

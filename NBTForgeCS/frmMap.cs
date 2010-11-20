@@ -82,6 +82,7 @@ namespace MineEdit
         private Label lblTime;
         private TextBox txtTime;
         private UIControls.Dial dlTime;
+        private Label lblTimeOfDay;
         protected Label lblMapDisabled = new Label();
         //Dictionary<byte, byte> Replacements = new Dictionary<byte, byte>();
         public frmMap()
@@ -113,6 +114,8 @@ namespace MineEdit
             numSpawnX.ValueChanged += UnlockApplyCancel;
             numSpawnY.ValueChanged += UnlockApplyCancel;
             numSpawnZ.ValueChanged += UnlockApplyCancel;
+
+            UpdateToD();
         }
 
         /// <summary>
@@ -461,8 +464,11 @@ namespace MineEdit
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabMap = new System.Windows.Forms.TabPage();
             this.tabInventory = new System.Windows.Forms.TabPage();
+            this.invMain = new MineEdit.Inventory();
             this.tabCharacter = new System.Windows.Forms.TabPage();
             this.grpTime = new System.Windows.Forms.GroupBox();
+            this.lblTimeOfDay = new System.Windows.Forms.Label();
+            this.dlTime = new MineEdit.UIControls.Dial();
             this.lblTime = new System.Windows.Forms.Label();
             this.txtTime = new System.Windows.Forms.TextBox();
             this.cmdReset = new System.Windows.Forms.Button();
@@ -495,12 +501,10 @@ namespace MineEdit
             this.lblHealth = new System.Windows.Forms.Label();
             this.numHealth = new System.Windows.Forms.NumericUpDown();
             this.tabEntities = new System.Windows.Forms.TabPage();
-            this.tabTileEntities = new System.Windows.Forms.TabPage();
-            this.mTooltip = new System.Windows.Forms.ToolTip(this.components);
-            this.invMain = new MineEdit.Inventory();
-            this.dlTime = new MineEdit.UIControls.Dial();
             this.entityEditor1 = new MineEdit.EntityEditor();
+            this.tabTileEntities = new System.Windows.Forms.TabPage();
             this.tileEntityEditor1 = new MineEdit.TileEntityEditor();
+            this.mTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.tabControl.SuspendLayout();
             this.tabInventory.SuspendLayout();
             this.tabCharacter.SuspendLayout();
@@ -559,6 +563,15 @@ namespace MineEdit
             this.tabInventory.Text = "Inventory";
             this.tabInventory.UseVisualStyleBackColor = true;
             // 
+            // invMain
+            // 
+            this.invMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.invMain.Location = new System.Drawing.Point(3, 3);
+            this.invMain.Map = null;
+            this.invMain.Name = "invMain";
+            this.invMain.Size = new System.Drawing.Size(610, 281);
+            this.invMain.TabIndex = 0;
+            // 
             // tabCharacter
             // 
             this.tabCharacter.Controls.Add(this.grpTime);
@@ -576,6 +589,7 @@ namespace MineEdit
             // 
             // grpTime
             // 
+            this.grpTime.Controls.Add(this.lblTimeOfDay);
             this.grpTime.Controls.Add(this.dlTime);
             this.grpTime.Controls.Add(this.lblTime);
             this.grpTime.Controls.Add(this.txtTime);
@@ -585,6 +599,29 @@ namespace MineEdit
             this.grpTime.TabIndex = 4;
             this.grpTime.TabStop = false;
             this.grpTime.Text = "Time of Day";
+            // 
+            // lblTimeOfDay
+            // 
+            this.lblTimeOfDay.AutoSize = true;
+            this.lblTimeOfDay.Location = new System.Drawing.Point(107, 52);
+            this.lblTimeOfDay.Name = "lblTimeOfDay";
+            this.lblTimeOfDay.Size = new System.Drawing.Size(10, 13);
+            this.lblTimeOfDay.TabIndex = 4;
+            this.lblTimeOfDay.Text = "-";
+            // 
+            // dlTime
+            // 
+            this.dlTime.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.dlTime.Label = null;
+            this.dlTime.Location = new System.Drawing.Point(6, 13);
+            this.dlTime.Maximum = 24000D;
+            this.dlTime.Name = "dlTime";
+            this.dlTime.Size = new System.Drawing.Size(62, 66);
+            this.dlTime.TabIndex = 3;
+            this.mTooltip.SetToolTip(this.dlTime, "Upside-down graphical representation of sun angle, which is what this actually af" +
+                    "fects.");
+            this.dlTime.Value = 0D;
+            this.dlTime.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dlTime_MouseDown);
             // 
             // lblTime
             // 
@@ -1039,40 +1076,6 @@ namespace MineEdit
             this.tabEntities.Text = "Entities";
             this.tabEntities.UseVisualStyleBackColor = true;
             // 
-            // tabTileEntities
-            // 
-            this.tabTileEntities.Controls.Add(this.tileEntityEditor1);
-            this.tabTileEntities.Location = new System.Drawing.Point(4, 22);
-            this.tabTileEntities.Name = "tabTileEntities";
-            this.tabTileEntities.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTileEntities.Size = new System.Drawing.Size(616, 287);
-            this.tabTileEntities.TabIndex = 5;
-            this.tabTileEntities.Text = "Tile Entities";
-            this.tabTileEntities.UseVisualStyleBackColor = true;
-            // 
-            // invMain
-            // 
-            this.invMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.invMain.Location = new System.Drawing.Point(3, 3);
-            this.invMain.Map = null;
-            this.invMain.Name = "invMain";
-            this.invMain.Size = new System.Drawing.Size(610, 281);
-            this.invMain.TabIndex = 0;
-            // 
-            // dlTime
-            // 
-            this.dlTime.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.dlTime.Label = null;
-            this.dlTime.Location = new System.Drawing.Point(6, 13);
-            this.dlTime.Maximum = 24000D;
-            this.dlTime.Name = "dlTime";
-            this.dlTime.Size = new System.Drawing.Size(62, 66);
-            this.dlTime.TabIndex = 3;
-            this.mTooltip.SetToolTip(this.dlTime, "Upside-down graphical representation of sun angle, which is what this actually af" +
-                    "fects.");
-            this.dlTime.Value = 0D;
-            this.dlTime.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dlTime_MouseDown);
-            // 
             // entityEditor1
             // 
             this.entityEditor1.CurrentEntity = null;
@@ -1085,6 +1088,17 @@ namespace MineEdit
             this.entityEditor1.SpawnPos = null;
             this.entityEditor1.TabIndex = 0;
             this.entityEditor1.EntityAdded += new MineEdit.EntityEditor.EntityHandler(this.entityEditor1_EntityAdded);
+            // 
+            // tabTileEntities
+            // 
+            this.tabTileEntities.Controls.Add(this.tileEntityEditor1);
+            this.tabTileEntities.Location = new System.Drawing.Point(4, 22);
+            this.tabTileEntities.Name = "tabTileEntities";
+            this.tabTileEntities.Padding = new System.Windows.Forms.Padding(3);
+            this.tabTileEntities.Size = new System.Drawing.Size(616, 287);
+            this.tabTileEntities.TabIndex = 5;
+            this.tabTileEntities.Text = "Tile Entities";
+            this.tabTileEntities.UseVisualStyleBackColor = true;
             // 
             // tileEntityEditor1
             // 
@@ -1137,6 +1151,7 @@ namespace MineEdit
         {
             txtTime.Text = ((int)Math.Round(dlTime.Value)).ToString();
             _Map.Time = (int)Math.Round(dlTime.Value);
+            UpdateToD();
         }
 
         private void txtTime_TextChanged(object sender, EventArgs e)
@@ -1150,11 +1165,28 @@ namespace MineEdit
             int nv = (int)val % (int)dlTime.Maximum; ;
             dlTime.Value = nv;
             _Map.Time = nv;
+            UpdateToD();
         }
 
         private void entityEditor1_EntityAdded(Entity e)
         {
-            this.Map.AddEntity(e,0,0); // TODO: Add chunk X/Z
+            this.Map.AddEntity(e);
+        }
+
+        private void UpdateToD()
+        {
+            // 24000 = 1 day
+            // Day 1, 24:00:00
+            int data = int.Parse(txtTime.Text);
+            int day = data / 24000;
+            data = data % 24000;
+            int hour = data / 1000;
+            data = data % 1000;
+            data = (int)(((float)data / (float)999) * (float)3600);
+            int minutes = data / 60;
+            int seconds = data % 60;
+
+            lblTimeOfDay.Text = string.Format("Day {0}, {1}:{2}:{3}", day, hour, minutes, seconds);
         }
     }
 }

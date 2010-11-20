@@ -38,6 +38,8 @@ namespace OpenMinecraft.Tests
             //Loading 3 entities in chunk 14,8 (C:\Users\Rob\AppData\Roaming\.minecraft\saves\World5\e\8\c.e.8.dat):
             Chunk a = mh.GetChunk(14, 8);
             Assert.AreEqual(3, a.Entities.Count);
+
+            Directory.Delete("001", true);
         }
 
         // Test saving a chunk
@@ -70,6 +72,7 @@ namespace OpenMinecraft.Tests
             Assert.AreEqual(cnkB.Blocks[0, 0, 2], 0x03);
             Assert.AreEqual(cnkB.Blocks[0, 0, 3], 0x04);
 
+            Directory.Delete("002", true);
         }
 
         // Test changing map settings.
@@ -96,6 +99,8 @@ namespace OpenMinecraft.Tests
             b.SetDimension(0);
 
             Assert.True(b.Health == 10);
+
+            Directory.Delete("003", true);
         }
 
         // Test adding entities.
@@ -115,18 +120,16 @@ namespace OpenMinecraft.Tests
                 Sheep b = new Sheep();
                 b.Air = 300;
                 b.AttackTime = 0;
-                b.ChunkX = 0;
-                b.ChunkY = 0;
                 b.DeathTime = 0;
                 b.FallDistance = 0;
                 b.Fire = -1;
                 b.Health = 20;
                 b.Sheared = false;
                 b.UUID = Guid.NewGuid();
-                b.Pos = new Vector3d(100, 8, 8);
+                b.Pos = new Vector3d(8, 100, 8);
                 b.Rotation = new Rotation(0, 0);
 
-                a.AddEntity(b,0,0);
+                a.AddEntity(b);
 
                 a.Save();
             }
@@ -135,10 +138,13 @@ namespace OpenMinecraft.Tests
                 InfdevHandler a = new InfdevHandler();
                 a.Load("004/level.dat");
                 a.SetDimension(0);
-                Chunk chunk = a.GetChunk(0, 0);
+
+                Chunk chunk = a.GetChunk(0, 0,false);
+                Assert.IsNotNull(chunk, "Sheep didn't get saved; Chunk didn't even get created.");
                 Assert.AreEqual(1,chunk.Entities.Count,"The sheep didn't get saved.");
             }
 
+            Directory.Delete("004", true);
         }
     }
 }
