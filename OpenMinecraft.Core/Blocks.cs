@@ -183,7 +183,7 @@ namespace OpenMinecraft
         /// <summary>
         /// Version number.  MMDDYYYY format.
         /// </summary>
-        public static string Version = "11182010";
+        public static string Version = "11212010";
 
         /// <summary>
         /// Don't allow saving if past this date.
