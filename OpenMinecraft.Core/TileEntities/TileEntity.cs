@@ -183,7 +183,7 @@ namespace OpenMinecraft.TileEntities
 
 
             // Figure out if there are any new fields that we should be concerned about...
-            foreach (NbtTag t in c.Tags)
+            foreach (NbtTag t in c)
             {
                 if (CommonTileEntityVars.Contains(t.Name))
                     continue;

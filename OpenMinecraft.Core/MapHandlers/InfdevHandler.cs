@@ -256,14 +256,7 @@ namespace OpenMinecraft
 			}
 			set
 			{
-				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
-				try
-				{
-					Data.Tags.Remove(Data["RandomSeed"]);
-				}
-				catch (Exception) { }
-				Data.Add(new NbtLong("RandomSeed", value));
-				mRoot.RootTag["Data"] = Data;
+                mRoot.SetQuery<long>("//Data/RandomSeed",value);
 			}
 		}
 

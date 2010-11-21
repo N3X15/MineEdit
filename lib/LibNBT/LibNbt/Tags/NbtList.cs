@@ -17,7 +17,14 @@ namespace LibNbt.Tags
             get { return Get<NbtTag>(tagIdx); }
             set { Tags[tagIdx] = value; }
         }
-        
+
+        public int Count
+        {
+            get
+            {
+                return Tags.Count;
+            }
+        }
         public NbtList() : this("") { }
         public NbtList(string tagName) : this(tagName, new NbtTag[] { }) { }
         public NbtList(string tagName, IEnumerable<NbtTag> tags)
@@ -36,6 +43,10 @@ namespace LibNbt.Tags
         public NbtTag Get(int tagIdx)
         {
             return Get<NbtTag>(tagIdx);
+        }
+        public void Set(int tagIdx, NbtTag tag)
+        {
+            Tags[tagIdx]= tag;
         }
         public T Get<T>(int tagIdx) where T : NbtTag
         {
@@ -98,6 +109,12 @@ namespace LibNbt.Tags
 
             return (T)((NbtTag)this);
         }
+
+        public void Remove(int tagIdx)
+        {
+            Tags.RemoveAt(tagIdx);
+        }
+
         internal override void SetQuery<T>(TagQuery query, T val, bool bypassCheck)
         {
             TagQueryToken token = query.Next();
@@ -290,6 +307,12 @@ namespace LibNbt.Tags
             }
             sb.Append("}");
             return sb.ToString();
+        }
+
+
+        public IEnumerator<NbtTag> GetEnumerator()
+        {
+            return Tags.GetEnumerator();
         }
     }
 }

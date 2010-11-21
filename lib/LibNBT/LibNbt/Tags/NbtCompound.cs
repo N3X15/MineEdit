@@ -9,11 +9,6 @@ namespace LibNbt.Tags
 {
 	public class NbtCompound : NbtTag, INbtTagList
 	{
-        public List<NbtTag> Tags
-        {
-            get { return new List<NbtTag>(mTags.Values); }
-            // no set.
-        }
         // Do not expose, so we can maintain referential integrity with TagIndices.
         private Dictionary<string, NbtTag> mTags = new Dictionary<string, NbtTag>();
 
@@ -50,6 +45,14 @@ namespace LibNbt.Tags
             return (T)mTags[k];
         }
 
+        public void Remove(int tagIdx)
+        {
+            if (tagIdx >= mTagIndices.Count)
+                throw new KeyNotFoundException();
+
+            string k = mTagIndices[tagIdx];
+            mTags.Remove(k);
+        }
 		public NbtCompound() : this("") { }
 		public NbtCompound(string tagName) : this(tagName, new NbtTag[]{}) { }
 		public NbtCompound(string tagName, IEnumerable<NbtTag> tags)
@@ -336,5 +339,16 @@ namespace LibNbt.Tags
 			sb.Append("}");
 			return sb.ToString();
 		}
-	}
+
+
+        public int Count
+        {
+            get { return mTags.Count; }
+        }
+
+        public IEnumerator<NbtTag> GetEnumerator()
+        {
+            return mTags.Values.GetEnumerator();
+        }
+    }
 }

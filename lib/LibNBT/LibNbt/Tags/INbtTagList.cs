@@ -7,8 +7,16 @@ namespace LibNbt.Tags
 {
     internal interface INbtTagList
     {
-        List<NbtTag> Tags { get; }
+        // Standardizing
+        //List<NbtTag> Tags { get; }
+        void Remove(int i);
+        void Add(NbtTag t);
+        void Set(int i, NbtTag t);
 
         T Get<T>(int tagIdx) where T : NbtTag;
+
+        int Count { get; }
+
+        IEnumerator<NbtTag> GetEnumerator();
     }
 }

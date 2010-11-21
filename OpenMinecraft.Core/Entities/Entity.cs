@@ -236,7 +236,7 @@ namespace OpenMinecraft.Entities
 
 
             // Figure out if there are any new fields that we should be concerned about...
-            foreach (NbtTag t in c.Tags)
+            foreach (NbtTag t in c)
             {
                 if (KnownEntityVars.Contains(t.Name))
                     continue;
