@@ -47,7 +47,7 @@ namespace MineEdit
             private ChunkMessageType mType;
             public ChunkMessageType Type
             {
-                get { return (ChunkMessageType)Cells[0].Value; }
+                get { return mType; }
                 set { 
                     mType = value;
                     switch (mType)

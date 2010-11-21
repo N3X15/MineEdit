@@ -15,6 +15,12 @@ namespace OpenMinecraft
 		public event CorruptChunkHandler CorruptChunk;
 		public event ForEachProgressHandler ForEachProgress;
 
+#if DEBUG
+        public bool _DEBUG = true; // Improve performance.  Maybe.
+#else
+        public bool _DEBUG = false; // Improve performance.  Maybe.
+#endif
+
         private string mFolder;
 		private const int ChunkX = 16;
 		private const int ChunkY = 16;
@@ -119,7 +125,7 @@ namespace OpenMinecraft
 				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
 				NbtShort oh = (NbtShort)Player["Health"];
-				Console.WriteLine("Health: {0}->{1}", oh.Value, h.Value);
+				if(_DEBUG) Console.WriteLine("Health: {0}->{1}", oh.Value, h.Value);
 				Player.Tags.Remove(oh);
 				Player.Add(h);
 				Data["Player"] = Player;
@@ -212,7 +218,7 @@ namespace OpenMinecraft
 				pos.X = (h[0] as NbtDouble).Value;
 				pos.Y = (h[1] as NbtDouble).Value;
 				pos.Z = (h[2] as NbtDouble).Value;
-				//Console.WriteLine("Player is on chunk {0}.",GetChunkFilename((int)pos.X >> 4,(int)pos.Z >> 4));
+				//if(_DEBUG) Console.WriteLine("Player is on chunk {0}.",GetChunkFilename((int)pos.X >> 4,(int)pos.Z >> 4));
 				return pos;
 			}
 			set
@@ -277,7 +283,7 @@ namespace OpenMinecraft
 			}
 			catch (Exception e)
 			{
-                Console.WriteLine(e);
+                if(_DEBUG) Console.WriteLine(e);
 				System.Windows.Forms.DialogResult dr = System.Windows.Forms.MessageBox.Show("Your level.dat is broken. Copying over level.dat_old...","ERROR",System.Windows.Forms.MessageBoxButtons.OKCancel);
 				if (dr == System.Windows.Forms.DialogResult.OK)
 				{
@@ -422,7 +428,7 @@ namespace OpenMinecraft
 
 			if (!File.Exists(c.Filename))
 			{
-				Console.WriteLine("! {0}", c.Filename);
+				if(_DEBUG) Console.WriteLine("! {0}", c.Filename);
 				return null;
 			}
 #if !DEBUG || CATCH_CHUNK_ERRORS
@@ -445,12 +451,12 @@ namespace OpenMinecraft
 				NbtList TileEntities = (NbtList)level["TileEntities"];
 				if (TileEntities.Tags.Count > 0)
 				{
-					//Console.WriteLine("*** Found TileEntities.");
+					//if(_DEBUG) Console.WriteLine("*** Found TileEntities.");
 					LoadTileEnts(ref c, (int)x, (int)z, TileEntities);
 				}
 
                 NbtList Entities = (NbtList)level["Entities"];
-                Console.WriteLine("*** Found {0} Entities.",Entities.Tags.Count);
+                if(_DEBUG) Console.WriteLine("*** Found {0} Entities.",Entities.Tags.Count);
 				if (Entities.Tags.Count > 0)
 				{
 					LoadEnts(ref c, (int)x, (int)z, Entities);
@@ -489,8 +495,8 @@ namespace OpenMinecraft
 						}
 					}
 				}
-				//if (c>0)  Console.WriteLine("*** {0} spawners found.", c);
-				//Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
+				//if (c>0)  if(_DEBUG) Console.WriteLine("*** {0} spawners found.", c);
+				//if(_DEBUG) Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
 				return c;
 
 #if !DEBUG || CATCH_CHUNK_ERRORS
@@ -498,7 +504,7 @@ namespace OpenMinecraft
 			catch (Exception e)
 			{
 				string err = string.Format(" *** ERROR: Chunk {0},{1} ({2}) failed to load:\n\n{3}", x, z, c.Filename, e);
-				Console.WriteLine(err);
+				if(_DEBUG) Console.WriteLine(err);
 				if (CorruptChunk != null)
 					CorruptChunk(x,z,err, c.Filename);
 				return null;
@@ -524,7 +530,7 @@ namespace OpenMinecraft
 
 		private void LoadEnts(ref Chunk cnk, int CX, int CZ, NbtList ents)
 		{
-            Console.WriteLine("Loading {0} entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CZ, cnk.Filename);
+            if(_DEBUG) Console.WriteLine("Loading {0} entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CZ, cnk.Filename);
 			foreach (NbtCompound c in ents.Tags)
 			{
                 Entity e = Entity.GetEntity(c);
@@ -542,7 +548,7 @@ namespace OpenMinecraft
 
 		private void LoadTileEnts(ref Chunk cnk, int CX,int CZ,NbtList ents)
         {
-            Console.WriteLine("Loading {0} tile entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CZ, cnk.Filename);
+            if(_DEBUG) Console.WriteLine("Loading {0} tile entities in chunk {1},{2} ({3}):", ents.Tags.Count, CX, CZ, cnk.Filename);
 			foreach (NbtCompound c in ents.Tags)
 			{
                 TileEntity te = TileEntity.GetEntity(CX, CZ, (int)ChunkScale.X, c);
@@ -812,7 +818,7 @@ namespace OpenMinecraft
             }
             try
             {
-                Console.WriteLine("Saving {0} to chunk {1},{2}...", e.ToString(), CX, CZ);
+                if(_DEBUG) Console.WriteLine("Saving {0} to chunk {1},{2}...", e.ToString(), CX, CZ);
                 if (c.Entities.ContainsKey(e.UUID))
                     c.Entities.Remove(e.UUID);
                 c.Entities.Add(e.UUID, e);
@@ -820,7 +826,7 @@ namespace OpenMinecraft
             }
             catch (Exception ex) 
             {
-                Console.WriteLine(ex.ToString());
+                if(_DEBUG) Console.WriteLine(ex.ToString());
             }
         }
 		public void SetEntity(Entity e)
@@ -839,7 +845,7 @@ namespace OpenMinecraft
 			string f = GetChunkFilename(CX, CZ);
 			if (!File.Exists(f))
 			{
-				Console.WriteLine("! {0}", f);
+				if(_DEBUG) Console.WriteLine("! {0}", f);
 				return;
 			}
 			try
@@ -874,7 +880,7 @@ namespace OpenMinecraft
 			if (!File.Exists(f))
 			{
                 // Can't find it, so don't bother.
-				Console.WriteLine("! {0}", f);
+				if(_DEBUG) Console.WriteLine("! {0}", f);
 				return;
 			}
 			try
@@ -942,89 +948,109 @@ namespace OpenMinecraft
             mTileEntities.Clear();
 		}
 
+        public int ExpandFluids(byte fluidID, bool CompleteRegen, ForEachProgressHandler ph)
+        {
+            int total = 0;
+            int chunksProcessed=0;
+            ForEachChunk(delegate(long X, long Z)
+            {
+                total += ExpandFluids(X, Z, fluidID, CompleteRegen);
+                ph(-1, ++chunksProcessed);
+            });
+            return total;
+        }
 
-		public int ExpandFluids(byte fluidID, bool CompleteRegen, ForEachProgressHandler ph)
-		{
-			int bc = 0; // Whether the water map has changed.
-			ForEachProgress += ph;
-			UnloadChunks();
-			ForEachChunk(delegate(long X, long Y)
-			{
-				BeginTransaction();
-				Chunk tc = GetChunk(X, Y);
-				if (tc == null) return;
-				int xm = (int)tc.Size.X - 1;
-				int ym = (int)tc.Size.Y - 1;
-				int zm = (int)tc.Size.Z - 1;
-				for (int _z = 0; _z < (int)tc.Size.Z; _z++)
-				{
-					for (int _x = 0; _x < (int)tc.Size.X; _x++)
-					{
-						for (int _y = 0; _y < (int)tc.Size.Y; _y++)
-						{
-							int x = _x + (int)(X * ChunkScale.X);
-							int y = _y + (int)(Y * ChunkScale.Y);
-							int z = _z;
-							// If this block is air, and a block in any neighborly position except downwards is fluidID...
-							if (GetBlockAt(x, y, z) == 0)
-							{
-								bool w = false;
-								if (GetBlockAt(x + 1, y, z) == fluidID)
-									w = true;
-								else if (GetBlockAt(x - 1, y, z) == fluidID)
-									w = true;
-								if (GetBlockAt(x, y + 1, z) == fluidID)
-									w = true;
-								else if (GetBlockAt(x, y - 1, z) == fluidID)
-									w = true;
-								else if (z < zm && GetBlockAt(x, y, z + 1) == fluidID)
-									w = true;
-								if (w)
-								{
-									SetBlockAt(x, y, z, fluidID);
-									++bc;
-								}
-							}
-						}
-					}
-				}
-				// Go backwards to help reduce block expansion time.
-				for (int _z = (int)tc.Size.Z - 1; _z > 0; _z--)
-				{
-					for (int _x = (int)tc.Size.X - 1; _x > 0; _x--)
-					{
-						for (int _y = (int)tc.Size.Y - 1; _y > 0; _y--)
-						{
-							int x = _x + (int)(X * ChunkScale.X);
-							int y = _y + (int)(Y * ChunkScale.Y);
-							int z = _z;
-							// If this block is air, and a block in any neighborly position except downwards is fluidID...
-							if (GetBlockAt(x, y, z) == 0)
-							{
-								bool w = false;
-								if (GetBlockAt(x + 1, y, z) == fluidID)
-									w = true;
-								else if (GetBlockAt(x - 1, y, z) == fluidID)
-									w = true;
-								if (GetBlockAt(x, y + 1, z) == fluidID)
-									w = true;
-								else if (GetBlockAt(x, y - 1, z) == fluidID)
-									w = true;
-								else if (z < zm && GetBlockAt(x, y, z + 1) == fluidID)
-									w = true;
-								if (w)
-								{
-									SetBlockAt(x, y, z, fluidID);
-									++bc;
-								}
-							}
-						}
-					}
-				}
-				CommitTransaction();
-			});
-			return bc;
-		}
+		private int ExpandFluids(long X, long Y, byte fluidID, bool CompleteRegen)
+        {
+            Chunk chunk = GetChunk(X, Y);
+            byte[, ,] blocks = new byte[ChunkX + 2, ChunkY + 2, ChunkZ + 1]; // Allow a border of 1 voxel to the sides.
+            #region Border setup
+            {
+
+                Chunk XYp1 = GetChunk(X, Y + 1);
+                Chunk XYm1 = GetChunk(X, Y - 1);
+                Chunk Xp1Y = GetChunk(X + 1, Y);
+                Chunk Xm1Y = GetChunk(X - 1, Y);
+
+                //////////////////////////////////////
+                //          //          //          //
+                //          //          //          //
+                //          //   XYp1   //          //
+                //          //          //          //
+                //          //          //          //
+                //////////////////////////////////////
+                //          //          //          //
+                //          //          //          //
+                //   Xm1Y   //  chunk   //   Xp1Y   //
+                //          //          //          //
+                //          //          //          //
+                //////////////////////////////////////
+                //          //          //          //
+                //          //          //          //
+                //          //   XYm1   //          //
+                //          //          //          //
+                //          //          //          //
+                //////////////////////////////////////
+
+                for (int x = 0; x < ChunkX + 1; x++)
+                {
+                    for (int y = 0; y < ChunkY + 1; y++)
+                    {
+                        for (int z = 0; z < ChunkZ + 1; z++)
+                        {
+                            if (x > 0 && x < ChunkX + 1 && y > 0 && y < ChunkY + 1 && z > 0 && z < ChunkZ)
+                            {
+                                blocks[x + 1, y + 1, z] = chunk.Blocks[x, y, z];
+                            }
+                            else if (Xm1Y != null && x == 0 && y > 0 && y < ChunkY && z < ChunkZ)
+                            {
+                                blocks[x, y, z] = Xm1Y.Blocks[ChunkX - 1, y, z];
+                            }
+                            else if (Xp1Y != null && x == ChunkX && y > 0 && y < ChunkY && z < ChunkZ)
+                            {
+                                blocks[x, y, z] = Xp1Y.Blocks[0, y, z];
+                            }
+                            else if (XYm1 != null && y == 0 && x > 0 && x < ChunkX && z < ChunkZ)
+                            {
+                                blocks[x, y, z] = XYm1.Blocks[x, ChunkY - 1, z];
+                            }
+                            else if (XYp1 != null && y == ChunkY && x > 0 && x < ChunkX && z < ChunkZ)
+                            {
+                                blocks[x, y, z] = XYp1.Blocks[x, 0, z];
+                            }
+                        }
+                    }
+                }
+            }
+            #endregion
+            // Add border to bytemap
+            int BlocksChanged = 0;
+            for (int x = 1; x < ChunkX; x++)
+            {
+                for (int y = 1; y < ChunkY; y++)
+                {
+                    for (int z = 0; z < ChunkZ; z++)
+                    {
+                        // If block is air, check above or to the sides to see if water should be expanded into it.
+                        if (chunk.Blocks[x, y, z] == 0)
+                        {
+                            if (
+                                blocks[x, y, z + 1] == fluidID // Above
+                                || blocks[x + 1, y, z] == fluidID  // Sides
+                                || blocks[x - 1, y, z] == fluidID
+                                || blocks[x, y + 1, z] == fluidID
+                                || blocks[x, y - 1, z] == fluidID)
+                            {
+                                blocks[x, y, z] = fluidID;
+                                chunk.Blocks[x+1, y+1, z] = fluidID;
+                            }
+                        }
+                    }
+                }
+            }
+            chunk.Save();
+            return BlocksChanged;
+        }
 
 
 		public void Generate(IMapHandler mh, long X, long Y)
@@ -1047,7 +1073,7 @@ namespace OpenMinecraft
 			/*
 			try
 			{
-				//Console.WriteLine("{0} blocks of stone post-generation.", GetBlockNumbers(b)[1]);
+				//if(_DEBUG) Console.WriteLine("{0} blocks of stone post-generation.", GetBlockNumbers(b)[1]);
 			}
 			catch (Exception) { }
 			*/
@@ -1206,7 +1232,7 @@ namespace OpenMinecraft
 				!Check(pos.Y, -1, ChunkY) ||
 				!Check(pos.Z, -1, ChunkZ))
 			{
-				//Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
+				//if(_DEBUG) Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
 				return 0x00;
 			}
 			 */
@@ -1276,21 +1302,21 @@ namespace OpenMinecraft
 		public void BeginTransaction()
 		{
 			mChangedChunks.Clear();
-			Console.WriteLine("BEGIN TRANSACTION");
+			if(_DEBUG) Console.WriteLine("BEGIN TRANSACTION");
 		}
 		public void CommitTransaction()
 		{
-			Console.WriteLine("{0} chunks changed.", mChangedChunks.Count);
+			if(_DEBUG) Console.WriteLine("{0} chunks changed.", mChangedChunks.Count);
 			foreach (string v in mChangedChunks)
 			{
 				string[] chunks = v.Split(',');
 				SaveChunk(int.Parse(chunks[0]), int.Parse(chunks[1]));
 			}
-			Console.WriteLine("COMMIT TRANSACTION");
+			if(_DEBUG) Console.WriteLine("COMMIT TRANSACTION");
 		}
 		public void SetBlockAt(Vector3i p, byte id)
 		{
-			//Console.WriteLine("{0}", p);
+			//if(_DEBUG) Console.WriteLine("{0}", p);
 			int CX = (int)p.X >> 4;// / (long)ChunkX);
 			int CZ = (int)p.Y >> 4;// / (long)ChunkY);
 
@@ -1303,7 +1329,7 @@ namespace OpenMinecraft
 				!Check(y, -1, ChunkY) ||
 				!Check(z, -1, ChunkZ))
 			{
-				//Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
+				//if(_DEBUG) Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
 				return;
 			}
 			string ci = string.Format("{0},{1}", CX, CZ);
@@ -1315,7 +1341,7 @@ namespace OpenMinecraft
 			if (!mChangedChunks.Contains(ci))
 			{
 				mChangedChunks.Add(ci);
-				Console.WriteLine(ci+" has changed");
+				if(_DEBUG) Console.WriteLine(ci+" has changed");
 			}
 		}
 
@@ -1473,7 +1499,7 @@ namespace OpenMinecraft
 
 				if (ForEachProgress != null)
 					ForEachProgress(f.Length, Complete++);
-				//Console.WriteLine(Path.GetExtension(file));
+				//if(_DEBUG) Console.WriteLine(Path.GetExtension(file));
 				if (Path.GetExtension(file) == "dat") continue;
 				if (file.EndsWith(".genlock")) continue;
 				NbtFile nf = new NbtFile(file);

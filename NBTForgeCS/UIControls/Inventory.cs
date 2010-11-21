@@ -115,6 +115,12 @@ namespace MineEdit
 
         private void ReadFromMap()
         {
+            if (this.InvokeRequired)
+            {
+                MethodInvoker del = delegate { ReadFromMap(); };
+                Invoke(del);
+                return;
+            }
             if (_Map == null) return;
             cmbType.Items.Clear();
             cmbType.ValueMember = "ID";

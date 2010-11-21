@@ -152,7 +152,7 @@ namespace OpenMinecraft
                         //    b[x, y, z] = 1;
                         else
                         {
-                            bool d1 = ((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * TerrainDivisor) + 1) / 2.0) > System.Math.Pow((((double)z * (HeightDivisor + (heightoffset))) / (double)ZH), 3d); // 3d
+                            bool d1 = ((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * TerrainDivisor) + 1) / 2.0) > System.Math.Pow((((double)z * (HeightDivisor + (heightoffset))) / (double)ZH), 2d); // 3d
                             double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * CaveDivisor) + 1) / 2.0);
                             bool d3 = _do > CaveThreshold;
                             // XOR?
