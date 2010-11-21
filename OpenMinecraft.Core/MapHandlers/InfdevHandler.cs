@@ -185,14 +185,7 @@ namespace OpenMinecraft
 			}
 			set
 			{
-				NbtShort f = new NbtShort("Fire", (short)value);
-				// BROKEN root.SetTag("/Data/Player/Fire", h);
-				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
-				NbtCompound Player = (NbtCompound)Data["Player"];
-				Player.Remove("Fire");
-				Player.Set("Fire",f);
-				Data["Player"] = Player;
-				mRoot.RootTag["Data"] = Data;
+                mRoot.SetQuery<short>("//Data/Player/Fire",(short)value);
 			}
 		}
 
@@ -383,7 +376,7 @@ namespace OpenMinecraft
 			}
 			return blocks;
 		}
-		private byte[] CompressLightmap(byte[,,] blocks)
+		private byte[] CompressLightmap(byte[,,] blocks,bool sky)
 		{
 			byte[] databuffer = new byte[16384];
 			for (int x = 0; x < 16; x++)
@@ -392,7 +385,7 @@ namespace OpenMinecraft
 				{
 					for (int z = 0; z < 128; z++)
 					{
-						CompressLight(ref databuffer, x, y, z, blocks[x, y, z]);
+						CompressLight(ref databuffer,sky, x, y, z, blocks[x, y, z]);
 					}
 				}
 			}
@@ -716,10 +709,10 @@ namespace OpenMinecraft
 
 			// LIGHTING ///////////////////////////////////////////////////
 			// TODO:  Whatever is going on in here is crashing Minecraft now.
-			byte[] lighting = CompressLightmap(cnk.SkyLight);
+			byte[] lighting = CompressLightmap(cnk.SkyLight,true);
 			Level.Set("SkyLight",new NbtByteArray("SkyLight", lighting));
 
-			lighting = CompressLightmap(cnk.BlockLight);
+			lighting = CompressLightmap(cnk.BlockLight,false);
             Level.Set("BlockLight",new NbtByteArray("BlockLight", lighting));
 			
 			lighting = CompressDatamap(cnk.Data);
@@ -1196,16 +1189,37 @@ namespace OpenMinecraft
 		/// <returns>Lighting value at this position</returns>
 		public int DecompressLight(byte[] lightdata, int x, int y, int z)
 		{
-			int index = GetBlockIndex(x, y, z); 
-			if (index % 2 == 0) return (byte)(lightdata[index/2] >> 4);
-			else return (byte)(lightdata[index/2] & 0xF);
+	        int index = z + (y * 128) + (x * 128 * 16);
+	        return lightdata[index >> 1];
 		}
 
-		public void CompressLight(ref byte[] lightdata, int x, int y, int z, int val)
-		{
-			int index = GetBlockIndex(x, y, z);
-			if (index % 2 == 0) lightdata[index/2] = (byte)((lightdata[index/2] & 0x0F) | (val << 4));
-			else lightdata[index/2] = (byte)((lightdata[index/2] & 0xF) | (val & 0x0F));
+		public void CompressLight(ref byte[] lightdata, bool sky, int x, int y, int z, byte val)
+        {
+            int index = z + (y * 128) + (x * 128 * 16);
+            int lightval = lightdata[index >> 1];
+            if ((y % 2) !=0)
+            {
+                if (sky)
+                {
+                    lightval &= 0x0f;
+                    lightval |= val << 4;
+                } else {
+                    lightval &= 0xf;
+                    lightval |= val << 4;
+                }
+            }
+            else
+            {
+                if (sky)
+                {
+                    lightval &= 0xf0;
+                    lightval |= val;
+                } else {
+                    lightval &= 0xf0;
+                    lightval |= val;
+                }
+            }
+            lightdata[index >> 1] = val;
 		}
 
 		

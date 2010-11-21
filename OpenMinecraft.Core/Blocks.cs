@@ -28,6 +28,17 @@ namespace OpenMinecraft
         /// Bitmap image of the object's icon.
         /// </summary>
         public Bitmap   Image;
+
+        /// <summary>
+        /// Emits light
+        /// </summary>
+        public byte Emit = 0;
+
+        /// <summary>
+        /// Stops light
+        /// </summary>
+        public byte Stop = 16;
+
         public Color    Color;
         
         public DrawMode DrawMode {get;set;}
@@ -229,6 +240,52 @@ namespace OpenMinecraft
                 Console.WriteLine(b);
 #endif
             }
+            SetupLighting();
+        }
+
+        /// <summary>
+        /// From Moose
+        /// </summary>
+        private static void SetupLighting()
+        {
+            BlockList[ 0].Stop = 0;
+            BlockList[ 6].Stop = 0;
+            BlockList[ 8].Stop = 3;
+            BlockList[ 9].Stop = 3;
+            BlockList[18].Stop = 3;
+            BlockList[20].Stop = 0;
+            BlockList[37].Stop = 0;
+            BlockList[38].Stop = 0;
+            BlockList[39].Stop = 0;
+            BlockList[40].Stop = 0;
+            BlockList[50].Stop = 0;
+            BlockList[52].Stop = 0;
+            BlockList[55].Stop = 0;
+            BlockList[64].Stop = 0;
+            BlockList[65].Stop = 0;
+            BlockList[66].Stop = 0;
+            BlockList[71].Stop = 0;
+            BlockList[75].Stop = 0;
+            BlockList[76].Stop = 0;
+            BlockList[78].Stop = 0;
+            BlockList[79].Stop = 0;
+            BlockList[85].Stop = 0;
+            BlockList[90].Stop = 0;
+            BlockList[91].Stop = 0;
+            BlockList[63].Stop = 0;
+            BlockList[67].Stop = 0;
+
+            BlockList[10].Emit = 15;
+            BlockList[11].Emit = 15;
+            BlockList[39].Emit = 1;
+            BlockList[50].Emit = 14;
+            BlockList[51].Emit = 15;
+            BlockList[62].Emit = 14;
+            BlockList[74].Emit = 9;
+            BlockList[76].Emit = 7;
+            BlockList[89].Emit = 15;
+            BlockList[90].Emit = 11;
+            BlockList[91].Emit = 15;
         }
 
         private static long VersionToTicks(string v)
@@ -512,6 +569,10 @@ namespace OpenMinecraft
             return BlockList[b].Color;
         }
 
+        public static Block Get(byte type)
+        {
+            return Get((short)type);
+        }
         public static Block Get(short type)
         {
             if (!BlockList.ContainsKey(type))

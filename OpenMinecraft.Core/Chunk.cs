@@ -110,12 +110,12 @@ namespace OpenMinecraft
         /// Stores block data
         /// </summary>
         public byte[, ,] Data {get;set;}
-        public void GetOverview(Vector3i pos, out int h, out byte block, out int waterdepth)
+        public void GetOverview(Vector3i pos, out int height, out int underwater_height, out byte block, out byte underwater_block, out int waterdepth)
         {
-            h = 0;
-            block = 0;
+            height = underwater_height = 0;
+            block = underwater_block = 0;
             waterdepth = 0;
-
+            bool hf = false;
             int x = (int)pos.X;
             int y = (int)pos.Y;
             //int z = (int)pos.Z;// % ChunkZ;
@@ -124,34 +124,59 @@ namespace OpenMinecraft
                 byte b = Blocks[x, y, z];
                 if (b == 8 || b == 9)
                 {
+                    if (!hf)
+                    {
+                        hf = true;
+                        height = z;
+                        block = b;
+                    }
                     waterdepth++;
                     continue;
                 }
                 if (b != 0)
                 {
-                    block = b;
-                    h = z;
+                    if (!hf)
+                    {
+                        height = z;
+                        hf = true;
+                        block = b;
+                    }
+                    else
+                    {
+                        underwater_height = z;
+                        underwater_block = b;
+                    }
                     return;
                 }
             }
         }
 
-        internal void UpdateOverview()
+        public void UpdateOverview()
         {
             for (int x = 0; x < Size.X; x++)
             {
                 for (int y = 0; y < Size.Y; y++)
                 {
-                    int h;
-                    byte b;
-                    int w;
-                    GetOverview(new Vector3i(x, y, Size.Z - 1), out h, out b, out w);
-                    Overview[x, y] = b;
-                    WaterDepth[x, y] = w;
-                    HeightMap[x, y] = h; 
+                    bool hit = false; ;
+                    for (int z = (int)Size.Z-1; z > 0; z--)
+                    {
+                        byte b = Blocks[x,y,z];
+                        if (b != 0)
+                        {
+                            if (!hit)
+                            {
+                                Overview[x, y] = b;
+                                HeightMap[x, y] = z;
 
-                    if (MaxHeight < h) MaxHeight = h;
-                    if (MinHeight > h) MinHeight = h;
+                                if (MaxHeight < z) MaxHeight = z;
+                                if (MinHeight > z) MinHeight = z;
+                            }
+
+                            if (b != 9 && b != 8)
+                                break;
+                            WaterDepth[x, y]++;
+                        }
+                    }
                 }
             }
         }
@@ -189,6 +214,7 @@ namespace OpenMinecraft
         }
         protected IMapHandler _Map;
         public bool Loading;
+        private bool mNeedsLighting;
 
         public Chunk(IMapHandler mh) 
         {
@@ -261,17 +287,15 @@ namespace OpenMinecraft
             Blocks[bp.X, bp.Y, bp.Z] = p;
         }
 
-        public void RecalculateLighting(bool Sky)
+        public void StripLighting()
         {
-            if(!Sky)
-                BlockLight = RecalcLighting(this, false);
-            else
-                SkyLight = RecalcLighting(this, true);
+            BlockLight = SkyLight = new byte[_Map.ChunkScale.X, _Map.ChunkScale.Y, _Map.ChunkScale.Z];
         }
 
         // Shitty. Shitty. Shitty.
         public static byte[, ,] RecalcLighting(Chunk c, bool Sky)
         {
+
             byte[, ,] blocklight = c.BlockLight;
             for (int i = 0; i < 15; i++)
             {
@@ -333,6 +357,192 @@ namespace OpenMinecraft
         {
             return (p == 10 || p == 11 || p == 50 || p == 51 || p == 76);
         }
-        //
+
+        #region Contributed by Moose
+        //Converted to C#
+
+
+       public void RecalculateLighting()
+        {
+	        int index, wx, wz;
+	        byte blockType;
+
+	        //if (!mNeedsLighting)
+		    //    return;
+
+	        long tickNow = DateTime.Now.Ticks;
+
+            BlockLight=SkyLight = new byte[16, 16, 128];
+
+	        // sky light
+	        for (int x = 0; x < 16; x++)
+	        {
+		        for (int z = 0; z < 16; z++)
+		        {
+			        for (int y = 127; y >= 0; y--)
+			        {
+
+				        blockType = Blocks[x,y,z];
+
+                        BlockLight[x, y, z] = 0;
+                        SkyLight[x, y, z] = 15;
+
+				        if (OpenMinecraft.Blocks.Get(blockType).Stop != 0)
+					        break;
+			        }
+		        }
+	        }
+
+	        Console.WriteLine("Chunk lighting gen (sky) in {0} ms\n", DateTime.Now.Ticks - tickNow);
+
+            tickNow = DateTime.Now.Ticks;
+
+	        // light spread
+	        for (int x = 0; x < 16; x++)
+	        {
+		        for (int y = 0; y < 16; y++)
+		        {
+			        for (int z = HeightMap[x,y] + 10; z >= 0; z--)
+			        {
+				        blockType = Blocks[x,y,z];
+
+				        // stops light going down
+				        if (OpenMinecraft.Blocks.Get(blockType).Stop == 16)
+				        {
+                            BlockLight[x, y, z] = 0;
+					        break;
+				        } else {
+                            BlockLight[x,y,z] = (byte)(15 - OpenMinecraft.Blocks.Get(blockType).Stop);
+                            LightMapStep(x, y, z, 15 - OpenMinecraft.Blocks.Get(blockType).Stop);
+				        }
+			        }
+		        }
+	        }
+
+	        Console.WriteLine("Chunk lighting gen (spread) in {0} ms\n", DateTime.Now.Ticks - tickNow);
+
+	        tickNow = DateTime.Now.Ticks;
+
+	        // light emitters
+	        for (int x = 0; x < 16; x++)
+	        {
+		        for (int y = 0; y < 16; y++)
+		        {
+			        for (int z = HeightMap[x,y] + 2; z >= 0; z--)
+			        {
+				        blockType = Blocks[x,y,z];
+                        if (OpenMinecraft.Blocks.Get(blockType).Emit != 0)
+				        {
+                            BlockLightMapStep(x, y, z, OpenMinecraft.Blocks.Get(blockType).Emit);
+				        }
+			        }
+		        }
+	        }
+
+	        mNeedsLighting = false;
+
+	        Console.WriteLine("Chunk lighting gen (emit) in {0} ms\n", DateTime.Now.Ticks - tickNow);
+        }
+
+
+        void BlockLightMapStep(int x, int y, int z, int light)
+        {
+	        byte blockType, metaData, blockLight, skyLight;
+	        int x_, y_, z_;
+
+	        //DBG(L"BLMS: %i,%i,%i,%i,%p\n", x, y, z, light, chunk);
+
+	        if (light < 1)
+		        return;
+
+	        for (byte i = 0; i < 6; i++)
+	        {
+		        if (y == 127 && i == 2)
+			        i++;
+		        if (y == 0 && i == 3)
+			        i++;
+
+		        x_ = x;
+		        y_ = y;
+		        z_ = z;
+
+		        switch (i)
+		        {
+		        case 0: x_++; break;
+		        case 1: x_--; break;
+		        case 2: y_++; break;
+		        case 3: y_--; break;
+		        case 4: z_++; break;
+		        case 5: z_--; break;
+		        }
+
+		        if (GetBlockData(x_, y_, z_, out blockType, out metaData, out blockLight, out skyLight))
+		        {
+                    if (blockLight < (light + OpenMinecraft.Blocks.Get(blockType).Stop - 1))
+			        {
+                        BlockLight[x_, y_, z_] = (byte)(light - OpenMinecraft.Blocks.Get(blockType).Stop - 1);
+                        if (OpenMinecraft.Blocks.Get(blockType).Stop != 16)
+				        {
+                            BlockLightMapStep(x_, y_, z_, light - OpenMinecraft.Blocks.Get(blockType).Stop - 1);
+				        }
+			        }
+		        }
+	        }
+        }
+
+        void LightMapStep(int x, int y, int z, int light)
+        {
+	        byte blockType, metaData, blockLight, skyLight;
+	        int x_, y_, z_;
+
+	        if (light < 1)
+	        {
+		        return;
+	        }
+
+	        // loop 1 time for each direction except up (positive y)
+	        for (byte i = 0; i < 5; i++)
+	        {
+		        if (y == 127 && i == 2)
+			        i++;
+		        if (y == 0 && i == 3)
+			        i++;
+
+		        x_ = x;
+		        y_ = y;
+		        z_ = z;
+
+		        // light spread direction
+		        switch (i)
+		        {
+		        case 0: x_++; break;
+		        case 1: x_--; break;
+		        case 2: y_--; break;
+		        case 3: z_++; break;
+		        case 4: z_--; break;
+		        }
+
+                
+		        if (GetBlockData(x_, y_, z_, out blockType, out metaData, out blockLight, out skyLight))
+		        {
+                    if (skyLight < (light - OpenMinecraft.Blocks.Get(blockType).Stop - 1))
+			        {
+				        SkyLight[x_, y_, z_] =  (byte)(light - OpenMinecraft.Blocks.Get(blockType).Stop - 1);
+                        if (OpenMinecraft.Blocks.Get(blockType).Stop != 16)	// stop if this block lets no light through
+					        LightMapStep(x_, y_, z_, light - OpenMinecraft.Blocks.Get(blockType).Stop - 1);
+			        }
+		        }
+	        }
+        }
+
+        private bool GetBlockData(int x, int y, int z, out byte blockType, out byte metaData, out byte blockLight, out byte skyLight)
+        {
+            blockType = Blocks[x,y,z];
+            metaData = 0;
+            blockLight = BlockLight[x, y, z];
+            skyLight = SkyLight[x, y, z];
+            return true;
+        }
+        #endregion
     }
 }

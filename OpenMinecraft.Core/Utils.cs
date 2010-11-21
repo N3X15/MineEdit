@@ -374,7 +374,12 @@ namespace OpenMinecraft
             Vector3i size = new Vector3i((DungeonSizeX*2)+1,(DungeonSizeY*2)+1,(DungeonSizeZ*2)+1);
             FillRect(ref b, 0, position, size);
             MakeDungeonWalls(ref b, r, position, size);
-            mh.SetTileEntity(new MobSpawner(x+(int)(CX*CH), y+(int)(CY*CH), z-DungeonSizeZ+1, Entity.GetRandomMonsterID(r), 20));
+            MobSpawner ms = new MobSpawner();
+            ms.Delay=20;
+            ms.EntityId=Entity.GetRandomMonsterID(r);
+            ms.Pos=new Vector3i(x+(int)(CX*CH), y+(int)(CY*CH), z-DungeonSizeZ+1);
+            ms.UUID = Guid.NewGuid();
+            mh.SetTileEntity(ms);
             b[x, y, z - DungeonSizeZ + 1]=52;
             return true;
         }

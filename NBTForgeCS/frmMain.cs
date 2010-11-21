@@ -1519,6 +1519,8 @@ namespace MineEdit
                                 ++NumSkipped;
                                 return;
                             }
+                            c.UpdateOverview();
+                            c.RecalculateLighting();
                             c.Save();
                             dlt.CurrentTask= string.Format("Stripping lighting... ({0}/{1}, {2} skipped)", dlt.TasksComplete, dlt.TasksTotal, NumSkipped);
                         });

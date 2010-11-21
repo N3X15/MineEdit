@@ -69,7 +69,7 @@ namespace OpenMinecraft
 
         public HillGenerator(long seed)
         {
-            Frequency = 0.03;
+            Frequency = 0.01;
             Lacunarity = 0.01;
             Persistance = 0.01;
             OctaveCount = ContinentNoiseOctaves = 1;
@@ -144,7 +144,7 @@ namespace OpenMinecraft
                     for (int z = 0; z < ZH; z++)
                     {
                         int intensity = z * (255 / ZH);
-                        double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d) / 2.0;
+                        double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d) / 3.0; // 2.0
                         //Console.WriteLine("HeightOffset {0}",heightoffset);
                         if (z == 0)
                             b[x, y, z] = 7;
@@ -152,16 +152,12 @@ namespace OpenMinecraft
                         //    b[x, y, z] = 1;
                         else
                         {
-                            bool d1 = ((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * TerrainDivisor) + 1) / 2.0) > System.Math.Pow((((double)z * (HeightDivisor + (heightoffset))) / (double)ZH), 2d); // 3d
+                            bool d1 = ((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * TerrainDivisor) + 1) / 2.0) > System.Math.Pow((((double)z * (HeightDivisor + (heightoffset))) / (double)ZH), 100d); // 3d originally
                             double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * CaveDivisor) + 1) / 2.0);
                             bool d3 = _do > CaveThreshold;
-                            // XOR?
-                            if (d1)//if (!(!d1 || !d2))
+                            if (d1)
                             {
-                                //Console.Write("#");
                                 b[x, y, z] = (d3) ? b[x, y, z] : (byte)1;
-                                //if (x == 0|| y == 0)
-                                //    b[x, y, z] = 41;
                             }
                             else if (z == 1)
                                 b[x, y, z] = 11;

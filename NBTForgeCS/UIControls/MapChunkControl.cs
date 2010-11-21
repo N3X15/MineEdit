@@ -162,9 +162,9 @@ namespace MineEdit
                     Vector3i blockpos = new Vector3i(x, y, z);
 
                     byte block = MyChunk.Blocks[x,y,z];
-
+                    byte ub;
                     int waterdepth = 0;
-                    int bh = 0;
+                    int bh=0,ubh = 0;
                     Color c = Blocks.GetColor(block);
                     Color shadow = Color.Transparent;
                     if (block == 0)
@@ -175,9 +175,9 @@ namespace MineEdit
                         // Console.WriteLine("hurr air");
 
                         // BROKEN for some reason (?!)
-                        MyChunk.GetOverview(blockpos, out bh, out block, out waterdepth);
+                        MyChunk.GetOverview(blockpos, out bh,out ubh, out block,out ub, out waterdepth);
 
-                        c = Blocks.GetColor(block);
+                        c = Blocks.GetColor(waterdepth>0 ? ub:block);
                         // Water translucency
                         if (waterdepth > 0)
                         {
