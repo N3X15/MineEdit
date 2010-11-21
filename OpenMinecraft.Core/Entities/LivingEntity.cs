@@ -73,10 +73,10 @@ namespace OpenMinecraft.Entities
         {
             NbtCompound c = new NbtCompound();
             Base2NBT(ref c,GetID());
-            c.Tags.Add(new NbtShort("Health",       Health));
-            c.Tags.Add(new NbtShort("HurtTime",     HurtTime));
-            c.Tags.Add(new NbtShort("AttackTime",   AttackTime));
-            c.Tags.Add(new NbtShort("DeathTime",    DeathTime));
+            c.Add(new NbtShort("Health",       Health));
+            c.Add(new NbtShort("HurtTime",     HurtTime));
+            c.Add(new NbtShort("AttackTime",   AttackTime));
+            c.Add(new NbtShort("DeathTime",    DeathTime));
             return c;
         }
 

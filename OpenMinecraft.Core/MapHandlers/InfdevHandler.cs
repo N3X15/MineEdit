@@ -49,13 +49,12 @@ namespace OpenMinecraft
 			{
 				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
-				Player.Tags.Remove(Player["SpawnX"]);
-				Player.Tags.Remove(Player["SpawnY"]);
-				Player.Tags.Remove(Player["SpawnZ"]);
-				Player.Tags.Add(new NbtInt("SpawnX", (int)value.X));
-				Player.Tags.Add(new NbtInt("SpawnY", (int)Utils.Clamp(value.Y, 0, 128)));
-				Player.Tags.Add(new NbtInt("SpawnZ", (int)value.Z));
-				// BROKEN root.SetTag("/Data/Player", h);
+				Player.Remove("SpawnX");
+				Player.Remove("SpawnY");
+				Player.Remove("SpawnZ");
+				Player.Add("SpawnX", new NbtInt("SpawnX",(int)value.X));
+				Player.Add("SpawnY", new NbtInt("SpawnY",(int)Utils.Clamp(value.Y, 0, 128)));
+				Player.Add("SpawnZ", new NbtInt("SpawnZ",(int)value.Z));
 				Data["Player"] = Player;
 				mRoot.RootTag["Data"] = Data;
 			}
@@ -122,7 +121,7 @@ namespace OpenMinecraft
 				NbtShort oh = (NbtShort)Player["Health"];
 				Console.WriteLine("Health: {0}->{1}", oh.Value, h.Value);
 				Player.Tags.Remove(oh);
-				Player.Tags.Add(h);
+				Player.Add(h);
 				Data["Player"] = Player;
 				mRoot.RootTag["Data"] = Data;
                 */
@@ -163,7 +162,7 @@ namespace OpenMinecraft
 				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
 				Player.Tags.Remove(Player["Air"]);
-				Player.Tags.Add(h);
+				Player.Add(h);
 				Data["Player"] = Player;
 				mRoot.RootTag["Data"] = Data;
                 */
@@ -184,8 +183,8 @@ namespace OpenMinecraft
 				// BROKEN root.SetTag("/Data/Player/Fire", h);
 				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
-				Player.Tags.Remove(Player["Fire"]);
-				Player.Tags.Add(f);
+				Player.Remove("Fire");
+				Player.Set("Fire",f);
 				Data["Player"] = Player;
 				mRoot.RootTag["Data"] = Data;
 			}
@@ -219,14 +218,14 @@ namespace OpenMinecraft
 			set
 			{
 				NbtList h = new NbtList("Pos");
-				h.Tags.Add(new NbtDouble("", value.X));
-				h.Tags.Add(new NbtDouble("", Utils.Clamp(value.Y, 0, 128)));
-				h.Tags.Add(new NbtDouble("", value.Z));
+				h.Add(new NbtDouble("", value.X));
+				h.Add(new NbtDouble("", Utils.Clamp(value.Y, 0, 128)));
+				h.Add(new NbtDouble("", value.Z));
 				// BROKEN root.SetTag("/Data/Player/Pos", h);
 				NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 				NbtCompound Player = (NbtCompound)Data["Player"];
-				Player.Tags.Remove(Player["Pos"]);
-				Player.Tags.Add(h);
+				Player.Remove("Pos");
+				Player.Add(h);
 				Data["Player"] = Player;
 				mRoot.RootTag["Data"] = Data;
 
@@ -263,7 +262,7 @@ namespace OpenMinecraft
 					Data.Tags.Remove(Data["RandomSeed"]);
 				}
 				catch (Exception) { }
-				Data.Tags.Add(new NbtLong("RandomSeed", value));
+				Data.Add(new NbtLong("RandomSeed", value));
 				mRoot.RootTag["Data"] = Data;
 			}
 		}
@@ -440,7 +439,7 @@ namespace OpenMinecraft
 				mChunk = new NbtFile(c.Filename);
 				mChunk.LoadFile();
 
-				NbtCompound level = (NbtCompound)mChunk.RootTag["Level"];
+				NbtCompound level = mChunk.RootTag.Get<NbtCompound>("Level");
 
 				c.Position = new Vector3i(
 					level.Get<NbtInt>("xPos").Value,
@@ -589,7 +588,7 @@ namespace OpenMinecraft
 				if (found > -1)
 					tents[found] = e.ToNBT();
 				else
-					tents.Tags.Add(e.ToNBT());
+					tents.Add(e.ToNBT());
 
 				level["TileEntities"] = tents;
 				mChunk.RootTag["Level"] = level;
@@ -713,19 +712,19 @@ namespace OpenMinecraft
 					}
 				}
 			}
-			Level.Tags.Add(new NbtByteArray("Blocks", blocks));
+			Level.Set("Blocks", new NbtByteArray("Blocks",blocks));
 			blocks = null;
 
 			// LIGHTING ///////////////////////////////////////////////////
 			// TODO:  Whatever is going on in here is crashing Minecraft now.
 			byte[] lighting = CompressLightmap(cnk.SkyLight);
-			Level.Tags.Add(new NbtByteArray("SkyLight", lighting));
+			Level.Set("SkyLight",new NbtByteArray("SkyLight", lighting));
 
 			lighting = CompressLightmap(cnk.BlockLight);
-            Level.Tags.Add(new NbtByteArray("BlockLight", lighting));
+            Level.Set("BlockLight",new NbtByteArray("BlockLight", lighting));
 			
 			lighting = CompressDatamap(cnk.Data);
-            Level.Tags.Add(new NbtByteArray("Data", lighting));
+            Level.Set("Data", new NbtByteArray("Data", lighting));
 
 			// HEIGHTMAP (Needed for lighting).
 			byte[] hm = new byte[256];
@@ -741,17 +740,17 @@ namespace OpenMinecraft
 			// ENTITIES ///////////////////////////////////////////////////
 			foreach (KeyValuePair<Guid, Entity> ent in cnk.Entities)
 			{
-				ents.Tags.Add(ent.Value.ToNBT());
+				ents.Add(ent.Value.ToNBT());
 			}
-			Level.Tags.Add(ents);
+			Level.Set("Entities",ents);
 
 			NbtList tents = new NbtList("TileEntities");
 			// TILE ENTITIES //////////////////////////////////////////////
 			foreach (KeyValuePair<Guid, TileEntity> tent in cnk.TileEntities)
 			{
-				ents.Tags.Add(tent.Value.ToNBT());
+				ents.Add(tent.Value.ToNBT());
 			}
-			Level.Tags.Add(tents);
+			Level.Set("TileEntities",tents);
 
 			c.RootTag.Set("Level",Level);
 			
@@ -1117,20 +1116,20 @@ namespace OpenMinecraft
 		protected NbtCompound NewNBTChunk(long X, long Y)
 		{
 			NbtCompound Level = new NbtCompound("Level");
-			Level.Tags.Add(new NbtByte("TerrainPopulated", 0x00)); // Don't add ores, y/n? Usually get better performance with true on first load.
-            Level.Tags.Add(new NbtInt("xPos", (int)X));
-            Level.Tags.Add(new NbtInt("zPos", (int)Y));
-            Level.Tags.Add(new NbtInt("LastUpdate", 0)); // idk what the format is, not going to decompile.
-            Level.Tags.Add(new NbtByteArray("BlockLight", new byte[16384]));
-            Level.Tags.Add(new NbtByteArray("Blocks", new byte[32768]));
-            Level.Tags.Add(new NbtByteArray("Data", new byte[16384]));
-            Level.Tags.Add(new NbtByteArray("HeightMap", new byte[256]));
-            Level.Tags.Add(new NbtByteArray("SkyLight", new byte[16384]));
-            Level.Tags.Add(new NbtList("Entities"));
-            Level.Tags.Add(new NbtList("TileEntities"));
+			Level.Add(new NbtByte("TerrainPopulated", 0x00)); // Don't add ores, y/n? Usually get better performance with true on first load.
+            Level.Add(new NbtInt("xPos", (int)X));
+            Level.Add(new NbtInt("zPos", (int)Y));
+            Level.Add(new NbtInt("LastUpdate", 0)); // idk what the format is, not going to decompile.
+            Level.Add(new NbtByteArray("BlockLight", new byte[16384]));
+            Level.Add(new NbtByteArray("Blocks", new byte[32768]));
+            Level.Add(new NbtByteArray("Data", new byte[16384]));
+            Level.Add(new NbtByteArray("HeightMap", new byte[256]));
+            Level.Add(new NbtByteArray("SkyLight", new byte[16384]));
+            Level.Add(new NbtList("Entities"));
+            Level.Add(new NbtList("TileEntities"));
 
 			NbtCompound Chunk = new NbtCompound("_ROOT_");
-			Chunk.Tags.Add(Level);
+			Chunk.Add(Level);
 			return Chunk;
 		}
 
@@ -1382,10 +1381,10 @@ namespace OpenMinecraft
 		{
 			// /Player/Inventory/
 			NbtCompound Slot = new NbtCompound();
-			Slot.Tags.Add(new NbtByte("Count",(byte)Count));
-			Slot.Tags.Add(new NbtShort("id",(short)itemID));
-			Slot.Tags.Add(new NbtShort("Damage",(short)Damage));
-			Slot.Tags.Add(new NbtByte("Slot", (byte)slot));
+			Slot.Add(new NbtByte("Count",(byte)Count));
+			Slot.Add(new NbtShort("id",(short)itemID));
+			Slot.Add(new NbtShort("Damage",(short)Damage));
+			Slot.Add(new NbtByte("Slot", (byte)slot));
 
 			NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 			NbtCompound Player = (NbtCompound)Data["Player"];
@@ -1400,7 +1399,7 @@ namespace OpenMinecraft
 				}
 			}
 			if(!Found)
-				pi.Tags.Add(Slot);
+				pi.Add(Slot);
 			Player["Inventory"] = pi;
 			Data["Player"] = Player;
 			mRoot.RootTag["Data"] = Data;

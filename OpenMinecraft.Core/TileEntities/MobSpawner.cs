@@ -33,8 +33,8 @@ namespace OpenMinecraft.TileEntities
         {
             NbtCompound c = new NbtCompound();
             Base2NBT(ref c);
-            c.Tags.Add(new NbtString("EntityId", EntityId));
-            c.Tags.Add(new NbtShort("Delay", Delay));
+            c.Add(new NbtString("EntityId", EntityId));
+            c.Add(new NbtShort("Delay", Delay));
             return c;
         }
 

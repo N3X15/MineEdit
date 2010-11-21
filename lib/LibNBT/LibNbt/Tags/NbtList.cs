@@ -31,6 +31,8 @@ namespace LibNbt.Tags
             }
         }
 
+        public void Add(NbtTag tag) { Tags.Add(tag); }
+
         public NbtTag Get(int tagIdx)
         {
             return Get<NbtTag>(tagIdx);

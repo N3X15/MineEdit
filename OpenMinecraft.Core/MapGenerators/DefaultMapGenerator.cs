@@ -293,20 +293,20 @@ namespace OpenMinecraft
             NbtFile nf = new NbtFile(f);
             nf.RootTag = new NbtCompound("__ROOT__");
             NbtCompound c = new NbtCompound("DefaultMapGenerator");
-            c.Tags.Add(new NbtByte("GenerateCaves", (byte) (GenerateCaves ? 1 : 0)));
-            c.Tags.Add(new NbtByte("GenerateDungeons", (byte) (GenerateDungeons ? 1 : 0)));
-            c.Tags.Add(new NbtByte("GenerateOres", (byte) (GenerateOres ? 1 : 0)));
-            c.Tags.Add(new NbtByte("GenerateWater", (byte) (GenerateWater ? 1 : 0)));
-            c.Tags.Add(new NbtByte("HellMode", (byte) (HellMode ? 1 : 0)));
-            c.Tags.Add(new NbtByte("GenerateTrees", (byte) (GenerateTrees ? 1 : 0)));
-            c.Tags.Add(new NbtDouble("Frequency", Frequency));
-            c.Tags.Add(new NbtByte("NoiseQuality", (byte) NoiseQuality));
-            c.Tags.Add(new NbtInt("OctaveCount", OctaveCount));
-            c.Tags.Add(new NbtDouble("Lacunarity", Lacunarity));
-            c.Tags.Add(new NbtDouble("Persistance", Persistance));
-            c.Tags.Add(new NbtDouble("ContinentNoiseFrequency", ContinentNoiseFrequency));
-            c.Tags.Add(new NbtDouble("CaveThreshold", CaveThreshold));
-            nf.RootTag.Tags.Add(c);
+            c.Add(new NbtByte("GenerateCaves", (byte) (GenerateCaves ? 1 : 0)));
+            c.Add(new NbtByte("GenerateDungeons", (byte) (GenerateDungeons ? 1 : 0)));
+            c.Add(new NbtByte("GenerateOres", (byte) (GenerateOres ? 1 : 0)));
+            c.Add(new NbtByte("GenerateWater", (byte) (GenerateWater ? 1 : 0)));
+            c.Add(new NbtByte("HellMode", (byte) (HellMode ? 1 : 0)));
+            c.Add(new NbtByte("GenerateTrees", (byte) (GenerateTrees ? 1 : 0)));
+            c.Add(new NbtDouble("Frequency", Frequency));
+            c.Add(new NbtByte("NoiseQuality", (byte) NoiseQuality));
+            c.Add(new NbtInt("OctaveCount", OctaveCount));
+            c.Add(new NbtDouble("Lacunarity", Lacunarity));
+            c.Add(new NbtDouble("Persistance", Persistance));
+            c.Add(new NbtDouble("ContinentNoiseFrequency", ContinentNoiseFrequency));
+            c.Add(new NbtDouble("CaveThreshold", CaveThreshold));
+            nf.RootTag.Add(c);
             nf.SaveFile(f);
         }
 

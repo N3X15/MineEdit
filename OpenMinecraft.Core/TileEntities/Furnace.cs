@@ -123,8 +123,8 @@ namespace OpenMinecraft.TileEntities
 		{
 			NbtCompound c = new NbtCompound();
 			Base2NBT(ref c);
-			c.Tags.Add(new NbtShort("BurnTime",BurnTime));
-			c.Tags.Add(new NbtShort("CookTime",CookTime));
+			c.Add(new NbtShort("BurnTime",BurnTime));
+			c.Add(new NbtShort("CookTime",CookTime));
 			NbtList Items = new NbtList("Items");
 			for (int i = 0; i < 3; i++)
 			{
@@ -132,15 +132,15 @@ namespace OpenMinecraft.TileEntities
 				{
 					NbtCompound cc = new NbtCompound();
 
-					cc.Tags.Add(new NbtShort("id",Slots[i].ID));
-					cc.Tags.Add(new NbtShort("Damage",(short)Slots[i].Damage));
-					cc.Tags.Add(new NbtByte("Count",(byte)Slots[i].Count));
-					cc.Tags.Add(new NbtByte("Slot", (byte)i));
+					cc.Add(new NbtShort("id",Slots[i].ID));
+					cc.Add(new NbtShort("Damage",(short)Slots[i].Damage));
+					cc.Add(new NbtByte("Count",(byte)Slots[i].Count));
+					cc.Add(new NbtByte("Slot", (byte)i));
 
-					Items.Tags.Add(cc);
+					Items.Add(cc);
 				}
 			}
-			c.Tags.Add(Items);
+			c.Add(Items);
 			return c;
 		}
 

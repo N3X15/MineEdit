@@ -56,7 +56,7 @@ TAG_Compound: 13 entries
         public override NbtCompound ToNBT()
         {
             NbtCompound c = base.ToNBT();
-            c.Tags.Add(new NbtByte("Sheared", Sheared ? (byte)1:(byte)0));
+            c.Add(new NbtByte("Sheared", Sheared ? (byte)1:(byte)0));
             return c;
         }
         public override string ToString()

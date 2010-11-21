@@ -115,10 +115,10 @@ TAG_Compound: 12 entries
             NbtCompound c = new NbtCompound();
             Base2NBT(ref c, GetID());
 			
-			c.Tags.Add(new NbtInt("Type", (int)Type));
-			c.Tags.Add(new NbtDouble("PushX", PushX));
-			c.Tags.Add(new NbtDouble("PushZ", PushZ));
-			c.Tags.Add(new NbtShort("Fuel", Fuel));
+			c.Add(new NbtInt("Type", (int)Type));
+			c.Add(new NbtDouble("PushX", PushX));
+			c.Add(new NbtDouble("PushZ", PushZ));
+			c.Add(new NbtShort("Fuel", Fuel));
             return c;
         }
         public override string ToString()

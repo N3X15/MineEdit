@@ -48,7 +48,7 @@ namespace OpenMinecraft.Entities
         {
             NbtCompound c = new NbtCompound();
             Base2NBT(ref c,GetID());
-            c.Tags.Add(new NbtByte("Tile", Tile));
+            c.Add(new NbtByte("Tile", Tile));
             return c;
         }
         public override string ToString()

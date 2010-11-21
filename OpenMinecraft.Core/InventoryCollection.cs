@@ -45,13 +45,13 @@ namespace OpenMinecraft
             foreach (KeyValuePair<byte, InventoryItem> p in this)
             {
                 NbtCompound nc = new NbtCompound();
-                nc.Tags.AddRange(new NbtTag[]{
+                nc.AddRange(new NbtTag[]{
                     new NbtByte("Count",(byte)p.Value.Count),
                     new NbtByte("Slot",p.Key),
                     new NbtShort("id",p.Value.ID),
                     new NbtShort("Damage",(short)p.Value.Damage)
                 });
-                Items.Tags.Add(nc);
+                Items.Add(nc);
             }
             return Items;
         }

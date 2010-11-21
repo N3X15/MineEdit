@@ -53,7 +53,7 @@ namespace OpenMinecraft.TileEntities
 			for (int i = 0; i < 4; i++)
 			{
 				string tagID = string.Format("Text{0}", i + 1);
-				c.Tags.Add(new NbtString(tagID, Text[i]));
+				c.Add(new NbtString(tagID, Text[i]));
 			}
 			return c;
 		}

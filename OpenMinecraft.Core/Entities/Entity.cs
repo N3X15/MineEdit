@@ -149,26 +149,26 @@ namespace OpenMinecraft.Entities
 
         internal void Base2NBT(ref NbtCompound c,string _id)
         {
-            c.Tags.Add(new NbtShort("Air", Air));
-            c.Tags.Add(new NbtShort("Fire", Fire));
-            c.Tags.Add(new NbtFloat("FallDistance", FallDistance));
-            c.Tags.Add(new NbtByte("OnGround", OnGround));
-            c.Tags.Add(new NbtString("id", _id));
+            c.Add(new NbtShort("Air", Air));
+            c.Add(new NbtShort("Fire", Fire));
+            c.Add(new NbtFloat("FallDistance", FallDistance));
+            c.Add(new NbtByte("OnGround", OnGround));
+            c.Add(new NbtString("id", _id));
             NbtList motion = new NbtList("Motion");
             motion.Tags.AddRange(new NbtDouble[]{
                 new NbtDouble("", Motion.X),
                 new NbtDouble("", Motion.Y),
                 new NbtDouble("", Motion.Z)
             });
-            c.Tags.Add(motion);
+            c.Add(motion);
             NbtList pos = new NbtList("Pos");
             pos.Tags.AddRange(new NbtDouble[]{
                 new NbtDouble("", Math.IEEERemainder(Pos.X,16)),
                 new NbtDouble("", Pos.Y),
                 new NbtDouble("", Math.IEEERemainder(Pos.Z,16))
             });
-            c.Tags.Add(pos);
-            c.Tags.Add(Rotation.ToNBT());
+            c.Add(pos);
+            c.Add(Rotation.ToNBT());
         }
         public override string ToString()
         {
@@ -177,6 +177,10 @@ namespace OpenMinecraft.Entities
 
         public static Entity GetEntity(NbtCompound c)
         {
+            if (!c.Has("id"))
+            {
+                Console.WriteLine(c.ToString());
+            }
             string entID = c.Get<NbtString>("id").Value;
             if (EntityTypes.ContainsKey(entID))
             {
@@ -228,7 +232,7 @@ namespace OpenMinecraft.Entities
             string assntpl="\n\t\t\t{0} = c.Get<{1}>(\"{2}\").Value;";
 
             string nbtassn = "";
-            string nbttpl = "\n\t\t\tc.Tags.Add(new {0}(\"{1}\", {2}));";
+            string nbttpl = "\n\t\t\tc.Add(new {0}(\"{1}\", {2}));";
 
 
             // Figure out if there are any new fields that we should be concerned about...

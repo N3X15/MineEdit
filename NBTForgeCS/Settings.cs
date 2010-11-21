@@ -100,10 +100,10 @@ namespace MineEdit
 
 
             NbtFile f = new NbtFile();
-            f.RootTag.Tags.Add(new NbtByte("GridLines", (byte) (ShowGridLines ? 0x01 : 0x00)));
-            f.RootTag.Tags.Add(new NbtByte("ShowChunks", (byte) (ShowChunks ? 0x01 : 0x00)));
-            f.RootTag.Tags.Add(new NbtByte("ShowMapIcons", (byte) (ShowMapIcons ? 0x01 : 0x00)));
-            f.RootTag.Tags.Add(new NbtByte("ShowWaterDepth", (byte) (ShowWaterDepth ? 0x01 : 0x00)));
+            f.RootTag.Set("GridLines",new NbtByte("GridLines", (byte) (ShowGridLines ? 0x01 : 0x00)));
+            f.RootTag.Set("ShowChunks",new NbtByte("ShowChunks", (byte) (ShowChunks ? 0x01 : 0x00)));
+            f.RootTag.Set("ShowMapIcons",new NbtByte("ShowMapIcons", (byte) (ShowMapIcons ? 0x01 : 0x00)));
+            f.RootTag.Set("ShowWaterDepth",new NbtByte("ShowWaterDepth", (byte) (ShowWaterDepth ? 0x01 : 0x00)));
             f.SaveFile(".settings");
             f.Dispose();
         }

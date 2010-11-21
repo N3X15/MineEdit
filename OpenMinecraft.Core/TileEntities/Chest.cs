@@ -71,7 +71,7 @@ namespace OpenMinecraft.TileEntities
         {
             NbtCompound c = new NbtCompound();
             Base2NBT(ref c);
-            c.Tags.Add(Inventory.ToNBT());
+            c.Add(Inventory.ToNBT());
             return c;
         }
 

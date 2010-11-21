@@ -95,12 +95,12 @@ TAG_Compound: 11 entries
             NbtCompound c = new NbtCompound();
             Base2NBT(ref c, GetID());
             NbtCompound i = new NbtCompound("Item");
-            i.Tags.Add(new NbtShort("id", ItemID));
-            i.Tags.Add(new NbtShort("Damage", Damage));
-            i.Tags.Add(new NbtByte("Count", Count));
-            c.Tags.Add(i);
-            c.Tags.Add(new NbtShort("Health", Health));
-            c.Tags.Add(new NbtShort("Age", Age));
+            i.Add(new NbtShort("id", ItemID));
+            i.Add(new NbtShort("Damage", Damage));
+            i.Add(new NbtByte("Count", Count));
+            c.Add(i);
+            c.Add(new NbtShort("Health", Health));
+            c.Add(new NbtShort("Age", Age));
             return c;
         }
         public override string ToString()

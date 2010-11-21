@@ -83,7 +83,7 @@ TAG_Compound: 13 entries
         {
             NbtCompound c = base.ToNBT();
 			
-			c.Tags.Add(new NbtShort("Anger", Anger));
+			c.Add(new NbtShort("Anger", Anger));
             return c;
         }
         public override string ToString()

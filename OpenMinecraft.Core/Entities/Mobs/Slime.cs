@@ -28,7 +28,7 @@ namespace OpenMinecraft.Entities
         public override NbtCompound ToNBT()
         {
             NbtCompound c = base.ToNBT();
-            c.Tags.Add(new NbtInt("Size", Size));
+            c.Add(new NbtInt("Size", Size));
             return c;
         }
         public override string ToString()

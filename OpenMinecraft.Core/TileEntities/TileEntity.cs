@@ -135,10 +135,10 @@ namespace OpenMinecraft.TileEntities
 
         public void Base2NBT(ref NbtCompound c)
         {
-            c.Tags.Add(new NbtString("id", ID));
-            c.Tags.Add(new NbtInt("x", (int)Pos.X));
-            c.Tags.Add(new NbtInt("y", (int)Pos.Z));
-            c.Tags.Add(new NbtInt("z", (int)Pos.Y));
+            c.Add(new NbtString("id", ID));
+            c.Add(new NbtInt("x", (int)Pos.X));
+            c.Add(new NbtInt("y", (int)Pos.Z));
+            c.Add(new NbtInt("z", (int)Pos.Y));
         }
 
         public virtual NbtCompound ToNBT()
@@ -179,7 +179,7 @@ namespace OpenMinecraft.TileEntities
             string assntpl = "\n\t\t\t{0} = c.Get<{1}>(\"{2}\").Value;";
 
             string nbtassn = "";
-            string nbttpl = "\n\t\t\tc.Tags.Add(new {0}(\"{1}\", {2}));";
+            string nbttpl = "\n\t\t\tc.Add(new {0}(\"{1}\", {2}));";
 
 
             // Figure out if there are any new fields that we should be concerned about...
