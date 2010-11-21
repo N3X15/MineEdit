@@ -1177,7 +1177,12 @@ namespace MineEdit
         {
             // 24000 = 1 day
             // Day 1, 24:00:00
-            int data = int.Parse(txtTime.Text);
+            int data;
+            try
+            {
+                data = int.Parse(txtTime.Text);
+            }
+            catch (Exception) { data = 0; }
             int day = data / 24000;
             data = data % 24000;
             int hour = data / 1000;
@@ -1186,7 +1191,7 @@ namespace MineEdit
             int minutes = data / 60;
             int seconds = data % 60;
 
-            lblTimeOfDay.Text = string.Format("Day {0}, {1}:{2}:{3}", day, hour, minutes, seconds);
+            lblTimeOfDay.Text = string.Format("Day {0}, {1}:{2:00}:{3:00}", day, hour, minutes, seconds);
         }
     }
 }
