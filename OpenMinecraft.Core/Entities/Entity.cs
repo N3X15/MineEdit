@@ -51,7 +51,6 @@ namespace OpenMinecraft.Entities
         [Category("Entity"), Description("OH GOD I'M FALLING")]
         public float FallDistance { get; set; }
 
-        [Category("Entity"), Description("Entity rotation in degrees. (0,0) = Facing west.")]
         public Rotation Rotation {
             get { return mRotation; }
             set { mRotation = value; }
@@ -140,8 +139,8 @@ namespace OpenMinecraft.Entities
             Air = (c["Air"] as NbtShort).Value;
             Fire = (c["Fire"] as NbtShort).Value;
             FallDistance = (c["FallDistance"] as NbtFloat).Value;
-            Motion = new Vector3d(c["Motion"] as NbtList);
-            Pos = new Vector3d(c["Pos"] as NbtList);
+            Motion = new Vector3d(c["Motion"] as NbtList,true);
+            Pos = new Vector3d(c["Pos"] as NbtList,true);
             OnGround = c.Get<NbtByte>("OnGround").Value;
             Rotation = Rotation.FromNbt(c.Get<NbtList>("Rotation"));
             Console.WriteLine("Loaded entity {0} @ {1}", (c["id"] as NbtString).Value, Pos);
@@ -157,15 +156,15 @@ namespace OpenMinecraft.Entities
             NbtList motion = new NbtList("Motion");
             motion.Tags.AddRange(new NbtDouble[]{
                 new NbtDouble("", Motion.X),
-                new NbtDouble("", Motion.Y),
-                new NbtDouble("", Motion.Z)
+                new NbtDouble("", Motion.Z),
+                new NbtDouble("", Motion.Y)
             });
             c.Add(motion);
             NbtList pos = new NbtList("Pos");
             pos.Tags.AddRange(new NbtDouble[]{
                 new NbtDouble("", Math.IEEERemainder(Pos.X,16)),
-                new NbtDouble("", Pos.Y),
-                new NbtDouble("", Math.IEEERemainder(Pos.Z,16))
+                new NbtDouble("", Math.IEEERemainder(Pos.Z,16)),
+                new NbtDouble("", Pos.Y)
             });
             c.Add(pos);
             c.Add(Rotation.ToNBT());

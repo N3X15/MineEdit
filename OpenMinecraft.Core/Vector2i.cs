@@ -1,4 +1,5 @@
 ﻿
+using System;
 namespace OpenMinecraft
 {
     public class Vector2i
@@ -15,6 +16,17 @@ namespace OpenMinecraft
         public override string ToString()
         {
             return string.Format("({0},{1})", X, Y);
+        }
+
+        /// <summary>
+        /// Pythagorean distance.
+        /// </summary>
+        /// <param name="tree"></param>
+        /// <param name="me"></param>
+        /// <returns></returns>
+        public static double Distance(Vector2i a, Vector2i b)
+        {
+            return Math.Sqrt(((a.X - b.X) ^ 2) + ((a.Y - b.Y) ^ 2));
         }
     }
 }

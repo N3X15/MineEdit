@@ -10,9 +10,6 @@ namespace OpenMinecraft
 {
     public class MapGenerators
     {
-        protected static byte Air = 0x00;
-        protected static byte Rock = 0x01;
-        protected static byte Lava = 0x11;
 
         protected static Dictionary<string, Type> Generators = new Dictionary<string, Type>();
         protected static List<Type> Trees = new List<Type>();
@@ -29,7 +26,7 @@ namespace OpenMinecraft
             }
         }
 
-        public static IMapGenerator Get(string gen, long Seed)
+        public static IMapGenerator Get(string gen, long Seed, MapGenMaterials Materials)
         {
             if (gen == null)
                 gen = "DefaultMapGenerator";
@@ -42,7 +39,7 @@ namespace OpenMinecraft
                 id = gen;
             Console.WriteLine("Initializing {0}.", id);
             IMapGenerator g = (IMapGenerator)Generators[id].GetConstructor(new Type[] { typeof(long) }).Invoke(new object[] { Seed });
-
+            g.Materials = Materials;
             g.GenerateCaves = true;
             g.GenerateDungeons = true;
             g.GenerateOres = true;
@@ -69,5 +66,6 @@ namespace OpenMinecraft
             }
             return Gens;
         }
+
     }
 }

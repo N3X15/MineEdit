@@ -7,6 +7,7 @@ using LibNbt;
 using LibNbt.Tags;
 using OpenMinecraft.Entities;
 using OpenMinecraft.TileEntities;
+using LibNoise;
 
 namespace OpenMinecraft
 {
@@ -1046,8 +1047,21 @@ namespace OpenMinecraft
         }
 
 
+        Perlin treeNoise;
+        Random dungeonNoise;
+
 		public void Generate(IMapHandler mh, long X, long Y)
-		{
+        {
+            if (treeNoise == null)
+            {
+                treeNoise = new Perlin();
+                treeNoise.Seed = (int)this.RandomSeed + 4;
+                
+            }
+            if (dungeonNoise == null)
+            {
+                dungeonNoise = new Random((int)RandomSeed);
+            }
 			if (_Generator == null) return;
 			string lockfile = Path.ChangeExtension(GetChunkFilename((int)X,(int)Y), "genlock");
 			if (!_Generator.NoPreservation)
@@ -1070,7 +1084,14 @@ namespace OpenMinecraft
 			}
 			catch (Exception) { }
 			*/
-			_Generator.AddTrees(ref b, (int)X, (int)Y, (int)ChunkScale.Z);
+
+            Random rand = new Random();
+
+            _Generator.AddSoil(ref b, 63, 6, _Generator.Materials);
+            _Generator.AddPlayerBarriers(ref b);
+            _Generator.AddDungeon(ref b, ref mh, dungeonNoise, X, Y);
+            _Generator.AddTrees(ref b, ref treeNoise, ref rand, (int)X, (int)Y, (int)ChunkZ);
+
 			_c.Blocks = b;
 			_c.UpdateOverview();
 			//_c.SkyLight=Utils.RecalcLighting(_c,true);
@@ -1607,7 +1628,7 @@ namespace OpenMinecraft
 			if (File.Exists(f))
 			{
 				string mg = File.ReadAllText(f);
-				_Generator = MapGenerators.Get(mg, RandomSeed);
+				_Generator = MapGenerators.Get(mg, RandomSeed,new MapGenMaterials());
 				_Generator.Load(mFolder);
 			}
 		}

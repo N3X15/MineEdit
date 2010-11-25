@@ -364,7 +364,6 @@ namespace OpenMinecraft
 
        public void RecalculateLighting()
         {
-	        int index, wx, wz;
 	        byte blockType;
 
 	        //if (!mNeedsLighting)

@@ -22,11 +22,21 @@ namespace OpenMinecraft
             this.Z = z;
         }
 
-        public Vector3d(LibNbt.Tags.NbtList nbtList)
+        public Vector3d(LibNbt.Tags.NbtList nbtList,bool flipYZ=false)
         {
             this.X = (nbtList[0] as NbtDouble).Value;
-            this.Y = (nbtList[1] as NbtDouble).Value;
-            this.Z = (nbtList[2] as NbtDouble).Value;
+            double _Y = (nbtList[1] as NbtDouble).Value;
+            double _Z = (nbtList[2] as NbtDouble).Value;
+            if (flipYZ)
+            {
+                this.Z = _Y;
+                this.Y = _Z;
+            }
+            else
+            {
+                this.Y = _Y;
+                this.Z = _Z;
+            }
         }
 
         public Vector3d(double x, double y, double z)

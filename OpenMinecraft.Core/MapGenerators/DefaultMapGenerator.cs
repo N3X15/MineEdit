@@ -17,11 +17,12 @@ namespace OpenMinecraft
 
         protected Random rand;
         protected Perlin CaveNoise;
-        protected Perlin TreeNoise;
 
+        double _CaveDivisor = 2.0;
         public double _CaveThreshold = 0.85d;//0.70d;
         public int WaterHeight = 65;
         public int DERT_DEPTH = 6;
+        private MapGenMaterials mMats;
         [Description("Frequency of the terrain noise.")]
         public double Frequency { get; set; }
         [Description("Quality of the noise generated (lower = faster)")]
@@ -33,6 +34,18 @@ namespace OpenMinecraft
         [Description("TODO Oh god what is this")]
         public double Persistance { get; set; }
         public double ContinentNoiseFrequency { get; set; }
+
+        public override MapGenMaterials Materials
+        {
+            get
+            {
+                return mMats;
+            }
+            set
+            {
+                mMats = value;
+            }
+        }
         [Description("Bigger caves = slightly smaller number (0.70 = hueg), Smaller caves = slightly smaller (0.85=decent size)")]
         public double CaveThreshold
         {
@@ -41,6 +54,12 @@ namespace OpenMinecraft
                 return _CaveThreshold;
             }
             set { _CaveThreshold = value; }
+        }
+        [Description("Z-axis stretching of cave systems.  (z*CaveDivisor)")]
+        public double CaveDivisor
+        {
+            get { return _CaveDivisor; }
+            set { _CaveDivisor = value; }
         }
         [Browsable(false)]
         public override string Name
@@ -53,37 +72,25 @@ namespace OpenMinecraft
         public DefaultMapGenerator()
         {
             Frequency = 0.03;
-            ContinentNoiseFrequency = Frequency / 2.0;
-            Lacunarity = 0.01;
-            Persistance = 0.01;
-            OctaveCount = 1;
-        }
-
-        public DefaultMapGenerator(long seed)
-        {
-            Frequency = 0.03;
             Lacunarity = 0.01;
             Persistance = 0.01;
             OctaveCount = 1;
 
-            Seed = seed;
             CaveNoise = new Perlin();
-            TreeNoise = new Perlin();
             CaveNoise.Seed = (int)Seed + 3;
-            TreeNoise.Seed = (int)Seed + 4;
             rand = new Random((int)Seed);
 
             CaveNoise.Frequency = Frequency;
             CaveNoise.NoiseQuality = NoiseQuality;
-            CaveNoise.OctaveCount = OctaveCount+2;
+            CaveNoise.OctaveCount = OctaveCount + 2;
             CaveNoise.Lacunarity = Lacunarity;
             CaveNoise.Persistence = Persistance;
+        }
 
-            TreeNoise.Frequency = Frequency+2;
-            TreeNoise.NoiseQuality = NoiseQuality;
-            TreeNoise.OctaveCount = OctaveCount;
-            TreeNoise.Lacunarity = Lacunarity;
-            TreeNoise.Persistence = Persistance;
+        public DefaultMapGenerator(long seed):
+            this()
+        {
+            Seed = seed;
         }
 
         /// <summary>
@@ -101,16 +108,6 @@ namespace OpenMinecraft
             int ZH = (int)chunksize.Z;
             byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
             bool[, ,] cavemap = new bool[chunksize.X, chunksize.Y, chunksize.Z];
-            byte Sand=12;
-            byte Grass=2;
-            byte Soil=3;
-            byte Water=9;
-            if (HellMode)
-            {
-                Sand = 49; // Obsidian
-                Grass = Soil;
-                Water = 11; // Lava
-            }
             for (int z = 0; z < ZH; z++)
             {
                 for (int x = 0; x < chunksize.X; x++)
@@ -124,16 +121,13 @@ namespace OpenMinecraft
                         else
                         {
 
-                            double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * 2.0) + 1) / 2.0);
+                            double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * CaveDivisor) + 1) / 2.0);
                             bool d3 = _do > CaveThreshold;
                             // XOR?
                             if(z<=WaterHeight+7)//if (!(!d1 || !d2))
                             {
-                                //Console.Write("#");
                                 b[x, y, z] = (d3) ? b[x,y,z] : (byte)1;
                                 cavemap[x, y, z] = d3;
-                                //if (x == 0|| y == 0)
-                                //    b[x, y, z] = 41;
                             }
                             else if (z == 1)
                                 b[x, y, z] = 11;
@@ -141,136 +135,8 @@ namespace OpenMinecraft
                     }
                 }
             }
-            //Console.WriteLine("Done generating chunk.  [{0},{1}]",min,max);
-            // Add soil, sand
 
-            for (int x = 0; x < chunksize.X; x++)
-            {
-                //Console.WriteLine();
-                for (int y = 0; y < chunksize.Y; y++)
-                {
-                    bool HavePloppedGrass = false;
-                    bool HaveTouchedSoil = false;
-                    byte BlockForThisColumn = 0;
-                    for (int z = (int)chunksize.Z - 1; z > 0; z--)
-                    {
-                        if (b[x, y, z] == 1)
-                        {
-                            HaveTouchedSoil=true;
-                            if (z + DERT_DEPTH >= ZH)
-                                continue;
-                            byte ddt = b[x, y, z + DERT_DEPTH];
-                            switch (ddt)
-                            {
-                                case 0: // Air
-                                case 8: // Water
-                                case 9: // Water
-                                    if (BlockForThisColumn == 0)
-                                    {
-                                        if (z - DERT_DEPTH <= WaterHeight)
-                                        {
-                                            b[x, y, z] = Sand; // Sand
-                                            BlockForThisColumn = Sand;
-                                        }
-                                        else
-                                        {
-                                            b[x, y, z] = (HavePloppedGrass) ? Soil : Grass; // Dirt or grass
-                                            if (!HavePloppedGrass)
-                                            {
-                                                BlockForThisColumn = Soil;
-                                                HavePloppedGrass = true;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        b[x, y, z] = BlockForThisColumn;
-                                    }
-                                    break;
-                                default:
-                                    z = 0;
-                                    break;
-                            }
-                        }
-                        // Place water
-                        else if (b[x, y, z] == 0 && z <= WaterHeight && !HaveTouchedSoil)
-                        {
-                            b[x, y, z] = (cavemap[x,y,z]) ? Soil:Water;
-                        }
-                    }
-                }
-            }
-            for (int x = 0; x < chunksize.X; x++)
-            {
-                for (int y = 0; y < chunksize.Y; y++)
-                {
-                    int z = 1;
-                    // TODO Yell at Notch for not making Lava occlude. :|
-                    if (b[x, y, z] == 0)
-                        b[x, y, z] = 11; // Lava for air.
-                    else if (b[x, y, z] == 9)
-                        b[x, y, z] = 49; // Obsidian for underwater shit.
-                }
-            }
-            if (rand.Next(0, 10) == 0)
-            {
-                int DungeonTries = 128;
-                while (!Utils.MakeDungeon((int)X, (int)Y, ref b, ref mh, rand))
-                {
-                    //Console.WriteLine("Making dungeon...");
-                    if (DungeonTries-- == 0)
-                        break;
-                }
-            }
-            /*
-            int StillWater = 0;
-            int RunningWater = 0;
-            for (int z = 0; z < ZH; z++)
-            {
-                for (int x = 0; x < chunksize.X; x++)
-                {
-                    for (int y = 0; y < chunksize.Y; y++)
-                    {
-                        switch (b[x, y, z])
-                        {
-                            case 8:
-                                RunningWater++;
-                                break;
-                            case 9:
-                                StillWater++;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-            Console.WriteLine("{0} still water, {1} running water", StillWater, RunningWater);*/
-            AddTrees(ref b, (int)X, (int)Y, (int)chunksize.Z);
             return b;
-        }
-        public override void AddTrees(ref byte[, ,] b, int X, int Y, int H)
-        {
-            for (int t = 0; t < (int)(TreeNoise.GetValue(X, Y, 0) * 10.0); t++)
-            {
-                int _x = rand.Next(2, 13);
-                int _y = rand.Next(2, 13);
-                for (int z = (int)H - 2; z > 0; z--)
-                {
-                    switch (b[_x, _y, z])
-                    {
-                        case 0: // Air
-                            continue;
-                        case 2:
-                            Utils.GrowTree(ref b, rand, _x, _y, z + 1);
-                            break;
-                        case 51:
-                            Utils.GrowCactus(ref b, rand, _x, _y, z + 1);
-                            break;
-                        default: break;
-                    }
-                }
-            }
         }
         [Browsable(false)]
         public override bool GenerateCaves { get; set; }

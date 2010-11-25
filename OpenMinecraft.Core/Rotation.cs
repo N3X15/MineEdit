@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LibNbt.Tags;
+using System.ComponentModel;
 
 namespace OpenMinecraft
 {
@@ -15,6 +16,9 @@ namespace OpenMinecraft
          *  * TAG_Float[1]: The entity's declination from the horizon (called pitch). Horizontal is 0. Positive values look downward. Does not exceed positive or negative 90 degrees. 
          */
         private float mYaw;
+        private float mPitch;
+
+        [Description("Accumulated degrees of rotation.  0 = facing west.")]
         public float Yaw
         {
             get
@@ -23,10 +27,11 @@ namespace OpenMinecraft
             }
             set
             {
-                mYaw = value; // Degrees? Radians?
+                mYaw = value; // Degrees
             }
         }
-        private float mPitch;
+
+        [Description("Declination from the horizon.  Positive looks up, negative looks down. Does not exceed +/-90 degrees.")]
         public float Pitch
         {
             get

@@ -7,7 +7,7 @@ using LibNoise;
 
 namespace OpenMinecraft
 {
-    public class HillGenerator : IMapGenerator
+    public class QuickHillGenerator : IMapGenerator
     {
 
         protected long Seed;
@@ -18,14 +18,14 @@ namespace OpenMinecraft
         protected FastNoise ContinentNoise;
         protected Perlin CaveNoise;
         protected Perlin GravelNoise;
+        protected Perlin TreeNoise;
 
-        public double _CaveThreshold = 0.70d;
-        public int WaterHeight = 63;
-        public int DERT_DEPTH = 6;
-        double _TerrainDivisor = 0.33;
-        double _CaveDivisor = 2.0;
-        double HeightDivisor = 1.5;
-        private int ContinentNoiseOctaves;
+        public double mCaveThreshold = 0.70d;
+        public const int WaterHeight = 63;
+        public int MAX_DERT_DEPTH = 6;
+        double mTerrainDivisor = 0.33;
+        double mCaveDivisor = 2.0;
+        private int mContinentNoiseOctaves;
         private MapGenMaterials mMats;
 
         public double Frequency { get; set; }
@@ -46,31 +46,36 @@ namespace OpenMinecraft
                 mMats = value;
             }
         }
-        public double CaveThreshold { 
-            get { return _CaveThreshold; } 
-            set { _CaveThreshold=value; } 
-        }
-        [Description("Z-axis stretching of the terrain.  (z*TerrainDivisor)")]
-        public double TerrainDivisor 
+
+        public double CaveThreshold
         {
-            get { return _TerrainDivisor; }
-            set { _TerrainDivisor = value; }
+            get { return mCaveThreshold; }
+            set { mCaveThreshold = value; }
         }
+
+        [Description("Z-axis stretching of the terrain.  (z*TerrainDivisor)")]
+        public double TerrainDivisor
+        {
+            get { return mTerrainDivisor; }
+            set { mTerrainDivisor = value; }
+        }
+
         [Description("Z-axis stretching of cave systems.  (z*CaveDivisor)")]
         public double CaveDivisor
         {
-            get { return _CaveDivisor; }
-            set { _CaveDivisor = value; }
+            get { return mCaveDivisor; }
+            set { mCaveDivisor = value; }
         }
+
         public override string Name
         {
             get
             {
-                return "Default";
+                return "Quick Hills";
             }
         }
 
-        public HillGenerator()
+        public QuickHillGenerator()
         {
             Frequency = 0.03;
             ContinentNoiseFrequency = Frequency / 2.0;
@@ -79,22 +84,24 @@ namespace OpenMinecraft
             OctaveCount = 1;
         }
 
-        public HillGenerator(long seed)
+        public QuickHillGenerator(long seed)
         {
             Frequency = 0.01;
             Lacunarity = 0.01;
             Persistance = 0.01;
-            OctaveCount = ContinentNoiseOctaves = 1;
+            OctaveCount = mContinentNoiseOctaves = 1;
 
             Seed = seed;
             TerrainNoise = new FastNoise();
             ContinentNoise = new FastNoise();
             CaveNoise = new Perlin();
             GravelNoise = new Perlin();
+            TreeNoise = new Perlin();
             TerrainNoise.Seed = (int)Seed;
             ContinentNoise.Seed = (int)Seed + 2;
             CaveNoise.Seed = (int)Seed + 3;
             GravelNoise.Seed = (int)Seed + 4;
+            TreeNoise.Seed = (int)Seed + 4;
             rand = new Random((int)Seed);
 
 
@@ -106,7 +113,7 @@ namespace OpenMinecraft
 
             ContinentNoise.Frequency = ContinentNoiseFrequency;
             ContinentNoise.NoiseQuality = NoiseQuality;
-            ContinentNoise.OctaveCount = ContinentNoiseOctaves;
+            ContinentNoise.OctaveCount = mContinentNoiseOctaves;
             ContinentNoise.Lacunarity = Lacunarity;
             ContinentNoise.Persistence = Persistance;
 
@@ -121,6 +128,12 @@ namespace OpenMinecraft
             GravelNoise.OctaveCount = OctaveCount;
             GravelNoise.Lacunarity = Lacunarity;
             GravelNoise.Persistence = Persistance;
+
+            TreeNoise.Frequency = Frequency + 2;
+            TreeNoise.NoiseQuality = NoiseQuality;
+            TreeNoise.OctaveCount = OctaveCount;
+            TreeNoise.Lacunarity = Lacunarity;
+            TreeNoise.Persistence = Persistance;
         }
 
         /// <summary>
@@ -133,44 +146,43 @@ namespace OpenMinecraft
         /// <returns></returns>
         public override byte[, ,] Generate(ref IMapHandler mh, long X, long Y)
         {
-            /*Perlin p1 = new Perlin();
-            Perlin p2 = new Perlin();
-            Perlin CaveNoise = new Perlin();*/
             Vector3i chunksize = mh.ChunkScale;
             bool PlaceGravel = ((GravelNoise.GetValue((X * chunksize.X), (Y * chunksize.Y), 0) + 1) / 2.0) > 0.90d;
 
-            int ZH = (int)chunksize.Z;
+            int ZH = (int)chunksize.Z-2;
             byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
+            byte[,] hm = new byte[chunksize.X, chunksize.Y];
             for (int x = 0; x < chunksize.X; x++)
             {
                 for (int y = 0; y < chunksize.Y; y++)
                 {
-                    for (int z = 0; z < ZH; z++)
+                    double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d) / 3.0; // 2.0
+                    int height = (int)Utils.Clamp((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d + heightoffset)/2.5 *ZH,0,ZH);
+                    for (int z = 0; z < height; z++)
                     {
                         int intensity = z * (255 / ZH);
-                        double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d) / 3.0; // 2.0
                         //Console.WriteLine("HeightOffset {0}",heightoffset);
                         if (z == 0)
                             b[x, y, z] = 7;
-                        //else if (x == 0 && y == 0)
-                        //    b[x, y, z] = 1;
                         else
                         {
-                            bool d1 = ((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * TerrainDivisor) + 1) / 2.0) > System.Math.Pow((((double)z * (HeightDivisor + (heightoffset))) / (double)ZH), 100d); // 3d originally
+                            byte block = 9;
                             double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * CaveDivisor) + 1) / 2.0);
                             bool d3 = _do > CaveThreshold;
-                            if (d1)
-                            {
-                                b[x, y, z] = (d3) ? b[x, y, z] : (byte)1;
-                            }
-                            else if (z == 1)
-                                b[x, y, z] = 11;
+
+                            if (z == 1 && d3)
+                                block = 11;
+                            else
+                                block = (d3) ? b[x, y, z] : (byte)1;
+                            b[x, y, z] = block;
                         }
                     }
                 }
             }
+
             return b;
         }
+
 
         public override bool GenerateCaves
         {
