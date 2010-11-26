@@ -685,6 +685,7 @@ namespace OpenMinecraft
 			else
 				mChunks.Add(id,cnk);
 		}
+
 		public void SaveChunk(Chunk cnk)
 		{
 			NbtFile c = new NbtFile(cnk.Filename);
@@ -897,8 +898,8 @@ namespace OpenMinecraft
 			int X = px / 16;
 			int Y = py / 16;
 
-			int x = (px >> 4) & 0xf;// - (X * (int)ChunkScale.X);
-			int y = (py >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+			int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
 
 			Chunk c = GetChunk(X, Y);
 			if (c == null) return 0x00;
@@ -911,8 +912,8 @@ namespace OpenMinecraft
 			int X = _X / 16;
 			int Y = _Y / 16;
 
-			int x = (_X >> 4) & 0xf;// - (X * (int)ChunkScale.X);
-			int y = (_Y >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
+            int x = _X - ((_X >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = _Y - ((_Y >> 4) * ChunkY); //(py >> 4) & 0xf;
 
 			Chunk c = GetChunk(X, Y);
 			if (c == null) return;
@@ -925,8 +926,8 @@ namespace OpenMinecraft
 			int X = px / 16;
 			int Y = py / 16;
 
-			int x = (px >> 4) & 0xf;// - (X * (int)ChunkScale.X);
-			int y = (py >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
 
 			Chunk c = GetChunk(X, Y);
 			if (c == null) return;
@@ -939,8 +940,8 @@ namespace OpenMinecraft
 			int X = px / 16;
 			int Y = py / 16;
 
-			int x = (px >> 4) & 0xf;// - (X * (int)ChunkScale.X);
-			int y = (py >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
 
 			Chunk c = GetChunk(X, Y);
 			if (c == null) return;
@@ -953,8 +954,8 @@ namespace OpenMinecraft
 			int X = px / 16;
 			int Y = py / 16;
 
-			int x = (px >> 4) & 0xf;// - (X * (int)ChunkScale.X);
-			int y = (py >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
 
 			Chunk c = GetChunk(X, Y);
 			if (c == null) return;
@@ -1753,6 +1754,7 @@ namespace OpenMinecraft
             }
 
             SetChunk(c);
+            c.Save();
 
             // Spread light
             int numblocks = 16 * 16;
@@ -1771,7 +1773,7 @@ namespace OpenMinecraft
 
                         if (sky != 0 || block != 0)
                         {
-                            Console.Write((int)System.Math.Max(sky, block));
+                            Console.Write("{0},{1}",sky,block);
                             SpreadLight(absolute_x, block_y, absolute_z, sky, block);
                             Console.Write(" ");
                         }
@@ -1790,13 +1792,6 @@ namespace OpenMinecraft
 #if DEBUG
             //Console.WriteLine("spreadLight(x={0}, y={1}, z={2}, skylight={3}, blocklight={4})", x, y, z, skylight, blocklight);
 #endif
-            if (recurselevel == 17)
-                return false;
-
-            if (recurselevel != 0)
-            {
-                Console.WriteLine(recurselevel);
-            }
             byte block, stoplight;
 
             // If no light, stop!
