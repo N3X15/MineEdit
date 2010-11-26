@@ -890,7 +890,7 @@ namespace OpenMinecraft
 		{
 			return y * ChunkZ + x * ChunkZ * ChunkX + z;
 		}
-
+        
 
 		public byte GetBlockAt(int px, int py, int z)
 		{
@@ -905,6 +905,21 @@ namespace OpenMinecraft
 			return c.Blocks[x, y, z];
 		}
 
+		public void GetLightAt(int _X, int _Y, int _Z, out byte skyLight, out byte blockLight)
+		{
+            skyLight=blockLight=0;
+			int X = _X / 16;
+			int Y = _Y / 16;
+
+			int x = (_X >> 4) & 0xf;// - (X * (int)ChunkScale.X);
+			int y = (_Y >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
+
+			Chunk c = GetChunk(X, Y);
+			if (c == null) return;
+			skyLight=c.SkyLight[x, y, _Z];
+			blockLight=c.BlockLight[x, y, _Z];
+		}
+
 		public void SetBlockAt(int px, int py, int z, byte val)
 		{
 			int X = px / 16;
@@ -916,6 +931,34 @@ namespace OpenMinecraft
 			Chunk c = GetChunk(X, Y);
 			if (c == null) return;
 			c.Blocks[x, y, z] = val;
+			SetChunk(X, Y, c);
+		}
+
+		public void SetSkyLightAt(int px, int py, int z, byte val)
+		{
+			int X = px / 16;
+			int Y = py / 16;
+
+			int x = (px >> 4) & 0xf;// - (X * (int)ChunkScale.X);
+			int y = (py >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
+
+			Chunk c = GetChunk(X, Y);
+			if (c == null) return;
+			c.SkyLight[x, y, z] = val;
+			SetChunk(X, Y, c);
+		}
+
+		public void SetBlockLightAt(int px, int py, int z, byte val)
+		{
+			int X = px / 16;
+			int Y = py / 16;
+
+			int x = (px >> 4) & 0xf;// - (X * (int)ChunkScale.X);
+			int y = (py >> 4) & 0xf;// - (Y * (int)ChunkScale.Y);
+
+			Chunk c = GetChunk(X, Y);
+			if (c == null) return;
+			c.BlockLight[x, y, z] = val;
 			SetChunk(X, Y, c);
 		}
 
@@ -1632,6 +1675,196 @@ namespace OpenMinecraft
 				_Generator.Load(mFolder);
 			}
 		}
+
+        /// <summary>
+        /// Adapted from MineServer map.cpp
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
+        public bool RegenerateLighting(long x, long z)
+        {
+            Chunk c = GetChunk(x,z);
+            byte[,,] blocks = c.Blocks;
+            byte[,,] skylight = c.SkyLight;
+            byte[,,] blocklight = c.BlockLight;
+            int[,] heightmap = c.HeightMap;
+
+            int highest_y = 0;
+
+            // Clear lightmaps
+            skylight=new byte[16,16,128];
+            blocklight=new byte[16,16,128];
+
+            // Sky light
+            int light = 0;
+            bool foundheight = false;
+            for(int block_x = 0; block_x < 16; block_x++)
+            {
+                for(int block_z = 0; block_z < 16; block_z++)
+                {
+                    light = 15;
+                    foundheight = false;
+
+                    for(int block_y = 127; block_y > 0; block_y--)
+                    {
+                        int absolute_x = (int)x * 16 + block_x;
+                        int absolute_z = (int)z * 16 + block_z;
+                        byte block = blocks[block_x,block_z,block_y];
+                        byte stoplight = Blocks.Get(block).Stop;
+                        light -= stoplight;
+
+                        if ((stoplight > 0) && (foundheight == false)) 
+                        {
+                            heightmap[block_x,block_z] = ((block_y == 127) ? block_y : block_y + 1);
+                            foundheight = true;
+                        }
+
+                        if (light < 1) 
+                        {
+                            if (block_y > highest_y)
+                            highest_y = block_y;
+
+                            break;
+                        }
+
+                        c.SkyLight[block_x, block_z, block_y]=(byte)light;
+                    }
+                }
+            }
+
+            // Block light
+            for (int block_x = 0; block_x < 16; block_x++)
+            {
+                for (int block_z = 0; block_z < 16; block_z++)
+                {
+                    for (int block_y = highest_y; block_y >= 0; block_y--)
+                    {
+                        int absolute_x = (int)x * 16 + block_x;
+                        int absolute_z = (int)z * 16 + block_z;
+                        byte block = blocks[block_x,block_z,block_y];
+                        byte emitlight = Blocks.Get(block).Stop;
+
+                        // If light emitting block
+                        if(emitlight > 0)
+                            c.BlockLight[block_x,block_z,block_y]=emitlight;
+                    }
+                }
+            }
+
+            SetChunk(c);
+
+            // Spread light
+            int numblocks = 16 * 16;
+            for (int block_x = 0; block_x < 16; block_x++)
+            {
+                for (int block_z = 0; block_z < 16; block_z++)
+                {
+                    Console.WriteLine("{0},{1} - {2}%", block_x, block_z, ((float)((block_x * 16) + block_z) / (float)numblocks) * 100);
+                    for (int block_y = heightmap[block_x,block_z]; block_y >= 0; block_y--)
+                    {
+                        int absolute_x = (int)x * 16 + block_x;
+                        int absolute_z = (int)z * 16 + block_z;
+                        byte sky, block;
+
+                        GetLightAt(absolute_x, absolute_z, block_y, out sky, out block);
+
+                        if (sky != 0 || block != 0)
+                        {
+                            Console.Write((int)System.Math.Max(sky, block));
+                            SpreadLight(absolute_x, block_y, absolute_z, sky, block);
+                            Console.Write(" ");
+                        }
+                        else
+                            Console.Write(".");
+                    }
+                    Console.WriteLine();
+                }
+            }
+
+            return true;
+        }
+
+        bool SpreadLight(int x, int y, int z, int skylight, int blocklight, int recurselevel=0)
+        {
+#if DEBUG
+            //Console.WriteLine("spreadLight(x={0}, y={1}, z={2}, skylight={3}, blocklight={4})", x, y, z, skylight, blocklight);
+#endif
+            if (recurselevel == 17)
+                return false;
+
+            if (recurselevel != 0)
+            {
+                Console.WriteLine(recurselevel);
+            }
+            byte block, stoplight;
+
+            // If no light, stop!
+            if((skylight < 1) && (blocklight < 1))
+                return false;
+
+            for(int i = 0; i < 6; i++)
+            {
+                // Going too high
+                if((y == 127) && (i == 2))
+                    i++;
+                // going negative
+                if((y == 0) && (i == 3))
+                    i++;
+
+                int x_toset = x;
+                int y_toset = y;
+                int z_toset = z;
+
+                switch(i)
+                {
+                    case 0: x_toset++; break;
+                    case 1: x_toset--; break;
+                    case 2: y_toset++; break;
+                    case 3: y_toset--; break;
+                    case 4: z_toset++; break;
+                    case 5: z_toset--; break;
+                }
+
+                block = GetBlockAt(x_toset, z_toset, y_toset);
+                stoplight = Blocks.Get(block).Stop;
+
+                byte skylightCurrent, blocklightCurrent;
+                int skylightNew, blocklightNew;
+                bool spread = false;
+
+                skylightNew = skylight-stoplight-1;
+                if (skylightNew < 0)
+                    skylightNew = 0;
+
+                blocklightNew = blocklight-stoplight-1;
+                if (blocklightNew < 0)
+                    blocklightNew = 0;
+
+                GetLightAt(x_toset, z_toset, y_toset, out skylightCurrent, out blocklightCurrent);
+
+                if (skylightNew > skylightCurrent)
+                {
+                    skylightCurrent = (byte)skylightNew;
+                    spread = true;
+                }
+
+                if (blocklightNew > blocklightCurrent)
+                {
+                    blocklightCurrent = (byte)blocklightNew;
+                    spread = true;
+                }
+
+                if (spread)
+                {
+                    SetSkyLightAt(x_toset, z_toset, y_toset, skylightCurrent);
+                    SetBlockLightAt(x_toset, z_toset, y_toset, blocklightCurrent);
+                    SpreadLight(x_toset, y_toset, z_toset, skylightCurrent, blocklightCurrent,recurselevel+1);
+                }
+            }
+
+            return true;
+        }
 
 		public void ChunkModified(long x, long y)
 		{

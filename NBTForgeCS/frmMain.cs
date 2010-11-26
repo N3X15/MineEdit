@@ -1517,6 +1517,7 @@ namespace MineEdit
                         int NumSkipped=0;
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
                         {
+                            /*
                             Chunk c = (ActiveMdiChild as frmMap).Map.GetChunk(X, Y);
                             if (c == null)
                             {
@@ -1526,6 +1527,9 @@ namespace MineEdit
                             c.UpdateOverview();
                             c.RecalculateLighting();
                             c.Save();
+                            */
+                            (ActiveMdiChild as frmMap).Map.RegenerateLighting(X, Y);
+                            (ActiveMdiChild as frmMap).Map.Save();
                             dlt.CurrentTask= string.Format("Stripping lighting... ({0}/{1}, {2} skipped)", dlt.TasksComplete, dlt.TasksTotal, NumSkipped);
                         });
                         dlt.Done();

@@ -113,5 +113,6 @@ namespace OpenMinecraft
         void SetDimension(int p);
         IEnumerable<Dimension> GetDimensions();
 
+        bool RegenerateLighting(long X, long Z);
     }
 }
