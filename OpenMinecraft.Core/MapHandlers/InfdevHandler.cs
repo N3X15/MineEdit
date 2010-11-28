@@ -27,6 +27,8 @@ namespace OpenMinecraft
 		private const int ChunkY = 16;
         private const int ChunkZ = 128;
 
+        private bool mAutoRepair = false;
+
 		NbtFile mRoot = new NbtFile();
 		NbtFile mChunk = new NbtFile();
 		Dictionary<string, Chunk> mChunks = new Dictionary<string, Chunk>();
@@ -34,12 +36,18 @@ namespace OpenMinecraft
 		Dictionary<Guid, Entity> mEntities = new Dictionary<Guid, Entity>();
 		Dictionary<Guid, TileEntity> mTileEntities = new Dictionary<Guid, TileEntity>();
 
-		public string Filename {get;set;}
-		public int InventoryCapacity { get { return 9*4; } }
+        public string Filename { get; set; }
+        public int InventoryCapacity { get { return 9 * 4; } }
+        public int ChunksLoaded { get { return mChunks.Count; } }
 		public Vector3i ChunkScale { get { return new Vector3i(16, 16, 128); } }
 		public bool HasMultipleChunks { get { return true; } }
 		public Vector3i MapMin { get { return new Vector3i(-1000, -1000, 0); } }
 		public Vector3i MapMax { get { return new Vector3i(1000, 1000, 127); } }
+        public bool Autorepair
+        {
+            get { return mAutoRepair; }
+            set { mAutoRepair = value; }
+        }
 
 		public Vector3i Spawn
 		{
@@ -450,7 +458,7 @@ namespace OpenMinecraft
 				}
 
                 NbtList Entities = (NbtList)level["Entities"];
-                if(_DEBUG) Console.WriteLine("*** Found {0} Entities.",Entities.Tags.Count);
+                //if(_DEBUG) Console.WriteLine("*** Found {0} Entities.",Entities.Tags.Count);
 				if (Entities.Tags.Count > 0)
 				{
 					LoadEnts(ref c, (int)x, (int)z, Entities);
@@ -498,6 +506,11 @@ namespace OpenMinecraft
 			catch (Exception e)
 			{
 				string err = string.Format(" *** ERROR: Chunk {0},{1} ({2}) failed to load:\n\n{3}", x, z, c.Filename, e);
+                if (mAutoRepair)
+                {
+                    File.Delete(c.Filename);
+                    return null;
+                }
 				if(_DEBUG) Console.WriteLine(err);
 				if (CorruptChunk != null)
 					CorruptChunk(x,z,err, c.Filename);
@@ -726,7 +739,7 @@ namespace OpenMinecraft
 			{
 				for (int y = 0; y < 16; y++)
 				{
-					hm[y + (x * 16)] = (byte)cnk.HeightMap[x, y];
+                    hm[y + (x << 4)] = (byte)cnk.HeightMap[x, y];
 				}
 			}
 
@@ -761,15 +774,6 @@ namespace OpenMinecraft
 
 		public bool Save()
 		{
-			/*
-			foreach (KeyValuePair<string, byte[,,]> vp in Chunks)
-			{
-				string[] cc = vp.Key.Split(',');
-				int x = int.Parse(cc[0]);
-				int z = int.Parse(cc[1]);
-				SaveChunk(x, z, vp.Value);
-			}
-			*/
 			File.Copy(Filename, Path.ChangeExtension(Filename, "bak"),true);
 			mRoot.SaveFile(Filename);
 			return true;
@@ -933,35 +937,61 @@ namespace OpenMinecraft
 			if (c == null) return;
 			c.Blocks[x, y, z] = val;
 			SetChunk(X, Y, c);
-		}
+        }
 
-		public void SetSkyLightAt(int px, int py, int z, byte val)
-		{
-			int X = px / 16;
-			int Y = py / 16;
-
-            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
-            int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
-
-			Chunk c = GetChunk(X, Y);
-			if (c == null) return;
-			c.SkyLight[x, y, z] = val;
-			SetChunk(X, Y, c);
-		}
-
-		public void SetBlockLightAt(int px, int py, int z, byte val)
-		{
-			int X = px / 16;
-			int Y = py / 16;
+        public void SetSkyLightAt(int px, int py, int z, byte val)
+        {
+            int X = px / 16;
+            int Y = py / 16;
 
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
             int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
 
-			Chunk c = GetChunk(X, Y);
-			if (c == null) return;
-			c.BlockLight[x, y, z] = val;
-			SetChunk(X, Y, c);
-		}
+            Chunk c = GetChunk(X, Y);
+            if (c == null) return;
+            c.SkyLight[x, y, z] = val;
+            SetChunk(X, Y, c);
+        }
+
+        public void SetBlockLightAt(int px, int py, int z, byte val)
+        {
+            int X = px / 16;
+            int Y = py / 16;
+
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Y);
+            if (c == null) return;
+            c.BlockLight[x, y, z] = val;
+            SetChunk(X, Y, c);
+        }
+
+        public byte GetSkyLightAt(int px, int py, int z)
+        {
+            int X = px / 16;
+            int Y = py / 16;
+
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Y);
+            if (c == null) return 0;
+            return c.SkyLight[x, y, z];
+        }
+
+        public byte GetBlockLightAt(int px, int py, int z)
+        {
+            int X = px / 16;
+            int Y = py / 16;
+
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Y);
+            if (c == null) return 0;
+            return c.BlockLight[x, y, z];
+        }
 
 		private void SetChunk(int X, int Y, Chunk c)
 		{
@@ -990,7 +1020,7 @@ namespace OpenMinecraft
         {
             int total = 0;
             int chunksProcessed=0;
-            ForEachChunk(delegate(long X, long Z)
+            ForEachChunk(delegate(IMapHandler mh, long X, long Z)
             {
                 total += ExpandFluids(X, Z, fluidID, CompleteRegen);
                 ph(-1, ++chunksProcessed);
@@ -1569,7 +1599,7 @@ namespace OpenMinecraft
 				cmd(k.Value.Position.X, k.Value.Position.Y, k.Value);
 			}
 		}
-		public void ForEachChunk(Chunk.ChunkModifierDelegate cmd)
+		public void ForEachChunk(ChunkIteratorDelegate cmd)
 		{
 			string[] f = Directory.GetFiles(mFolder,"c*.*.dat",SearchOption.AllDirectories);
 			int Complete=0;
@@ -1589,7 +1619,7 @@ namespace OpenMinecraft
                     long x = (Level["xPos"] as NbtInt).Value;
                     long y = (Level["zPos"] as NbtInt).Value;
                     nf.Dispose();
-                    cmd(x, y);
+                    cmd(this, x, y);
                 }
                 catch (Exception e)
                 {
@@ -1677,6 +1707,51 @@ namespace OpenMinecraft
 			}
 		}
 
+        private void AddLightSourceAt(int _x, int _y, int _z, int strength)
+        {
+            Console.WriteLine("AddLightSourceAt(x={0},y={1},z={2},strength={3});", _x, _y, _z, strength);
+            int written = 0;
+            // 15 light
+            // Loss of 1 light per block + STOP value
+            // 15.5 block radius = 31 block diameter = 31 block bounding box
+            for (int x = 0; x < (strength * 2) + 1; ++x)
+            {
+                for (int y = 0; y < (strength * 2) + 1; ++y)
+                {
+                    for (int z = 0; z < (strength * 2) + 1; ++z)
+                    {
+                        int absolute_x=x+strength+_x-1;
+                        int absolute_y=y+strength+_y-1;
+                        int absolute_z=z+strength+_z-1;
+
+                        if (absolute_z < 0 || absolute_z > 128)
+                            continue;
+
+                        int d = Vector3i.Distance(new Vector3i(_x, _y, _z),new Vector3i(absolute_x, absolute_y, absolute_z));
+
+                        byte block = GetBlockAt(absolute_x, absolute_y, absolute_z);
+                        Block b = Blocks.Get(block);
+
+                        int light = strength - d - b.Stop;
+                        if (light < 0) light = 0;
+
+                        // If we're not adding anything, go see if there's any blocks that will.
+                        if (light == 0) continue;
+                        
+                        // If the current light value in this block is brighter than what we're putting in, don't bother.
+                        byte blight = GetBlockLightAt(absolute_x, absolute_y, absolute_z);
+                        if (blight >= light) continue;
+
+                        // Yay, add shit.
+                        SetBlockLightAt(absolute_x, absolute_y, absolute_z, (byte)light);
+                        written++;
+                    }
+                }
+            }
+            //SaveAll();
+            Console.WriteLine("{0} blocks lighted.", written);
+        }
+
         /// <summary>
         /// Adapted from MineServer map.cpp
         /// </summary>
@@ -1685,17 +1760,16 @@ namespace OpenMinecraft
         /// <returns></returns>
         public bool RegenerateLighting(long x, long z)
         {
-            Chunk c = GetChunk(x,z);
-            byte[,,] blocks = c.Blocks;
-            byte[,,] skylight = c.SkyLight;
-            byte[,,] blocklight = c.BlockLight;
-            int[,] heightmap = c.HeightMap;
+#if DEBUG
+//            printf("generateLight(x=%d, z=%d, chunk=%p)\n", x, z, chunk);
+#endif
+            Chunk chunk = GetChunk(x, z);
+            byte[,,] blocks = chunk.Blocks;
+            byte[, ,] skylight = new byte[16, 16, 128];//chunk.SkyLight;
+            byte[, ,] blocklight = new byte[16, 16, 128];//chunk.BlockLight;
+            byte[,] heightmap = new byte[16, 16]; //chunk.HeightMap;
 
             int highest_y = 0;
-
-            // Clear lightmaps
-            skylight=new byte[16,16,128];
-            blocklight=new byte[16,16,128];
 
             // Sky light
             int light = 0;
@@ -1709,15 +1783,20 @@ namespace OpenMinecraft
 
                     for(int block_y = 127; block_y > 0; block_y--)
                     {
-                        int absolute_x = (int)x * 16 + block_x;
-                        int absolute_z = (int)z * 16 + block_z;
+                        int absolute_x = (int)x*16+block_x;
+                        int absolute_z = (int)z*16+block_z;
                         byte block = blocks[block_x,block_z,block_y];
-                        byte stoplight = Blocks.Get(block).Stop;
-                        light -= stoplight;
 
-                        if ((stoplight > 0) && (foundheight == false)) 
+                        int stopLight = Blocks.Get(block).Stop;
+                        int emitLight = Blocks.Get(block).Emit;
+
+                        light -= stopLight;
+                        if (light < 0) { light = 0; }
+
+                        // Calculate heightmap while looping this
+                        if ((stopLight > 0) && (foundheight == false)) 
                         {
-                            heightmap[block_x,block_z] = ((block_y == 127) ? block_y : block_y + 1);
+                            heightmap[block_x,block_z] = (byte)((block_y == 127) ? block_y : block_y + 1);
                             foundheight = true;
                         }
 
@@ -1729,11 +1808,11 @@ namespace OpenMinecraft
                             break;
                         }
 
-                        c.SkyLight[block_x, block_z, block_y]=(byte)light;
+                        SetSkyLightAt(absolute_x, absolute_z, block_y, (byte)light);
                     }
                 }
             }
-
+  
             // Block light
             for (int block_x = 0; block_x < 16; block_x++)
             {
@@ -1741,58 +1820,53 @@ namespace OpenMinecraft
                 {
                     for (int block_y = highest_y; block_y >= 0; block_y--)
                     {
-                        int absolute_x = (int)x * 16 + block_x;
-                        int absolute_z = (int)z * 16 + block_z;
+                        int absolute_x = (int)x*16+block_x;
+                        int absolute_z = (int)z*16+block_z;
                         byte block = blocks[block_x,block_z,block_y];
-                        byte emitlight = Blocks.Get(block).Stop;
+
+                        int stopLight = Blocks.Get(block).Stop;
+                        int emitLight = Blocks.Get(block).Emit;
 
                         // If light emitting block
-                        if(emitlight > 0)
-                            c.BlockLight[block_x,block_z,block_y]=emitlight;
+                        if (emitLight > 0)
+                        {
+                            //SetBlockLightAt(absolute_x, absolute_z, block_y, (byte)emitLight);
+                            AddLightSourceAt(absolute_x, absolute_z, block_y, emitLight);
+                        }
                     }
                 }
             }
-
-            SetChunk(c);
-            c.Save();
-
+  
+            /*
             // Spread light
-            int numblocks = 16 * 16;
             for (int block_x = 0; block_x < 16; block_x++)
             {
                 for (int block_z = 0; block_z < 16; block_z++)
                 {
-                    Console.WriteLine("{0},{1} - {2}%", block_x, block_z, ((float)((block_x * 16) + block_z) / (float)numblocks) * 100);
                     for (int block_y = heightmap[block_x,block_z]; block_y >= 0; block_y--)
                     {
                         int absolute_x = (int)x * 16 + block_x;
                         int absolute_z = (int)z * 16 + block_z;
-                        byte sky, block;
 
-                        GetLightAt(absolute_x, absolute_z, block_y, out sky, out block);
+                        byte skylight_s, blocklight_s;
 
-                        if (sky != 0 || block != 0)
-                        {
-                            Console.Write("{0},{1}",sky,block);
-                            SpreadLight(absolute_x, block_y, absolute_z, sky, block);
-                            Console.Write(" ");
-                        }
-                        else
-                            Console.Write(".");
+                        GetLightAt(absolute_x, absolute_z, block_y, out skylight_s, out blocklight_s);
+
+                        if (skylight_s!=0 || blocklight_s!=0)
+                            SpreadLight(absolute_x, block_y, absolute_z, skylight_s, blocklight_s);
                     }
-                    Console.WriteLine();
                 }
             }
-
+            */
+            SaveAll();
             return true;
         }
 
         bool SpreadLight(int x, int y, int z, int skylight, int blocklight, int recurselevel=0)
         {
-#if DEBUG
-            //Console.WriteLine("spreadLight(x={0}, y={1}, z={2}, skylight={3}, blocklight={4})", x, y, z, skylight, blocklight);
-#endif
-            byte block, stoplight;
+
+            byte block,stopLight,emitLight;
+            Block meta;
 
             // If no light, stop!
             if((skylight < 1) && (blocklight < 1))
@@ -1802,10 +1876,10 @@ namespace OpenMinecraft
             {
                 // Going too high
                 if((y == 127) && (i == 2))
-                    i++;
+                i++;
                 // going negative
                 if((y == 0) && (i == 3))
-                    i++;
+                i++;
 
                 int x_toset = x;
                 int y_toset = y;
@@ -1822,39 +1896,45 @@ namespace OpenMinecraft
                 }
 
                 block = GetBlockAt(x_toset, z_toset, y_toset);
-                stoplight = Blocks.Get(block).Stop;
+                meta = Blocks.Get(block);
+                stopLight = meta.Stop;
+                emitLight = meta.Emit;
 
-                byte skylightCurrent, blocklightCurrent;
-                int skylightNew, blocklightNew;
-                bool spread = false;
+                if (true)
+                {
+                    byte skylightCurrent, blocklightCurrent;
+                    int skylightNew, blocklightNew;
+                    bool spread = false;
 
-                skylightNew = skylight-stoplight-1;
-                if (skylightNew < 0)
+                    skylightNew = skylight-stopLight-1;
+                    if (skylightNew < 0)
                     skylightNew = 0;
 
-                blocklightNew = blocklight-stoplight-1;
-                if (blocklightNew < 0)
+                    blocklightNew = blocklight-stopLight-1;
+                    if (blocklightNew < 0)
                     blocklightNew = 0;
 
-                GetLightAt(x_toset, z_toset, y_toset, out skylightCurrent, out blocklightCurrent);
+                    GetLightAt(x_toset, z_toset, y_toset, out skylightCurrent, out blocklightCurrent);
 
-                if (skylightNew > skylightCurrent)
-                {
-                    skylightCurrent = (byte)skylightNew;
-                    spread = true;
-                }
+                    if (skylightNew > skylightCurrent)
+                    {
+                        skylightCurrent = (byte)skylightNew;
+                        spread = true;
+                    }
 
-                if (blocklightNew > blocklightCurrent)
-                {
-                    blocklightCurrent = (byte)blocklightNew;
-                    spread = true;
-                }
+                    if (blocklightNew > blocklightCurrent)
+                    {
+                        blocklightCurrent = (byte)blocklightNew;
+                        spread = true;
+                    }
 
-                if (spread)
-                {
-                    SetSkyLightAt(x_toset, z_toset, y_toset, skylightCurrent);
-                    SetBlockLightAt(x_toset, z_toset, y_toset, blocklightCurrent);
-                    SpreadLight(x_toset, y_toset, z_toset, skylightCurrent, blocklightCurrent,recurselevel+1);
+                    if (spread)
+                    {
+                        SetSkyLightAt(x_toset, z_toset, y_toset, skylightCurrent);
+                        SetBlockLightAt(x_toset, z_toset, y_toset, blocklightCurrent);
+
+                        SpreadLight(x_toset, y_toset, z_toset, skylightCurrent, blocklightCurrent, recurselevel+1);
+                    }
                 }
             }
 
@@ -1885,5 +1965,53 @@ namespace OpenMinecraft
             mDimension = ID;
             UnloadChunks();
         }
-	}
+
+        public int GetHeightAt(int px, int py)
+        {
+            int X = px / 16;
+            int Y = py / 16;
+
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = py - ((py >> 4) * ChunkY); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Y);
+            return c.HeightMap[x, y];
+        }
+
+
+        public void SaveAll()
+        {
+            lock(mChunks)
+            {
+                foreach (Chunk c in mChunks.Values)
+                {
+                    c.Save();
+                }
+
+                // CULL, CULL LIKE NO TOMORROW
+                mChunks.Clear();
+                mChangedChunks.Clear();
+                mEntities.Clear();
+                mTileEntities.Clear();
+            }
+        }
+
+
+        public void SetChunk(long X, long Y, Chunk c)
+        {
+            SetChunk((int)X, (int)Y, c);
+        }
+
+
+        public void CullUnchanged()
+        {
+            List<string> chunkKeys = new List<string>(mChunks.Keys);
+            foreach (string k in chunkKeys)
+            {
+                if (!mChangedChunks.Contains(k))
+                    mChunks.Remove(k);
+            }
+            mChangedChunks.Clear();
+        }
+    }
 }

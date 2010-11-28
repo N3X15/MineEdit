@@ -293,54 +293,6 @@ namespace OpenMinecraft
         }
 
         // Shitty. Shitty. Shitty.
-        public static byte[, ,] RecalcLighting(Chunk c, bool Sky)
-        {
-
-            byte[, ,] blocklight = c.BlockLight;
-            for (int i = 0; i < 15; i++)
-            {
-                for (int x = 0; x < c.Size.X; x++)
-                {
-                    for (int y = 0; y < c.Size.Y; y++)
-                    {
-                        for (int z = 0; z < c.Size.Z; z++)
-                        {
-                            byte me = blocklight[x, y, z];
-                            // SUNLIGHT
-                            if (Sky)
-                            {
-                                if (c.HeightMap[x, y] <= z)
-                                    me = (byte)(15 - c.WaterDepth[x,y]);
-                            }
-                            else
-                            {
-                                if (IsLightSource(c.Blocks[x, y, z]))
-                                    me = GetLightLevel(c.Blocks[x, y, z]);
-                            }
-                            // Get brightest neighbor
-                            if (x < c.Size.X - 1 && me < blocklight[x + 1, y, z])
-                                me = blocklight[x + 1, y, z];
-                            if (y < c.Size.Y - 1 && me < blocklight[x, y + 1, z])
-                                me = blocklight[x, y + 1, z];
-                            if (z < c.Size.Z - 1 && me < blocklight[x, y, z + 1])
-                                me = blocklight[x, y, z + 1];
-                            if (x > 0 && me < blocklight[x - 1, y, z])
-                                me = blocklight[x - 1, y, z];
-                            if (y > 0 && me < blocklight[x, y - 1, z])
-                                me = blocklight[x, y - 1, z];
-                            if (z > 0 && me < blocklight[x, y, z - 1])
-                                me = blocklight[x, y, z - 1];
-                            // Drop 1 level of light ( WHAT ABOUT SQUARE LAW :| )
-                            me--;
-                            if (me < 0) me = 0;
-                            if (me > 15) me = 15;
-                            blocklight[x, y, z] = me;
-                        }
-                    }
-                }
-            }
-            return blocklight;
-        }
 
         private static byte GetLightLevel(byte p)
         {

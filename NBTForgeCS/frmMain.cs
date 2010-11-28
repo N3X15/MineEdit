@@ -543,42 +543,42 @@ namespace MineEdit
             // newWindowToolStripMenuItem
             // 
             this.newWindowToolStripMenuItem.Name = "newWindowToolStripMenuItem";
-            this.newWindowToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.newWindowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.newWindowToolStripMenuItem.Text = "&New Window";
             this.newWindowToolStripMenuItem.Click += new System.EventHandler(this.ShowNewForm);
             // 
             // cascadeToolStripMenuItem
             // 
             this.cascadeToolStripMenuItem.Name = "cascadeToolStripMenuItem";
-            this.cascadeToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.cascadeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.cascadeToolStripMenuItem.Text = "&Cascade";
             this.cascadeToolStripMenuItem.Click += new System.EventHandler(this.CascadeToolStripMenuItem_Click);
             // 
             // tileVerticalToolStripMenuItem
             // 
             this.tileVerticalToolStripMenuItem.Name = "tileVerticalToolStripMenuItem";
-            this.tileVerticalToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.tileVerticalToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.tileVerticalToolStripMenuItem.Text = "Tile &Vertical";
             this.tileVerticalToolStripMenuItem.Click += new System.EventHandler(this.TileVerticalToolStripMenuItem_Click);
             // 
             // tileHorizontalToolStripMenuItem
             // 
             this.tileHorizontalToolStripMenuItem.Name = "tileHorizontalToolStripMenuItem";
-            this.tileHorizontalToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.tileHorizontalToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.tileHorizontalToolStripMenuItem.Text = "Tile &Horizontal";
             this.tileHorizontalToolStripMenuItem.Click += new System.EventHandler(this.TileHorizontalToolStripMenuItem_Click);
             // 
             // closeAllToolStripMenuItem
             // 
             this.closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
-            this.closeAllToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.closeAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.closeAllToolStripMenuItem.Text = "C&lose All";
             this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItem_Click);
             // 
             // arrangeIconsToolStripMenuItem
             // 
             this.arrangeIconsToolStripMenuItem.Name = "arrangeIconsToolStripMenuItem";
-            this.arrangeIconsToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.arrangeIconsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.arrangeIconsToolStripMenuItem.Text = "&Arrange Icons";
             this.arrangeIconsToolStripMenuItem.Click += new System.EventHandler(this.ArrangeIconsToolStripMenuItem_Click);
             // 
@@ -1309,7 +1309,7 @@ namespace MineEdit
                                     dlt.TasksTotal = Total;
                                     dlt.TasksComplete = Progress;
                                 });
-                                (ActiveMdiChild as frmMap).Map.ForEachChunk(new Chunk.ChunkModifierDelegate(delegate(long x, long y)
+                                (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler mh, long x, long y)
                                 {
                                     if (dlt.STOP) return;
                                     dlt.CurrentTask = string.Format("Deleting chunk ({0},{1})...", x, y); 
@@ -1321,7 +1321,7 @@ namespace MineEdit
                                     dlt.SubtasksComplete = 1;
                                     File.Delete(c.Filename);
                                     dlt.SubtasksComplete = 2;
-                                }));
+                                });
                                 dlt.Done();
                                 MessageBox.Show("Done.");
                             });
@@ -1421,7 +1421,7 @@ namespace MineEdit
                             dlt.TasksTotal = Total;
                             dlt.TasksComplete = Progress;
                         });
-                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
+                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
                         {
                             if (dlt.STOP) return;
                             dlt.SubtasksComplete = 0;
@@ -1488,10 +1488,8 @@ namespace MineEdit
             {
                 if ((ActiveMdiChild as frmMap).Map != null)
                 {
-                    Profiler profSky = new Profiler("Sky Lighting");
-                    Profiler profBlock = new Profiler("Block Lighting");
                     tsbStatus.Text = "Waiting for user response lol";
-                    DialogResult dr = MessageBox.Show("MineEdit will remove lighting data from all chunks, forcing a lighting recalculation (according to advice from Notch, anyway).\n\nThis will inevitably take a long time.  ARE YOU SURE?", "DO YOU HAVE THE PATIENCE", MessageBoxButtons.YesNo);
+                    DialogResult dr = MessageBox.Show("MineEdit will try and recalculate lighting GLOBALLY using a shitty custom algorithm.\n\nThis will inevitably take a long time.  ARE YOU SURE?", "DO YOU HAVE THE PATIENCE", MessageBoxButtons.YesNo);
                     if (dr == DialogResult.No)
                     {
                         ResetStatus();
@@ -1500,42 +1498,65 @@ namespace MineEdit
                     dlgLongTask dlt = new dlgLongTask();
                     dlt.Start(delegate()
                     {
+                        ShittyLighter lighter = new ShittyLighter();
                         dlt.VocabSubtask = "Chunk";
                         dlt.VocabSubtasks = "Chunks";
-                        dlt.Title = "Stripping lighting from chunks.";
+                        dlt.Title = "Relighting Map";
                         dlt.Subtitle = "This will take a while.  Go take a break.";
                         dlt.SetMarquees(false, false);
-                        dlt.CurrentTask = "Replacing stuff in chunks...";
+                        dlt.CurrentTask = "Relighting...";
                         dlt.TasksComplete = 0;
                         dlt.TasksTotal = 1;
                         dlt.SubtasksTotal = 1;
-                        (ActiveMdiChild as frmMap).Map.ForEachProgress += new ForEachProgressHandler(delegate(int Total, int Progress)
+
+                        IMapHandler mh = (ActiveMdiChild as frmMap).Map;
+                        ForEachProgressHandler FEPH = new ForEachProgressHandler(delegate(int Total, int Progress)
                         {
                             dlt.TasksTotal = Total;
                             dlt.TasksComplete = Progress;
-                        });
-                        int NumSkipped=0;
-                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(long X, long Y)
-                        {
-                            /*
-                            Chunk c = (ActiveMdiChild as frmMap).Map.GetChunk(X, Y);
-                            if (c == null)
+
+                            dlt.CurrentSubtask = "Changed chunks in-memory:";
+                            dlt.SubtasksComplete = mh.ChunksLoaded;
+                            dlt.SubtasksTotal = 200;
+                            if (mh.ChunksLoaded>200)
                             {
-                                ++NumSkipped;
-                                return;
+                                string ot = dlt.CurrentTask;
+                                Console.WriteLine("****SAVING****");
+                                dlt.CurrentTask = "[Saving to avoid overusing RAM]";
+                                (ActiveMdiChild as frmMap).Map.SaveAll();
+                                dlt.CurrentTask = ot;
                             }
-                            c.UpdateOverview();
-                            c.RecalculateLighting();
-                            c.Save();
-                            */
-                            (ActiveMdiChild as frmMap).Map.RegenerateLighting(X, Y);
-                            (ActiveMdiChild as frmMap).Map.Save();
-                            dlt.CurrentTask= string.Format("Stripping lighting... ({0}/{1}, {2} skipped)", dlt.TasksComplete, dlt.TasksTotal, NumSkipped);
+                            (ActiveMdiChild as frmMap).Map.CullUnchanged();
                         });
+
+                        /*
+                        dlt.CurrentTask = "Relighting ...";
+                        mh.ForEachProgress += FEPH;
+                        mh.ForEachChunk(delegate(IMapHandler _map,long X, long Y)
+                        {
+                            _map.RegenerateLighting(X, Y);
+                        });
+                        */
+                        // Skylight
+                        dlt.CurrentTask = "Skylight...";
+                        mh.ForEachProgress += FEPH;
+                        lighter.SkylightGlobal(ref mh);
+                        mh.SaveAll();
+
+                        // Blocklight
+                        dlt.CurrentTask = "Relighting (BlockLight)...";
+                        mh.ForEachProgress += FEPH;
+                        lighter.BlocklightGlobal(ref mh);
+                        mh.SaveAll();
+
+                        (ActiveMdiChild as frmMap).Map = mh;
                         dlt.Done();
                     });
+
+                    (ActiveMdiChild as frmMap).Map.Autorepair = true;
                     dlt.ShowDialog();
-                    MessageBox.Show("Lighting stripped from "+dlt.TasksComplete+" chunks.", "Report");
+                    (ActiveMdiChild as frmMap).Map.Autorepair = false;
+                    MessageBox.Show("Lighting regenerated for "+dlt.TasksComplete+" chunks.", "Report");
                     //(ActiveMdiChild as frmMap).Enabled = true;
                     (ActiveMdiChild as frmMap).ReloadAll();
                     ResetStatus();

@@ -428,7 +428,7 @@ namespace MineEdit
                     dlt.TasksTotal = Total;
                     dlt.TasksComplete = Progress;
                 });
-                Map.ForEachChunk(delegate(long X, long Y)
+                Map.ForEachChunk(delegate(IMapHandler mh, long X, long Y)
                 {
                     if (dlt.STOP) return;
                     Chunk c = Map.GetChunk(X, Y);

@@ -645,7 +645,7 @@ namespace MineEdit
                 dlt.CurrentTask = "Counting chunks...";
                 dlt.Start(delegate()
                 {
-                    _Map.ForEachChunk(delegate(long X, long Y)
+                    _Map.ForEachChunk(delegate(IMapHandler mh, long X, long Y)
                     {
                         if (dlt.STOP) return;
                         ++dlt.TasksTotal;
@@ -657,7 +657,7 @@ namespace MineEdit
                     {
                         durr.Add(derp.Key, derp.Value);
                     }
-                    _Map.ForEachChunk(delegate(long X, long Y)
+                    _Map.ForEachChunk(delegate(IMapHandler mh, long X, long Y)
                     {
                         if (dlt.STOP) return;
 

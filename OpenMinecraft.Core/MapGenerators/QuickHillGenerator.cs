@@ -157,7 +157,7 @@ namespace OpenMinecraft
                 for (int y = 0; y < chunksize.Y; y++)
                 {
                     double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d) / 3.0; // 2.0
-                    int height = (int)Utils.Clamp((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d + heightoffset)/2.5 *ZH,0,ZH);
+                    int height = (int)Utils.Clamp((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d + heightoffset)/10 * ZH + ZH/2,0,ZH);
                     for (int z = 0; z < height; z++)
                     {
                         int intensity = z * (255 / ZH);

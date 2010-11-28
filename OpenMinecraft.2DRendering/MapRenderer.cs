@@ -33,7 +33,7 @@ namespace OpenMinecraft.Rendering2D
                 Img = new Bitmap(HS, HS);
                 Minimum = new Vector2i(0, 0);
                 Maximum = new Vector2i(1, 1);
-                Map.ForEachChunk(delegate(long X, long Y)
+                Map.ForEachChunk(delegate(IMapHandler mh, long X, long Y)
                 {
                     Chunk c = Map.GetChunk(X, Y);
                     if (c == null) return;

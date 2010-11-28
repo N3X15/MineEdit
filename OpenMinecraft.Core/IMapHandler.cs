@@ -13,6 +13,7 @@ namespace OpenMinecraft
         Legs,
         Boots
     }
+    public delegate void ChunkIteratorDelegate(IMapHandler me, long X, long Y);
     public delegate void CorruptChunkHandler(long X, long Y, string error, string file);
     public delegate void ForEachProgressHandler(int Total, int Complete);
 	public delegate void CachedChunkDelegate(long x, long y,Chunk c);
@@ -81,7 +82,7 @@ namespace OpenMinecraft
 
         int HurtTime { get; set; }
 
-        void ForEachChunk(Chunk.ChunkModifierDelegate cmd);
+        void ForEachChunk(ChunkIteratorDelegate cmd);
         void ForEachCachedChunk(CachedChunkDelegate cmd);
 
         void BeginTransaction();
@@ -114,5 +115,22 @@ namespace OpenMinecraft
         IEnumerable<Dimension> GetDimensions();
 
         bool RegenerateLighting(long X, long Z);
+        void GetLightAt(int _X, int _Y, int _Z, out byte skyLight, out byte blockLight);
+        void SetSkyLightAt(int px, int py, int z, byte val);
+        void SetBlockLightAt(int px, int py, int z, byte val);
+        byte GetSkyLightAt(int px, int py, int z);
+        byte GetBlockLightAt(int px, int py, int z);
+
+        int GetHeightAt(int x, int y);
+
+        void SaveAll();
+
+        bool Autorepair { get; set; }
+
+        int ChunksLoaded { get; }
+
+        void SetChunk(long X, long Y, Chunk c);
+
+        void CullUnchanged();
     }
 }

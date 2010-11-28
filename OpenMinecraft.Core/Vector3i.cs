@@ -45,6 +45,26 @@ namespace OpenMinecraft
             return string.Format("<{0},{1},{2}>",X,Y,Z);
         }
 
+        public static int Distance(Vector3i v1, Vector3i v2)
+        {
+            if (v1 == null || v2 == null) return int.MaxValue;
+            int x = (int)(v1.X - v2.X);
+            int y = (int)(v1.Y - v2.Y);
+            int z = (int)(v1.Z - v2.Z);
+            return Isqrt(x * x + y * y + z * z);
+        }
+        private static int Isqrt(int num)
+        {
+            if (0 == num) { return 0; }  // Avoid zero divide
+            int n = (num / 2) + 1;       // Initial estimate, never low
+            int n1 = (n + (num / n)) / 2;
+            while (n1 < n)
+            {
+                n = n1;
+                n1 = (n + (num / n)) / 2;
+            } // end while
+            return n;
+        }
         public static double Distance(Vector3d v1, Vector3d v2)
         {
             if (v1 == null || v2 == null) return double.MaxValue;
