@@ -464,12 +464,12 @@ namespace MineEdit
             // 
             this.numDamage.Location = new System.Drawing.Point(80, 81);
             this.numDamage.Maximum = new decimal(new int[] {
-            9999,
+            32678,
             0,
             0,
             0});
             this.numDamage.Minimum = new decimal(new int[] {
-            9999,
+            32678,
             0,
             0,
             -2147483648});

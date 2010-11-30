@@ -225,10 +225,10 @@ namespace MineEdit
             if (_Map != null)
             {
                 this.Text = this._Map.Filename;
-                numHealth.Value = (decimal)Utils.Clamp(_Map.Health,0,9999);
+                numHealth.Value = (decimal)Utils.Clamp(_Map.Health,0,short.MaxValue);
                 numFire.Value = (decimal)Utils.Clamp(_Map.Fire,-200,900);
                 PlayerPos = _Map.PlayerPos;
-                numAir.Value = Utils.Clamp(_Map.Air,0,9999);
+                numAir.Value = Utils.Clamp(_Map.Air,0,short.MaxValue);
                 numHurtTime.Value = Utils.Clamp(_Map.HurtTime,0,9999);
                 LockApplyCancel();
 
