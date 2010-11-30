@@ -100,7 +100,7 @@
         <Match pattern="*.cs" recurse="true">
 			<Exclude pattern="Tests" />
 		</Match>
-        <Match pattern="*.resx" recurse="true" />
+        <!--<Match pattern="*.resx" recurse="true" />-->
 		<Match pattern="*.png" path="Resources" recurse="false" buildAction="EmbeddedResource" />
       </Files>
     </Project>
@@ -232,7 +232,7 @@
       <Reference name="log4net.dll"/>
       <Files>
         <Match pattern="*.cs" recurse="true" />
-        <Match pattern="*.resx" recurse="true" />
+        <!--<Match pattern="*.resx" recurse="true" />-->
 		<Match pattern="*.*" path="Resources" recurse="false" buildAction="EmbeddedResource" />
       </Files>
     </Project>
