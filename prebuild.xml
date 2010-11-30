@@ -93,7 +93,7 @@
       <Reference name="System.Drawing"/>
       <Reference name="System.Core"/>
       <Reference name="LibNoise"/>
-      <Reference name="LibNbt"/>
+      <Reference name="LibNBT"/>
       <Reference name="System.Windows.Forms"/> <!-- Updater control -->
       <Reference name="log4net.dll"/>
       <Files>
@@ -228,7 +228,7 @@
       <Reference name="OpenTK"/>
       <Reference name="OpenTK.Compatibility"/>
       <Reference name="OpenTK.GLControl"/>
-      <Reference name="LibNbt"/>
+      <Reference name="LibNBT"/>
       <Reference name="log4net.dll"/>
       <Files>
         <Match pattern="*.cs" recurse="true" />
