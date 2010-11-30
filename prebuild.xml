@@ -67,7 +67,7 @@
       <ReferencePath>../../bin/</ReferencePath>
       <Reference name="System"/>
       <Reference name="LibNBT"/>
-      <Reference name="NUnit.Framework"/>
+      <Reference name="nunit.framework.dll"/>
       <Reference name="log4net.dll"/>
       <Files>
         <Match path="LibNbt.Test" pattern="*.cs" recurse="true" />
@@ -122,7 +122,7 @@
       <Reference name="System"/>
       <Reference name="LibNBT"/>
       <Reference name="OpenMinecraft.Core"/>
-      <Reference name="NUnit.Framework"/>
+      <Reference name="nunit.framework.dll"/>
       <Reference name="log4net.dll"/>
       <Files>
         <Match pattern="*.cs" recurse="true" />
