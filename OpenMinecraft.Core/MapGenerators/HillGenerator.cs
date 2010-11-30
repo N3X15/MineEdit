@@ -144,14 +144,14 @@ namespace OpenMinecraft
                 {
                     for (int y = 0; y < YH; y++)
                     {
-                        int intensity = z * (255 / YH);
+                        int intensity = y * (255 / YH);
                         double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), 0, z + (Z * chunksize.Z)) + 1d) / 3.0; // 2.0
-                        bool d1 = ((TerrainNoise.GetValue(x + (X * chunksize.X), y * TerrainDivisor, z + (Z * chunksize.Y)) + 1) / 2.0) > System.Math.Pow((((double)z * (HeightDivisor + (heightoffset))) / (double)YH), 100d); // 3d originally
-                        double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y * CaveDivisor, z + (Z * chunksize.Y)) + 1) / 2.0);
+                        bool d1 = ((TerrainNoise.GetValue(x + (X * chunksize.X), y * TerrainDivisor, z + (Z * chunksize.Z)) + 1) / 2.0) > System.Math.Pow((((double)z * (HeightDivisor + (heightoffset))) / (double)YH), 100d); // 3d originally
+                        double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y * CaveDivisor, z + (Z * chunksize.Z)) + 1) / 2.0);
                         bool d3 = _do > CaveThreshold;
                         if (d1)
                         {
-                            b[x, y, z] = (d3) ? b[x, y, z] : (byte)1;
+                            b[x, y, z] = (d3) ? (byte)0 : (byte)1;
                             // If in water...
                             if (d3 && (b[x, y, z] == 8 || b[x, y, z] == 9))
                             {

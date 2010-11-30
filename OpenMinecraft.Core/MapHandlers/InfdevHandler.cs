@@ -671,13 +671,13 @@ namespace OpenMinecraft
 
 			// BLOCKS /////////////////////////////////////////////////////
 			byte[] blocks = new byte[ChunkX * ChunkZ * ChunkY];
-			for (int X = 0; X < ChunkX; X++)
+			for (int x = 0; x < ChunkX; x++)
 			{
-				for (int Y = 0; Y < ChunkY; Y++)
+				for (int y = 0; y < ChunkY; y++)
 				{
-					for (int Z = 0; Z < ChunkZ; Z++)
+					for (int z = 0; z < ChunkZ; z++)
 					{
-						blocks[GetBlockIndex(X, Y, Z)] = cnk.Blocks[X, Y, Z];
+						blocks[GetBlockIndex(x, y, z)] = cnk.Blocks[x, y, z];
 					}
 				}
 			}
@@ -869,8 +869,11 @@ namespace OpenMinecraft
 
 		private int GetBlockIndex(int x, int y, int z)
 		{
-			//return z * ChunkY + x * ChunkY * ChunkX + y;
-            return y + (z * ChunkY + (x * ChunkY * ChunkZ));
+			//return y * ChunkY + x * ChunkY * ChunkX + z;
+            //return y + (z * ChunkY + (x * ChunkY * ChunkZ)); // WIKI LIES
+            //return z * ChunkY + x * ChunkY * ChunkX + y;  
+            //return y + (z * 128) + (x * 128 * 16);
+            return x << 11 | z << 7 | y;
 		}
         
 
@@ -1145,9 +1148,9 @@ namespace OpenMinecraft
             _Generator.AddTrees(ref b, ref treeNoise, ref rand, (int)X, (int)Z, (int)ChunkY);
 
 			_c.Blocks = b;
-			_c.UpdateOverview();
-			SetChunk(_c);
+            _c.UpdateOverview();
             _c.Save();
+			SetChunk(_c);
 			File.WriteAllText(lockfile, "");
 		}
 

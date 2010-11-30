@@ -22,5 +22,13 @@ namespace OpenMinecraft
         public byte Gravel=13;
         public byte Water=9;
         public byte Lava=11;
+
+        public override string ToString()
+        {
+            return string.Format("Rock=0x{0:X2}", Rock) +
+                string.Format("Soil=0x{0:X2}", Soil) +
+                string.Format("Grass=0x{0:X2}", Grass) +
+                string.Format("Sand=0x{0:X2}", Sand);
+        }
     }
 }

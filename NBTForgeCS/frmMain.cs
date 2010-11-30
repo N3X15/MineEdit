@@ -1449,8 +1449,12 @@ namespace MineEdit
                         //}
                         dlt.SubtasksComplete++;
                         (ActiveMdiChild as frmMap).Map = mh;
+                        dlt.CurrentSubtask = "SAVING CHUNKS";
+                        dlt.SetMarquees(true, true);
+                        mh.SaveAll();
+                        dlt.SetMarquees(false,false);
                         dlt.Done();
-                        ShowReport();
+                        ClearReport();
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
                     });
                     dlt.ShowDialog();

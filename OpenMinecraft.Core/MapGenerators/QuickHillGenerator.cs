@@ -20,7 +20,7 @@ namespace OpenMinecraft
         protected Perlin GravelNoise;
         protected Perlin TreeNoise;
 
-        public double mCaveThreshold = 0.70d;
+        public double mCaveThreshold = 0.85d;
         public const int WaterHeight = 63;
         public int MAX_DERT_DEPTH = 6;
         double mTerrainDivisor = 0.33;
@@ -78,7 +78,7 @@ namespace OpenMinecraft
         public QuickHillGenerator()
         {
             Frequency = 0.03;
-            ContinentNoiseFrequency = Frequency / 2.0;
+            ContinentNoiseFrequency = 0.5;
             Lacunarity = 0.01;
             Persistance = 0.01;
             OctaveCount = 1;
@@ -141,45 +141,50 @@ namespace OpenMinecraft
         /// http://github.com/N3X15/VoxelSim
         /// </summary>
         /// <param name="X"></param>
-        /// <param name="Y"></param>
+        /// <param name="Z"></param>
         /// <param name="chunksize"></param>
         /// <returns></returns>
-        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Y)
+        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Z)
         {
             Vector3i chunksize = mh.ChunkScale;
-            bool PlaceGravel = ((GravelNoise.GetValue((X * chunksize.X), (Y * chunksize.Y), 0) + 1) / 2.0) > 0.90d;
+            bool PlaceGravel = ((GravelNoise.GetValue((X * chunksize.X), (Z * chunksize.Z), 0) + 1) / 2.0) > 0.90d;
 
-            int ZH = (int)chunksize.Z-2;
+            int YH = (int)chunksize.Y-2;
             byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
             byte[,] hm = new byte[chunksize.X, chunksize.Y];
+            int minHeight = (int)chunksize.Y;
             for (int x = 0; x < chunksize.X; x++)
             {
-                for (int y = 0; y < chunksize.Y; y++)
+                for (int z = 0; z < chunksize.Z; z++)
                 {
-                    double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d) / 3.0; // 2.0
-                    int height = (int)Utils.Clamp((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d + heightoffset)/10 * ZH + ZH/2,0,ZH);
-                    for (int z = 0; z < height; z++)
+                    double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), 0) + 1d) / 3.0; // 2.0
+                    int height = (int)Utils.Clamp((TerrainNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), 0) + 1d + heightoffset)/10 * YH + YH/2,0,YH);
+                    if (height < minHeight) minHeight = height;
+                    for (int y = 0; y < chunksize.Y; y++)
                     {
-                        int intensity = z * (255 / ZH);
+                        int intensity = y * (255 / YH);
                         //Console.WriteLine("HeightOffset {0}",heightoffset);
-                        if (z == 0)
-                            b[x, y, z] = 7;
-                        else
-                        {
-                            byte block = 9;
-                            double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * CaveDivisor) + 1) / 2.0);
-                            bool d3 = _do > CaveThreshold;
 
-                            if (z == 1 && d3)
+                        // If below height, set rock.  Otherwise, set air.
+                        byte block = (y <= height) ? (byte)1 : (byte)0; //Fill
+                        block=(y <= 63) ? (byte)9 : block; // Water
+                        double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), y * CaveDivisor) + 1) / 2.0);
+                        bool d3 = _do > CaveThreshold;
+
+                        if(d3)
+                        {
+                            if (y == 1)
                                 block = 11;
-                            else
-                                block = (d3) ? b[x, y, z] : (byte)1;
-                            b[x, y, z] = block;
+                            else if (y <= 63) 
+                                block= 3;
                         }
+                        //else
+                        //    block = (d3) ? b[x, y, z] : (byte)1;
+                        b[x, y, z] = block;
                     }
                 }
             }
-
+            //Console.WriteLine("Generate (Quick): {0}", minHeight);
             return b;
         }
 
