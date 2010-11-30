@@ -45,20 +45,20 @@ namespace OpenMinecraft.Rendering2D
         private void Render(Chunk c)
         {
             int x = (int)c.Position.X;
-            int y = (int)c.Position.Y;
+            int z = (int)c.Position.Z;
             int HS = (int)Map.ChunkScale.X;
-            if (x < Minimum.X || y < Minimum.Y || x < Maximum.X || y < Maximum.Y)
+            if (x < Minimum.X || z < Minimum.Y || x < Maximum.X || z < Maximum.Y)
             {
                 // Find how much bigger it needs to be
                 int XShift;
                 int YShift;
-                if(x < Minimum.X || y < Minimum.Y)
+                if(x < Minimum.X || z < Minimum.Y)
                 {
                     XShift=x-Minimum.X;
-                    YShift=y-Minimum.Y;
+                    YShift=z-Minimum.Y;
                 } else {
                     XShift=x-Maximum.X;
-                    YShift=y-Maximum.Y;
+                    YShift=z-Maximum.Y;
                 }
                 XShift*=HS;
                 YShift*=HS;

@@ -32,6 +32,13 @@ namespace OpenMinecraft
             this.Z = (long)z;
         }
 
+        public Vector3i(Vector3i a)
+        {
+            this.X = a.X;
+            this.Y = a.Y;
+            this.Z = a.Z;
+        }
+
         public static Vector3i operator +(Vector3i a, Vector3i b)
         {
             a.X += b.X;

@@ -128,43 +128,35 @@ namespace OpenMinecraft
         /// http://github.com/N3X15/VoxelSim
         /// </summary>
         /// <param name="X"></param>
-        /// <param name="Y"></param>
+        /// <param name="Z"></param>
         /// <param name="chunksize"></param>
         /// <returns></returns>
-        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Y)
+        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Z)
         {
-            /*Perlin p1 = new Perlin();
-            Perlin p2 = new Perlin();
-            Perlin CaveNoise = new Perlin();*/
             Vector3i chunksize = mh.ChunkScale;
-            bool PlaceGravel = ((GravelNoise.GetValue((X * chunksize.X), (Y * chunksize.Y), 0) + 1) / 2.0) > 0.90d;
+            bool PlaceGravel = ((GravelNoise.GetValue((X * chunksize.X), (Z * chunksize.Z), 0) + 1) / 2.0) > 0.90d;
 
-            int ZH = (int)chunksize.Z;
+            int YH = (int)chunksize.Y;
             byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
             for (int x = 0; x < chunksize.X; x++)
             {
-                for (int y = 0; y < chunksize.Y; y++)
+                for (int z = 0; z < chunksize.Z; z++)
                 {
-                    for (int z = 0; z < ZH; z++)
+                    for (int y = 0; y < YH; y++)
                     {
-                        int intensity = z * (255 / ZH);
-                        double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), 0) + 1d) / 3.0; // 2.0
-                        //Console.WriteLine("HeightOffset {0}",heightoffset);
-                        if (z == 0)
-                            b[x, y, z] = 7;
-                        //else if (x == 0 && y == 0)
-                        //    b[x, y, z] = 1;
-                        else
+                        int intensity = z * (255 / YH);
+                        double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), 0, z + (Z * chunksize.Z)) + 1d) / 3.0; // 2.0
+                        bool d1 = ((TerrainNoise.GetValue(x + (X * chunksize.X), y * TerrainDivisor, z + (Z * chunksize.Y)) + 1) / 2.0) > System.Math.Pow((((double)z * (HeightDivisor + (heightoffset))) / (double)YH), 100d); // 3d originally
+                        double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y * CaveDivisor, z + (Z * chunksize.Y)) + 1) / 2.0);
+                        bool d3 = _do > CaveThreshold;
+                        if (d1)
                         {
-                            bool d1 = ((TerrainNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * TerrainDivisor) + 1) / 2.0) > System.Math.Pow((((double)z * (HeightDivisor + (heightoffset))) / (double)ZH), 100d); // 3d originally
-                            double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * CaveDivisor) + 1) / 2.0);
-                            bool d3 = _do > CaveThreshold;
-                            if (d1)
+                            b[x, y, z] = (d3) ? b[x, y, z] : (byte)1;
+                            // If in water...
+                            if (d3 && (b[x, y, z] == 8 || b[x, y, z] == 9))
                             {
-                                b[x, y, z] = (d3) ? b[x, y, z] : (byte)1;
+                                b[x, y, z] = 1;
                             }
-                            else if (z == 1)
-                                b[x, y, z] = 11;
                         }
                     }
                 }

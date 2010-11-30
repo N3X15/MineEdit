@@ -224,43 +224,43 @@ namespace OpenMinecraft
         static void GrowTreeTrunk(ref byte[,,] b, Random r, int x, int y, int z, int height)
         {
             if (
-                z + height > b.GetLength(2) - 1 ||
                 x + 2 > b.GetLength(0) - 1 ||
-                y + 2 > b.GetLength(1) - 1)
+                z + 2 > b.GetLength(2) - 1 ||
+                y + height > b.GetLength(1) - 1)
                 return;
             if (
-                z - height < 0 ||
                 x - 2 < 0 ||
-                y - 2 < 0)
+                z - 2 < 0 ||
+                y - height < 0)
                 return;
-            for(int i=0;i<height;i++)
-	            b[x,y,z+i]=17;
+            for (int i = 0; i < height; i++)
+                b[x, y + i, z] = 17;
         }
         // From NBTForge.
-        static void GrowTreeFoliage(ref byte[, ,] b, Random r, int x, int y, int _z, int height)
+        static void GrowTreeFoliage(ref byte[, ,] b, Random r, int x, int _y, int z, int height)
         {
-            _z = _z + height - 1;
+            z = z + height - 1;
             if (
-                _z + 2 > b.GetLength(2) - 1 ||
                 x + 2 > b.GetLength(0) - 1 ||
-                y + 2 > b.GetLength(1) - 1)
+                z + 2 > b.GetLength(2) - 1 ||
+                _y + 2 > b.GetLength(1) - 1)
                 return;
             if (
-                _z - 2 < 0 ||
                 x - 2 < 0 ||
-                y - 2 < 0)
+                z - 2 < 0 ||
+                _y - 2 < 0)
                 return;
             /*
              Note, foliage will disintegrate if there is no foliage below, or
 	        if there is no "log" block within range 2 (square) at the same level or
 	        one level below
              */
-	        int astart = _z - 2;
-	        int aend = _z + 2;
+	        int astart = _y - 2;
+	        int aend = _y + 2;
 	        int rad;
-            for (int z = astart; z < aend; z++)
+            for (int y = astart; y < aend; z++)
             {
-                if (z > astart + 1)
+                if (y > astart + 1)
                     rad = 1;
                 else
                     rad = 2;
@@ -272,10 +272,10 @@ namespace OpenMinecraft
                         {
                             if (//Math.Abs(xoff) == Math.Abs(zoff)
                                Math.Abs(xoff) <= rad ||
-                               Math.Abs(yoff) <= rad
+                               Math.Abs(zoff) <= rad
                             )
                             {
-                                b[x + xoff, y + yoff, z] = 18;
+                                b[x + xoff, y, z + zoff] = 18;
                             }
                         }
                     }
@@ -347,40 +347,41 @@ namespace OpenMinecraft
         }
 
         /// <summary>
-        /// Gen a dungeon
+        /// Generate a chunk
         /// </summary>
-        /// <param name="CX">Chunk X pos</param>
-        /// <param name="CY">Chunk Y pos</param>
-        /// <param name="CH">Chunk Horizontal Scale</param>
-        /// <param name="b"></param>
-        /// <param name="mh"></param>
-        /// <param name="r"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
+        /// <param name="CX">Chunk X</param>
+        /// <param name="CZ">Chunk Z</param>
+        /// <param name="b">Blocks</param>
+        /// <param name="mh">Map handler</param>
+        /// <param name="r">Random</param>
         /// <returns></returns>
-        public static bool MakeDungeon(int CX, int CY, ref byte[, ,] b, ref IMapHandler mh, Random r)
+        public static bool MakeDungeon(int CX, int CZ, ref byte[, ,] b, ref IMapHandler mh, Random r)
         {
 
             int CH = (int)mh.ChunkScale.X;
-            int CV = (int)mh.ChunkScale.Z;
+            int CV = (int)mh.ChunkScale.Y;
             int x = r.Next(0+DungeonSizeX-1, CH-DungeonSizeX+1);
-            int y = r.Next(0+DungeonSizeY-1, CH-DungeonSizeY+1);
-            int z = r.Next(0+DungeonSizeZ-1, CV-DungeonSizeZ+1);
+            int y = r.Next(0+DungeonSizeY-1, CV-DungeonSizeY+1);
+            int z = r.Next(0+DungeonSizeZ-1, CH-DungeonSizeZ+1);
             
-            Vector3i position = new Vector3i(x,y,z);
+            Vector3i position = mh.Local2Global(CX,CZ,new Vector3i(x,y,z));
             //Console.WriteLine("Creating dungeon in {0}...", position);
+
             if (!CheckForDungeonSpace(b, x, y, z)) return false;
+
             Vector3i size = new Vector3i((DungeonSizeX*2)+1,(DungeonSizeY*2)+1,(DungeonSizeZ*2)+1);
-            FillRect(ref b, 0, position, size);
-            MakeDungeonWalls(ref b, r, position, size);
+            Vector3i sizeAir = new Vector3i(size.X-1,size.Y-1,size.Z-1);
+
+            FillRect(ref b, 48, position, size); // Do walls (RANDOMIZE)
+            FillRect(ref b, 0, position, sizeAir); // Add air
+
             MobSpawner ms = new MobSpawner();
             ms.Delay=20;
             ms.EntityId=Entity.GetRandomMonsterID(r);
-            ms.Pos=new Vector3i(x+(int)(CX*CH), y+(int)(CY*CH), z-DungeonSizeZ+1);
+            ms.Pos = mh.Local2Global(CX,CZ,new Vector3i(x, y - DungeonSizeZ + 1, z));
             ms.UUID = Guid.NewGuid();
             mh.SetTileEntity(ms);
-            b[x, y, z - DungeonSizeZ + 1]=52;
+            b[x, y - DungeonSizeZ + 1, z] = 52;
             return true;
         }
 #endregion
@@ -388,33 +389,33 @@ namespace OpenMinecraft
         private static bool ObjectIsInChunk(byte[, ,] b, Vector3i position, Vector3i size)
         {
             int ChunkX = b.GetLength(0);
-            int ChunkY = b.GetLength(1);
-            int ChunkZ = b.GetLength(2);
+            int ChunkZ = b.GetLength(1);
+            int ChunkY = b.GetLength(2);
             if ((position.X - (size.X/2)) < 0 ||
                 (position.Y - (size.Y/2)) < 0 ||
                 (position.Z - (size.Z/2)) < 0)
             {
-                //Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkY, ChunkZ);
+                //Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkZ, ChunkY);
                 return false;
             }
 
             if ((position.X + (size.X/2)) > ChunkX - 1 ||
-                (position.Y + (size.Y/2)) > ChunkY - 1 ||
-                (position.Z + (size.Z/2)) > ChunkZ - 1)
+                (position.Y + (size.Y/2)) > ChunkZ - 1 ||
+                (position.Z + (size.Z/2)) > ChunkY - 1)
             {
-                //Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkY, ChunkZ);
+                //Console.WriteLine("Object with size {0} @ {1} is not within the chunk of size {2},{3},{4}", position, size, ChunkX, ChunkZ, ChunkY);
                 return false;
             }
                 
-            //Console.WriteLine("Object with size {0} @ {1} is within the chunk of size {2},{3},{4}",position,size,ChunkX,ChunkY,ChunkZ);
+            //Console.WriteLine("Object with size {0} @ {1} is within the chunk of size {2},{3},{4}",position,size,ChunkX,ChunkZ,ChunkY);
             return true;
         }
 
         private static bool ObjectIsIntersectingWithGround(byte[, ,] b, Vector3i position, Vector3i size)
         {
             int ChunkX = b.GetLength(0);
-            int ChunkY = b.GetLength(1);
-            int ChunkZ = b.GetLength(2);
+            int ChunkZ = b.GetLength(1);
+            int ChunkY = b.GetLength(2);
 
             for (int x = (int)(position.X - (size.X / 2)); x < (position.X + (size.X / 2)); x++)
             {
@@ -437,15 +438,15 @@ namespace OpenMinecraft
         private static bool ObjectIsCompletelyUnderground(byte[, ,] b, Vector3i position, Vector3i size)
         {
             int ChunkX = b.GetLength(0);
-            int ChunkY = b.GetLength(1);
-            int ChunkZ = b.GetLength(2);
+            int ChunkZ = b.GetLength(1);
+            int ChunkY = b.GetLength(2);
             for (int x = (int)(position.X - (size.X/2)); x < (position.X + (size.X/2)); x++)
             {
                 for (int y = (int)(position.Y - (size.Y/2)); y < (position.Y + (size.Y/2)); y++)
                 {
                     int wd = 0;
                     bool IsUndergroundSoFar=false;
-                    for (int z = ChunkZ-1; z > (position.Z + (size.Z/2)); z--)
+                    for (int z = ChunkY-1; z > (position.Z + (size.Z/2)); z--)
                     {
                         if (b[x, y, z] == 8 || b[x, y, z] == 9)
                         {

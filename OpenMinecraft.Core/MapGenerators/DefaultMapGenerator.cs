@@ -98,39 +98,44 @@ namespace OpenMinecraft
         /// http://github.com/N3X15/VoxelSim
         /// </summary>
         /// <param name="X"></param>
-        /// <param name="Y"></param>
+        /// <param name="Z"></param>
         /// <param name="chunksize"></param>
         /// <returns></returns>
-        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Y)
+        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Z)
         {
             Vector3i chunksize = mh.ChunkScale;
 
-            int ZH = (int)chunksize.Z;
+            int YH = (int)chunksize.Y;
             byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
             bool[, ,] cavemap = new bool[chunksize.X, chunksize.Y, chunksize.Z];
-            for (int z = 0; z < ZH; z++)
+            for (int y = 0; y < YH; y++)
             {
                 for (int x = 0; x < chunksize.X; x++)
                 {
-                    for (int y = 0; y < chunksize.Y; y++)
+                    for (int z = 0; z < chunksize.Z; y++)
                     {
                         //Console.WriteLine("HeightOffset {0}",heightoffset);
                         cavemap[x, y, z] = false;
-                        if (z == 0)
+                        if (y == 0)
                             b[x, y, z] = 7; // Adminite layer
+                        else if (y == 1)
+                            b[x, y, z] = 11;
                         else
                         {
 
-                            double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Y * chunksize.Y), z * CaveDivisor) + 1) / 2.0);
+                            double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), y + (Z * chunksize.Y), z * CaveDivisor) + 1) / 2.0);
                             bool d3 = _do > CaveThreshold;
-                            // XOR?
                             if(z<=WaterHeight+7)//if (!(!d1 || !d2))
                             {
+                                // If in water...
+                                if (d3 && (b[x, y, z] == 8 || b[x, y, z] == 9))
+                                {
+                                    b[x, y, z] = 1;
+                                }
                                 b[x, y, z] = (d3) ? b[x,y,z] : (byte)1;
                                 cavemap[x, y, z] = d3;
                             }
-                            else if (z == 1)
-                                b[x, y, z] = 11;
+                            // Sand setup
                         }
                     }
                 }

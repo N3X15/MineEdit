@@ -132,5 +132,7 @@ namespace OpenMinecraft
         void SetChunk(long X, long Y, Chunk c);
 
         void CullUnchanged();
+
+        Vector3i Local2Global(int CX, int CZ, Vector3i vector3i);
     }
 }

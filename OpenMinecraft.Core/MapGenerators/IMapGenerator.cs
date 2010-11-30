@@ -40,11 +40,11 @@ namespace OpenMinecraft
         public abstract void Save(string Folder);
         public abstract void Load(string Folder);
 
-        public virtual void AddTrees(ref byte[, ,] b, ref Perlin TreeNoise, ref Random rand, int X, int Y, int H)
+        public virtual void AddTrees(ref byte[, ,] b, ref Perlin TreeNoise, ref Random rand, int X, int Z, int H)
         {
             List<Vector2i> PlantedTrees = new List<Vector2i>();
             int DistanceReqd = 3;
-            for (int t = 0; t < (int)(TreeNoise.GetValue(X, Y, 0) * 10.0); t++)
+            for (int t = 0; t < (int)(TreeNoise.GetValue(X, 0, Z) * 10.0); t++)
             {
                 Vector2i me = new Vector2i(rand.Next(2, 13),rand.Next(2, 13));
 
@@ -57,31 +57,33 @@ namespace OpenMinecraft
                         break;
                     }
                 }
+
                 if (tooclose) continue;
-                for (int z = (int)H - 2; z > 0; z--)
+                for (int y = (int)H - 2; y > 0; y--)
                 {
-                    switch (b[me.X, me.Y, z])
+                    switch (b[me.X, y, me.Y])
                     {
                         case 0: // Air
                             continue;
                         case 2:
-                            Utils.GrowTree(ref b, rand, me.X, me.Y, z + 1);
+                            Utils.GrowTree(ref b, rand, me.X, y + 1, me.Y);
                             break;
                         case 51:
-                            Utils.GrowCactus(ref b, rand, me.X, me.Y, z + 1);
+                            Utils.GrowCactus(ref b, rand, me.X, y + 1, me.Y);
                             break;
                         default: break;
                     }
                 }
+                PlantedTrees.Add(me);
             }
         }
-        public virtual void AddDungeon(ref byte[, ,] b, ref IMapHandler mh, Random rand, long X, long Y)
+        public virtual void AddDungeons(ref byte[, ,] b, ref IMapHandler mh, Random rand, long X, long Z)
         {
             if (!this.GenerateDungeons) return;
             if (rand.Next(0, 100) == 0)
             {
                 int DungeonTries = 128;
-                while (!Utils.MakeDungeon((int)X, (int)Y, ref b, ref mh, rand))
+                while (!Utils.MakeDungeon((int)X, (int)Z, ref b, ref mh, rand))
                 {
                     //Console.WriteLine("Making dungeon...");
                     if (DungeonTries-- == 0)

@@ -543,42 +543,42 @@ namespace MineEdit
             // newWindowToolStripMenuItem
             // 
             this.newWindowToolStripMenuItem.Name = "newWindowToolStripMenuItem";
-            this.newWindowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newWindowToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.newWindowToolStripMenuItem.Text = "&New Window";
             this.newWindowToolStripMenuItem.Click += new System.EventHandler(this.ShowNewForm);
             // 
             // cascadeToolStripMenuItem
             // 
             this.cascadeToolStripMenuItem.Name = "cascadeToolStripMenuItem";
-            this.cascadeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.cascadeToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.cascadeToolStripMenuItem.Text = "&Cascade";
             this.cascadeToolStripMenuItem.Click += new System.EventHandler(this.CascadeToolStripMenuItem_Click);
             // 
             // tileVerticalToolStripMenuItem
             // 
             this.tileVerticalToolStripMenuItem.Name = "tileVerticalToolStripMenuItem";
-            this.tileVerticalToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.tileVerticalToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.tileVerticalToolStripMenuItem.Text = "Tile &Vertical";
             this.tileVerticalToolStripMenuItem.Click += new System.EventHandler(this.TileVerticalToolStripMenuItem_Click);
             // 
             // tileHorizontalToolStripMenuItem
             // 
             this.tileHorizontalToolStripMenuItem.Name = "tileHorizontalToolStripMenuItem";
-            this.tileHorizontalToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.tileHorizontalToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.tileHorizontalToolStripMenuItem.Text = "Tile &Horizontal";
             this.tileHorizontalToolStripMenuItem.Click += new System.EventHandler(this.TileHorizontalToolStripMenuItem_Click);
             // 
             // closeAllToolStripMenuItem
             // 
             this.closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
-            this.closeAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.closeAllToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.closeAllToolStripMenuItem.Text = "C&lose All";
             this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItem_Click);
             // 
             // arrangeIconsToolStripMenuItem
             // 
             this.arrangeIconsToolStripMenuItem.Name = "arrangeIconsToolStripMenuItem";
-            this.arrangeIconsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.arrangeIconsToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.arrangeIconsToolStripMenuItem.Text = "&Arrange Icons";
             this.arrangeIconsToolStripMenuItem.Click += new System.EventHandler(this.ArrangeIconsToolStripMenuItem_Click);
             // 
@@ -945,34 +945,32 @@ namespace MineEdit
             }
         }
 
-        public frmReport BrokenShit = new frmReport();
+        List<string> BrokenChunks = new List<string>();
         void OnCorruptChunk(long X, long Y, string error, string file)
         {
-            /*
-            DialogResult dr = MessageBox.Show("A chunk is corrupt.  Would you like to delete and regenerate it?\n\n"+error, "Corrupt chunk!", MessageBoxButtons.YesNo);
-            if (dr == DialogResult.Yes)
-            {
-                File.Delete(file);
-                MessageBox.Show(file + " deleted!");
-            }
-            */
-
-            BrokenShit.AddError(X, Y, "This chunk is corrupt.  Fixing will completely delete it.\n" + error, delegate(long x, long y)
-            {
-                File.Delete(file);
-                return true;
-            });
+            BrokenChunks.Add(file);
         }
 
         public void ShowReport()
         {
-            if (BrokenShit.Errors > 0 || BrokenShit.Warnings > 0)
-                BrokenShit.ShowDialog();
+            if (BrokenChunks.Count > 0)
+            {
+                DialogResult dr = MessageBox.Show(string.Format("{0} chunks are broken.  Fixing them requires removing them completely so that Minecraft can regenerate them.\n\nDo you want MineEdit to attempt to remove these broken chunks? ALL DATA ON THESE CHUNKS ARE LOST.", BrokenChunks.Count), "Broken chunks", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                if (dr == System.Windows.Forms.DialogResult.Yes)
+                {
+                    foreach (string file in BrokenChunks)
+                        File.Delete(file);
+                }
+                else
+                {
+                    Environment.Exit(0);
+                }
+            }
         }
 
         public void ClearReport()
         {
-            BrokenShit.Clear();
+            BrokenChunks.Clear();
         }
 
         private bool GetFileHandler(string FileName, out IMapHandler mh)
@@ -1149,6 +1147,7 @@ namespace MineEdit
                 if ((ActiveMdiChild as frmMap).Map != null)
                 {
                     (ActiveMdiChild as frmMap).Map.Health = 100;
+                    (ActiveMdiChild as frmMap).Map.Save();
                 }
             }
         }
@@ -1387,21 +1386,6 @@ namespace MineEdit
                     dlgLongTask dlt = new dlgLongTask();
                     dlt.Start(delegate()
                     {
-                        ///////////////////////////////////////////////////////////////
-                        // Set up corrupt chunk handlers.
-                        ///////////////////////////////////////////////////////////////
-                        (ActiveMdiChild as frmMap).Map.CorruptChunk -= OnCorruptChunk;
-                        frmReport report = new frmReport();
-                        CorruptChunkHandler cch = delegate(long X, long Y, string error, string file)
-                        {
-                            //Console.WriteLine(file);
-                            report.AddError(X, Y, error, delegate(long x, long y)
-                            {
-                                File.Delete(file);
-                                return true;
-                            });
-                        };
-                        (ActiveMdiChild as frmMap).Map.CorruptChunk += cch;
 
                         /////////////////////////////////////////////////////////////////
                         // UI Stuff
@@ -1466,11 +1450,8 @@ namespace MineEdit
                         dlt.SubtasksComplete++;
                         (ActiveMdiChild as frmMap).Map = mh;
                         dlt.Done();
+                        ShowReport();
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
-                        (ActiveMdiChild as frmMap).Map.CorruptChunk -= cch;
-                        (ActiveMdiChild as frmMap).Map.CorruptChunk += OnCorruptChunk;
-                        report.Repopulate();
-                        report.Show();
                     });
                     dlt.ShowDialog();
                 }

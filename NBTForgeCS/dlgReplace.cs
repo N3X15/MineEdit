@@ -55,7 +55,7 @@ namespace MineEdit
             this.numAreaBeginY = new System.Windows.Forms.NumericUpDown();
             this.numAreaBeginX = new System.Windows.Forms.NumericUpDown();
             this.radArea = new System.Windows.Forms.RadioButton();
-            this.numChunkY = new System.Windows.Forms.NumericUpDown();
+            this.numChunkZ = new System.Windows.Forms.NumericUpDown();
             this.numChunkX = new System.Windows.Forms.NumericUpDown();
             this.radSingleChunk = new System.Windows.Forms.RadioButton();
             this.radAllChunks = new System.Windows.Forms.RadioButton();
@@ -87,7 +87,7 @@ namespace MineEdit
             ((System.ComponentModel.ISupportInitialize)(this.numAreaEndX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numChunkY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numChunkZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numChunkX)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -129,7 +129,7 @@ namespace MineEdit
             this.groupBox3.Controls.Add(this.numAreaBeginY);
             this.groupBox3.Controls.Add(this.numAreaBeginX);
             this.groupBox3.Controls.Add(this.radArea);
-            this.groupBox3.Controls.Add(this.numChunkY);
+            this.groupBox3.Controls.Add(this.numChunkZ);
             this.groupBox3.Controls.Add(this.numChunkX);
             this.groupBox3.Controls.Add(this.radSingleChunk);
             this.groupBox3.Controls.Add(this.radAllChunks);
@@ -193,12 +193,12 @@ namespace MineEdit
             this.radArea.UseVisualStyleBackColor = true;
             this.radArea.CheckedChanged += new System.EventHandler(this.radArea_CheckedChanged);
             // 
-            // numChunkY
+            // numChunkZ
             // 
-            this.numChunkY.Location = new System.Drawing.Point(173, 42);
-            this.numChunkY.Name = "numChunkY";
-            this.numChunkY.Size = new System.Drawing.Size(58, 20);
-            this.numChunkY.TabIndex = 2;
+            this.numChunkZ.Location = new System.Drawing.Point(173, 42);
+            this.numChunkZ.Name = "numChunkZ";
+            this.numChunkZ.Size = new System.Drawing.Size(58, 20);
+            this.numChunkZ.TabIndex = 2;
             // 
             // numChunkX
             // 
@@ -449,7 +449,7 @@ namespace MineEdit
             ((System.ComponentModel.ISupportInitialize)(this.numAreaEndX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAreaBeginX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numChunkY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numChunkZ)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numChunkX)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
@@ -486,7 +486,7 @@ namespace MineEdit
         private System.Windows.Forms.NumericUpDown numAreaBeginY;
         private System.Windows.Forms.NumericUpDown numAreaBeginX;
         private System.Windows.Forms.RadioButton radArea;
-        private System.Windows.Forms.NumericUpDown numChunkY;
+        private System.Windows.Forms.NumericUpDown numChunkZ;
         private System.Windows.Forms.NumericUpDown numChunkX;
         private System.Windows.Forms.RadioButton radSingleChunk;
         private System.Windows.Forms.RadioButton radAllChunks;
@@ -592,7 +592,7 @@ namespace MineEdit
         private void LockChunkPos(bool p)
         {
             numChunkX.Enabled = !p;
-            numChunkY.Enabled = !p;
+            numChunkZ.Enabled = !p;
         }
         private void ReplaceBlocks(long X, long Y)
         {
@@ -683,7 +683,7 @@ namespace MineEdit
                 if (radAllChunks.Checked)
                     ReplaceBlocks();
                 else if (radSingleChunk.Checked)
-                    ReplaceBlocks((long)numChunkX.Value, (long)numChunkY.Value);
+                    ReplaceBlocks((long)numChunkX.Value, (long)numChunkZ.Value);
                 Close();
             }
         }
