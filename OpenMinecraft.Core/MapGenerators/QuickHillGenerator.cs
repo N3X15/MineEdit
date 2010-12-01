@@ -14,8 +14,8 @@ namespace OpenMinecraft
 
         protected Random rand;
         // Main terrain noise (two combined Perlin noises)
-        protected FastNoise TerrainNoise;
-        protected FastNoise ContinentNoise;
+        protected FastRidgedMultifractal TerrainNoise;
+        protected Perlin ContinentNoise;
         protected Perlin CaveNoise;
         protected Perlin GravelNoise;
         protected Perlin TreeNoise;
@@ -25,7 +25,7 @@ namespace OpenMinecraft
         public int MAX_DERT_DEPTH = 6;
         double mTerrainDivisor = 0.33;
         double mCaveDivisor = 2.0;
-        private int mContinentNoiseOctaves;
+        private int mContinentNoiseOctaves=16;
         private MapGenMaterials mMats;
 
         public double Frequency { get; set; }
@@ -75,25 +75,23 @@ namespace OpenMinecraft
             }
         }
 
-        public QuickHillGenerator()
-        {
-            Frequency = 0.03;
-            ContinentNoiseFrequency = 0.5;
-            Lacunarity = 0.01;
-            Persistance = 0.01;
-            OctaveCount = 1;
-        }
-
         public QuickHillGenerator(long seed)
         {
-            Frequency = 0.01;
-            Lacunarity = 0.01;
-            Persistance = 0.01;
-            OctaveCount = mContinentNoiseOctaves = 1;
-
             Seed = seed;
-            TerrainNoise = new FastNoise();
-            ContinentNoise = new FastNoise();
+            Setup();
+        }
+
+        public QuickHillGenerator() { Setup(); }
+
+        private void Setup()
+        {
+            Frequency = 0.1;
+            Lacunarity = 0.05;
+            Persistance = 0.25;
+            OctaveCount = mContinentNoiseOctaves = 4;
+
+            TerrainNoise = new FastRidgedMultifractal();
+            ContinentNoise = new Perlin();
             CaveNoise = new Perlin();
             GravelNoise = new Perlin();
             TreeNoise = new Perlin();
@@ -109,7 +107,6 @@ namespace OpenMinecraft
             TerrainNoise.NoiseQuality = NoiseQuality;
             TerrainNoise.OctaveCount = OctaveCount;
             TerrainNoise.Lacunarity = Lacunarity;
-            TerrainNoise.Persistence = Persistance;
 
             ContinentNoise.Frequency = ContinentNoiseFrequency;
             ContinentNoise.NoiseQuality = NoiseQuality;
@@ -147,7 +144,6 @@ namespace OpenMinecraft
         public override byte[, ,] Generate(ref IMapHandler mh, long X, long Z)
         {
             Vector3i chunksize = mh.ChunkScale;
-            bool PlaceGravel = ((GravelNoise.GetValue((X * chunksize.X), (Z * chunksize.Z), 0) + 1) / 2.0) > 0.90d;
 
             int YH = (int)chunksize.Y-2;
             byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
@@ -157,9 +153,11 @@ namespace OpenMinecraft
             {
                 for (int z = 0; z < chunksize.Z; z++)
                 {
-                    double heightoffset = (ContinentNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), 0) + 1d) / 3.0; // 2.0
-                    int height = (int)Utils.Clamp((TerrainNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), 0) + 1d + heightoffset)/10 * YH + YH/2,0,YH);
-                    if (height < minHeight) minHeight = height;
+                    double heightoffset = (ContinentNoise.GetValue((double)(x + (X * chunksize.X)) / 10d, (double)(z + (Z * chunksize.Z)) / 10d, 0) + 1d);// *5d; // 2.0
+                    double height = 30 + heightoffset;
+                    //for(int o = 0;o<5;o++)
+                        height+=(int)((TerrainNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), 0) + heightoffset));
+                    if (height < minHeight) minHeight = (int)height;
                     for (int y = 0; y < chunksize.Y; y++)
                     {
                         int intensity = y * (255 / YH);
@@ -167,16 +165,16 @@ namespace OpenMinecraft
 
                         // If below height, set rock.  Otherwise, set air.
                         byte block = (y <= height) ? (byte)1 : (byte)0; //Fill
-                        block=(y <= 63) ? (byte)9 : block; // Water
+                        block=(y <= 63 && block==0) ? (byte)9 : block; // Water
                         double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), y * CaveDivisor) + 1) / 2.0);
                         bool d3 = _do > CaveThreshold;
 
                         if(d3)
                         {
-                            if (y == 1)
-                                block = 11;
-                            else if (y <= 63) 
-                                block= 3;
+                            //if (y <= 63)
+                            //    block = 3;
+                            //else
+                                block = 0;
                         }
                         //else
                         //    block = (d3) ? b[x, y, z] : (byte)1;
