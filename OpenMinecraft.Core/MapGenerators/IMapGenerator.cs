@@ -59,7 +59,7 @@ namespace OpenMinecraft
                 }
 
                 if (tooclose) continue;
-                for (int y = (int)H - 2; y > 0; y--)
+                for (int y = (int)H - 10; y > 0; y--)
                 {
                     switch (b[me.X, y, me.Y])
                     {

@@ -95,6 +95,7 @@
       <Reference name="LibNoise"/>
       <Reference name="LibNBT"/>
       <Reference name="System.Windows.Forms"/> <!-- Updater control -->
+      <Reference name="Procedurality.dll"/>
       <Reference name="log4net.dll"/>
       <Files>
         <Match pattern="*.cs" recurse="true">
@@ -232,7 +233,7 @@
       <Reference name="log4net.dll"/>
       <Files>
         <Match pattern="*.cs" recurse="true" />
-        <!--<Match pattern="*.resx" recurse="true" />-->
+        <Match pattern="Resources/*.resx" recurse="true" />
 		<Match pattern="*.*" path="Resources" recurse="false" buildAction="EmbeddedResource" />
       </Files>
     </Project>

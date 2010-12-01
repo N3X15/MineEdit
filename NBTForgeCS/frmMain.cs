@@ -51,7 +51,6 @@ namespace MineEdit
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -169,7 +168,6 @@ namespace MineEdit
             // 
             // newToolStripMenuItem
             // 
-            this.newToolStripMenuItem.Image = global::MineEdit.Properties.Resources.document_new;
             this.newToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Black;
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
@@ -183,7 +181,6 @@ namespace MineEdit
             this.browseToMapToolStripMenuItem,
             this.mnuQOinfdev,
             this.toolStripSeparator10});
-            this.mnuOpen.Image = global::MineEdit.Properties.Resources.document_open;
             this.mnuOpen.ImageTransparentColor = System.Drawing.Color.Black;
             this.mnuOpen.Name = "mnuOpen";
             this.mnuOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
@@ -257,7 +254,6 @@ namespace MineEdit
             // 
             // mnuReload
             // 
-            this.mnuReload.Image = global::MineEdit.Properties.Resources.view_refresh;
             this.mnuReload.Name = "mnuReload";
             this.mnuReload.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
             this.mnuReload.Size = new System.Drawing.Size(151, 22);
@@ -271,7 +267,6 @@ namespace MineEdit
             // 
             // saveToolStripMenuItem
             // 
-            this.saveToolStripMenuItem.Image = global::MineEdit.Properties.Resources.document_save;
             this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Black;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
@@ -352,7 +347,6 @@ namespace MineEdit
             // 
             // tsmReplace
             // 
-            this.tsmReplace.Image = ((System.Drawing.Image)(resources.GetObject("tsmReplace.Image")));
             this.tsmReplace.Name = "tsmReplace";
             this.tsmReplace.Size = new System.Drawing.Size(164, 22);
             this.tsmReplace.Text = "Replace...";
@@ -642,7 +636,6 @@ namespace MineEdit
             // newToolStripButton
             // 
             this.newToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.newToolStripButton.Image = global::MineEdit.Properties.Resources.document_new;
             this.newToolStripButton.ImageTransparentColor = System.Drawing.Color.Black;
             this.newToolStripButton.Name = "newToolStripButton";
             this.newToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -652,16 +645,14 @@ namespace MineEdit
             // openToolStripButton
             // 
             this.openToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.openToolStripButton.Image = global::MineEdit.Properties.Resources.document_open;
             this.openToolStripButton.ImageTransparentColor = System.Drawing.Color.Black;
             this.openToolStripButton.Name = "openToolStripButton";
-            this.openToolStripButton.Size = new System.Drawing.Size(32, 22);
+            this.openToolStripButton.Size = new System.Drawing.Size(16, 22);
             this.openToolStripButton.Text = "Open";
             // 
             // saveToolStripButton
             // 
             this.saveToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.saveToolStripButton.Image = global::MineEdit.Properties.Resources.document_save;
             this.saveToolStripButton.ImageTransparentColor = System.Drawing.Color.Black;
             this.saveToolStripButton.Name = "saveToolStripButton";
             this.saveToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -671,7 +662,6 @@ namespace MineEdit
             // tsbReload
             // 
             this.tsbReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbReload.Image = global::MineEdit.Properties.Resources.view_refresh;
             this.tsbReload.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbReload.Name = "tsbReload";
             this.tsbReload.Size = new System.Drawing.Size(23, 22);
@@ -686,7 +676,6 @@ namespace MineEdit
             // tsbHeal
             // 
             this.tsbHeal.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbHeal.Image = global::MineEdit.Properties.Resources.list_add;
             this.tsbHeal.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbHeal.Name = "tsbHeal";
             this.tsbHeal.Size = new System.Drawing.Size(23, 22);
@@ -696,7 +685,6 @@ namespace MineEdit
             // tsbGoHome
             // 
             this.tsbGoHome.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbGoHome.Image = global::MineEdit.Properties.Resources.go_home;
             this.tsbGoHome.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbGoHome.Name = "tsbGoHome";
             this.tsbGoHome.Size = new System.Drawing.Size(23, 22);
@@ -711,7 +699,6 @@ namespace MineEdit
             // helpToolStripButton
             // 
             this.helpToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.helpToolStripButton.Image = global::MineEdit.Properties.Resources.dialog_information;
             this.helpToolStripButton.ImageTransparentColor = System.Drawing.Color.Black;
             this.helpToolStripButton.Name = "helpToolStripButton";
             this.helpToolStripButton.Size = new System.Drawing.Size(23, 22);

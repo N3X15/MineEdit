@@ -118,35 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="menuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>216, 17</value>
+    <value>17, 95</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="tsmReplace.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAACwwAAAsMAT9AIsgAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfWAQYWBAP1dmiC
-        AAACJUlEQVQ4T4WTz08TQRTHq4nGu/+D/4CJiUc9e0Vi9OhFCFqjN2Jau1v6AwoaFWM8gN1qESqUVEKB
-        RGUV2rRod/EnpmDS0EJXuosY04iyX/ummXU3JDDJy87svO/nvTfzxuWyjcvujqM3BS+40dq+v+f82nX3
-        KRKOTmfN6PQHxKcWTFrT/30hHVfaWeT4ZBbhhIq5zxoeTi3hViLPsvEHBATDfssifeERB5ScoqMzEIcK
-        KFa2sLrxC7mvG4iMf8H9ZBNiHwTbDUgriL1awdLqDyyvbeH1Rw3Rl9/gfawwwOamwYxG37mD3C4wEEt/
-        QkZwWMGMso63RR0r6z8xNFvE3eQ7Bshk5hmAxLo2j8Kzq2zOAPwAB9Iqbqc+NSAVPHnRSH/iPROri4ol
-        Nr5nsJhowyOh5a8FEEUfpJjEnFPZZXjiKh48V9n6Xv8dFp2cuTgWaOUlHHdxcTo9iUhvj9UDJE6Oj1mR
-        a5U5FIYvYVA4+19M6ROAi+mAqE6KyI0i18pvkB24iEGxGTnkbeO3cICdAUUOdXftcAA/ccPQ4T5/EvJI
-        GJK/hYnXijkEQiIBSNwE0CCAae5Y10ViEpw5fQztrSfYfGF2DIZhwCd6CHDI0QsNwJ/t7d8WQNdr5MSE
-        qaf9kGUZ+XwOpVIJNzydtHdkF8DebaZpol6vo1qtMlG5XIamafYMDjsAPb0hqZGFo+ep1q6g0HgLPvbl
-        1h0JSo76931tezj8A89kIUUINQquAAAAAElFTkSuQmCC
-</value>
-  </data>
   <metadata name="toolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>324, 17</value>
+    <value>17, 134</value>
   </metadata>
   <metadata name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>126, 17</value>
-  </metadata>
-  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>51</value>
+    <value>17, 56</value>
   </metadata>
 </root>

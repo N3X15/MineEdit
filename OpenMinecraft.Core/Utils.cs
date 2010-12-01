@@ -223,33 +223,12 @@ namespace OpenMinecraft
         }
         static void GrowTreeTrunk(ref byte[,,] b, Random r, int x, int y, int z, int height)
         {
-            if (
-                x + 2 > b.GetLength(0) - 1 ||
-                z + 2 > b.GetLength(2) - 1 ||
-                y + height > b.GetLength(1) - 1)
-                return;
-            if (
-                x - 2 < 0 ||
-                z - 2 < 0 ||
-                y - height < 0)
-                return;
             for (int i = 0; i < height; i++)
                 b[x, y + i, z] = 17;
         }
         // From NBTForge.
         static void GrowTreeFoliage(ref byte[, ,] b, Random r, int x, int _y, int z, int height)
         {
-            z = z + height - 1;
-            if (
-                x + 2 > b.GetLength(0) - 1 ||
-                z + 2 > b.GetLength(2) - 1 ||
-                _y + 2 > b.GetLength(1) - 1)
-                return;
-            if (
-                x - 2 < 0 ||
-                z - 2 < 0 ||
-                _y - 2 < 0)
-                return;
             /*
              Note, foliage will disintegrate if there is no foliage below, or
 	        if there is no "log" block within range 2 (square) at the same level or

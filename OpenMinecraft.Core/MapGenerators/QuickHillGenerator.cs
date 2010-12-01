@@ -16,6 +16,7 @@ namespace OpenMinecraft
         // Main terrain noise (two combined Perlin noises)
         protected FastRidgedMultifractal TerrainNoise;
         protected Perlin ContinentNoise;
+        protected Voronoi v;
         protected Perlin CaveNoise;
         protected Perlin GravelNoise;
         protected Perlin TreeNoise;
@@ -95,6 +96,7 @@ namespace OpenMinecraft
             CaveNoise = new Perlin();
             GravelNoise = new Perlin();
             TreeNoise = new Perlin();
+            Voronoi v = new Voronoi();
             TerrainNoise.Seed = (int)Seed;
             ContinentNoise.Seed = (int)Seed + 2;
             CaveNoise.Seed = (int)Seed + 3;
@@ -131,6 +133,11 @@ namespace OpenMinecraft
             TreeNoise.OctaveCount = OctaveCount;
             TreeNoise.Lacunarity = Lacunarity;
             TreeNoise.Persistence = Persistance;
+
+            v.Frequency = 1d;
+            v.DistanceEnabled = true;
+            v.Displacement = 1;
+            v.Seed = (int)Seed;
         }
 
         /// <summary>
@@ -147,37 +154,45 @@ namespace OpenMinecraft
 
             int YH = (int)chunksize.Y-2;
             byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
-            byte[,] hm = new byte[chunksize.X, chunksize.Y];
             int minHeight = (int)chunksize.Y;
+            /*
+				Voronoi voronoi = new Voronoi(256, 4, 4, 1, 1f, seed);
+				Channel cliffs = voronoi.getDistance(-1f, 1f, 0f).brightness(1.5f).multiply(0.33f);
+				terrain.multiply(0.67f).channelAdd(cliffs);
+				terrain.channelSubtract(voronoi.getDistance(1f, 0f, 0f).gamma(.5f).flipV().rotate(90))
+            */
             for (int x = 0; x < chunksize.X; x++)
             {
                 for (int z = 0; z < chunksize.Z; z++)
                 {
-                    double heightoffset = (ContinentNoise.GetValue((double)(x + (X * chunksize.X)) / 10d, (double)(z + (Z * chunksize.Z)) / 10d, 0) + 1d);// *5d; // 2.0
+                    double heightoffset = (ContinentNoise.GetValue((double)(x + (X * chunksize.X)) / 10d, (double)(z + (Z * chunksize.Z)) / 10d, 0) + 1d)/3d;// *5d; // 2.0
                     double height = 30 + heightoffset;
                     //for(int o = 0;o<5;o++)
                         height+=(int)((TerrainNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), 0) + heightoffset));
+                    
+                    height *= 0.65;
+                    height += v.GetValue(x, z, 0) * 0.33;
                     if (height < minHeight) minHeight = (int)height;
+
                     for (int y = 0; y < chunksize.Y; y++)
                     {
-                        int intensity = y * (255 / YH);
+                        //int intensity = y * (255 / YH);
                         //Console.WriteLine("HeightOffset {0}",heightoffset);
 
                         // If below height, set rock.  Otherwise, set air.
                         byte block = (y <= height) ? (byte)1 : (byte)0; //Fill
                         block=(y <= 63 && block==0) ? (byte)9 : block; // Water
-                        double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), y * CaveDivisor) + 1) / 2.0);
-                        bool d3 = _do > CaveThreshold;
 
-                        if(d3)
+                        // Only try to calc caves if we're in rock.  Otherwise we'll be slow and have holes in our water.
+                        if (block == 1)
                         {
-                            //if (y <= 63)
-                            //    block = 3;
-                            //else
+                            double _do = ((CaveNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), y * CaveDivisor) + 1) / 2.0);
+                            bool d3 = _do > CaveThreshold;
+
+                            if (d3)
                                 block = 0;
                         }
-                        //else
-                        //    block = (d3) ? b[x, y, z] : (byte)1;
+
                         b[x, y, z] = block;
                     }
                 }

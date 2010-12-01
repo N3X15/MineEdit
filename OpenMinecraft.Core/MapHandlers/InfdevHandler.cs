@@ -680,8 +680,10 @@ namespace OpenMinecraft
 						blocks[GetBlockIndex(x, y, z)] = cnk.Blocks[x, y, z];
 					}
 				}
-			}
-			Level.Set("Blocks", new NbtByteArray("Blocks",blocks));
+            }
+            Level.Set("xPos", new NbtInt("xPos", (int)cnk.Position.X));
+            Level.Set("zPos", new NbtInt("zPos", (int)cnk.Position.Z));
+            Level.Set("Blocks", new NbtByteArray("Blocks", blocks));
 			blocks = null;
 
 			// LIGHTING ///////////////////////////////////////////////////
@@ -723,7 +725,7 @@ namespace OpenMinecraft
 
 			c.RootTag.Set("Level",Level);
 			
-            c.SaveFile(cnk.Filename);
+            c.SaveFile(GetChunkFilename((int)cnk.Position.X,(int)cnk.Position.Z));
 			
             // For debuggan
             File.WriteAllText(cnk.Filename + ".txt", c.RootTag.ToString());
@@ -1200,12 +1202,12 @@ namespace OpenMinecraft
             return GetChunk(X, Y);
         }
 
-		protected NbtCompound NewNBTChunk(long X, long Y)
+		protected NbtCompound NewNBTChunk(long X, long Z)
 		{
 			NbtCompound Level = new NbtCompound("Level");
 			Level.Add(new NbtByte("TerrainPopulated", 0x00)); // Don't add ores, y/n? Usually get better performance with true on first load.
             Level.Add(new NbtInt("xPos", (int)X));
-            Level.Add(new NbtInt("zPos", (int)Y));
+            Level.Add(new NbtInt("zPos", (int)Z));
             Level.Add(new NbtInt("LastUpdate", 0)); // idk what the format is, not going to decompile.
             Level.Add(new NbtByteArray("BlockLight", new byte[16384]));
             Level.Add(new NbtByteArray("Blocks", new byte[32768]));
