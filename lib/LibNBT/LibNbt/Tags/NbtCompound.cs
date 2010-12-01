@@ -155,6 +155,7 @@ namespace LibNbt.Tags
 			{
 				return (T)mTags[tagName];
 			}
+            Console.WriteLine(this.ToString());
 			throw new KeyNotFoundException(tagName); // Make it a LITTLE more helpful.
 		}
 

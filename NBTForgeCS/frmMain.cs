@@ -1382,6 +1382,7 @@ namespace MineEdit
                         return;
                     }
                     IMapGenerator mg = (IMapGenerator)terragen.pgMapGen.SelectedObject;
+                    
                     (ActiveMdiChild as frmMap).Map.Generator = mg;
                     dlgLongTask dlt = new dlgLongTask();
                     dlt.Start(delegate()
@@ -1401,18 +1402,33 @@ namespace MineEdit
                         dlt.TasksTotal = 1;
                         dlt.SubtasksTotal = 1;
 
-                        (ActiveMdiChild as frmMap).Map.ForEachProgress +=new ForEachProgressHandler(delegate(int Total, int Progress){
-                            dlt.TasksTotal = Total;
-                            dlt.TasksComplete = Progress;
+                        int numchunks = 0;
+                        // Generate terrain
+                        // Drop soil
+                        // Add pbarriers
+                        // Add dungeons
+                        // Add trees
+                        // Fix fluids
+                        // Fix lava
+
+                        int stage = 0;
+                        ForEachProgressHandler feph = new ForEachProgressHandler(delegate(int Total, int Progress){
+                            numchunks = Total;
+                            dlt.TasksTotal = numchunks * 3;
+                            dlt.TasksComplete = Progress+(stage*numchunks);
+                            dlt.SubtasksComplete = Progress;
+                            dlt.SubtasksTotal = Total;
                         });
+
+                        (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
                         {
                             if (dlt.STOP) return;
-                            dlt.SubtasksComplete = 0;
                             dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Y);
                             (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y);
-                            dlt.SubtasksComplete = 1;
                         });
+
+
                         dlt.CurrentTask = "Fixing fluids, may take a while...";
                         dlt.SubtasksTotal = 2;
                         dlt.SubtasksComplete = 0;
