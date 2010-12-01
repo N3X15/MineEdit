@@ -12,11 +12,13 @@ I. LICENSE
 
   First and foremost, licensing.
 
-  MineEdit has a GPL v2 license, although I honestly really don't care what you do to it, as long as my name is somewhere on the end result of your tinkering.
+  MineEdit has an MIT license, although I honestly really don't care what you do to it, as long as my name is somewhere on the end result of your tinkering.
 
-  LibNBT, which is included with MineEdit, also has a GPL license.
+  LibNBT, which is included with MineEdit, has a GPL license.
+  
+  I have no idea what lightgen is, Moose just kinda went "here" and was never heard from again.  
 
-  Follow the GPL license, FFS.  We worked hard on this stuff, and don't want to see our creations twisted into some horrible monster that doesn't credit us and our work.
+  We worked hard on this stuff, and don't want to see our creations twisted into some horrible monster that doesn't credit us and our work. So credit us and follow the appropriate licensing.
 
   See LICENSE.txt and LICENSE.LibNBT.txt for the full legalese.
 

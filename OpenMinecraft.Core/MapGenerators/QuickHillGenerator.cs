@@ -161,6 +161,7 @@ namespace OpenMinecraft
 				terrain.multiply(0.67f).channelAdd(cliffs);
 				terrain.channelSubtract(voronoi.getDistance(1f, 0f, 0f).gamma(.5f).flipV().rotate(90))
             */
+            Procedurality.Channel terrain = new Procedurality.Channel((int)chunksize.X, (int)chunksize.Z);
             for (int x = 0; x < chunksize.X; x++)
             {
                 for (int z = 0; z < chunksize.Z; z++)
@@ -169,11 +170,17 @@ namespace OpenMinecraft
                     double height = 30 + heightoffset;
                     //for(int o = 0;o<5;o++)
                         height+=(int)((TerrainNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), 0) + heightoffset));
-                    
-                    height *= 0.65;
-                    height += v.GetValue(x, z, 0) * 0.33;
+                    terrain.putPixel(x, z, (float)height);
+                }
+            }
+            terrain.erodeThermal(12f, (int)chunksize.Z >> 2); // This is fast.
+            terrain.erode(12f, (int)chunksize.Z >> 2); // This is not.
+            for (int x = 0; x < chunksize.X; x++)
+            {
+                for (int z = 0; z < chunksize.Z; z++)
+                {
+                    double height = terrain.getPixel(x, z);
                     if (height < minHeight) minHeight = (int)height;
-
                     for (int y = 0; y < chunksize.Y; y++)
                     {
                         //int intensity = y * (255 / YH);
