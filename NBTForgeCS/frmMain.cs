@@ -1386,13 +1386,15 @@ namespace MineEdit
                     dlgLongTask dlt = new dlgLongTask();
                     dlt.Start(delegate()
                     {
+                        // ACTIVATE AUTOREPAIR
+                        (ActiveMdiChild as frmMap).Map.Autorepair = true;
 
                         /////////////////////////////////////////////////////////////////
                         // UI Stuff
                         /////////////////////////////////////////////////////////////////
                         dlt.SetMarquees(true, true);
-                        dlt.VocabSubtask = "Chunk";
-                        dlt.VocabSubtasks = "Chunks";
+                        dlt.VocabSubtask = "chunk";
+                        dlt.VocabSubtasks = "chunks";
                         dlt.Title = "Generating chunks.";
                         dlt.Subtitle = "This will take a while.  Go take a break.";
                         dlt.SetMarquees(false, false);
@@ -1411,26 +1413,46 @@ namespace MineEdit
                         // Fix lava
 
                         int stage = 0;
+                        int numstages = 3;
                         ForEachProgressHandler feph = new ForEachProgressHandler(delegate(int Total, int Progress){
                             numchunks = Total;
-                            dlt.TasksTotal = numchunks * 3;
+                            dlt.TasksTotal = numchunks * numstages;
                             dlt.TasksComplete = Progress+(stage*numchunks);
                             dlt.SubtasksComplete = Progress;
                             dlt.SubtasksTotal = Total;
                         });
 
+                        dlt.CurrentTask = "Regenerating chunks...";
                         (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
                         {
                             if (dlt.STOP) return;
                             dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Y);
                             (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y);
+                        });
 
+                        stage = 1;
+                        dlt.CurrentTask = "Eroding chunk surfaces...";
+                        (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
+                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
+                        {
                             dlt.CurrentSubtask = string.Format("Eroding chunk ({0},{1}, thermal)", X, Y);
-                            (ActiveMdiChild as frmMap).Map.erodeThermal(12, 5, (int)X, (int)Y);
+                            (ActiveMdiChild as frmMap).Map.ErodeThermal(5, 10, (int)X, (int)Y);
 
                             dlt.CurrentSubtask = string.Format("Eroding chunk ({0},{1}, hydraulic)", X, Y);
-                            (ActiveMdiChild as frmMap).Map.Erode(12, 5, (int)X, (int)Y);
+                            (ActiveMdiChild as frmMap).Map.Erode(5, 10, (int)X, (int)Y);
+
+                            dlt.CurrentSubtask = string.Format("Eroding chunk ({0},{1}, silt)", X, Y);
+                            (ActiveMdiChild as frmMap).Map.Silt(63,true, (int)X, (int)Y);
+                        });
+
+                        stage = 2;
+                        dlt.CurrentTask = "Finalizing chunks...";
+                        (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
+                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
+                        {
+                            dlt.CurrentSubtask = string.Format("Finalizing chunk ({0},{1}, thermal)", X, Y);
+                            (ActiveMdiChild as frmMap).Map.FinalizeGeneration((ActiveMdiChild as frmMap).Map, X, Y);
                         });
 
 
@@ -1477,6 +1499,9 @@ namespace MineEdit
                         dlt.Done();
                         ClearReport();
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
+                        
+                        // DEACTIVATE AUTOREPAIR
+                        (ActiveMdiChild as frmMap).Map.Autorepair = false;
                     });
                     dlt.ShowDialog();
                 }

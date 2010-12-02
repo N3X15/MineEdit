@@ -169,7 +169,7 @@ namespace OpenMinecraft
                     double height = 30 + heightoffset;
                     
                     //for(int o = 0;o<5;o++)
-                        height+=(TerrainNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), 0) + heightoffset)/3.0;
+                    height += (-TerrainNoise.GetValue(x + (X * chunksize.X), z + (Z * chunksize.Z), 0)+heightoffset)/3.0;
 
                     
                     if (height < minHeight) minHeight = (int)height;
@@ -193,7 +193,7 @@ namespace OpenMinecraft
                     }
                 }
             }
-            //Console.WriteLine("Generate (Quick): {0}", minHeight);
+            Console.WriteLine("Generate (Quick): {0}", minHeight);
             return b;
         }
 

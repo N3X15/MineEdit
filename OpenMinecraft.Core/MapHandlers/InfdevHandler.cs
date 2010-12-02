@@ -20,8 +20,8 @@ namespace OpenMinecraft
         public bool _DEBUG = false; // Improve performance.  Maybe.
 #endif
 
-        public new event CorruptChunkHandler CorruptChunk;
-        public new event ForEachProgressHandler ForEachProgress;
+        public override event CorruptChunkHandler CorruptChunk;
+        public override event ForEachProgressHandler ForEachProgress;
 
         private string mFolder;
 		private const int ChunkX = 16;
@@ -1096,16 +1096,14 @@ namespace OpenMinecraft
         Perlin treeNoise;
         Random dungeonNoise;
 
+        Random rand = new Random();
+
 		public override void Generate(IMapHandler mh, long X, long Z)
         {
             if (treeNoise == null)
             {
                 treeNoise = new Perlin();
                 treeNoise.Seed = (int)this.RandomSeed + 4;
-                
-            }
-            if (dungeonNoise == null)
-            {
                 dungeonNoise = new Random((int)RandomSeed);
             }
 			if (_Generator == null) return;
@@ -1131,19 +1129,46 @@ namespace OpenMinecraft
 			catch (Exception) { }
 			*/
 
-            Random rand = new Random();
+			_c.Blocks = b;
+            _c.UpdateOverview();
+            _c.Save();
+			SetChunk(_c);
+		}
+
+        public override void FinalizeGeneration(IMapHandler mh, long X, long Z)
+        {
+            if (treeNoise == null)
+            {
+                treeNoise = new Perlin();
+                treeNoise.Seed = (int)this.RandomSeed + 4;
+                dungeonNoise = new Random((int)RandomSeed);
+            }
+            if (_Generator == null) return;
+            string lockfile = Path.ChangeExtension(GetChunkFilename((int)X, (int)Z), "genlock");
+            if (!_Generator.NoPreservation)
+            {
+                if (File.Exists(lockfile))
+                    return;
+            }
+            else
+            {
+                if (File.Exists(lockfile))
+                    File.Delete(lockfile);
+            }
+            Chunk _c = NewChunk(X, Z);
+            byte[, ,] b = _c.Blocks;
 
             _Generator.AddSoil(ref b, 63, 6, _Generator.Materials);
             _Generator.AddPlayerBarriers(ref b);
             _Generator.AddDungeons(ref b, ref mh, dungeonNoise, X, Z);
             _Generator.AddTrees(ref b, ref treeNoise, ref rand, (int)X, (int)Z, (int)ChunkY);
 
-			_c.Blocks = b;
+            _c.Blocks = b;
             _c.UpdateOverview();
             _c.Save();
-			SetChunk(_c);
-			File.WriteAllText(lockfile, "");
-		}
+            SetChunk(_c);
+            File.WriteAllText(lockfile, _Generator.ToString());
+        }
 
 		private Dictionary<byte,int> GetBlockNumbers(byte[, ,] b)
 		{
@@ -1999,6 +2024,15 @@ namespace OpenMinecraft
                 if (block==3 && h == y) block = 2;  // ADD GRASS
                 SetBlockAt(x, y, z, block);
             }
+            int X = x / ChunkX;
+            int Z = z / ChunkZ;
+
+            int _x = x - ((z >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int _z = z - ((z >> 4) * ChunkZ); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Z);
+            c.HeightMap[_x, _z]=h;
+            SetChunk(c);
         }
     }
 }

@@ -181,6 +181,7 @@ namespace OpenMinecraft
                 }
             }
         }
+
         protected byte[, ,] _Blocks;
 
         /// <summary>

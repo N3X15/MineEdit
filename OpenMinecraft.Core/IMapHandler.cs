@@ -19,8 +19,8 @@ namespace OpenMinecraft
 	public delegate void CachedChunkDelegate(long x, long y,Chunk c);
     public abstract class IMapHandler
     {
-        public event CorruptChunkHandler CorruptChunk;
-        public event ForEachProgressHandler ForEachProgress;
+        public abstract event CorruptChunkHandler CorruptChunk;
+        public abstract event ForEachProgressHandler ForEachProgress;
 
         public abstract Dictionary<Guid, Entity> Entities { get; }
         public abstract Dictionary<Guid, TileEntity> TileEntities { get; }
@@ -101,6 +101,7 @@ namespace OpenMinecraft
         public abstract Chunk NewChunk(long X, long Y);
         public abstract IMapGenerator Generator { get; set; }
         public abstract void Generate(IMapHandler mh, long X, long Y);
+        public abstract void FinalizeGeneration(IMapHandler mh, long X, long Z);
 
         public abstract Vector2i GetChunkCoordsFromFile(string filename);
 
@@ -138,9 +139,86 @@ namespace OpenMinecraft
         public abstract Vector3d Local2Global(int CX, int CZ, Vector3d local);
         public abstract Vector3d Global2Local(Vector3d global, out int CX, out int CZ);
 
+
+        /// <summary>
+        /// Convolution matrices!
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="divisor"></param>
+        /// <param name="offset"></param>
+        /// <param name="X"></param>
+        /// <param name="Z"></param>
+        public void Convolution(double[][] filter, double divisor, double offset, int X, int Z)
+        {
+            int x_o = X * (int)ChunkScale.X;
+            int z_o = Z * (int)ChunkScale.Z;
+            int radius = (filter.GetLength(0) - 1) / 2;
+            for (int z = 0; z < ChunkScale.Z; z++)
+            {
+                for (int x = 0; x < ChunkScale.X; x++)
+                {
+                    double value = 0;
+                    for (int i = -radius; i <= radius; i++)
+                    {
+                        for (int j = -radius; j <= radius; j++)
+                        {
+                            value += filter[i + radius][j + radius] * GetHeightAt(x + x_o + i, z + z_o + j);
+                        }
+                    }
+                    value = value / divisor + offset;
+                    SetHeightAt(x + x_o, z + z_o, (int)value,1);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Smooths below-water surfaces and, optionally, adds beaches.
+        /// </summary>
+        /// <param name="waterlevel">
+        /// A <see cref="System.Single"/>
+        /// </param>
+        /// <param name="beaches">
+        /// A <see cref="System.Boolean"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="Channel"/>
+        /// </returns>
+        public void Silt(double waterlevel, bool beaches, int X, int Z)
+        {
+            // 1. Copy Image
+            // 2. Apply gauss blur to lower layer
+            // 3. Bring back unblurred terrain from above the water level.
+
+            int x_o = X * (int)ChunkScale.X;
+            int z_o = Z * (int)ChunkScale.Z;
+
+            double wl = (beaches) ? waterlevel + 6d : waterlevel;
+            wl = wl / 256f;
+
+            // Gaussian blur for silt and beaches.	
+            double[][] gaussian_matrix = new double[3][]{
+				new double[3]{1,2,1},
+				new double[3]{2,4,2},
+				new double[3]{1,2,1}
+			};
+            IMapHandler Blurred = this;
+            Blurred.Convolution(gaussian_matrix, 32f, waterlevel / 2d, X, Z);
+
+            for (int x = 0; x < ChunkScale.X; x++)
+            {
+                for (int z = 0; z < ChunkScale.Z; z++)
+                {
+                    // If > WL: use unblurred image.
+                    // If <=WL: Use blurred image.
+                    if (GetHeightAt(x+x_o, z+z_o) <= wl)
+                        SetHeightAt(x + x_o, z + z_o, Blurred.GetHeightAt(x+x_o, z+z_o),Generator.Materials.Soil);
+                }
+            }
+        }
+
         public void Erode(double talus, int iterations, int X, int Z)
         {
-            double h, h1, h2, h3, h4, d1, d2, d3, d4, max_d;
+            double h, h1, h2, h3, h4, d1, d2, d3, d4, max_d, max_h=0d;
             int i, j;
             int x_o = X * (int)ChunkScale.X;
             int z_o = Z * (int)ChunkScale.Z;
@@ -154,6 +232,7 @@ namespace OpenMinecraft
                         int abs_z = z + z_o;
 
                         h = (double)GetHeightAt(abs_x, abs_z);
+                        if (max_h < h) max_h = h;
                         h1 = (double)GetHeightAt(abs_x, abs_z + 1);
                         h2 = (double)GetHeightAt(abs_x - 1, abs_z);
                         h3 = (double)GetHeightAt(abs_x + 1, abs_z);
@@ -198,12 +277,13 @@ namespace OpenMinecraft
                     }
                 }
             }
+            Console.WriteLine("Erode(): max_h={0}m", max_h);
         }
 
 
-        public void erodeThermal(double talus, int iterations, int X, int Z)
+        public void ErodeThermal(double talus, int iterations, int X, int Z)
         {
-            double h, h1, h2, h3, h4, d1, d2, d3, d4, max_d;
+            double h, h1, h2, h3, h4, d1, d2, d3, d4, max_d, max_h=0;
             int i, j;
             int x_o = X * (int)ChunkScale.X;
             int z_o = Z * (int)ChunkScale.Z;
@@ -217,6 +297,7 @@ namespace OpenMinecraft
                         int abs_z = z + z_o;
 
                         h = (double)GetHeightAt(abs_x, abs_z);
+                        if (max_h < h) max_h = h;
                         h1 = (double)GetHeightAt(abs_x, abs_z + 1);
                         h2 = (double)GetHeightAt(abs_x - 1, abs_z);
                         h3 = (double)GetHeightAt(abs_x + 1, abs_z);
@@ -261,6 +342,7 @@ namespace OpenMinecraft
                     }
                 }
             }
+            Console.WriteLine("ErodeThermal(): max_h={0}m", max_h);
         }
 
     }
