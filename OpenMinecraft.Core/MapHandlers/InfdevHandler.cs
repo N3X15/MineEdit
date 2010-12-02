@@ -5,22 +5,23 @@ using System.Collections.Generic;
 using System.IO;
 using LibNbt;
 using LibNbt.Tags;
+using LibNoise;
 using OpenMinecraft.Entities;
 using OpenMinecraft.TileEntities;
-using LibNoise;
 
 namespace OpenMinecraft
 {
 	public class InfdevHandler:IMapHandler
 	{
-		public event CorruptChunkHandler CorruptChunk;
-		public event ForEachProgressHandler ForEachProgress;
 
 #if DEBUG
         public bool _DEBUG = true; // Improve performance.  Maybe.
 #else
         public bool _DEBUG = false; // Improve performance.  Maybe.
 #endif
+
+        public new event CorruptChunkHandler CorruptChunk;
+        public new event ForEachProgressHandler ForEachProgress;
 
         private string mFolder;
 		private const int ChunkX = 16;
@@ -36,14 +37,14 @@ namespace OpenMinecraft
 		Dictionary<Guid, Entity> mEntities = new Dictionary<Guid, Entity>();
 		Dictionary<Guid, TileEntity> mTileEntities = new Dictionary<Guid, TileEntity>();
 
-        public string Filename { get; set; }
-        public int InventoryCapacity { get { return 9 * 4; } }
-        public int ChunksLoaded { get { return mChunks.Count; } }
-		public Vector3i ChunkScale { get { return new Vector3i(16, 128, 16); } }
-		public bool HasMultipleChunks { get { return true; } }
-		public Vector3i MapMin { get { return new Vector3i(-1000, 0, -1000); } }
-		public Vector3i MapMax { get { return new Vector3i(1000, 127, 1000); } }
-        public bool Autorepair
+        public override string Filename { get; set; }
+        public override int InventoryCapacity { get { return 9 * 4; } }
+        public override int ChunksLoaded { get { return mChunks.Count; } }
+        public override Vector3i ChunkScale { get { return new Vector3i(16, 128, 16); } }
+        public override bool HasMultipleChunks { get { return true; } }
+        public override Vector3i MapMin { get { return new Vector3i(-1000, 0, -1000); } }
+        public override Vector3i MapMax { get { return new Vector3i(1000, 127, 1000); } }
+        public override bool Autorepair
         {
             get { return mAutoRepair; }
             set { mAutoRepair = value; }
@@ -52,7 +53,7 @@ namespace OpenMinecraft
         /// <summary>
         /// Spawn position (Y/Z positions flipped)
         /// </summary>
-		public Vector3i Spawn
+        public override Vector3i Spawn
 		{
 			get
 			{
@@ -78,39 +79,27 @@ namespace OpenMinecraft
 			}
 		}
 
-		public int Height
+        public override int Height
 		{
 			get
 			{
 				return 10000;
 			}
-			protected set
-			{
-				return;
-			}
 		}
 
-		public int Width
+        public override int Width
 		{
 			get
 			{
 				return 10000;
 			}
-			protected set
-			{
-				return;
-			}
 		}
 
-		public int Depth
+        public override int Depth
 		{
 			get
 			{
 				return 128;
-			}
-			protected set
-			{
-				return;
 			}
 		}
 
@@ -119,7 +108,7 @@ namespace OpenMinecraft
 		/// 0 = dead
 		/// 20 = full health
 		/// </summary>
-		public int Health
+        public override int Health
 		{
 			get
 			{
@@ -135,7 +124,7 @@ namespace OpenMinecraft
 		}
 
 		// Set to 0 to avoid the Laying Down bug.
-		public int HurtTime
+        public override int HurtTime
 		{
 			get
 			{
@@ -150,7 +139,7 @@ namespace OpenMinecraft
 			}
 		}
 		// Don't clamp, all sorts of weird shit can be done here.
-		public int Air
+        public override int Air
 		{
 			get
 			{
@@ -165,7 +154,7 @@ namespace OpenMinecraft
 		}
 
 		// Dunno the range
-		public int Fire
+        public override int Fire
 		{
 			get
 			{
@@ -179,7 +168,7 @@ namespace OpenMinecraft
 		}
 
 		// Dunno the range
-		public int Time
+        public override int Time
 		{
 			get
 			{
@@ -194,7 +183,7 @@ namespace OpenMinecraft
         /// <summary>
         /// Player position (Y/Z flipped)
         /// </summary>
-		public Vector3d PlayerPos
+        public override Vector3d PlayerPos
 		{
 			get
 			{
@@ -223,7 +212,7 @@ namespace OpenMinecraft
 			}
 		}
 
-		public Dictionary<Guid, Entity> Entities
+        public override Dictionary<Guid, Entity> Entities
 		{
 			get
 			{
@@ -231,7 +220,7 @@ namespace OpenMinecraft
 			}
 		}
 
-		public Dictionary<Guid, TileEntity> TileEntities
+        public override Dictionary<Guid, TileEntity> TileEntities
 		{
 			get
 			{
@@ -239,7 +228,7 @@ namespace OpenMinecraft
 			}
 		}
 
-		public long RandomSeed
+        public override long RandomSeed
 		{
 			get
 			{
@@ -251,11 +240,11 @@ namespace OpenMinecraft
 			}
 		}
 
-		public void Load()
+        public override void Load()
 		{
 			Load(Filename);
 		}
-		public void Load(string filename)
+        public override void Load(string filename)
 		{
 			try
 			{
@@ -281,11 +270,11 @@ namespace OpenMinecraft
 		}
 
 
-		public Chunk GetChunk(Vector3i chunkpos)
+		public override Chunk GetChunk(Vector3i chunkpos)
 		{
 			return GetChunk(chunkpos.X, chunkpos.Y);
 		}
-		public void GetOverview(int CX,int CY,Vector3i pos, out int h, out byte block, out int waterdepth)
+		public override void GetOverview(int CX,int CY,Vector3i pos, out int h, out byte block, out int waterdepth)
 		{
 			h = 0;
 			block = 0;
@@ -313,7 +302,7 @@ namespace OpenMinecraft
 			}
 		}
 
-		public Vector3i GetMousePos(Vector3i mp, int scale, ViewAngle angle)
+		public override Vector3i GetMousePos(Vector3i mp, int scale, ViewAngle angle)
 		{
 			Vector3i p = new Vector3i(0,0,0);
 			switch(angle)
@@ -555,7 +544,7 @@ namespace OpenMinecraft
 			}
 		}
 		
-		public void SetTileEntity(TileEntity e)
+		public override void SetTileEntity(TileEntity e)
 		{
 			long CX = e.Pos.X / ChunkX;
             long CZ = e.Pos.Z / ChunkZ;
@@ -576,7 +565,7 @@ namespace OpenMinecraft
 
 		}
 
-		public void RemoveTileEntity(TileEntity e)
+		public override void RemoveTileEntity(TileEntity e)
 		{
 			long CX = e.Pos.X / ChunkX;
             long CZ = e.Pos.Z / ChunkZ;
@@ -652,7 +641,7 @@ namespace OpenMinecraft
 			return c;
 		}
 
-		public void SetChunk(Chunk cnk)
+		public override void SetChunk(Chunk cnk)
 		{
 			string id = cnk.Position.ToString() + "," + cnk.Position.Z.ToString();
 			if(mChunks.ContainsKey(id))
@@ -661,7 +650,7 @@ namespace OpenMinecraft
 				mChunks.Add(id,cnk);
 		}
 
-		public void SaveChunk(Chunk cnk)
+		public override void SaveChunk(Chunk cnk)
 		{
 			NbtFile c = new NbtFile(cnk.Filename);
 
@@ -731,14 +720,14 @@ namespace OpenMinecraft
             File.WriteAllText(cnk.Filename + ".txt", c.RootTag.ToString());
         }
 
-        public Vector3i Local2Global(int CX, int CZ, Vector3i local)
+        public override Vector3i Local2Global(int CX, int CZ, Vector3i local)
         {
             Vector3i r = new Vector3i(local);
             r.X += CX * ChunkX;
             r.Z += CZ * ChunkZ;
             return r;
         }
-        public Vector3i Global2Local(Vector3i global, out int CX, out int CZ)
+        public override Vector3i Global2Local(Vector3i global, out int CX, out int CZ)
         {
             Vector3i r = new Vector3i(global);
             CX = (int)r.X / ChunkX;
@@ -749,14 +738,14 @@ namespace OpenMinecraft
             return r;
         }
 
-        public Vector3d Local2Global(int CX, int CZ, Vector3d local)
+        public override Vector3d Local2Global(int CX, int CZ, Vector3d local)
         {
             Vector3d r = local;
             r.X += CX * ChunkX;
             r.Z += CZ * ChunkZ;
             return r;
         }
-        public Vector3d Global2Local(Vector3d global, out int CX, out int CZ)
+        public override Vector3d Global2Local(Vector3d global, out int CX, out int CZ)
         {
             Vector3d r = global;
             CX = (int)r.X / ChunkX;
@@ -767,19 +756,19 @@ namespace OpenMinecraft
             return r;
         }
 
-		public bool IsMyFiletype(string f)
+		public override bool IsMyFiletype(string f)
 		{
 			return Path.GetFileName(f).Equals("level.dat");
 		}
 
-		public bool Save()
+		public override bool Save()
 		{
 			File.Copy(Filename, Path.ChangeExtension(Filename, "bak"),true);
 			mRoot.SaveFile(Filename);
 			return true;
 		}
 
-		public bool Save(string filename)
+		public override bool Save(string filename)
         {
             mFolder = Path.GetDirectoryName(filename);
             Filename = filename;
@@ -794,7 +783,7 @@ namespace OpenMinecraft
             }
             return true;
 		}
-        public void AddEntity(Entity e)
+        public override void AddEntity(Entity e)
         {
             int CX = (int)(e.Pos.X / ChunkX);
             int CZ = (int)(e.Pos.Z / ChunkZ);
@@ -828,7 +817,7 @@ namespace OpenMinecraft
                 if(_DEBUG) Console.WriteLine(ex.ToString());
             }
         }
-		public void SetEntity(Entity e)
+		public override void SetEntity(Entity e)
 		{
 			Guid ID = e.UUID;
 
@@ -848,7 +837,7 @@ namespace OpenMinecraft
 			SetChunk(c);
 		}
 
-		public void RemoveEntity(Entity e)
+		public override void RemoveEntity(Entity e)
 		{
             // Get our UUID (why UUIDs, Rob? WTF)
 			Guid ID = e.UUID;
@@ -879,7 +868,7 @@ namespace OpenMinecraft
 		}
         
 
-		public byte GetBlockAt(int px, int py, int z)
+		public override byte GetBlockAt(int px, int py, int z)
 		{
 			int X = px / ChunkX;
 			int Y = py / ChunkZ;
@@ -892,7 +881,7 @@ namespace OpenMinecraft
 			return c.Blocks[x, y, z];
 		}
 
-		public void GetLightAt(int _X, int _Y, int _Z, out byte skyLight, out byte blockLight)
+		public override void GetLightAt(int _X, int _Y, int _Z, out byte skyLight, out byte blockLight)
 		{
             skyLight=blockLight=0;
 			int X = _X / ChunkX;
@@ -907,7 +896,7 @@ namespace OpenMinecraft
 			blockLight=c.BlockLight[x, y, _Z];
 		}
 
-		public void SetBlockAt(int px, int py, int z, byte val)
+		public override void SetBlockAt(int px, int py, int z, byte val)
 		{
 			int X = px / ChunkX;
 			int Y = py / ChunkZ;
@@ -921,7 +910,7 @@ namespace OpenMinecraft
 			SetChunk(X, Y, c);
         }
 
-        public void SetSkyLightAt(int px, int py, int z, byte val)
+        public override void SetSkyLightAt(int px, int py, int z, byte val)
         {
             int X = px / ChunkX;
             int Y = py / ChunkZ;
@@ -935,7 +924,7 @@ namespace OpenMinecraft
             SetChunk(X, Y, c);
         }
 
-        public void SetBlockLightAt(int px, int py, int z, byte val)
+        public override void SetBlockLightAt(int px, int py, int z, byte val)
         {
             int X = px / ChunkX;
             int Y = py / ChunkZ;
@@ -949,7 +938,7 @@ namespace OpenMinecraft
             SetChunk(X, Y, c);
         }
 
-        public byte GetSkyLightAt(int px, int py, int z)
+        public override byte GetSkyLightAt(int px, int py, int z)
         {
             int X = px / ChunkX;
             int Y = py / ChunkZ;
@@ -962,7 +951,7 @@ namespace OpenMinecraft
             return c.SkyLight[x, y, z];
         }
 
-        public byte GetBlockLightAt(int px, int py, int z)
+        public override byte GetBlockLightAt(int px, int py, int z)
         {
             int X = px / ChunkX;
             int Y = py / ChunkZ;
@@ -998,7 +987,7 @@ namespace OpenMinecraft
             mTileEntities.Clear();
 		}
 
-        public int ExpandFluids(byte fluidID, bool CompleteRegen, ForEachProgressHandler ph)
+        public override int ExpandFluids(byte fluidID, bool CompleteRegen, ForEachProgressHandler ph)
         {
             int total = 0;
             int chunksProcessed=0;
@@ -1107,7 +1096,7 @@ namespace OpenMinecraft
         Perlin treeNoise;
         Random dungeonNoise;
 
-		public void Generate(IMapHandler mh, long X, long Z)
+		public override void Generate(IMapHandler mh, long X, long Z)
         {
             if (treeNoise == null)
             {
@@ -1175,7 +1164,7 @@ namespace OpenMinecraft
 			return BlockCount;
 		}
 
-		public Chunk NewChunk(long X, long Y)
+		public override Chunk NewChunk(long X, long Y)
         {
             NbtCompound c = NewNBTChunk(X, Y);
             string f = GetChunkFilename((int)X, (int)Y);
@@ -1222,7 +1211,7 @@ namespace OpenMinecraft
 			return Chunk;
 		}
 
-		public void ReplaceBlocksIn(long X, long Y, Dictionary<byte, byte> Replacements)
+		public override void ReplaceBlocksIn(long X, long Y, Dictionary<byte, byte> Replacements)
 		{
 			if (Replacements == null) return;
 			Chunk c = GetChunk((int)X, (int)Y);
@@ -1357,13 +1346,13 @@ namespace OpenMinecraft
 			}
 		}
 
-		public void CullChunk(long X, long Y)
+		public override void CullChunk(long X, long Y)
 		{
 			string ci = string.Format("{0},{1}", X, Y);
 			if(mChunks.ContainsKey(ci))
 				mChunks.Remove(ci);
 		}
-		public void LoadChunk(long X, long Y)
+		public override void LoadChunk(long X, long Y)
 		{
 			_LoadChunk((int)X, (int)Y);
 		}
@@ -1390,12 +1379,12 @@ namespace OpenMinecraft
 			return (x > min && x < max);
 		}
 
-		public void BeginTransaction()
+		public override void BeginTransaction()
 		{
 			mChangedChunks.Clear();
 			if(_DEBUG) Console.WriteLine("BEGIN TRANSACTION");
 		}
-		public void CommitTransaction()
+		public override void CommitTransaction()
 		{
 			if(_DEBUG) Console.WriteLine("{0} chunks changed.", mChangedChunks.Count);
 			foreach (string v in mChangedChunks)
@@ -1436,14 +1425,14 @@ namespace OpenMinecraft
 			}
 		}
 
-		public int InventoryColumns
+		public override int InventoryColumns
 		{
 			get
 			{
 				return 9;
 			}
 		}
-		public int InventoryOnHandCapacity
+		public override int InventoryOnHandCapacity
 		{
 			get
 			{
@@ -1451,7 +1440,7 @@ namespace OpenMinecraft
 			}
 		}
 
-		public bool GetInventory(int slot, out short itemID, out short Damage, out byte Count, out string failreason)
+		public override bool GetInventory(int slot, out short itemID, out short Damage, out byte Count, out string failreason)
 		{
 			itemID = 0;
 			Damage = 0;
@@ -1487,7 +1476,7 @@ namespace OpenMinecraft
 			return false;
 		}
 
-		public bool SetInventory(int slot, short itemID, int Damage, int Count)
+		public override bool SetInventory(int slot, short itemID, int Damage, int Count)
 		{
 			// /Player/Inventory/
 			NbtCompound Slot = new NbtCompound();
@@ -1516,7 +1505,7 @@ namespace OpenMinecraft
 			return true;
 		}
 
-		public bool SetArmor(ArmorType Armor, short itemID, int Damage, int Count)
+		public override bool SetArmor(ArmorType Armor, short itemID, int Damage, int Count)
 		{
 			int slot = 103;
 			switch (Armor)
@@ -1537,7 +1526,7 @@ namespace OpenMinecraft
 			return SetInventory(slot, itemID, Damage, Count);
 		}
 
-		public bool GetArmor(ArmorType Armor, out short itemID, out short Damage, out byte Count, out string failreason)
+		public override bool GetArmor(ArmorType Armor, out short itemID, out short Damage, out byte Count, out string failreason)
 		{
 			int slot = 103;
 			itemID = 0;
@@ -1560,7 +1549,7 @@ namespace OpenMinecraft
 			}
 			return GetInventory(slot, out itemID, out Damage, out Count, out failreason);
 		}
-		public void ClearInventory()
+		public override void ClearInventory()
 		{
 			NbtCompound Data = (NbtCompound)mRoot.RootTag["Data"];
 			NbtCompound Player = (NbtCompound)Data["Player"];
@@ -1569,11 +1558,11 @@ namespace OpenMinecraft
 			Data["Player"] = Player;
 			mRoot.RootTag["Data"] = Data;
 		}
-		public void Repair()
+		public override void Repair()
 		{
 			throw new NotImplementedException();
 		}
-		public void ForEachCachedChunk(CachedChunkDelegate cmd)
+		public override void ForEachCachedChunk(CachedChunkDelegate cmd)
 		{
 			Dictionary<string, Chunk> C = new Dictionary<string, Chunk>(mChunks);
 			foreach (KeyValuePair<string, Chunk> k in C)
@@ -1581,7 +1570,7 @@ namespace OpenMinecraft
 				cmd(k.Value.Position.X, k.Value.Position.Z, k.Value);
 			}
 		}
-		public void ForEachChunk(ChunkIteratorDelegate cmd)
+		public override void ForEachChunk(ChunkIteratorDelegate cmd)
 		{
 			string[] f = Directory.GetFiles(mFolder,"c*.*.dat",SearchOption.AllDirectories);
 			int Complete=0;
@@ -1617,7 +1606,7 @@ namespace OpenMinecraft
 			ForEachProgress = null;
 		}
 
-		public Vector2i GetChunkCoordsFromFile(string file)
+		public override Vector2i GetChunkCoordsFromFile(string file)
         {
             return GetChunkCoordsFromFile(file,false);
         }
@@ -1659,7 +1648,7 @@ namespace OpenMinecraft
 
 		IMapGenerator _Generator = new DefaultMapGenerator(0);
         private int mDimension;
-		public IMapGenerator Generator
+		public override IMapGenerator Generator
 		{
 			get
 			{
@@ -1740,7 +1729,7 @@ namespace OpenMinecraft
         /// <param name="x"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public bool RegenerateLighting(long x, long z)
+        public override bool RegenerateLighting(long x, long z)
         {
 #if DEBUG
 //            printf("generateLight(x=%d, z=%d, chunk=%p)\n", x, z, chunk);
@@ -1923,17 +1912,17 @@ namespace OpenMinecraft
             return true;
         }
 
-		public void ChunkModified(long x, long y)
+		public override void ChunkModified(long x, long y)
 		{
 
 		}
 
-		public Chunk GetChunk(long x, long y)
+		public override Chunk GetChunk(long x, long y)
 		{
 			return GetChunk((int)x, (int)y, false);
 		}
 
-        public IEnumerable<Dimension> GetDimensions()
+        public override IEnumerable<Dimension> GetDimensions()
         {
             return new Dimension[]
             {
@@ -1942,13 +1931,13 @@ namespace OpenMinecraft
             };
         }
 
-        public void SetDimension(int ID)
+        public override void SetDimension(int ID)
         {
             mDimension = ID;
             UnloadChunks();
         }
 
-        public int GetHeightAt(int px, int py)
+        public override int GetHeightAt(int px, int py)
         {
             int X = px / ChunkX;
             int Y = py / ChunkZ;
@@ -1961,7 +1950,7 @@ namespace OpenMinecraft
         }
 
 
-        public void SaveAll()
+        public override void SaveAll()
         {
             lock(mChunks)
             {
@@ -1979,13 +1968,13 @@ namespace OpenMinecraft
         }
 
 
-        public void SetChunk(long X, long Y, Chunk c)
+        public override void SetChunk(long X, long Y, Chunk c)
         {
             SetChunk((int)X, (int)Y, c);
         }
 
 
-        public void CullUnchanged()
+        public override void CullUnchanged()
         {
             List<string> chunkKeys = new List<string>(mChunks.Keys);
             foreach (string k in chunkKeys)
@@ -1994,6 +1983,22 @@ namespace OpenMinecraft
                     mChunks.Remove(k);
             }
             mChangedChunks.Clear();
+        }
+
+        public override void SetHeightAt(int x, int z, int h, byte mat)
+        {
+            int oh=GetHeightAt(x,z);
+            // Ignore air/water/lava
+            List<byte> excused_blocks=new List<byte>(new byte[]{0,8,9,10,11});
+            for (int y = 0; y < ChunkY; y++)
+            {
+                byte block = GetBlockAt(x,y,z);
+                bool excused = excused_blocks.Contains(block);
+                if (!excused && h < y) block = 0;   // REMOVE SHIT
+                if (excused && h >= y) block = mat; // ADD DERT
+                if (block==3 && h == y) block = 2;  // ADD GRASS
+                SetBlockAt(x, y, z, block);
+            }
         }
     }
 }

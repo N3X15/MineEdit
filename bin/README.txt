@@ -14,9 +14,9 @@ I. LICENSE
 
   MineEdit has an MIT license, although I honestly really don't care what you do to it, as long as my name is somewhere on the end result of your tinkering.
 
-  LibNBT, which is included with MineEdit, has a GPL license.
+  LibNBT, which is included with MineEdit, has a GPL license.  It has been patched to add path-based setting of values so is included with the MineEdit sourcecode.
   
-  I have no idea what lightgen is, Moose just kinda went "here" and was never heard from again.  
+  lightgen.exe, the light regenerator, is by #mcc's Moose.  I've patched it to compile in Cygwin.  I have no idea what license lightgen is, Moose just kinda went "here" and was never heard from again.  
 
   We worked hard on this stuff, and don't want to see our creations twisted into some horrible monster that doesn't credit us and our work. So credit us and follow the appropriate licensing.
 
@@ -34,7 +34,6 @@ III. EDITING INVENTORY
 	2. Go to the inventory tab (provided stuff hasn't crashed)
 	3. Click on a slot you wish to edit. It will have an orange outline to show it as selected.
 	4. Tinker with the settings to the left to set the settings for all the selected items.  
-		NOTE: ALL PARTS OF THESE SETTINGS WILL BE APPLIED TO ALL SELECTED INVENTORY SLOTS.
-		NOTE 2: Setting a part to AIR (0x00) or a count of 0 will delete it from inventory.
+		NOTE: ALL PARTS OF THESE SETTINGS WILL BE APPLIED TO ALL SELECTED INVENTORY SLOTS.\
 	5. Click Apply to Selected to apply.
 
