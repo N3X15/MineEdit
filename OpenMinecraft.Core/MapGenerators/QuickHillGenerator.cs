@@ -15,7 +15,7 @@ namespace OpenMinecraft
 
         protected Random rand;
         // Main terrain noise (two combined Perlin noises)
-        protected FastBillow TerrainNoise;
+        protected FastNoise TerrainNoise;
         protected FastRidgedMultifractal ContinentNoise;
         protected Perlin CaveNoise;
 
@@ -84,14 +84,14 @@ namespace OpenMinecraft
 
         private void Setup()
         {
-            Frequency = 1;
-            ContinentNoiseFrequency = 0.1;
+            Frequency = 00.1;
+            ContinentNoiseFrequency = 0.01;
             Lacunarity = 0.05;
             Persistance = 0.5;
             OctaveCount = 3;
             mContinentNoiseOctaves = 1;
 
-            TerrainNoise = new FastBillow();
+            TerrainNoise = new FastNoise();
             ContinentNoise = new FastRidgedMultifractal();
             CaveNoise = new Perlin();
             TerrainNoise.Seed = (int)Seed;
@@ -147,7 +147,7 @@ namespace OpenMinecraft
                     //height *= 60; // Bring from [0,1] -> [0,128]
 
                     double height = (ContinentNoise.GetValue((double)(x + x_o) / 10d, (double)(z + z_o) / 10d, 0) + 1d) *0.5d; // 2.0
-                    height += 0.1 + TerrainNoise.GetValue(x + x_o, z + z_o, 0) * 0.125;
+                    height += 0.1 + TerrainNoise.GetValue(x + x_o, z + z_o, 0) * 0.0125;
 
                     height *= chunksize.Y-3; // Drop to highest index -2 (vertical space for player)
 
