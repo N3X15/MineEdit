@@ -697,6 +697,8 @@ namespace OpenMinecraft
                     hm[z + (x << 4)] = (byte)cnk.HeightMap[x, z];
 				}
 			}
+            Level.Set("HeightMap", new NbtByteArray("HeightMap", hm));
+
 
 			NbtList ents = new NbtList("Entities");
 			// ENTITIES ///////////////////////////////////////////////////
@@ -713,6 +715,9 @@ namespace OpenMinecraft
 				ents.Add(tent.Value.ToNBT());
 			}
 			Level.Set("TileEntities",tents);
+
+            // Tick when last saved.  But ticks are process associated...
+            Level.Set("LastUpdate", new NbtLong("LastUpdate", (long)Utils.UnixTimestamp()));
 
 			c.RootTag.Set("Level",Level);
 			

@@ -3,6 +3,8 @@ using System;
 using System.IO;
 using OpenMinecraft;
 using OpenMinecraft.Entities;
+using LibNbt;
+using LibNbt.Tags;
 
 namespace OpenMinecraft.Tests
 {
@@ -71,6 +73,40 @@ namespace OpenMinecraft.Tests
             Assert.AreEqual(cnkB.Blocks[0, 0, 1], 0x02);
             Assert.AreEqual(cnkB.Blocks[0, 0, 2], 0x03);
             Assert.AreEqual(cnkB.Blocks[0, 0, 3], 0x04);
+
+            Console.WriteLine("Opening {0}...", cnkB.Filename);
+
+            NbtFile chunkFile = new NbtFile(cnkB.Filename);
+            chunkFile.LoadFile();
+
+            NbtCompound level = chunkFile.RootTag.Get<NbtCompound>("Level");
+
+            // Listed from a Minecraft-generated chunk.
+            string[] reqdEntries = new string[]{
+                "xPos",
+                "zPos",
+                "LastUpdate",
+                "Blocks",
+                "Data",
+                "SkyLight",
+                "BlockLight",
+                "HeightMap",
+                "TerrainPopulated",
+                "Entities",
+                "TileEntities"
+            };
+            foreach (string entry in reqdEntries)
+            {
+                if (level.Get(entry)==null)
+                {
+                    Console.WriteLine(chunkFile.RootTag.ToString());
+                    Assert.Fail(string.Format("\"{0}\" is not included", entry));
+                }
+                else
+                {
+                    Console.WriteLine(" * Has {0}...", entry);
+                }
+            }
 
             Directory.Delete("002", true);
         }
