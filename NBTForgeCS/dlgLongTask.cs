@@ -30,6 +30,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using SpPerfChart;
 
 namespace MineEdit
 {
@@ -40,6 +41,8 @@ namespace MineEdit
         private Thread thread;
         protected Stopwatch totalTime;
         protected System.Timers.Timer Tick = new System.Timers.Timer(250);
+        private Panel panel2;
+        public GroupBox grpPerformance;
         public bool STOP = false;        
         
         #region Windows Form Designer generated code
@@ -51,7 +54,6 @@ namespace MineEdit
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
-            this.pbAnimation = new System.Windows.Forms.PictureBox();
             this.lblSubtitle = new System.Windows.Forms.Label();
             this.lblTitle = new System.Windows.Forms.Label();
             this.grpSubtask = new System.Windows.Forms.GroupBox();
@@ -68,10 +70,14 @@ namespace MineEdit
             this.totalProgress = new System.Windows.Forms.ProgressBar();
             this.cmdCancel = new System.Windows.Forms.Button();
             this.cmdOK = new System.Windows.Forms.Button();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.pbAnimation = new System.Windows.Forms.PictureBox();
+            this.grpPerformance = new System.Windows.Forms.GroupBox();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbAnimation)).BeginInit();
             this.grpSubtask.SuspendLayout();
             this.grpTotal.SuspendLayout();
+            this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbAnimation)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -85,15 +91,6 @@ namespace MineEdit
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(581, 56);
             this.panel1.TabIndex = 0;
-            // 
-            // pbAnimation
-            // 
-            this.pbAnimation.Location = new System.Drawing.Point(3, 3);
-            this.pbAnimation.Name = "pbAnimation";
-            this.pbAnimation.Size = new System.Drawing.Size(51, 50);
-            this.pbAnimation.TabIndex = 2;
-            this.pbAnimation.TabStop = false;
-            this.pbAnimation.Paint += new System.Windows.Forms.PaintEventHandler(this.pbAnimation_Paint);
             // 
             // lblSubtitle
             // 
@@ -121,7 +118,7 @@ namespace MineEdit
             this.grpSubtask.Controls.Add(this.lblSubProgress);
             this.grpSubtask.Controls.Add(this.lblCurrentSubtask);
             this.grpSubtask.Controls.Add(this.subProgress);
-            this.grpSubtask.Location = new System.Drawing.Point(12, 62);
+            this.grpSubtask.Location = new System.Drawing.Point(12, 56);
             this.grpSubtask.Name = "grpSubtask";
             this.grpSubtask.Size = new System.Drawing.Size(557, 86);
             this.grpSubtask.TabIndex = 1;
@@ -178,9 +175,9 @@ namespace MineEdit
             this.grpTotal.Controls.Add(this.lblTotalTimeElapsed);
             this.grpTotal.Controls.Add(this.lblCurrentTask);
             this.grpTotal.Controls.Add(this.totalProgress);
-            this.grpTotal.Location = new System.Drawing.Point(12, 154);
+            this.grpTotal.Location = new System.Drawing.Point(12, 148);
             this.grpTotal.Name = "grpTotal";
-            this.grpTotal.Size = new System.Drawing.Size(557, 83);
+            this.grpTotal.Size = new System.Drawing.Size(557, 87);
             this.grpTotal.TabIndex = 2;
             this.grpTotal.TabStop = false;
             this.grpTotal.Text = "Total Progress";
@@ -231,7 +228,7 @@ namespace MineEdit
             // cmdCancel
             // 
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(494, 256);
+            this.cmdCancel.Location = new System.Drawing.Point(494, 13);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(75, 23);
             this.cmdCancel.TabIndex = 3;
@@ -243,20 +240,48 @@ namespace MineEdit
             // 
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdOK.Enabled = false;
-            this.cmdOK.Location = new System.Drawing.Point(413, 256);
+            this.cmdOK.Location = new System.Drawing.Point(413, 13);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(75, 23);
             this.cmdOK.TabIndex = 3;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
             // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.cmdOK);
+            this.panel2.Controls.Add(this.cmdCancel);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel2.Location = new System.Drawing.Point(0, 331);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(581, 48);
+            this.panel2.TabIndex = 4;
+            // 
+            // pbAnimation
+            // 
+            this.pbAnimation.Location = new System.Drawing.Point(3, 3);
+            this.pbAnimation.Name = "pbAnimation";
+            this.pbAnimation.Size = new System.Drawing.Size(51, 50);
+            this.pbAnimation.TabIndex = 2;
+            this.pbAnimation.TabStop = false;
+            this.pbAnimation.Paint += new System.Windows.Forms.PaintEventHandler(this.pbAnimation_Paint);
+            // 
+            // grpPerformance
+            // 
+            this.grpPerformance.Location = new System.Drawing.Point(12, 245);
+            this.grpPerformance.Name = "grpPerformance";
+            this.grpPerformance.Size = new System.Drawing.Size(557, 80);
+            this.grpPerformance.TabIndex = 5;
+            this.grpPerformance.TabStop = false;
+            this.grpPerformance.Text = "Performance";
+            // 
             // dlgLongTask
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(581, 291);
+            this.ClientSize = new System.Drawing.Size(581, 379);
             this.ControlBox = false;
-            this.Controls.Add(this.cmdOK);
-            this.Controls.Add(this.cmdCancel);
+            this.Controls.Add(this.grpPerformance);
+            this.Controls.Add(this.panel2);
             this.Controls.Add(this.grpTotal);
             this.Controls.Add(this.grpSubtask);
             this.Controls.Add(this.panel1);
@@ -265,11 +290,12 @@ namespace MineEdit
             this.Load += new System.EventHandler(this.dlgLongTask_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbAnimation)).EndInit();
             this.grpSubtask.ResumeLayout(false);
             this.grpSubtask.PerformLayout();
             this.grpTotal.ResumeLayout(false);
             this.grpTotal.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbAnimation)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -294,13 +320,34 @@ namespace MineEdit
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.Button cmdOK;
         public System.Windows.Forms.Label lblSubProgress;
-
+        public PerfChart perfChart;
+        private int hMax;
         public dlgLongTask()
         {
             InitializeComponent();
+
+            perfChart = new PerfChart();
+            grpPerformance.Controls.Add(perfChart);
+            perfChart.Dock = DockStyle.Fill;
+            perfChart.PerfChartStyle.AntiAliasing = true;
+            perfChart.PerfChartStyle.AvgLinePen.Color = Color.Aqua;
+            perfChart.PerfChartStyle.BackgroundColorBottom = Color.DarkSeaGreen;
+            perfChart.PerfChartStyle.BackgroundColorTop = Color.LightSeaGreen;
+            perfChart.PerfChartStyle.ChartLinePen.Color = Color.Yellow;
+            perfChart.PerfChartStyle.HorizontalGridPen.Color = Color.FromArgb(128, Color.Yellow);
+            perfChart.PerfChartStyle.VerticalGridPen.Color = Color.FromArgb(128, Color.Yellow);
+
             CheckForIllegalCrossThreadCalls = false;
             Tick.Elapsed += new System.Timers.ElapsedEventHandler(Tick_Elapsed);
+
+            hMax=Height;
         }
+
+        public void ShowPerfChart(bool yes)
+        {
+            grpPerformance.Enabled = yes;
+        }
+
         public void Start(ThreadStart ts)
         {
             thread = new Thread(ts);

@@ -100,7 +100,7 @@ namespace OpenMinecraft
 
         public abstract Chunk NewChunk(long X, long Y);
         public abstract IMapGenerator Generator { get; set; }
-        public abstract void Generate(IMapHandler mh, long X, long Y);
+        public abstract void Generate(IMapHandler mh, long X, long Y, out int min, out int max);
         public abstract void FinalizeGeneration(IMapHandler mh, long X, long Z);
 
         public abstract Vector2i GetChunkCoordsFromFile(string filename);
@@ -277,7 +277,7 @@ namespace OpenMinecraft
                     }
                 }
             }
-            Console.WriteLine("Erode(): max_h={0}m", max_h);
+            //Console.WriteLine("Erode(): max_h={0}m", max_h);
         }
 
 
@@ -342,7 +342,7 @@ namespace OpenMinecraft
                     }
                 }
             }
-            Console.WriteLine("ErodeThermal(): max_h={0}m", max_h);
+            //Console.WriteLine("ErodeThermal(): max_h={0}m", max_h);
         }
 
     }

@@ -59,7 +59,11 @@ namespace MineEdit.UIControls
         {
             InitializeComponent();
             Minimum = 0;
-            Maximum = 1;
+            Maximum = 1; 
+            
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
         }
 
         private double Lerp(double frac, double a, double b)

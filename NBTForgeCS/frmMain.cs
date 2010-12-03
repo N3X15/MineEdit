@@ -1424,12 +1424,17 @@ namespace MineEdit
 
                         dlt.CurrentTask = "Regenerating chunks...";
                         (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
+                        dlt.ShowPerfChart(true);
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
                         {
                             if (dlt.STOP) return;
                             dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Y);
-                            (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y);
-                        });
+                            int min, max;
+                            (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y, out min, out max);
+                            dlt.grpPerformance.Text = string.Format("Terrain Profile [{0},{1}]m",min,max);
+                            dlt.perfChart.AddValue(max);
+                        }); 
+                        dlt.ShowPerfChart(false);
 
                         stage = 1;
                         dlt.CurrentTask = "Eroding chunk surfaces...";
@@ -1451,7 +1456,7 @@ namespace MineEdit
                         (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
                         {
-                            dlt.CurrentSubtask = string.Format("Finalizing chunk ({0},{1}, thermal)", X, Y);
+                            dlt.CurrentSubtask = string.Format("Finalizing chunk ({0},{1})...", X, Y);
                             (ActiveMdiChild as frmMap).Map.FinalizeGeneration((ActiveMdiChild as frmMap).Map, X, Y);
                         });
 
@@ -1498,6 +1503,8 @@ namespace MineEdit
                         dlt.SetMarquees(false,false);
                         dlt.Done();
                         ClearReport();
+                        mh.Time = 0;
+                        mh.Save();
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
                         
                         // DEACTIVATE AUTOREPAIR
@@ -1510,7 +1517,8 @@ namespace MineEdit
 
         protected void GenChunk(long X, long Y)
         {
-            (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y);
+            int min, max;
+            (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y, out min, out max);
         }
 
         private void recalcLightingToolStripMenuItem_Click(object sender, EventArgs e)

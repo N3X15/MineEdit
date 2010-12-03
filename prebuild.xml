@@ -231,9 +231,10 @@
       <Reference name="OpenTK.GLControl"/>
       <Reference name="LibNBT"/>
       <Reference name="log4net.dll"/>
+      <Reference name="SpPerfChart.dll"/> <!-- Performance chart -->
       <Files>
         <Match pattern="*.cs" recurse="true" />
-        <Match pattern="Resources/*.resx" recurse="true" />
+        <Match pattern="Properties/*.resx" />
 		<Match pattern="*.*" path="Resources" recurse="false" buildAction="EmbeddedResource" />
       </Files>
     </Project>

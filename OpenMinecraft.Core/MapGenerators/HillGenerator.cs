@@ -131,8 +131,11 @@ namespace OpenMinecraft
         /// <param name="Z"></param>
         /// <param name="chunksize"></param>
         /// <returns></returns>
-        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Z)
+        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Z, out int minHeight, out int maxHeight)
         {
+            minHeight = (int)mh.ChunkScale.Y;
+            maxHeight = 0;
+
             Vector3i chunksize = mh.ChunkScale;
             bool PlaceGravel = ((GravelNoise.GetValue((X * chunksize.X), (Z * chunksize.Z), 0) + 1) / 2.0) > 0.90d;
 

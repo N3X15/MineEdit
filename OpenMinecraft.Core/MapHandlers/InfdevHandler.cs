@@ -627,13 +627,15 @@ namespace OpenMinecraft
 		{
 			string id = x.ToString() + "," + z.ToString();
 			Chunk c;
+            int min, max;
 			if (!mChunks.TryGetValue(id, out c))
 			{
 				if(File.Exists(GetChunkFilename(x,z)))
 					return _LoadChunk(x, z);
 				if (GenerateNewChunkIfNeeded)
 				{
-					Generate(this, x, z);
+
+					Generate(this, x, z, out min, out max);
 					return GetChunk(x, z);
 				}
 				return null;
@@ -1098,8 +1100,10 @@ namespace OpenMinecraft
 
         Random rand = new Random();
 
-		public override void Generate(IMapHandler mh, long X, long Z)
+		public override void Generate(IMapHandler mh, long X, long Z, out int min, out int max)
         {
+            min = 0;
+            max = ChunkY;
             if (treeNoise == null)
             {
                 treeNoise = new Perlin();
@@ -1118,8 +1122,9 @@ namespace OpenMinecraft
 				if (File.Exists(lockfile))
 					File.Delete(lockfile);
 			}
+
 			Chunk _c = mh.NewChunk(X, Z);
-			byte[,,] b = _Generator.Generate(ref mh, X, Z);
+			byte[,,] b = _Generator.Generate(ref mh, X, Z,out min, out max);
 			if (b == null) return;
 			/*
 			try
@@ -1158,8 +1163,8 @@ namespace OpenMinecraft
             Chunk _c = NewChunk(X, Z);
             byte[, ,] b = _c.Blocks;
 
-            _Generator.AddSoil(ref b, 63, 6, _Generator.Materials);
             _Generator.AddPlayerBarriers(ref b);
+            _Generator.AddSoil(ref b, 63, 6, _Generator.Materials);
             _Generator.AddDungeons(ref b, ref mh, dungeonNoise, X, Z);
             _Generator.AddTrees(ref b, ref treeNoise, ref rand, (int)X, (int)Z, (int)ChunkY);
 
@@ -1979,9 +1984,11 @@ namespace OpenMinecraft
         {
             lock(mChunks)
             {
-                foreach (Chunk c in mChunks.Values)
+                List<string> Keys = new List<string>(mChunks.Keys);
+                foreach (string k in Keys)
                 {
-                    c.Save();
+                    mChunks[k].Save();
+                    mChunks.Remove(k);
                 }
 
                 // CULL, CULL LIKE NO TOMORROW

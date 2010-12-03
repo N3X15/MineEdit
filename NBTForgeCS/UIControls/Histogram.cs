@@ -45,12 +45,15 @@ namespace ServerWrap
         /// </summary>
         private void InitializeComponent()
         {
+            this.SuspendLayout();
             // 
-            // HistogramaDesenat
+            // Histogram
             // 
-            this.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+            this.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "Histogram";
-            this.Size = new System.Drawing.Size(208, 176);
+            this.Size = new System.Drawing.Size(208, 58);
+            this.ResumeLayout(false);
+
         }
         #endregion
 
@@ -68,8 +71,8 @@ namespace ServerWrap
 
                     //We draw each line 
                     g.DrawLine(myPen,
-                        new PointF(myOffset + (i * myXUnit), this.Height - myOffset),
-                        new PointF(myOffset + (i * myXUnit), this.Height - myOffset - myValues[i] * myYUnit));
+                        new PointF(myOffset + (i * myXUnit), e.ClipRectangle.Height - myOffset),
+                        new PointF(myOffset + (i * myXUnit), e.ClipRectangle.Height - myOffset - myValues[i] * myYUnit));
 
                     //We plot the coresponding index for the maximum value.
                     if (myValues[i] == myMaxValue)
@@ -83,7 +86,7 @@ namespace ServerWrap
                 }
 
                 //We draw the indexes for 0 and for the length of the array beeing plotted
-                g.DrawString("0", myFont, new SolidBrush(myColor), new PointF(myOffset, this.Height - myFont.Height), System.Drawing.StringFormat.GenericDefault);
+                g.DrawString("0", myFont, new SolidBrush(myColor), new PointF(myOffset, e.ClipRectangle.Height - myFont.Height), System.Drawing.StringFormat.GenericDefault);
                 g.DrawString((myValues.Length - 1).ToString(), myFont,
                     new SolidBrush(myColor),
                     new PointF(myOffset + (myValues.Length * myXUnit) - g.MeasureString((myValues.Length - 1).ToString(), myFont).Width,
@@ -91,7 +94,7 @@ namespace ServerWrap
                     System.Drawing.StringFormat.GenericDefault);
 
                 //We draw a rectangle surrounding the control.
-                g.DrawRectangle(new System.Drawing.Pen(new SolidBrush(Color.Black), 1), 0, 0, this.Width - 1, this.Height - 1);
+                g.DrawRectangle(new System.Drawing.Pen(new SolidBrush(Color.Black), 1), 0, 0, e.ClipRectangle.Width - 1, e.ClipRectangle.Height - 1);
             }
 
         }
@@ -142,6 +145,7 @@ namespace ServerWrap
         /// <param name="myValues">The values beeing draw</param>
         public void DrawHistogram(long[] Values)
         {
+            Console.WriteLine("{0} entries", Values.Length);
             myValues = new long[Values.Length];
             Values.CopyTo(myValues, 0);
 
@@ -150,7 +154,7 @@ namespace ServerWrap
 
             ComputeXYUnitValues();
 
-            this.Refresh();
+            this.Invalidate();
         }
 
         /// <summary>
@@ -184,8 +188,8 @@ namespace ServerWrap
 
         private void ComputeXYUnitValues()
         {
-            myYUnit = (float)(this.Height - (2 * myOffset)) / myMaxValue;
-            myXUnit = (float)(this.Width - (2 * myOffset)) / (myValues.Length - 1);
+            myYUnit = (float)(this.ClientRectangle.Height - (2 * myOffset)) / myMaxValue;
+            myXUnit = (float)(this.ClientRectangle.Width - (2 * myOffset)) / (myValues.Length - 1);
         }
 
         public string Title { get; set; }

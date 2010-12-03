@@ -101,8 +101,11 @@ namespace OpenMinecraft
         /// <param name="Z"></param>
         /// <param name="chunksize"></param>
         /// <returns></returns>
-        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Z)
+        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Z, out int minHeight, out int maxHeight)
         {
+            minHeight = (int)mh.ChunkScale.Y;
+            maxHeight = 0;
+
             Vector3i chunksize = mh.ChunkScale;
 
             int YH = (int)chunksize.Y;

@@ -20,7 +20,7 @@ namespace OpenMinecraft
         /// <param name="Y"></param>
         /// <param name="chunksize"></param>
         /// <returns></returns>
-        public abstract byte[, ,] Generate(ref IMapHandler mh, long X, long Y);
+        public abstract byte[, ,] Generate(ref IMapHandler mh, long X, long Y, out int min, out int max);
 
         [Browsable(false)]
         public abstract bool GenerateCaves { get; set; }
@@ -65,12 +65,16 @@ namespace OpenMinecraft
                     {
                         case 0: // Air
                             continue;
-                        case 2:
+                        case 1: // ROCK
+                        case 2: // GRASS
+                        case 3: // DIRT
                             Utils.GrowTree(ref b, rand, me.X, y + 1, me.Y);
                             break;
-                        case 51:
+                        /* Automatic
+                        case 11: // SAND
                             Utils.GrowCactus(ref b, rand, me.X, y + 1, me.Y);
                             break;
+                        */
                         default: break;
                     }
                 }
