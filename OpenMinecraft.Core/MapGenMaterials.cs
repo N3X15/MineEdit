@@ -173,16 +173,20 @@ namespace OpenMinecraft
         [EditorAttribute(typeof(UIMaterialDropdown), typeof(UITypeEditor))]
         public byte Lava { get; set; }
 
+        [EditorAttribute(typeof(UIMaterialDropdown), typeof(UITypeEditor))]
+        public byte Ice { get; set; }
+
         public MapGenMaterials()
         {
-            Rock=1;
-            Soil=3;
-            Grass=2;
-            Sand=12;
-            Snow=78;
-            Gravel=13;
-            Water=9;
-            Lava=11;
+            Rock = 1;
+            Soil = 3;
+            Grass = 2;
+            Sand = 12;
+            Snow = 78;
+            Gravel = 13;
+            Water = 8; // 8 = auto lightfix
+            Lava = 11;
+            Ice = 79;
         }
         public override string ToString()
         {
@@ -194,7 +198,8 @@ namespace OpenMinecraft
                 string.Format("Snow=0x{0:X2}, ", Snow) +
                 string.Format("Gravel=0x{0:X2}, ", Gravel) +
                 string.Format("Water=0x{0:X2}, ", Water) +
-                string.Format("Lava=0x{0:X2}", Lava) +
+                string.Format("Lava=0x{0:X2}, ", Lava) +
+                string.Format("Ice=0x{0:X2}", Ice) +
                 " }";
         }
     }

@@ -32,8 +32,8 @@ namespace OpenMinecraft
 
 		NbtFile mRoot = new NbtFile();
 		NbtFile mChunk = new NbtFile();
-		Dictionary<string, Chunk> mChunks = new Dictionary<string, Chunk>();
-		List<string> mChangedChunks = new List<string>();
+		Dictionary<int, Chunk> mChunks = new Dictionary<int, Chunk>();
+		List<int> mChangedChunks = new List<int>();
 		Dictionary<Guid, Entity> mEntities = new Dictionary<Guid, Entity>();
 		Dictionary<Guid, TileEntity> mTileEntities = new Dictionary<Guid, TileEntity>();
 
@@ -446,7 +446,7 @@ namespace OpenMinecraft
 				c.Loading = false;
 				c.UpdateOverview();
 
-				string ci = string.Format("{0},{1}", x, z);
+				int ci = GetChunkHandle(x, z);
 				if (mChunks.ContainsKey(ci))
 					return mChunks[ci];
 				mChunks.Add(ci, c);
@@ -493,6 +493,11 @@ namespace OpenMinecraft
 #endif
         }
 
+        private int GetChunkHandle(int x, int z)
+        {
+            return ((x << 16) & 0xfff000) | ((x >> 16) & 0x000fff);
+        }
+
 		private byte[, ,] DecompressBlocks(byte[] p)
 		{
 			byte[, ,] NewBlocks = new byte[ChunkX, ChunkY, ChunkZ];
@@ -515,7 +520,6 @@ namespace OpenMinecraft
 			foreach (NbtCompound c in ents.Tags)
 			{
                 Entity e = Entity.GetEntity(c);
-                
                 // TODO: Verify entity positioning.
                 e.Pos.X = e.Pos.X + (CX * (double)ChunkX);
                 e.Pos.Z = e.Pos.Z + (CZ * (double)ChunkZ);
@@ -625,9 +629,9 @@ namespace OpenMinecraft
 
 		public Chunk GetChunk(int x, int z, bool GenerateNewChunkIfNeeded)
 		{
-			string id = x.ToString() + "," + z.ToString();
+			int id = GetChunkHandle(x,z);
 			Chunk c;
-            int min, max;
+            double min, max;
 			if (!mChunks.TryGetValue(id, out c))
 			{
 				if(File.Exists(GetChunkFilename(x,z)))
@@ -645,7 +649,7 @@ namespace OpenMinecraft
 
 		public override void SetChunk(Chunk cnk)
 		{
-			string id = cnk.Position.ToString() + "," + cnk.Position.Z.ToString();
+            int id = GetChunkHandle((int)cnk.Position.X, (int)cnk.Position.Z);
 			if(mChunks.ContainsKey(id))
 				mChunks[id]=cnk;
 			else
@@ -875,105 +879,106 @@ namespace OpenMinecraft
 		}
         
 
-		public override byte GetBlockAt(int px, int py, int z)
+		public override byte GetBlockAt(int px, int y, int pz)
 		{
-			int X = px / ChunkX;
-			int Y = py / ChunkZ;
+            int X = px / ChunkX;
+            int Z = pz / ChunkZ;
 
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
-			int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
+            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
 
-			Chunk c = GetChunk(X, Y);
-			if (c == null) return 0x00;
+            Chunk c = GetChunk(X, Z);
+            if (c == null) return 0;
 			return c.Blocks[x, y, z];
 		}
 
-		public override void GetLightAt(int _X, int _Y, int _Z, out byte skyLight, out byte blockLight)
-		{
-            skyLight=blockLight=0;
-			int X = _X / ChunkX;
-			int Y = _Y / ChunkZ;
+		public override void GetLightAt(int px, int y, int pz, out byte skyLight, out byte blockLight)
+        {
+            skyLight = 0;
+            blockLight = 0;
+            int X = px / ChunkX;
+            int Z = pz / ChunkZ;
 
-            int x = _X - ((_X >> 4) * ChunkX); //(px >> 4) & 0xf;
-            int y = _Y - ((_Y >> 4) * ChunkZ); //(py >> 4) & 0xf;
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
 
-			Chunk c = GetChunk(X, Y);
-			if (c == null) return;
-			skyLight=c.SkyLight[x, y, _Z];
-			blockLight=c.BlockLight[x, y, _Z];
+            Chunk c = GetChunk(X, Z);
+            if (c == null) return;
+			skyLight=c.SkyLight[x, y, z];
+			blockLight=c.BlockLight[x, y, z];
 		}
 
-		public override void SetBlockAt(int px, int py, int z, byte val)
-		{
-			int X = px / ChunkX;
-			int Y = py / ChunkZ;
-
-            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
-            int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
-
-			Chunk c = GetChunk(X, Y);
-			if (c == null) return;
-			c.Blocks[x, y, z] = val;
-			SetChunk(X, Y, c);
-        }
-
-        public override void SetSkyLightAt(int px, int py, int z, byte val)
+		public override void SetBlockAt(int px, int y, int pz, byte val)
         {
             int X = px / ChunkX;
-            int Y = py / ChunkZ;
+            int Z = pz / ChunkZ;
 
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
-            int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
+            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
 
-            Chunk c = GetChunk(X, Y);
+            Chunk c = GetChunk(X, Z);
             if (c == null) return;
-            c.SkyLight[x, y, z] = val;
-            SetChunk(X, Y, c);
+			c.Blocks[x, y, z] = val;
+			SetChunk(X, Z, c);
         }
 
-        public override void SetBlockLightAt(int px, int py, int z, byte val)
+        public override void SetSkyLightAt(int px, int y, int pz, byte val)
         {
             int X = px / ChunkX;
-            int Y = py / ChunkZ;
+            int Z = pz / ChunkZ;
 
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
-            int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
+            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
 
-            Chunk c = GetChunk(X, Y);
+            Chunk c = GetChunk(X, Z);
+            if (c == null) return ;
+            c.SkyLight[x, y, z] = val;
+            SetChunk(X, Z, c);
+        }
+
+        public override void SetBlockLightAt(int px, int y, int pz, byte val)
+        {
+            int X = px / ChunkX;
+            int Z = pz / ChunkZ;
+
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Z);
             if (c == null) return;
             c.BlockLight[x, y, z] = val;
-            SetChunk(X, Y, c);
+            SetChunk(X, Z, c);
         }
 
-        public override byte GetSkyLightAt(int px, int py, int z)
+        public override byte GetSkyLightAt(int px, int y, int pz)
         {
             int X = px / ChunkX;
-            int Y = py / ChunkZ;
+            int Z = pz / ChunkZ;
 
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
-            int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
+            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
 
-            Chunk c = GetChunk(X, Y);
+            Chunk c = GetChunk(X, Z);
             if (c == null) return 0;
             return c.SkyLight[x, y, z];
         }
 
-        public override byte GetBlockLightAt(int px, int py, int z)
+        public override byte GetBlockLightAt(int px, int y, int pz)
         {
             int X = px / ChunkX;
-            int Y = py / ChunkZ;
+            int Z = pz / ChunkZ;
 
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
-            int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
+            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
 
-            Chunk c = GetChunk(X, Y);
+            Chunk c = GetChunk(X, Z);
             if (c == null) return 0;
             return c.BlockLight[x, y, z];
         }
 
-		private void SetChunk(int X, int Y, Chunk c)
-		{
-			string id = X.ToString() + "," + Y.ToString();
+		private void SetChunk(int X, int Z, Chunk c)
+        {
+            int id = GetChunkHandle(X, Z);
 			if (!mChunks.ContainsKey(id))
 			{
 				mChunks.Add(id, c);
@@ -1009,68 +1014,6 @@ namespace OpenMinecraft
 		private int ExpandFluids(long X, long Z, byte fluidID, bool CompleteRegen)
         {
             Chunk chunk = GetChunk(X, Z);
-            byte[, ,] blocks = new byte[ChunkX + 2, ChunkZ + 2, ChunkY + 1]; // Allow a border of 1 voxel to the sides.
-            #region Border setup
-            {
-
-                Chunk XZp1 = GetChunk(X, Z + 1);
-                Chunk XZm1 = GetChunk(X, Z - 1);
-                Chunk Xp1Z = GetChunk(X + 1, Z);
-                Chunk Xm1Z = GetChunk(X - 1, Z);
-
-                //////////////////////////////////////
-                //          //          //          //
-                //          //          //          //
-                //          //   XYp1   //          //
-                //          //          //          //
-                //          //          //          //
-                //////////////////////////////////////
-                //          //          //          //
-                //          //          //          //
-                //   Xm1Y   //  chunk   //   Xp1Y   //
-                //          //          //          //
-                //          //          //          //
-                //////////////////////////////////////
-                //          //          //          //
-                //          //          //          //
-                //          //   XYm1   //          //
-                //          //          //          //
-                //          //          //          //
-                //////////////////////////////////////
-
-                for (int x = 0; x < ChunkX + 1; x++)
-                {
-                    for (int z = 0; z < ChunkZ + 1; z++)
-                    {
-                        for (int y = 0; y < ChunkY + 1; y++)
-                        {
-                            if (x > 0 && x < ChunkX + 1 && z > 0 && z < ChunkZ + 1 && z > 0 && z < ChunkZ)
-                            {
-                                blocks[x + 1, y, z+1] = chunk.Blocks[x, y, z];
-                            }
-                            else if (Xm1Z != null && x == 0 && z > 0 && z < ChunkZ && z < ChunkZ)
-                            {
-                                blocks[x, y, z] = Xm1Z.Blocks[ChunkX - 1, y, z];
-                            }
-                            else if (Xp1Z != null && x == ChunkX && z > 0 && z < ChunkZ && z < ChunkZ)
-                            {
-                                blocks[x, y, z] = Xp1Z.Blocks[0, y, z];
-                            }
-                            else if (XZm1 != null && z == 0 && x > 0 && x < ChunkX && z < ChunkZ)
-                            {
-                                blocks[x, y, z] = XZm1.Blocks[x, y, ChunkZ-1];
-                            }
-                            else if (XZp1 != null && z == ChunkZ && x > 0 && x < ChunkX && z < ChunkZ)
-                            {
-                                blocks[x, y, z] = XZp1.Blocks[x, 0, z];
-                            }
-                        }
-                    }
-                }
-            }
-            #endregion
-
-            // Add border to bytemap
             int BlocksChanged = 0;
             for (int x = 1; x < ChunkX; x++)
             {
@@ -1082,20 +1025,19 @@ namespace OpenMinecraft
                         if (chunk.Blocks[x, y, z] == 0)
                         {
                             if (
-                                blocks[x, y+1, z] == fluidID // Above
-                                || blocks[x + 1, y, z] == fluidID  // Sides
-                                || blocks[x - 1, y, z] == fluidID
-                                || blocks[x, y, z+1] == fluidID
-                                || blocks[x, y, z-1] == fluidID)
+                                GetBlockAt(x, y+1, z) == fluidID // Above
+                                || GetBlockAt(x + 1, y, z) == fluidID  // Sides
+                                || GetBlockAt(x - 1, y, z) == fluidID
+                                || GetBlockAt(x, y, z+1) == fluidID
+                                || GetBlockAt(x, y, z - 1) == fluidID)
                             {
-                                blocks[x, y, z] = fluidID;
-                                chunk.Blocks[x+1, y, z+1] = fluidID;
+                                SetBlockAt(x, y, z, fluidID);
                             }
                         }
                     }
                 }
             }
-            chunk.Save();
+            SaveAll();
             return BlocksChanged;
         }
 
@@ -1105,10 +1047,10 @@ namespace OpenMinecraft
 
         Random rand = new Random();
 
-		public override void Generate(IMapHandler mh, long X, long Z, out int min, out int max)
+		public override void Generate(IMapHandler mh, long X, long Z, out double min, out double max)
         {
             min = 0;
-            max = ChunkY;
+            max = (double)ChunkY;
             if (treeNoise == null)
             {
                 treeNoise = new Perlin();
@@ -1129,19 +1071,11 @@ namespace OpenMinecraft
 			}
 
 			Chunk _c = mh.NewChunk(X, Z);
-			byte[,,] b = _Generator.Generate(ref mh, X, Z,out min, out max);
-			if (b == null) return;
-			/*
-			try
-			{
-				//if(_DEBUG) Console.WriteLine("{0} blocks of stone post-generation.", GetBlockNumbers(b)[1]);
-			}
-			catch (Exception) { }
-			*/
+			double[,] hm = _Generator.Generate(ref mh, X, Z,out min, out max);
+			if (hm == null) return;
 
-			_c.Blocks = b;
+			_c.mHeightMap = hm;
             _c.UpdateOverview();
-            _c.Save();
 			SetChunk(_c);
 		}
 
@@ -1151,6 +1085,9 @@ namespace OpenMinecraft
             {
                 treeNoise = new Perlin();
                 treeNoise.Seed = (int)this.RandomSeed + 4;
+                treeNoise.Frequency = 1;
+                treeNoise.Persistence = 0.5;
+                treeNoise.OctaveCount = 1;
                 dungeonNoise = new Random((int)RandomSeed);
             }
             if (_Generator == null) return;
@@ -1165,19 +1102,24 @@ namespace OpenMinecraft
                 if (File.Exists(lockfile))
                     File.Delete(lockfile);
             }
-            Chunk _c = NewChunk(X, Z);
+            Chunk _c = GetChunk(X, Z);
+            
             byte[, ,] b = _c.Blocks;
+            double[,] hm = _c.mHeightMap;
 
-            _Generator.AddPlayerBarriers(ref b);
-            _Generator.AddSoil(ref b, 63, 6, _Generator.Materials);
+            BiomeType[,] bt = _Generator.DetermineBiomes(hm, X, Z);
+
+            HeightmapToVoxelspace(hm,ref b);
+            _Generator.AddSoil(ref b, bt, 63, 6, _Generator.Materials);
             _Generator.AddDungeons(ref b, ref mh, dungeonNoise, X, Z);
-            _Generator.AddTrees(ref b, ref treeNoise, ref rand, (int)X, (int)Z, (int)ChunkY);
+            _Generator.AddTrees(ref mh, bt, ref rand, (int)X, (int)Z, (int)ChunkY);
+            _Generator.Precipitate(ref b, bt, _Generator.Materials, X, Z);
 
             _c.Blocks = b;
             _c.UpdateOverview();
             _c.Save();
-            SetChunk(_c);
             File.WriteAllText(lockfile, _Generator.ToString());
+            CullChunk(X, Z);
         }
 
 		private Dictionary<byte,int> GetBlockNumbers(byte[, ,] b)
@@ -1246,10 +1188,10 @@ namespace OpenMinecraft
 			return Chunk;
 		}
 
-		public override void ReplaceBlocksIn(long X, long Y, Dictionary<byte, byte> Replacements)
+		public override void ReplaceBlocksIn(long X, long Z, Dictionary<byte, byte> Replacements)
 		{
 			if (Replacements == null) return;
-			Chunk c = GetChunk((int)X, (int)Y);
+			Chunk c = GetChunk((int)X, (int)Z);
 			if (c == null) return;
 
 			bool bu=false;
@@ -1268,7 +1210,7 @@ namespace OpenMinecraft
 				}
 			}
 			if(!bu) return;
-			string ci = string.Format("{0},{1}", X, Y);
+            int ci = GetChunkHandle((int)X, (int)Z);
 			if (mChunks.ContainsKey(ci))
 			{
 				mChunks.Remove(ci);
@@ -1338,7 +1280,7 @@ namespace OpenMinecraft
 			else data[index/2] = (byte)((data[index/2] & 0xF) | (b & 0x0F));
 		}
 		
-		public byte GetBlockIn(long CX, long CY, Vector3i pos)
+		public byte GetBlockIn(long CX, long CZ, Vector3i pos)
 		{
 			pos = new Vector3i(pos.Y, pos.X, pos.Z);
 			/*
@@ -1352,7 +1294,7 @@ namespace OpenMinecraft
 			}
 			 */
 
-			string ci = string.Format("{0},{1}", CX, CY);
+            int ci = GetChunkHandle((int)CX, (int)CZ);
 			int i = GetBlockIndex((int)pos.X, (int)pos.Y, (int)pos.Z);
 			//try
 			//{
@@ -1366,7 +1308,7 @@ namespace OpenMinecraft
 			//{
 			//    return 0x00;
 			//}
-			Chunk c = _LoadChunk((int)CX, (int)CY);
+			Chunk c = _LoadChunk((int)CX, (int)CZ);
 
 			if (!mChunks.ContainsKey(ci))
 				mChunks.Add(ci, c);
@@ -1381,24 +1323,25 @@ namespace OpenMinecraft
 			}
 		}
 
-		public override void CullChunk(long X, long Y)
-		{
-			string ci = string.Format("{0},{1}", X, Y);
+		public override void CullChunk(long X, long Z)
+        {
+            int ci = GetChunkHandle((int)X, (int)Z);
 			if(mChunks.ContainsKey(ci))
 				mChunks.Remove(ci);
+            GC.Collect();
 		}
 		public override void LoadChunk(long X, long Y)
 		{
 			_LoadChunk((int)X, (int)Y);
 		}
 
-		public void SetBlockIn(long CX, long CY, Vector3i pos, byte type)
+		public void SetBlockIn(long CX, long CZ, Vector3i pos, byte type)
 		{
 			pos = new Vector3i(pos.Y, pos.X, pos.Z);
 			// block saving to any negative chunk due to being unreadable.
-			if (CX < 0 || CY < 0) return;
+			if (CX < 0 || CZ < 0) return;
 
-			string ci = string.Format("{0},{1}", CX, CY);
+            int ci = GetChunkHandle((int)CX,(int)CZ);
 			//try
 			//{
 			if (mChunks.ContainsKey(ci))
@@ -1422,10 +1365,10 @@ namespace OpenMinecraft
 		public override void CommitTransaction()
 		{
 			if(_DEBUG) Console.WriteLine("{0} chunks changed.", mChangedChunks.Count);
-			foreach (string v in mChangedChunks)
+			foreach (int v in mChangedChunks)
 			{
-				string[] chunks = v.Split(',');
-				SaveChunk(int.Parse(chunks[0]), int.Parse(chunks[1]));
+                Chunk c = mChunks[v];
+				SaveChunk(c);
 			}
 			if(_DEBUG) Console.WriteLine("COMMIT TRANSACTION");
 		}
@@ -1447,7 +1390,7 @@ namespace OpenMinecraft
 				//if(_DEBUG) Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
 				return;
 			}
-			string ci = string.Format("{0},{1}", CX, CZ);
+            int ci = GetChunkHandle(CX, CZ);
 			if (!mChunks.ContainsKey(ci))
 				return;
 			Chunk c = mChunks[ci];
@@ -1599,10 +1542,10 @@ namespace OpenMinecraft
 		}
 		public override void ForEachCachedChunk(CachedChunkDelegate cmd)
 		{
-			Dictionary<string, Chunk> C = new Dictionary<string, Chunk>(mChunks);
-			foreach (KeyValuePair<string, Chunk> k in C)
+			List<Chunk> cl = new List<Chunk>(mChunks.Values);
+			foreach (Chunk c in cl)
 			{
-				cmd(k.Value.Position.X, k.Value.Position.Z, k.Value);
+				cmd(c.Position.X, c.Position.Z, c);
 			}
 		}
 		public override void ForEachChunk(ChunkIteratorDelegate cmd)
@@ -1681,7 +1624,7 @@ namespace OpenMinecraft
 			return r;
 		}
 
-		IMapGenerator _Generator = new DefaultMapGenerator(0);
+		IMapGenerator _Generator = new QuickHillGenerator(0);
         private int mDimension;
 		public override IMapGenerator Generator
 		{
@@ -1693,6 +1636,7 @@ namespace OpenMinecraft
 			{
 				_Generator = value;
 				SaveMapGenerator();
+                _Generator.SetupBiomeNoise((int)this.RandomSeed);
 			}
 		}
 
@@ -1984,16 +1928,42 @@ namespace OpenMinecraft
             return c.HeightMap[x, y];
         }
 
+        internal override double GetPrelimHeightAt(int px, int py)
+        {
+            int X = px / ChunkX;
+            int Z = py / ChunkZ;
+
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Z);
+            return c.mHeightMap[x, y];
+        }
+
+        internal override void SetPrelimHeightAt(int px, int py, double val)
+        {
+            int X = px / ChunkX;
+            int Z = py / ChunkZ;
+
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Z);
+            c.mHeightMap[x, y] = val;
+            SetChunk(X, Z, c);
+        }
+
 
         public override void SaveAll()
         {
             lock(mChunks)
             {
-                List<string> Keys = new List<string>(mChunks.Keys);
-                foreach (string k in Keys)
+                List<int> Keys = new List<int>(mChunks.Keys);
+                foreach (int k in Keys)
                 {
                     mChunks[k].Save();
                     mChunks.Remove(k);
+                    GC.Collect();
                 }
 
                 // CULL, CULL LIKE NO TOMORROW
@@ -2013,8 +1983,8 @@ namespace OpenMinecraft
 
         public override void CullUnchanged()
         {
-            List<string> chunkKeys = new List<string>(mChunks.Keys);
-            foreach (string k in chunkKeys)
+            List<int> chunkKeys = new List<int>(mChunks.Keys);
+            foreach (int k in chunkKeys)
             {
                 if (!mChangedChunks.Contains(k))
                     mChunks.Remove(k);
@@ -2045,6 +2015,32 @@ namespace OpenMinecraft
             Chunk c = GetChunk(X, Z);
             c.HeightMap[_x, _z]=h;
             SetChunk(c);
+        }
+
+        public override void SetDataAt(int px, int y, int pz, byte p)
+        {
+            int X = px / ChunkX;
+            int Z = pz / ChunkZ;
+
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Z);
+            if (c == null) return;
+            c.Data[x, y, z] = p;
+        }
+
+        public override byte GetDataAt(int px, int y, int pz)
+        {
+            int X = px / ChunkX;
+            int Z = pz / ChunkZ;
+
+            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
+            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
+
+            Chunk c = GetChunk(X, Z);
+            if (c == null) return 0;
+            return c.Data[x, y, z];
         }
     }
 }

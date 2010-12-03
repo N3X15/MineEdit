@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using System.Text;
 using System.ComponentModel;
-using OpenMinecraft;
 using LibNoise;
 
 namespace OpenMinecraft
@@ -20,7 +18,7 @@ namespace OpenMinecraft
         /// <param name="Y"></param>
         /// <param name="chunksize"></param>
         /// <returns></returns>
-        public abstract byte[, ,] Generate(ref IMapHandler mh, long X, long Y, out int min, out int max);
+        public abstract double[,] Generate(ref IMapHandler mh, long X, long Y, out double min, out double max);
 
         [Browsable(false)]
         public abstract bool GenerateCaves { get; set; }
@@ -40,14 +38,49 @@ namespace OpenMinecraft
         public abstract void Save(string Folder);
         public abstract void Load(string Folder);
 
-        public virtual void AddTrees(ref byte[, ,] b, ref Perlin TreeNoise, ref Random rand, int X, int Z, int H)
+        FastNoise HumidityNoise = new FastNoise();
+        FastNoise TemperatureNoise;
+        
+        [Description("Temperature offset.  Valid temperatures are between -1 (cold) and 1 (hot).")]
+        public double TemperatureOffset { get; set; }
+
+        [Description("Humidity offset.  Valid humidities are between -1 (dry) and 1 (wet).")]
+        public double HumidityOffset { get; set; }
+
+        public void SetupBiomeNoise(int RandomSeed)
+        {
+            HumidityNoise.Seed = RandomSeed + 6;
+            HumidityNoise.Frequency = 1;
+            HumidityNoise.Persistence = 0.5;
+            HumidityNoise.OctaveCount = 1;
+            TemperatureNoise = HumidityNoise;
+            TemperatureNoise.Seed = RandomSeed + 7;
+        }
+        public virtual BiomeType[,] DetermineBiomes(double[,] hm, long X, long Z)
+        {
+            BiomeType[,] bt = new BiomeType[hm.GetLength(0), hm.GetLength(1)];
+            int xo = (int)(X*hm.GetLength(0));
+            int zo = (int)(Z*hm.GetLength(1));
+            for (int x = 0; x < hm.GetLength(0); x++)
+            {
+                for (int z = 0; z < hm.GetLength(1); z++)
+                {
+                    double h = HumidityNoise.GetValue((double)(x + xo) / 12d, (double)(z + zo) / 12d, 0);
+                    double t = TemperatureNoise.GetValue((double)(x + xo) / 12d, (double)(z + zo) / 12d, 0);
+                    bt[x, z] = Biome.GetBiomeType(h, t);
+                }
+            }
+            return bt;
+        }
+        public virtual void AddTrees(ref IMapHandler mh, BiomeType[,] biomes, ref Random rand, int X, int Z, int H)
         {
             List<Vector2i> PlantedTrees = new List<Vector2i>();
             int DistanceReqd = 3;
-            for (int t = 0; t < (int)(TreeNoise.GetValue(X, 0, Z) * 10.0); t++)
+            for (int t = 0; t < (int)((HumidityNoise.GetValue(X, Z, 0)+1d) * 5.0); t++)
             {
                 Vector2i me = new Vector2i(rand.Next(2, 13),rand.Next(2, 13));
-
+                if (!Biome.NeedsTrees(biomes[me.X, me.Y]))
+                    continue;
                 bool tooclose=false;
                 foreach (Vector2i tree in PlantedTrees)
                 {
@@ -59,18 +92,20 @@ namespace OpenMinecraft
                 }
 
                 if (tooclose) continue;
+                int xo = (int)(X * mh.ChunkScale.X);
+                int zo = (int)(Z * mh.ChunkScale.Z);
                 for (int y = (int)H - 10; y > 0; y--)
                 {
-                    switch (b[me.X, y, me.Y])
+                    switch (mh.GetBlockAt(me.X+xo, y, me.Y+zo))
                     {
                         case 0: // Air
                             continue;
                         case 1: // ROCK
                         case 2: // GRASS
                         case 3: // DIRT
-                            Utils.GrowTree(ref b, rand, me.X, y + 1, me.Y);
+                            mh.GrowTree(rand, me.X+xo, y + 1, me.Y+zo);
                             break;
-                        /* Automatic
+                        /* Automatic ?
                         case 11: // SAND
                             Utils.GrowCactus(ref b, rand, me.X, y + 1, me.Y);
                             break;
@@ -95,41 +130,8 @@ namespace OpenMinecraft
                 }
             }
         }
-        public virtual void AddPlayerBarriers(ref byte[, ,] b)
+        public virtual void AddSoil(ref byte[,,] b, BiomeType[,] biomes, int WaterHeight, int depth, MapGenMaterials mats)
         {
-            //Console.WriteLine("IMapGenerator.AddPlayerBarriers: x={0};y={1};z={2}", b.GetLength(0), b.GetLength(1), b.GetLength(2));
-            for (int x = 0; x < b.GetLength(0); ++x)
-            {
-                for (int y = 0; y < b.GetLength(1); ++y)
-                {
-                    for (int z = 0; z < b.GetLength(2); ++z)
-                    {
-                        if(y==0)
-                                b[x,y,z]=7; // Adminium
-                        else if(y==1)
-                        {
-                                // TODO Yell at Notch for not making Lava occlude. :|
-                                if (b[x, y, z] == 0)
-                                    b[x, y, z] = 11; // Lava for air.
-                                else if (b[x, y, z] == 9)
-                                    b[x, y, z] = 49; // Obsidian for underwater shit.
-                                break;
-                        }
-                        else if (y >= b.GetLength(1) - 3)
-                        {
-                            b[x, y, z] = 0;
-                        }
-                    }
-                }
-            }
-        }
-        public virtual void AddSoil(ref byte[,,] b, int WaterHeight, int depth, MapGenMaterials mats)
-        {
-            if (mats.Rock == 0)
-            {
-                Console.WriteLine(mats);
-            }
-
             int YH = b.GetLength(1)-2;
             for (int x = 0; x < b.GetLength(0); x++)
             {
@@ -154,7 +156,7 @@ namespace OpenMinecraft
                                 case 8: // Water
                                 case 9: // Water
 
-                                    if (y - depth <= WaterHeight && GenerateWater)
+                                    if ((y - depth <= WaterHeight && GenerateWater) || biomes[x,z] == BiomeType.Desert)
                                         b[x, y, z] = mats.Sand;
                                     else
                                         b[x, y, z] = (HavePloppedGrass) ? mats.Soil : mats.Grass;
@@ -169,7 +171,35 @@ namespace OpenMinecraft
                         else if (b[x, y, z] == 0 && y <= WaterHeight && !HaveTouchedSoil && GenerateWater)
                         {
                             b[x, y, z] = mats.Water;
+                            if (Biome.NeedsSnowAndIce(biomes[x, z]) && y == WaterHeight)
+                                b[x,y,z]=mats.Ice;
                         }
+                    }
+                }
+            }
+        }
+
+        internal virtual void Precipitate(ref byte[, ,] b, BiomeType[,] bt, MapGenMaterials mats, long X, long Z)
+        {
+            int xs = b.GetLength(0);
+            int zs = b.GetLength(2);
+
+            for (int x = 0; x < xs; x++)
+            {
+                for (int z = 0; z < zs; z++)
+                {
+                    if(Biome.NeedsSnowAndIce(bt[x,z]))
+                        continue;
+                    // Fall down
+                    for (int y = b.GetLength(1) - 1; y > 0; y--)
+                    {
+                        byte block = b[x, y, z];
+                        if (block == 0) continue;
+                        if (block == mats.Water)
+                            b[x, y, z] = mats.Ice;
+                        else
+                            b[x, y + 1, z] = mats.Snow;
+                        break;
                     }
                 }
             }

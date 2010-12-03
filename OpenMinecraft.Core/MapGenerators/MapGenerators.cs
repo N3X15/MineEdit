@@ -29,12 +29,12 @@ namespace OpenMinecraft
         public static IMapGenerator Get(string gen, long Seed, MapGenMaterials Materials)
         {
             if (gen == null)
-                gen = "DefaultMapGenerator";
+                gen = "QuickHillGenerator";
             if (Generators.Count == 0)
             {
-                Generators.Add("DefaultMapGenerator", typeof(HillGenerator));
+                Generators.Add("QuickHillGenerator", typeof(QuickHillGenerator));
             }
-            string id = "DefaultMapGenerator";
+            string id = "QuickHillGenerator";
             if (Generators.ContainsKey(gen))
                 id = gen;
             Console.WriteLine("Initializing {0}.", id);

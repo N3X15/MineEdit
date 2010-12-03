@@ -100,7 +100,7 @@ namespace OpenMinecraft
 
         public abstract Chunk NewChunk(long X, long Y);
         public abstract IMapGenerator Generator { get; set; }
-        public abstract void Generate(IMapHandler mh, long X, long Y, out int min, out int max);
+        public abstract void Generate(IMapHandler mh, long X, long Y, out double min, out double max);
         public abstract void FinalizeGeneration(IMapHandler mh, long X, long Z);
 
         public abstract Vector2i GetChunkCoordsFromFile(string filename);
@@ -123,6 +123,9 @@ namespace OpenMinecraft
 
         public abstract int GetHeightAt(int x, int z);
         public abstract void SetHeightAt(int x, int z, int h, byte mat);
+
+        internal abstract double GetPrelimHeightAt(int x, int z);
+        internal abstract void SetPrelimHeightAt(int x, int z, double h);
 
         public abstract void SaveAll();
 
@@ -162,11 +165,11 @@ namespace OpenMinecraft
                     {
                         for (int j = -radius; j <= radius; j++)
                         {
-                            value += filter[i + radius][j + radius] * GetHeightAt(x + x_o + i, z + z_o + j);
+                            value += filter[i + radius][j + radius] * GetPrelimHeightAt(x + x_o + i, z + z_o + j);
                         }
                     }
                     value = value / divisor + offset;
-                    SetHeightAt(x + x_o, z + z_o, (int)value,1);
+                    SetPrelimHeightAt(x + x_o, z + z_o, (int)value);
                 }
             }
         }
@@ -210,8 +213,8 @@ namespace OpenMinecraft
                 {
                     // If > WL: use unblurred image.
                     // If <=WL: Use blurred image.
-                    if (GetHeightAt(x+x_o, z+z_o) <= wl)
-                        SetHeightAt(x + x_o, z + z_o, Blurred.GetHeightAt(x+x_o, z+z_o),Generator.Materials.Soil);
+                    if (GetPrelimHeightAt(x+x_o, z+z_o) <= wl)
+                        SetPrelimHeightAt(x + x_o, z + z_o, Blurred.GetPrelimHeightAt(x+x_o, z+z_o));
                 }
             }
         }
@@ -231,12 +234,12 @@ namespace OpenMinecraft
                         int abs_x = x + x_o;
                         int abs_z = z + z_o;
 
-                        h = (double)GetHeightAt(abs_x, abs_z);
+                        h = (double)GetPrelimHeightAt(abs_x, abs_z);
                         if (max_h < h) max_h = h;
-                        h1 = (double)GetHeightAt(abs_x, abs_z + 1);
-                        h2 = (double)GetHeightAt(abs_x - 1, abs_z);
-                        h3 = (double)GetHeightAt(abs_x + 1, abs_z);
-                        h4 = (double)GetHeightAt(abs_x, abs_z - 1);
+                        h1 = (double)GetPrelimHeightAt(abs_x, abs_z + 1);
+                        h2 = (double)GetPrelimHeightAt(abs_x - 1, abs_z);
+                        h3 = (double)GetPrelimHeightAt(abs_x + 1, abs_z);
+                        h4 = (double)GetPrelimHeightAt(abs_x, abs_z - 1);
                         d1 = h - h1;
                         d2 = h - h2;
                         d3 = h - h3;
@@ -272,8 +275,8 @@ namespace OpenMinecraft
                             continue;
                         }
                         max_d *= 0.5f;
-                        SetHeightAt(abs_x, abs_z, GetHeightAt(x, z) - (int)max_d, Generator.Materials.Soil);
-                        SetHeightAt(abs_x + i, abs_z + j, GetHeightAt(abs_x + i, abs_z + j) + (int)max_d, Generator.Materials.Soil);
+                        SetPrelimHeightAt(abs_x, abs_z, GetPrelimHeightAt(x, z) - (int)max_d);
+                        SetPrelimHeightAt(abs_x + i, abs_z + j, GetPrelimHeightAt(abs_x + i, abs_z + j) + (int)max_d);
                     }
                 }
             }
@@ -296,12 +299,12 @@ namespace OpenMinecraft
                         int abs_x = x + x_o;
                         int abs_z = z + z_o;
 
-                        h = (double)GetHeightAt(abs_x, abs_z);
+                        h = (double)GetPrelimHeightAt(abs_x, abs_z);
                         if (max_h < h) max_h = h;
-                        h1 = (double)GetHeightAt(abs_x, abs_z + 1);
-                        h2 = (double)GetHeightAt(abs_x - 1, abs_z);
-                        h3 = (double)GetHeightAt(abs_x + 1, abs_z);
-                        h4 = (double)GetHeightAt(abs_x, abs_z - 1);
+                        h1 = (double)GetPrelimHeightAt(abs_x, abs_z + 1);
+                        h2 = (double)GetPrelimHeightAt(abs_x - 1, abs_z);
+                        h3 = (double)GetPrelimHeightAt(abs_x + 1, abs_z);
+                        h4 = (double)GetPrelimHeightAt(abs_x, abs_z - 1);
                         d1 = h - h1;
                         d2 = h - h2;
                         d3 = h - h3;
@@ -337,13 +340,94 @@ namespace OpenMinecraft
                             continue;
                         }
                         max_d *= 0.5f;
-                        SetHeightAt(abs_x, abs_z, GetHeightAt(abs_x, abs_z) - (int)max_d, Generator.Materials.Soil);
-                        SetHeightAt(abs_x + i, abs_z + j, GetHeightAt(abs_x + i, abs_z + j) + (int)max_d, Generator.Materials.Soil);
+                        SetPrelimHeightAt(abs_x, abs_z, GetPrelimHeightAt(abs_x, abs_z) - (int)max_d);
+                        SetPrelimHeightAt(abs_x + i, abs_z + j, GetPrelimHeightAt(abs_x + i, abs_z + j) + (int)max_d);
                     }
                 }
             }
             //Console.WriteLine("ErodeThermal(): max_h={0}m", max_h);
         }
 
+
+        public void GrowTree(Random rand, int x, int y, int z)
+        {
+            SetBlockAt(x, y, z, 6);
+            SetDataAt(x, y, z, 15);
+            /*
+            int height = rand.Next(6, 8);
+            #region Foliage
+            
+            // Note, foliage will disintegrate if there is no foliage below, or
+	        // if there is no "log" block within range 2 (square) at the same level or
+	        // one level below
+            
+            int astart = y - 2;
+            int aend = y + 2;
+            int rad;
+            for (int block_y = astart; block_y < aend; z++)
+            {
+                if (block_y > astart + 1)
+                    rad = 1;
+                else
+                    rad = 2;
+                for (int xoff = -rad; xoff < rad + 1; xoff++)
+                {
+                    for (int yoff = -rad; yoff < rad + 1; yoff++)
+                    {
+                        for (int zoff = -rad; zoff < rad + 1; zoff++)
+                        {
+                            if (//Math.Abs(xoff) == Math.Abs(zoff)
+                               Math.Abs(xoff) <= rad ||
+                               Math.Abs(zoff) <= rad
+                            )
+                            {
+                                SetBlockAt(x + xoff, block_y, z + zoff, 18);
+                            }
+                        }
+                    }
+                }
+            }
+            #endregion
+
+
+            for (int i = 0; i < height; i++)
+                SetBlockAt(x, y + i, z, 17);
+            */
+        }
+
+
+
+        internal void HeightmapToVoxelspace(double[,] hm, ref byte[, ,] b)
+        {
+            for (int x = 0; x < b.GetLength(0); ++x)
+            {
+                for (int y = 0; y < b.GetLength(1); ++y)
+                {
+                    for (int z = 0; z < b.GetLength(2); ++z)
+                    {
+                        byte block = (hm[x, z] >= y) ? (byte)1 : (byte)0;
+                        if (y == 0)
+                            block = 7; // Adminium
+                        else if (y == 1)
+                        {
+                            // TODO Yell at Notch for not making Lava occlude. :|
+                            if (block == 0)
+                                block = 11; // Lava for air.
+                            else if (b[x, y, z] == 9 || b[x, y, z] == 8 )
+                                block = 49; // Obsidian for underwater shit.
+                            break;
+                        }
+                        else if (y >= b.GetLength(1) - 3)
+                        {
+                            block = 0;
+                        }
+                        b[x, y, z] = block;
+                    }
+                }
+            }
+        }
+
+        public abstract void SetDataAt(int x, int y, int z, byte p);
+        public abstract byte GetDataAt(int x, int y, int z);
     }
 }

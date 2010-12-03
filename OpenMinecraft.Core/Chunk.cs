@@ -216,6 +216,7 @@ namespace OpenMinecraft
         }
         protected IMapHandler _Map;
         public bool Loading;
+        public double[,] mHeightMap;
 
         public Chunk(IMapHandler mh) 
         {

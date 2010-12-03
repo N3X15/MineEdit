@@ -139,11 +139,11 @@ namespace OpenMinecraft.Entities
             Air = (c["Air"] as NbtShort).Value;
             Fire = (c["Fire"] as NbtShort).Value;
             FallDistance = (c["FallDistance"] as NbtFloat).Value;
-            Motion = new Vector3d(c["Motion"] as NbtList,true);
-            Pos = new Vector3d(c["Pos"] as NbtList,true);
+            Motion = new Vector3d(c["Motion"] as NbtList,false);
+            Pos = new Vector3d(c["Pos"] as NbtList,false);
             OnGround = c.Get<NbtByte>("OnGround").Value;
             Rotation = Rotation.FromNbt(c.Get<NbtList>("Rotation"));
-            Console.WriteLine("Loaded entity {0} @ {1}", (c["id"] as NbtString).Value, Pos);
+            //Console.WriteLine("Loaded entity {0} @ {1}", (c["id"] as NbtString).Value, Pos);
         }
 
         internal void Base2NBT(ref NbtCompound c,string _id)
@@ -156,15 +156,15 @@ namespace OpenMinecraft.Entities
             NbtList motion = new NbtList("Motion");
             motion.Tags.AddRange(new NbtDouble[]{
                 new NbtDouble("", Motion.X),
-                new NbtDouble("", Motion.Z),
-                new NbtDouble("", Motion.Y)
+                new NbtDouble("", Motion.Y),
+                new NbtDouble("", Motion.Z)
             });
             c.Add(motion);
             NbtList pos = new NbtList("Pos");
             pos.Tags.AddRange(new NbtDouble[]{
                 new NbtDouble("", Math.IEEERemainder(Pos.X,16)),
-                new NbtDouble("", Math.IEEERemainder(Pos.Z,16)),
-                new NbtDouble("", Pos.Y)
+                new NbtDouble("", Pos.Y),
+                new NbtDouble("", Math.IEEERemainder(Pos.Z,16))
             });
             c.Add(pos);
             c.Add(Rotation.ToNBT());
@@ -181,6 +181,7 @@ namespace OpenMinecraft.Entities
                 Console.WriteLine(c.ToString());
             }
             string entID = c.Get<NbtString>("id").Value;
+            
             if (EntityTypes.ContainsKey(entID))
             {
                 try

@@ -85,7 +85,7 @@ namespace OpenMinecraft
         private void Setup()
         {
             Frequency = 00.1;
-            ContinentNoiseFrequency = 0.01;
+            ContinentNoiseFrequency = 0.02;
             Lacunarity = 0.05;
             Persistance = 0.5;
             OctaveCount = 3;
@@ -125,16 +125,16 @@ namespace OpenMinecraft
         /// <param name="Z"></param>
         /// <param name="chunksize"></param>
         /// <returns></returns>
-        public override byte[, ,] Generate(ref IMapHandler mh, long X, long Z, out int minHeight, out int maxHeight)
+        public override double[,] Generate(ref IMapHandler mh, long X, long Z, out double minHeight, out double maxHeight)
         {
             Vector3i chunksize = mh.ChunkScale;
             int x_o = (int)(X * chunksize.X);
             int z_o = (int)(Z * chunksize.Z);
             int YH = (int)chunksize.Y-2;
 
-            byte[, ,] b = new byte[chunksize.X, chunksize.Y, chunksize.Z];
+            double[,] hm = new double[chunksize.X, chunksize.Z];
             
-            minHeight = (int)chunksize.Y;
+            minHeight = (double)chunksize.Y;
             maxHeight = 0;
 
             for (int x = 0; x < chunksize.X; x++)
@@ -146,34 +146,16 @@ namespace OpenMinecraft
 
                     //height *= 60; // Bring from [0,1] -> [0,128]
 
-                    double height = (ContinentNoise.GetValue((double)(x + x_o) / 10d, (double)(z + z_o) / 10d, 0) + 1d) *0.5d; // 2.0
-                    height += 0.1 + TerrainNoise.GetValue(x + x_o, z + z_o, 0) * 0.0125;
+                    double height = (ContinentNoise.GetValue((double)(x + x_o) / 10d, (double)(z + z_o) / 10d, 0)*-1d + 1d) * 0.25d; // 2.0
+                    height += 0.25 + TerrainNoise.GetValue(x + x_o, z + z_o, 0) * 0.0125;
 
-                    height *= chunksize.Y-3; // Drop to highest index -2 (vertical space for player)
+                    if (height < minHeight) minHeight = height;
+                    if (height > maxHeight) maxHeight = height;
 
-                    if (height < minHeight) minHeight = (int)height;
-                    if (height > maxHeight) maxHeight = (int)height;
-                    
-                    for (int y = 0; y < chunksize.Y; y++)
-                    {
-                        // If below height, set rock.  Otherwise, set air.
-                        byte block = (y <= height) ? (byte)1 : (byte)0; //Fill
-                        block=(y <= 63 && block==0) ? (byte)8 : block; // Water
-
-                        // Only try to calc caves if we're in rock.  Otherwise we'll be slow and have holes in our water.
-                        if (block == 1)
-                        {
-                            bool d3 = ((CaveNoise.GetValue(x + x_o, z + z_o, y * CaveDivisor) + 1) / 2.0) > CaveThreshold;
-
-                            if (d3)
-                                block = 0;
-                        }
-
-                        b[x, y, z] = block;
-                    }
+                    hm[x, z] = height;
                 }
             }
-            return b;
+            return hm;
         }
 
 
