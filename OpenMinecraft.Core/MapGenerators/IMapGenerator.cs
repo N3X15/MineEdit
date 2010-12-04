@@ -46,7 +46,7 @@ namespace OpenMinecraft
         public void SetupBiomeNoise(int RandomSeed)
         {
             HumidityNoise.Seed = RandomSeed + 6;
-            HumidityNoise.Frequency = 1;
+            HumidityNoise.Frequency = 0.1;
             HumidityNoise.Persistence = 0.5;
             HumidityNoise.OctaveCount = 1;
             TemperatureNoise = HumidityNoise;
@@ -62,7 +62,7 @@ namespace OpenMinecraft
                 for (int z = 0; z < hm.GetLength(1); z++)
                 {
                     double h = HumidityNoise.GetValue((double)(x + xo) / 12d, (double)(z + zo) / 12d, 0);
-                    double t = TemperatureNoise.GetValue((double)(x + xo) / 12d, (double)(z + zo) / 12d, 0);
+                    double t = TemperatureNoise.GetValue((double)(x + xo) / 12d, (double)(z + zo) / 12d, 0) + 0.25; // Too cold.
                     bt[x, z] = Biome.GetBiomeType(h, t);
                 }
             }

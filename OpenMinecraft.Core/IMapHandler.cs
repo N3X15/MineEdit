@@ -100,8 +100,7 @@ namespace OpenMinecraft
 
         public abstract Chunk NewChunk(long X, long Y);
         public abstract IMapGenerator Generator { get; set; }
-        public abstract void Generate(long X, long Y, out double min, out double max);
-        public abstract bool FinalizeGeneration(long X, long Z);
+        public abstract bool Generate(long X, long Y, out double min, out double max);
 
         public abstract Vector2i GetChunkCoordsFromFile(string filename);
 

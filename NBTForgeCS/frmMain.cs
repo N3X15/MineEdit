@@ -1413,7 +1413,7 @@ namespace MineEdit
                         // Fix lava
 
                         int stage = 0;
-                        int numstages = 2;
+                        int numstages = 1;
                         ForEachProgressHandler feph = new ForEachProgressHandler(delegate(int Total, int Progress)
                         {
                             numchunks = Total;
@@ -1466,22 +1466,6 @@ namespace MineEdit
                             dlt.perfChart.AddValue(_mh.ChunksLoaded);
                         });
                         */
-                        stage++;
-                        dlt.CurrentTask = "Finalizing chunks...";
-                        (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
-                        dlt.perfChart.Clear();
-                        int numBroken = 0;
-                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
-                        {
-                            dlt.CurrentSubtask = string.Format("Finalizing chunk ({0},{1}), {2} broken...", X, Y, numBroken);
-                            if (!(ActiveMdiChild as frmMap).Map.FinalizeGeneration(X, Y))
-                            {
-                                numBroken++;
-                            }
-
-                            dlt.grpPerformance.Text = string.Format("Chunks in-memory ({0})", _mh.ChunksLoaded);
-                            dlt.perfChart.AddValue(_mh.ChunksLoaded);
-                        });
 
                         dlt.CurrentSubtask = "SAVING CHUNKS";
                         (ActiveMdiChild as frmMap).Map.SaveAll();

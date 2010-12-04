@@ -1064,36 +1064,10 @@ namespace OpenMinecraft
 
         Random rand = new Random();
 
-		public override void Generate(long X, long Z, out double min, out double max)
+		public override bool Generate(long X, long Z, out double min, out double max)
         {
             min = 0;
             max = (double)ChunkY;
-            if (treeNoise == null)
-            {
-                treeNoise = new Perlin();
-                treeNoise.Seed = (int)this.RandomSeed + 4;
-                dungeonNoise = new Random((int)RandomSeed);
-            }
-			if (_Generator == null) return;
-			string lockfile = Path.ChangeExtension(GetChunkFilename((int)X,(int)Z), "genlock");
-			if (!_Generator.NoPreservation)
-			{
-				if (File.Exists(lockfile))
-					return;
-			}
-			else
-			{
-				if (File.Exists(lockfile))
-					File.Delete(lockfile);
-			}
-			double[,] hm = _Generator.Generate(this, X, Z,out min, out max);
-			if (hm == null) return;
-
-			SetChunkHeightmap((int)X,(int)Z,hm);
-		}
-
-        public override bool FinalizeGeneration(long X, long Z)
-        {
             if (treeNoise == null)
             {
                 treeNoise = new Perlin();
@@ -1107,64 +1081,83 @@ namespace OpenMinecraft
             {
                 return false;
             }
-            string lockfile = Path.ChangeExtension(GetChunkFilename((int)X, (int)Z), "genlock");
-            if (!_Generator.NoPreservation)
-            {
-                if (File.Exists(lockfile))
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                if (File.Exists(lockfile))
-                    File.Delete(lockfile);
-            }
-            double[,] hm = GetChunkHeightmap((int)X,(int)Z);
+			string lockfile = Path.ChangeExtension(GetChunkFilename((int)X,(int)Z), "genlock");
+			if (!_Generator.NoPreservation)
+			{
+				if (File.Exists(lockfile))
+					return true;
+			}
+			else
+			{
+				if (File.Exists(lockfile))
+					File.Delete(lockfile);
+			}
+
+            //Console.WriteLine("GEN");
+			double[,] hm = _Generator.Generate(this, X, Z,out min, out max);
 
             if (hm == null)
             {
-                Console.WriteLine("hm = null");
+                Console.WriteLine("ERROR: hm==null");
                 return false;
             }
 
-            Chunk _c = NewChunk(X, Z);
-            byte[, ,] b = _c.Blocks;
+            // Erosion shit here.
 
-            BiomeType[,] bt = _Generator.DetermineBiomes(hm, X, Z);
+            Chunk _c = NewChunk(X, Z);
+            byte[, ,] blocks = _c.Blocks;
+
+            //Console.WriteLine("BIOME");
+            BiomeType[,] biomes = _Generator.DetermineBiomes(hm, X, Z);
 
             IMapHandler mh = this;
-            HeightmapToVoxelspace(hm, ref b);                                       AssertBottomBarrierIntegrity(b, "HeightmapToVoxelspace");
-            _Generator.AddSoil(ref b, bt, 63, 6, _Generator.Materials);             AssertBottomBarrierIntegrity(b, "AddSoil");
-            _Generator.AddDungeons(ref b, ref mh, dungeonNoise, X, Z);              AssertBottomBarrierIntegrity(b, "AddDungeons");
-            _Generator.AddTrees(ref mh, bt, ref rand, (int)X, (int)Z, (int)ChunkY); AssertBottomBarrierIntegrity(b, "AddTrees");
-            _Generator.Precipitate(ref b, bt, _Generator.Materials, X, Z);          AssertBottomBarrierIntegrity(b, "Precipitate");
+            // These use the block array.
+
+            //Console.WriteLine("VOXELIZE");
+            HeightmapToVoxelspace(hm, ref blocks);                                       AssertBottomBarrierIntegrity(blocks, "HeightmapToVoxelspace");
+
+            //Console.WriteLine("ADDSOIL");
+            _Generator.AddSoil(ref blocks, biomes, 63, 6, _Generator.Materials);         AssertBottomBarrierIntegrity(blocks, "AddSoil");
+
+            //Console.WriteLine("DUNGEONS");
+            _Generator.AddDungeons(ref blocks, ref mh, dungeonNoise, X, Z);              AssertBottomBarrierIntegrity(blocks, "AddDungeons");
+
+            //Console.WriteLine("PRECIP");
+            _Generator.Precipitate(ref blocks, biomes, _Generator.Materials, X, Z);      AssertBottomBarrierIntegrity(blocks, "Precipitate");
             mh.SaveAll();
 
-            _c.Blocks = b;
+            _c.Blocks = blocks;
             _c.UpdateOverview();
             _c.Save();
             SetChunk(_c);
             File.WriteAllText(lockfile, _Generator.ToString());
-            SaveAll(false);
+
+
+            //Console.WriteLine("TREES");
+            // These use SetBlockAt() and company.
+            //_Generator.AddTrees(ref mh, biomes, ref rand, (int)X, (int)Z, (int)ChunkY);
+
+            //Console.WriteLine("SAVE");
+            SaveAll();
             return true;
-        }
+		}
 
         private void AssertBottomBarrierIntegrity(byte [,,] b,string message)
         {
-            Console.WriteLine("Assert "+message+"...");
+            return; // I know they're OK in this version.
+            //Console.WriteLine("Assert "+message+"...");
             for (int x = 0; x < b.GetLength(0); x++)
             {
                 for (int z = 0; z < b.GetLength(2); z++)
                 {
                     if (b[x, 0, z] != 7)
                     {
-                        Console.WriteLine(message);
+                        Console.WriteLine(message+" failed to retain blocks, bottom barrier compromised.");
                         Environment.Exit(0);
                     }
                 }
             }
-            Console.WriteLine(message+"OK");
+            //Console.WriteLine(message+"OK");
         }
 
         private Dictionary<byte, int> GetBlockNumbers(byte[, ,] b)
