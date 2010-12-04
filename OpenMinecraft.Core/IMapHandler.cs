@@ -351,9 +351,10 @@ namespace OpenMinecraft
 
         public void GrowTree(Random rand, int x, int y, int z)
         {
+            /*
             SetBlockAt(x, y, z, 6);
             SetDataAt(x, y, z, 15);
-            /*
+            */
             int height = rand.Next(6, 8);
             #region Foliage
             
@@ -364,7 +365,7 @@ namespace OpenMinecraft
             int astart = y - 2;
             int aend = y + 2;
             int rad;
-            for (int block_y = astart; block_y < aend; z++)
+            for (int block_y = astart; block_y < aend; block_y++)
             {
                 if (block_y > astart + 1)
                     rad = 1;
@@ -376,7 +377,7 @@ namespace OpenMinecraft
                     {
                         for (int zoff = -rad; zoff < rad + 1; zoff++)
                         {
-                            if (//Math.Abs(xoff) == Math.Abs(zoff)
+                            if (Math.Abs(xoff) == Math.Abs(zoff) ||
                                Math.Abs(xoff) <= rad ||
                                Math.Abs(zoff) <= rad
                             )
@@ -392,7 +393,6 @@ namespace OpenMinecraft
 
             for (int i = 0; i < height; i++)
                 SetBlockAt(x, y + i, z, 17);
-            */
         }
 
 
@@ -405,7 +405,7 @@ namespace OpenMinecraft
                 {
                     for (int z = 0; z < b.GetLength(2); ++z)
                     {
-                        byte block = (hm[x, z] >= y) ? (byte)1 : (byte)0;
+                        byte block = (hm[x, z] * b.GetLength(1)-3 >= y) ? (byte)1 : (byte)0;
                         if (y == 0)
                             block = 7; // Adminium
                         else if (y == 1)
@@ -429,5 +429,50 @@ namespace OpenMinecraft
 
         public abstract void SetDataAt(int x, int y, int z, byte p);
         public abstract byte GetDataAt(int x, int y, int z);
+
+        public abstract void SetChunkHeightmap(int X, int Z, double[,] cnk);
+        public abstract double[,] GetChunkHeightmap(int X, int Z);
+
+        public void SetBlockAt(long x, long y, long z, byte b)
+        {
+            SetBlockAt((int)x, (int)y, (int)z, b);
+        }
+
+        /// <summary>
+        /// travel from cord along vec and return how far it was to a point of matidx
+        ///
+        ///the distance is returned in number of iterations.  If the edge of the map
+        ///is reached, then return the number of iterations as well.
+        ///if invert == True, search for anything other than matidx
+        /// </summary>
+        /// <param name="cord"></param>
+        /// <param name="vec"></param>
+        /// <param name="matidx"></param>
+        /// <param name="invert"></param>
+        /// <returns></returns>
+        public double DistanceToMaterial(Vector3i cord, Vector3i vec, byte matidx, bool invert=false)
+        {
+            Vector3i curcord = cord + .5;
+            int iterations = 0;
+            while(
+                curcord.X>0 && curcord.Y>0 && curcord.Z > 0 &&
+                curcord.X<ChunkScale.X && curcord.Y<ChunkScale.Y && curcord.Z < ChunkScale.Z)
+            {
+                byte mat = GetBlockAt(curcord.X,curcord.Y,curcord.Z);
+                if(mat == matidx && invert == false) break;
+                else if (mat != matidx && invert) break;
+                else
+                {
+                    curcord = curcord + vec;
+                    iterations ++;
+                }
+            }
+            return iterations;
+        }
+
+        public byte GetBlockAt(long x,long y,long z)
+        {
+ 	        return GetBlockAt((int)x,(int)y,(int)z);
+        }
     }
 }

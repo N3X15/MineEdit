@@ -505,6 +505,35 @@ namespace OpenMinecraft
                 CopyRecursive( folder, dest );
             }
         }
+
+        public static void FixPlayerPlacement(ref IMapHandler mh)
+        {
+            // Thank you #mcp.
+            //<_303> [PlayerPos is] on the head
+            //<_303> corner pointing toward 0,0,0
+            Vector3d pos = mh.PlayerPos;
+            //<_303> height of player = [1.8]
+            int headblock = mh.GetBlockAt((int)pos.X,(int)pos.Y,(int)pos.Z);
+            switch (headblock)
+            {
+                case 0:
+                case 8:
+                case 9:
+                case 10:
+                case 11:
+                    return;
+            }
+            for (int y = (int)mh.ChunkScale.Y - 3; y > 1; y--)
+            {
+                int supportblock = mh.GetBlockAt((int)pos.X, y-3, (int)pos.Z);
+
+                if (supportblock != 0)
+                {
+                    mh.PlayerPos.Y = y;
+                    return;
+                }
+            }
+        }
     }
     /// <summary>
 	/// Radix is a convertor class for converting numbers to different radices

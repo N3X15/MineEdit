@@ -103,7 +103,9 @@ namespace OpenMinecraft
                         case 1: // ROCK
                         case 2: // GRASS
                         case 3: // DIRT
-                            mh.GrowTree(rand, me.X+xo, y + 1, me.Y+zo);
+                            Tree tree = new NormalTree(me.X, y+1, me.Y, rand.Next(5, 8));
+                            tree.MakeTrunk(ref mh);
+                            tree.MakeFoliage(ref mh);
                             break;
                         /* Automatic ?
                         case 11: // SAND

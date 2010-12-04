@@ -1413,18 +1413,31 @@ namespace MineEdit
                         // Fix lava
 
                         int stage = 0;
-                        int numstages = 3;
-                        ForEachProgressHandler feph = new ForEachProgressHandler(delegate(int Total, int Progress){
+                        int numstages = 2;
+                        ForEachProgressHandler feph = new ForEachProgressHandler(delegate(int Total, int Progress)
+                        {
                             numchunks = Total;
                             dlt.TasksTotal = numchunks * numstages;
-                            dlt.TasksComplete = Progress+(stage*numchunks);
+                            dlt.TasksComplete = Progress + (stage * numchunks);
                             dlt.SubtasksComplete = Progress;
                             dlt.SubtasksTotal = Total;
+                        });
+                        ForEachProgressHandler fl_feph = new ForEachProgressHandler(delegate(int Total, int Progress)
+                        {
+                            numchunks = Total;
+                            dlt.TasksTotal = numchunks * numstages;
+                            dlt.TasksComplete = Progress + (stage * numchunks);
+                            dlt.SubtasksComplete = Progress;
+                            dlt.SubtasksTotal = Total;
+
+                            dlt.perfChart.AddValue((ActiveMdiChild as frmMap).Map.ChunksLoaded);
                         });
 
                         dlt.CurrentTask = "Regenerating chunks...";
                         (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
                         dlt.ShowPerfChart(true);
+                        dlt.perfChart.Clear();
+                        dlt.perfChart.ScaleMode = SpPerfChart.ScaleMode.Relative;
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
                         {
                             if (dlt.STOP) return;
@@ -1432,30 +1445,31 @@ namespace MineEdit
                             double min, max;
                             (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y, out min, out max);
                             dlt.grpPerformance.Text = string.Format("Terrain Profile [{0},{1}]m",(int)(min*100),(int)(max*100));
-                            dlt.perfChart.AddValue((int)(max*100));
+                            dlt.perfChart.AddValue((decimal)max);
                         }); 
-
-                        stage = 1;
+                        /*
+                        stage++;
                         dlt.CurrentTask = "Eroding chunk surfaces...";
                         (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
                         {
                             dlt.CurrentSubtask = string.Format("Eroding chunk ({0},{1}, thermal)", X, Y);
-                            (ActiveMdiChild as frmMap).Map.ErodeThermal(5, 10, (int)X, (int)Y);
+                            //(ActiveMdiChild as frmMap).Map.ErodeThermal(5, 10, (int)X, (int)Y);
 
                             dlt.CurrentSubtask = string.Format("Eroding chunk ({0},{1}, hydraulic)", X, Y);
                             //(ActiveMdiChild as frmMap).Map.Erode(5, 10, (int)X, (int)Y);
 
                             dlt.CurrentSubtask = string.Format("Eroding chunk ({0},{1}, silt)", X, Y);
-                            (ActiveMdiChild as frmMap).Map.Silt(63,true, (int)X, (int)Y);
+                            //(ActiveMdiChild as frmMap).Map.Silt(63,true, (int)X, (int)Y);
 
                             dlt.grpPerformance.Text = string.Format("Chunks in-memory ({0})", _mh.ChunksLoaded);
                             dlt.perfChart.AddValue(_mh.ChunksLoaded);
                         });
-
-                        stage = 2;
+                        */
+                        stage++;
                         dlt.CurrentTask = "Finalizing chunks...";
                         (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
+                        dlt.perfChart.Clear();
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
                         {
                             dlt.CurrentSubtask = string.Format("Finalizing chunk ({0},{1})...", X, Y);
@@ -1479,8 +1493,9 @@ namespace MineEdit
                         //{
                         passes++;
                         dlt.CurrentSubtask = string.Format("Fixing water (Pass #{0}, {1} blocks added)...", passes, hurrT);
-                        (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
-                        hurr = mh.ExpandFluids(09, false, delegate(int Total,int Complete){
+                        dlt.perfChart.Clear();
+                        (ActiveMdiChild as frmMap).Map.ForEachProgress += fl_feph;
+                        hurr = mh.ExpandFluids(08, false, delegate(int Total,int Complete){
                             dlt.SubtasksTotal = Total;
                             dlt.SubtasksComplete = Complete;
 
@@ -1498,7 +1513,7 @@ namespace MineEdit
                         //{
                             passes++;
                             dlt.CurrentSubtask = string.Format("Fixing lava ({0} passes, {1} blocks added)...", passes, hurrT);
-                            (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
+                            (ActiveMdiChild as frmMap).Map.ForEachProgress += fl_feph;
                             hurr = mh.ExpandFluids(11, false, delegate(int Total, int Complete)
                             {
                                 dlt.SubtasksTotal = Total;
@@ -1517,6 +1532,7 @@ namespace MineEdit
                         dlt.Done();
                         ClearReport();
                         mh.Time = 0;
+                        Utils.FixPlayerPlacement(ref mh);
                         mh.Save();
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
                         

@@ -146,8 +146,8 @@ namespace OpenMinecraft
 
                     //height *= 60; // Bring from [0,1] -> [0,128]
 
-                    double height = (ContinentNoise.GetValue((double)(x + x_o) / 10d, (double)(z + z_o) / 10d, 0)*-1d + 1d) * 0.25d; // 2.0
-                    height += 0.25 + TerrainNoise.GetValue(x + x_o, z + z_o, 0) * 0.0125;
+                    double height = (ContinentNoise.GetValue((double)(x + x_o) / 10d, (double)(z + z_o) / 10d, 0)*-1d + 1d) * 0.5d; // 2.0
+                    height += 0.1 + TerrainNoise.GetValue(x + x_o, z + z_o, 0) * 0.0125;
 
                     if (height < minHeight) minHeight = height;
                     if (height > maxHeight) maxHeight = height;

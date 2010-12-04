@@ -31,8 +31,9 @@ namespace OpenMinecraft
         private bool mAutoRepair = false;
 
 		NbtFile mRoot = new NbtFile();
-		NbtFile mChunk = new NbtFile();
-		Dictionary<int, Chunk> mChunks = new Dictionary<int, Chunk>();
+        NbtFile mChunk = new NbtFile();
+        Dictionary<int, Chunk> mChunks = new Dictionary<int, Chunk>();
+        Dictionary<int, double[,]> mChunkHeightmaps = new Dictionary<int, double[,]>();
 		List<int> mChangedChunks = new List<int>();
 		Dictionary<Guid, Entity> mEntities = new Dictionary<Guid, Entity>();
 		Dictionary<Guid, TileEntity> mTileEntities = new Dictionary<Guid, TileEntity>();
@@ -638,7 +639,6 @@ namespace OpenMinecraft
 					return _LoadChunk(x, z);
 				if (GenerateNewChunkIfNeeded)
 				{
-
 					Generate(this, x, z, out min, out max);
 					return GetChunk(x, z);
 				}
@@ -647,14 +647,31 @@ namespace OpenMinecraft
 			return c;
 		}
 
-		public override void SetChunk(Chunk cnk)
-		{
+        public override void SetChunk(Chunk cnk)
+        {
             int id = GetChunkHandle((int)cnk.Position.X, (int)cnk.Position.Z);
-			if(mChunks.ContainsKey(id))
-				mChunks[id]=cnk;
-			else
-				mChunks.Add(id,cnk);
-		}
+            if (mChunks.ContainsKey(id))
+                mChunks[id] = cnk;
+            else
+                mChunks.Add(id, cnk);
+        }
+
+        public override void SetChunkHeightmap(int X, int Z, double[,] cnk)
+        {
+            int id = GetChunkHandle(X, Z);
+            if (mChunkHeightmaps.ContainsKey(id))
+                mChunkHeightmaps[id] = cnk;
+            else
+                mChunkHeightmaps.Add(id, cnk);
+        }
+
+        public override double[,] GetChunkHeightmap(int X, int Z)
+        {
+            int i = GetChunkHandle(X, Z);
+            if(mChunkHeightmaps.ContainsKey(i))
+                return mChunkHeightmaps[i];
+            return null;
+        }
 
 		public override void SaveChunk(Chunk cnk)
 		{
@@ -1069,14 +1086,10 @@ namespace OpenMinecraft
 				if (File.Exists(lockfile))
 					File.Delete(lockfile);
 			}
-
-			Chunk _c = mh.NewChunk(X, Z);
 			double[,] hm = _Generator.Generate(ref mh, X, Z,out min, out max);
 			if (hm == null) return;
 
-			_c.mHeightMap = hm;
-            _c.UpdateOverview();
-			SetChunk(_c);
+			SetChunkHeightmap((int)X,(int)Z,hm);
 		}
 
         public override void FinalizeGeneration(IMapHandler mh, long X, long Z)
@@ -1102,10 +1115,10 @@ namespace OpenMinecraft
                 if (File.Exists(lockfile))
                     File.Delete(lockfile);
             }
-            Chunk _c = GetChunk(X, Z);
+            Chunk _c = NewChunk(X, Z);
             
             byte[, ,] b = _c.Blocks;
-            double[,] hm = _c.mHeightMap;
+            double[,] hm = mh.GetChunkHeightmap((int)X,(int)Z);
 
             BiomeType[,] bt = _Generator.DetermineBiomes(hm, X, Z);
 
@@ -1935,9 +1948,11 @@ namespace OpenMinecraft
 
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
             int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
-
-            Chunk c = GetChunk(X, Z);
-            return c.mHeightMap[x, y];
+            
+            int i = GetChunkHandle(X, Z);
+            if (mChunkHeightmaps.ContainsKey(i))
+                return mChunkHeightmaps[i][x, y];
+            return 0;
         }
 
         internal override void SetPrelimHeightAt(int px, int py, double val)
@@ -1948,9 +1963,9 @@ namespace OpenMinecraft
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
             int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
 
-            Chunk c = GetChunk(X, Z);
-            c.mHeightMap[x, y] = val;
-            SetChunk(X, Z, c);
+            int i = GetChunkHandle(X, Z);
+            if(mChunkHeightmaps.ContainsKey(i))
+                mChunkHeightmaps[i][x, y] = val;
         }
 
 
@@ -1971,6 +1986,7 @@ namespace OpenMinecraft
                 mChangedChunks.Clear();
                 mEntities.Clear();
                 mTileEntities.Clear();
+                mChunkHeightmaps.Clear();
             }
         }
 
