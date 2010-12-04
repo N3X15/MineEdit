@@ -1443,7 +1443,7 @@ namespace MineEdit
                             if (dlt.STOP) return;
                             dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Y);
                             double min, max;
-                            (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y, out min, out max);
+                            (ActiveMdiChild as frmMap).Map.Generate(X, Y, out min, out max);
                             dlt.grpPerformance.Text = string.Format("Terrain Profile [{0},{1}]m",(int)(min*100),(int)(max*100));
                             dlt.perfChart.AddValue((decimal)max);
                         }); 
@@ -1470,70 +1470,27 @@ namespace MineEdit
                         dlt.CurrentTask = "Finalizing chunks...";
                         (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
                         dlt.perfChart.Clear();
+                        int numBroken = 0;
                         (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
                         {
-                            dlt.CurrentSubtask = string.Format("Finalizing chunk ({0},{1})...", X, Y);
-                            (ActiveMdiChild as frmMap).Map.FinalizeGeneration((ActiveMdiChild as frmMap).Map, X, Y);
+                            dlt.CurrentSubtask = string.Format("Finalizing chunk ({0},{1}), {2} broken...", X, Y, numBroken);
+                            if (!(ActiveMdiChild as frmMap).Map.FinalizeGeneration(X, Y))
+                            {
+                                numBroken++;
+                            }
 
                             dlt.grpPerformance.Text = string.Format("Chunks in-memory ({0})", _mh.ChunksLoaded);
                             dlt.perfChart.AddValue(_mh.ChunksLoaded);
                         });
 
-
-                        dlt.CurrentTask = "Fixing fluids, may take a while...";
-                        dlt.SubtasksTotal = 2;
-                        dlt.SubtasksComplete = 0;
-                        IMapHandler mh = (ActiveMdiChild as frmMap).Map;
-                        dlt.CurrentSubtask = "Fixing water...";
-                        int hurr = 1;
-                        int hurrT = 0;
-                        int passes = 0;
-                        dlt.SetMarquees(true, true);
-                        //while (hurr != 0)
-                        //{
-                        passes++;
-                        dlt.CurrentSubtask = string.Format("Fixing water (Pass #{0}, {1} blocks added)...", passes, hurrT);
-                        dlt.perfChart.Clear();
-                        (ActiveMdiChild as frmMap).Map.ForEachProgress += fl_feph;
-                        hurr = mh.ExpandFluids(08, false, delegate(int Total,int Complete){
-                            dlt.SubtasksTotal = Total;
-                            dlt.SubtasksComplete = Complete;
-
-                            dlt.grpPerformance.Text = string.Format("Chunks in-memory ({0})", mh.ChunksLoaded);
-                            dlt.perfChart.AddValue(mh.ChunksLoaded);
-                        });
-                        hurrT += hurr;
-                        //}
-                        dlt.SubtasksComplete++;
-                        dlt.CurrentSubtask = "Fixing lava...";
-                        passes = 0;
-                        hurrT = 0;
-                        hurr = 1;
-                        //while (hurr != 0)
-                        //{
-                            passes++;
-                            dlt.CurrentSubtask = string.Format("Fixing lava ({0} passes, {1} blocks added)...", passes, hurrT);
-                            (ActiveMdiChild as frmMap).Map.ForEachProgress += fl_feph;
-                            hurr = mh.ExpandFluids(11, false, delegate(int Total, int Complete)
-                            {
-                                dlt.SubtasksTotal = Total;
-                                dlt.SubtasksComplete = Complete;
-
-                                dlt.grpPerformance.Text = string.Format("Chunks in-memory ({0})", mh.ChunksLoaded);
-                                dlt.perfChart.AddValue(mh.ChunksLoaded);
-                            });
-                            hurrT += hurr;
-                        //}
-                        dlt.SubtasksComplete++;
-                        (ActiveMdiChild as frmMap).Map = mh;
                         dlt.CurrentSubtask = "SAVING CHUNKS";
-                        mh.SaveAll();
+                        (ActiveMdiChild as frmMap).Map.SaveAll();
                         dlt.SetMarquees(false,false);
                         dlt.Done();
                         ClearReport();
-                        mh.Time = 0;
-                        Utils.FixPlayerPlacement(ref mh);
-                        mh.Save();
+                        (ActiveMdiChild as frmMap).Map.Time = 0;
+                        //Utils.FixPlayerPlacement(ref (ActiveMdiChild as frmMap).Map);
+                        (ActiveMdiChild as frmMap).Map.Save();
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
                         
                         // DEACTIVATE AUTOREPAIR
@@ -1547,7 +1504,7 @@ namespace MineEdit
         protected void GenChunk(long X, long Y)
         {
             double min, max;
-            (ActiveMdiChild as frmMap).Map.Generate((ActiveMdiChild as frmMap).Map, X, Y, out min, out max);
+            (ActiveMdiChild as frmMap).Map.Generate(X, Y, out min, out max);
         }
 
         private void recalcLightingToolStripMenuItem_Click(object sender, EventArgs e)

@@ -32,9 +32,9 @@ namespace OpenMinecraft
 
 		NbtFile mRoot = new NbtFile();
         NbtFile mChunk = new NbtFile();
-        Dictionary<int, Chunk> mChunks = new Dictionary<int, Chunk>();
-        Dictionary<int, double[,]> mChunkHeightmaps = new Dictionary<int, double[,]>();
-		List<int> mChangedChunks = new List<int>();
+        Dictionary<Vector2i, Chunk> mChunks = new Dictionary<Vector2i, Chunk>();
+        Dictionary<Vector2i, double[,]> mChunkHeightmaps = new Dictionary<Vector2i, double[,]>();
+        List<Vector2i> mChangedChunks = new List<Vector2i>();
 		Dictionary<Guid, Entity> mEntities = new Dictionary<Guid, Entity>();
 		Dictionary<Guid, TileEntity> mTileEntities = new Dictionary<Guid, TileEntity>();
 
@@ -447,7 +447,7 @@ namespace OpenMinecraft
 				c.Loading = false;
 				c.UpdateOverview();
 
-				int ci = GetChunkHandle(x, z);
+				Vector2i ci = GetChunkHandle(x, z);
 				if (mChunks.ContainsKey(ci))
 					return mChunks[ci];
 				mChunks.Add(ci, c);
@@ -494,9 +494,9 @@ namespace OpenMinecraft
 #endif
         }
 
-        private int GetChunkHandle(int x, int z)
+        private Vector2i GetChunkHandle(int x, int z)
         {
-            return ((x << 16) & 0xfff000) | ((x >> 16) & 0x000fff);
+            return new Vector2i(x, z);
         }
 
 		private byte[, ,] DecompressBlocks(byte[] p)
@@ -630,7 +630,7 @@ namespace OpenMinecraft
 
 		public Chunk GetChunk(int x, int z, bool GenerateNewChunkIfNeeded)
 		{
-			int id = GetChunkHandle(x,z);
+            Vector2i id = GetChunkHandle(x, z);
 			Chunk c;
             double min, max;
 			if (!mChunks.TryGetValue(id, out c))
@@ -639,7 +639,7 @@ namespace OpenMinecraft
 					return _LoadChunk(x, z);
 				if (GenerateNewChunkIfNeeded)
 				{
-					Generate(this, x, z, out min, out max);
+					Generate(x, z, out min, out max);
 					return GetChunk(x, z);
 				}
 				return null;
@@ -649,7 +649,7 @@ namespace OpenMinecraft
 
         public override void SetChunk(Chunk cnk)
         {
-            int id = GetChunkHandle((int)cnk.Position.X, (int)cnk.Position.Z);
+            Vector2i id = GetChunkHandle((int)cnk.Position.X, (int)cnk.Position.Z);
             if (mChunks.ContainsKey(id))
                 mChunks[id] = cnk;
             else
@@ -658,7 +658,7 @@ namespace OpenMinecraft
 
         public override void SetChunkHeightmap(int X, int Z, double[,] cnk)
         {
-            int id = GetChunkHandle(X, Z);
+            Vector2i id = GetChunkHandle(X, Z);
             if (mChunkHeightmaps.ContainsKey(id))
                 mChunkHeightmaps[id] = cnk;
             else
@@ -667,7 +667,7 @@ namespace OpenMinecraft
 
         public override double[,] GetChunkHeightmap(int X, int Z)
         {
-            int i = GetChunkHandle(X, Z);
+            Vector2i i = GetChunkHandle(X, Z);
             if(mChunkHeightmaps.ContainsKey(i))
                 return mChunkHeightmaps[i];
             return null;
@@ -995,7 +995,7 @@ namespace OpenMinecraft
 
 		private void SetChunk(int X, int Z, Chunk c)
         {
-            int id = GetChunkHandle(X, Z);
+            Vector2i id = GetChunkHandle(X, Z);
 			if (!mChunks.ContainsKey(id))
 			{
 				mChunks.Add(id, c);
@@ -1064,7 +1064,7 @@ namespace OpenMinecraft
 
         Random rand = new Random();
 
-		public override void Generate(IMapHandler mh, long X, long Z, out double min, out double max)
+		public override void Generate(long X, long Z, out double min, out double max)
         {
             min = 0;
             max = (double)ChunkY;
@@ -1086,13 +1086,13 @@ namespace OpenMinecraft
 				if (File.Exists(lockfile))
 					File.Delete(lockfile);
 			}
-			double[,] hm = _Generator.Generate(ref mh, X, Z,out min, out max);
+			double[,] hm = _Generator.Generate(this, X, Z,out min, out max);
 			if (hm == null) return;
 
 			SetChunkHeightmap((int)X,(int)Z,hm);
 		}
 
-        public override void FinalizeGeneration(IMapHandler mh, long X, long Z)
+        public override bool FinalizeGeneration(long X, long Z)
         {
             if (treeNoise == null)
             {
@@ -1103,39 +1103,71 @@ namespace OpenMinecraft
                 treeNoise.OctaveCount = 1;
                 dungeonNoise = new Random((int)RandomSeed);
             }
-            if (_Generator == null) return;
+            if (_Generator == null)
+            {
+                return false;
+            }
             string lockfile = Path.ChangeExtension(GetChunkFilename((int)X, (int)Z), "genlock");
             if (!_Generator.NoPreservation)
             {
                 if (File.Exists(lockfile))
-                    return;
+                {
+                    return true;
+                }
             }
             else
             {
                 if (File.Exists(lockfile))
                     File.Delete(lockfile);
             }
+            double[,] hm = GetChunkHeightmap((int)X,(int)Z);
+
+            if (hm == null)
+            {
+                Console.WriteLine("hm = null");
+                return false;
+            }
+
             Chunk _c = NewChunk(X, Z);
-            
             byte[, ,] b = _c.Blocks;
-            double[,] hm = mh.GetChunkHeightmap((int)X,(int)Z);
 
             BiomeType[,] bt = _Generator.DetermineBiomes(hm, X, Z);
 
-            HeightmapToVoxelspace(hm,ref b);
-            _Generator.AddSoil(ref b, bt, 63, 6, _Generator.Materials);
-            _Generator.AddDungeons(ref b, ref mh, dungeonNoise, X, Z);
-            _Generator.AddTrees(ref mh, bt, ref rand, (int)X, (int)Z, (int)ChunkY);
-            _Generator.Precipitate(ref b, bt, _Generator.Materials, X, Z);
+            IMapHandler mh = this;
+            HeightmapToVoxelspace(hm, ref b);                                       AssertBottomBarrierIntegrity(b, "HeightmapToVoxelspace");
+            _Generator.AddSoil(ref b, bt, 63, 6, _Generator.Materials);             AssertBottomBarrierIntegrity(b, "AddSoil");
+            _Generator.AddDungeons(ref b, ref mh, dungeonNoise, X, Z);              AssertBottomBarrierIntegrity(b, "AddDungeons");
+            _Generator.AddTrees(ref mh, bt, ref rand, (int)X, (int)Z, (int)ChunkY); AssertBottomBarrierIntegrity(b, "AddTrees");
+            _Generator.Precipitate(ref b, bt, _Generator.Materials, X, Z);          AssertBottomBarrierIntegrity(b, "Precipitate");
+            mh.SaveAll();
 
             _c.Blocks = b;
             _c.UpdateOverview();
             _c.Save();
+            SetChunk(_c);
             File.WriteAllText(lockfile, _Generator.ToString());
-            CullChunk(X, Z);
+            SaveAll(false);
+            return true;
         }
 
-		private Dictionary<byte,int> GetBlockNumbers(byte[, ,] b)
+        private void AssertBottomBarrierIntegrity(byte [,,] b,string message)
+        {
+            Console.WriteLine("Assert "+message+"...");
+            for (int x = 0; x < b.GetLength(0); x++)
+            {
+                for (int z = 0; z < b.GetLength(2); z++)
+                {
+                    if (b[x, 0, z] != 7)
+                    {
+                        Console.WriteLine(message);
+                        Environment.Exit(0);
+                    }
+                }
+            }
+            Console.WriteLine(message+"OK");
+        }
+
+        private Dictionary<byte, int> GetBlockNumbers(byte[, ,] b)
 		{
 			Dictionary<byte, int> BlockCount = new Dictionary<byte, int>();
 			for (int x = 0; x < ChunkScale.X; x++)
@@ -1223,7 +1255,7 @@ namespace OpenMinecraft
 				}
 			}
 			if(!bu) return;
-            int ci = GetChunkHandle((int)X, (int)Z);
+            Vector2i ci = GetChunkHandle((int)X, (int)Z);
 			if (mChunks.ContainsKey(ci))
 			{
 				mChunks.Remove(ci);
@@ -1307,7 +1339,7 @@ namespace OpenMinecraft
 			}
 			 */
 
-            int ci = GetChunkHandle((int)CX, (int)CZ);
+            Vector2i ci = GetChunkHandle((int)CX, (int)CZ);
 			int i = GetBlockIndex((int)pos.X, (int)pos.Y, (int)pos.Z);
 			//try
 			//{
@@ -1338,7 +1370,7 @@ namespace OpenMinecraft
 
 		public override void CullChunk(long X, long Z)
         {
-            int ci = GetChunkHandle((int)X, (int)Z);
+            Vector2i ci = GetChunkHandle((int)X, (int)Z);
 			if(mChunks.ContainsKey(ci))
 				mChunks.Remove(ci);
             GC.Collect();
@@ -1354,7 +1386,7 @@ namespace OpenMinecraft
 			// block saving to any negative chunk due to being unreadable.
 			if (CX < 0 || CZ < 0) return;
 
-            int ci = GetChunkHandle((int)CX,(int)CZ);
+            Vector2i ci = GetChunkHandle((int)CX, (int)CZ);
 			//try
 			//{
 			if (mChunks.ContainsKey(ci))
@@ -1378,7 +1410,7 @@ namespace OpenMinecraft
 		public override void CommitTransaction()
 		{
 			if(_DEBUG) Console.WriteLine("{0} chunks changed.", mChangedChunks.Count);
-			foreach (int v in mChangedChunks)
+            foreach (Vector2i v in mChangedChunks)
 			{
                 Chunk c = mChunks[v];
 				SaveChunk(c);
@@ -1403,7 +1435,7 @@ namespace OpenMinecraft
 				//if(_DEBUG) Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
 				return;
 			}
-            int ci = GetChunkHandle(CX, CZ);
+            Vector2i ci = GetChunkHandle(CX, CZ);
 			if (!mChunks.ContainsKey(ci))
 				return;
 			Chunk c = mChunks[ci];
@@ -1948,8 +1980,8 @@ namespace OpenMinecraft
 
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
             int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
-            
-            int i = GetChunkHandle(X, Z);
+
+            Vector2i i = GetChunkHandle(X, Z);
             if (mChunkHeightmaps.ContainsKey(i))
                 return mChunkHeightmaps[i][x, y];
             return 0;
@@ -1963,22 +1995,20 @@ namespace OpenMinecraft
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
             int y = py - ((py >> 4) * ChunkZ); //(py >> 4) & 0xf;
 
-            int i = GetChunkHandle(X, Z);
+            Vector2i i = GetChunkHandle(X, Z);
             if(mChunkHeightmaps.ContainsKey(i))
                 mChunkHeightmaps[i][x, y] = val;
         }
 
 
-        public override void SaveAll()
+        public override void SaveAll(bool cullheightmaps=true)
         {
             lock(mChunks)
             {
-                List<int> Keys = new List<int>(mChunks.Keys);
-                foreach (int k in Keys)
+                List<Vector2i> Keys = new List<Vector2i>(mChunks.Keys);
+                foreach (Vector2i k in Keys)
                 {
                     mChunks[k].Save();
-                    mChunks.Remove(k);
-                    GC.Collect();
                 }
 
                 // CULL, CULL LIKE NO TOMORROW
@@ -1986,7 +2016,9 @@ namespace OpenMinecraft
                 mChangedChunks.Clear();
                 mEntities.Clear();
                 mTileEntities.Clear();
-                mChunkHeightmaps.Clear();
+                //if(cullheightmaps)
+                //    mChunkHeightmaps.Clear();
+                //GC.Collect();
             }
         }
 
@@ -1999,8 +2031,8 @@ namespace OpenMinecraft
 
         public override void CullUnchanged()
         {
-            List<int> chunkKeys = new List<int>(mChunks.Keys);
-            foreach (int k in chunkKeys)
+            List<Vector2i> chunkKeys = new List<Vector2i>(mChunks.Keys);
+            foreach (Vector2i k in chunkKeys)
             {
                 if (!mChangedChunks.Contains(k))
                     mChunks.Remove(k);

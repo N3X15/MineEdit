@@ -100,8 +100,8 @@ namespace OpenMinecraft
 
         public abstract Chunk NewChunk(long X, long Y);
         public abstract IMapGenerator Generator { get; set; }
-        public abstract void Generate(IMapHandler mh, long X, long Y, out double min, out double max);
-        public abstract void FinalizeGeneration(IMapHandler mh, long X, long Z);
+        public abstract void Generate(long X, long Y, out double min, out double max);
+        public abstract bool FinalizeGeneration(long X, long Z);
 
         public abstract Vector2i GetChunkCoordsFromFile(string filename);
 
@@ -127,7 +127,7 @@ namespace OpenMinecraft
         internal abstract double GetPrelimHeightAt(int x, int z);
         internal abstract void SetPrelimHeightAt(int x, int z, double h);
 
-        public abstract void SaveAll();
+        public abstract void SaveAll(bool cullheightmaps=true);
 
         public abstract bool Autorepair { get; set; }
 
@@ -399,23 +399,27 @@ namespace OpenMinecraft
 
         internal void HeightmapToVoxelspace(double[,] hm, ref byte[, ,] b)
         {
-            for (int x = 0; x < b.GetLength(0); ++x)
+            int XScale = b.GetLength(0);
+            int YScale = b.GetLength(1);
+            int ZScale = b.GetLength(2);
+            int maxH = 0;
+            for (int x = 0; x < XScale; ++x)
             {
-                for (int y = 0; y < b.GetLength(1); ++y)
+                for (int z = 0; z < ZScale; ++z)
                 {
-                    for (int z = 0; z < b.GetLength(2); ++z)
+                    int height = (int)(hm[x, z] * (YScale - 3));
+                    if (height > maxH) maxH=height;
+                    for (int y = 0; y < YScale; ++y)
                     {
-                        byte block = (hm[x, z] * b.GetLength(1)-3 >= y) ? (byte)1 : (byte)0;
+                        byte block = (y <= height ) ? (byte)1 : (byte)0;
                         if (y == 0)
                             block = 7; // Adminium
                         else if (y == 1)
                         {
                             // TODO Yell at Notch for not making Lava occlude. :|
-                            if (block == 0)
-                                block = 11; // Lava for air.
-                            else if (b[x, y, z] == 9 || b[x, y, z] == 8 )
+                            block = 11; // Lava for air.
+                            if (b[x, y, z] == 9 || b[x, y, z] == 8 )
                                 block = 49; // Obsidian for underwater shit.
-                            break;
                         }
                         else if (y >= b.GetLength(1) - 3)
                         {
@@ -424,6 +428,11 @@ namespace OpenMinecraft
                         b[x, y, z] = block;
                     }
                 }
+            }
+            if (maxH == 0)
+            {
+                Console.WriteLine("max==0");
+                throw new Exception("Heightmap maximum height = 0, level generator broken.");
             }
         }
 

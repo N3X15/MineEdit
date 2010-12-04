@@ -14,11 +14,7 @@ namespace OpenMinecraft
 
         public abstract MapGenMaterials Materials { get; set; }
         
-        /// <param name="X"></param>
-        /// <param name="Y"></param>
-        /// <param name="chunksize"></param>
-        /// <returns></returns>
-        public abstract double[,] Generate(ref IMapHandler mh, long X, long Y, out double min, out double max);
+        public abstract double[,] Generate(IMapHandler map, long X, long Z, out double min, out double max);
 
         [Browsable(false)]
         public abstract bool GenerateCaves { get; set; }
@@ -103,7 +99,7 @@ namespace OpenMinecraft
                         case 1: // ROCK
                         case 2: // GRASS
                         case 3: // DIRT
-                            Tree tree = new NormalTree(me.X, y+1, me.Y, rand.Next(5, 8));
+                            Tree tree = new NormalTree(me.X + xo, y + 1, me.Y + zo, rand.Next(5, 8));
                             tree.MakeTrunk(ref mh);
                             tree.MakeFoliage(ref mh);
                             break;

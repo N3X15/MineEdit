@@ -125,7 +125,7 @@ namespace OpenMinecraft
         /// <param name="Z"></param>
         /// <param name="chunksize"></param>
         /// <returns></returns>
-        public override double[,] Generate(ref IMapHandler mh, long X, long Z, out double minHeight, out double maxHeight)
+        public override double[,] Generate(IMapHandler mh, long X, long Z, out double minHeight, out double maxHeight)
         {
             Vector3i chunksize = mh.ChunkScale;
             int x_o = (int)(X * chunksize.X);

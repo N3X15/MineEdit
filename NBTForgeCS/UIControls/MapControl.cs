@@ -333,7 +333,7 @@ namespace MineEdit
                     new MenuItem("Paint..."),//,new EventHandler(delegate(object s,EventArgs ea){})),
                     new MenuItem("Generate...",new EventHandler(delegate(object s,EventArgs ea){
                         double min, max;
-                        Map.Generate(Map, mcc.AssignedChunk.X,mcc.AssignedChunk.Y, out min, out max);
+                        Map.Generate(mcc.AssignedChunk.X,mcc.AssignedChunk.Y, out min, out max);
                         Map.LoadChunk(mcc.AssignedChunk.X, mcc.AssignedChunk.Y);
                         mcc.Render();
                         mcc.Refresh();
