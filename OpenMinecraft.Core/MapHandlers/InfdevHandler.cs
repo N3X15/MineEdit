@@ -472,6 +472,7 @@ namespace OpenMinecraft
 						}
 					}
 				}
+                //File.WriteAllText(Path.ChangeExtension(c.Filename,".dump.txt"), mChunk.RootTag.ToString());
 				//if (c>0)  if(_DEBUG) Console.WriteLine("*** {0} spawners found.", c);
 				//if(_DEBUG) Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
 				return c;
@@ -1092,7 +1093,6 @@ namespace OpenMinecraft
 				if (File.Exists(lockfile))
 					File.Delete(lockfile);
 			}
-
             //Console.WriteLine("GEN");
 			double[,] hm = _Generator.Generate(this, X, Z,out min, out max);
 
@@ -1135,7 +1135,7 @@ namespace OpenMinecraft
 
             //Console.WriteLine("TREES");
             // These use SetBlockAt() and company.
-            //_Generator.AddTrees(ref mh, biomes, ref rand, (int)X, (int)Z, (int)ChunkY);
+            _Generator.AddTrees(ref mh, biomes, ref rand, (int)X, (int)Z, (int)ChunkY);
 
             //Console.WriteLine("SAVE");
             SaveAll();
@@ -1221,7 +1221,7 @@ namespace OpenMinecraft
             Level.Add(new NbtList("Entities"));
             Level.Add(new NbtList("TileEntities"));
 
-			NbtCompound Chunk = new NbtCompound("_ROOT_");
+			NbtCompound Chunk = new NbtCompound();
 			Chunk.Add(Level);
 			return Chunk;
 		}

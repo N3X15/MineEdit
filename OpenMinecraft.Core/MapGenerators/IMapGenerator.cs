@@ -34,45 +34,47 @@ namespace OpenMinecraft
         public abstract void Save(string Folder);
         public abstract void Load(string Folder);
 
-        FastNoise HumidityNoise = new FastNoise();
-        FastNoise TemperatureNoise;
+        Simplex HumidityNoise;
+        Simplex TemperatureNoise;
         
-        [Description("Temperature offset.  Valid temperatures are between -1 (cold) and 1 (hot).")]
+        [Category("Biomes"), Description("Temperature offset.  Valid temperatures are between -1 (cold) and 1 (hot).")]
         public double TemperatureOffset { get; set; }
 
-        [Description("Humidity offset.  Valid humidities are between -1 (dry) and 1 (wet).")]
+        [Category("Biomes"), Description("Humidity offset.  Valid humidities are between -1 (dry) and 1 (wet).")]
         public double HumidityOffset { get; set; }
 
         public void SetupBiomeNoise(int RandomSeed)
         {
-            HumidityNoise.Seed = RandomSeed + 6;
-            HumidityNoise.Frequency = 0.1;
-            HumidityNoise.Persistence = 0.5;
-            HumidityNoise.OctaveCount = 1;
-            TemperatureNoise = HumidityNoise;
-            TemperatureNoise.Seed = RandomSeed + 7;
+            TemperatureNoise = new Simplex(RandomSeed+1);
+            HumidityNoise = new Simplex(RandomSeed);
         }
         public virtual BiomeType[,] DetermineBiomes(double[,] hm, long X, long Z)
         {
             BiomeType[,] bt = new BiomeType[hm.GetLength(0), hm.GetLength(1)];
             int xo = (int)(X*hm.GetLength(0));
             int zo = (int)(Z*hm.GetLength(1));
+            double maxT = 0;
             for (int x = 0; x < hm.GetLength(0); x++)
             {
                 for (int z = 0; z < hm.GetLength(1); z++)
                 {
-                    double h = HumidityNoise.GetValue((double)(x + xo) / 12d, (double)(z + zo) / 12d, 0);
-                    double t = TemperatureNoise.GetValue((double)(x + xo) / 12d, (double)(z + zo) / 12d, 0) + 0.25; // Too cold.
+                    double hto = hm[x, z] * 0.10; // Vary temperature by height.
+                    double h = HumidityNoise.Noise((double)(x + xo) / 20d, 0, (double)(z + zo) / 20d) + HumidityOffset;
+                    double t = TemperatureNoise.Noise((double)(x + xo) / 20d, 0, (double)(z + zo) / 20d) + TemperatureOffset - hto; 
+                    if (t > maxT) maxT = t;
                     bt[x, z] = Biome.GetBiomeType(h, t);
                 }
             }
+            //Console.WriteLine("t=" + maxT.ToString());
             return bt;
         }
         public virtual void AddTrees(ref IMapHandler mh, BiomeType[,] biomes, ref Random rand, int X, int Z, int H)
         {
+            int xo = (int)(X * mh.ChunkScale.X);
+            int zo = (int)(Z * mh.ChunkScale.Z);
             List<Vector2i> PlantedTrees = new List<Vector2i>();
             int DistanceReqd = 3;
-            for (int t = 0; t < (int)((HumidityNoise.GetValue(X, Z, 0)+1d) * 5.0); t++)
+            for (int t = 0; t < (int)((HumidityNoise.Noise((double)(xo) / 12d, (double)(zo) / 12d, 0) + HumidityOffset) * 5.0); t++)
             {
                 Vector2i me = new Vector2i(rand.Next(2, 13),rand.Next(2, 13));
                 if (!Biome.NeedsTrees(biomes[me.X, me.Y]))
@@ -88,8 +90,6 @@ namespace OpenMinecraft
                 }
 
                 if (tooclose) continue;
-                int xo = (int)(X * mh.ChunkScale.X);
-                int zo = (int)(Z * mh.ChunkScale.Z);
                 for (int y = (int)H - 10; y > 0; y--)
                 {
                     switch (mh.GetBlockAt(me.X+xo, y, me.Y+zo))
