@@ -482,5 +482,7 @@ namespace OpenMinecraft
         {
  	        return GetBlockAt((int)x,(int)y,(int)z);
         }
+
+        public abstract void Populate(int X, int Z);
     }
 }

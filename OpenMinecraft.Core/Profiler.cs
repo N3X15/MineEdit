@@ -29,7 +29,7 @@ namespace OpenMinecraft
             timer = Stopwatch.StartNew();
         }
 
-        public void Stop()
+        public long Stop()
         {
             timer.Stop();
             long ms = timer.ElapsedMilliseconds;
@@ -42,6 +42,7 @@ namespace OpenMinecraft
                 numMS += ms;
             }
             timer.Reset();
+            return ms;
         }
 
         public override string ToString()

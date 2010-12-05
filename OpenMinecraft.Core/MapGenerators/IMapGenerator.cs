@@ -36,6 +36,7 @@ namespace OpenMinecraft
 
         Simplex HumidityNoise;
         Simplex TemperatureNoise;
+        private static double BIOME_SCALE=200;
         
         [Category("Biomes"), Description("Temperature offset.  Valid temperatures are between -1 (cold) and 1 (hot).")]
         public double TemperatureOffset { get; set; }
@@ -48,19 +49,18 @@ namespace OpenMinecraft
             TemperatureNoise = new Simplex(RandomSeed+1);
             HumidityNoise = new Simplex(RandomSeed);
         }
-        public virtual BiomeType[,] DetermineBiomes(double[,] hm, long X, long Z)
+        public virtual BiomeType[,] DetermineBiomes(Vector3i chunkScale, long X, long Z)
         {
-            BiomeType[,] bt = new BiomeType[hm.GetLength(0), hm.GetLength(1)];
-            int xo = (int)(X*hm.GetLength(0));
-            int zo = (int)(Z*hm.GetLength(1));
+            BiomeType[,] bt = new BiomeType[chunkScale.X, chunkScale.Z];
+            int xo = (int)(X*chunkScale.X);
+            int zo = (int)(Z*chunkScale.Z);
             double maxT = 0;
-            for (int x = 0; x < hm.GetLength(0); x++)
+            for (int x = 0; x < chunkScale.X; x++)
             {
-                for (int z = 0; z < hm.GetLength(1); z++)
+                for (int z = 0; z < chunkScale.Z; z++)
                 {
-                    double hto = hm[x, z] * 0.10; // Vary temperature by height.
-                    double h = HumidityNoise.Noise((double)(x + xo) / 20d, 0, (double)(z + zo) / 20d) + HumidityOffset;
-                    double t = TemperatureNoise.Noise((double)(x + xo) / 20d, 0, (double)(z + zo) / 20d) + TemperatureOffset - hto; 
+                    double h = HumidityNoise.Noise((double)(x + xo) / BIOME_SCALE, 0, (double)(z + zo) / BIOME_SCALE) + HumidityOffset;
+                    double t = TemperatureNoise.Noise((double)(x + xo) / BIOME_SCALE, 0, (double)(z + zo) / BIOME_SCALE) + TemperatureOffset; 
                     if (t > maxT) maxT = t;
                     bt[x, z] = Biome.GetBiomeType(h, t);
                 }
@@ -74,9 +74,9 @@ namespace OpenMinecraft
             int zo = (int)(Z * mh.ChunkScale.Z);
             List<Vector2i> PlantedTrees = new List<Vector2i>();
             int DistanceReqd = 3;
-            for (int t = 0; t < (int)((HumidityNoise.Noise((double)(xo) / 12d, (double)(zo) / 12d, 0) + HumidityOffset) * 5.0); t++)
+            for (int t = 0; t < (int)((HumidityNoise.Noise((double)(xo) / BIOME_SCALE, (double)(zo) / BIOME_SCALE, 0) + HumidityOffset) * 5.0); t++)
             {
-                Vector2i me = new Vector2i(rand.Next(2, 13),rand.Next(2, 13));
+                Vector2i me = new Vector2i(rand.Next(0, 15),rand.Next(0, 15));
                 if (!Biome.NeedsTrees(biomes[me.X, me.Y]))
                     continue;
                 bool tooclose=false;
@@ -99,6 +99,8 @@ namespace OpenMinecraft
                         case 1: // ROCK
                         case 2: // GRASS
                         case 3: // DIRT
+                            //Utils.GrowTree(ref blocks, rand, (int)me.X, (int)y + 1, (int)me.Y);
+                            
                             Tree tree = new NormalTree(me.X + xo, y + 1, me.Y + zo, rand.Next(5, 8));
                             tree.MakeTrunk(ref mh);
                             tree.MakeFoliage(ref mh);
@@ -153,9 +155,9 @@ namespace OpenMinecraft
                                 case 0: // Air
                                 case 8: // Water
                                 case 9: // Water
-
-                                    if ((y - depth <= WaterHeight && GenerateWater) || biomes[x,z] == BiomeType.Desert)
-                                        b[x, y, z] = mats.Sand;
+                                    BiomeType bt = biomes[x,z];
+                                    if ((y - depth <= WaterHeight && GenerateWater) ||  bt == BiomeType.Desert)
+                                        b[x, y, z] = (bt == BiomeType.Taiga || bt == BiomeType.TemperateForest || bt == BiomeType.Tundra) ? mats.Soil:mats.Sand;
                                     else
                                         b[x, y, z] = (HavePloppedGrass) ? mats.Soil : mats.Grass;
                                     if (!HavePloppedGrass)
@@ -169,8 +171,6 @@ namespace OpenMinecraft
                         else if (b[x, y, z] == 0 && y <= WaterHeight && !HaveTouchedSoil && GenerateWater)
                         {
                             b[x, y, z] = mats.Water;
-                            if (Biome.NeedsSnowAndIce(biomes[x, z]) && y == WaterHeight)
-                                b[x,y,z]=mats.Ice;
                         }
                     }
                 }

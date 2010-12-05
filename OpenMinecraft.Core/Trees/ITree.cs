@@ -15,9 +15,7 @@ namespace OpenMinecraft
 
         public Tree(long x, long y, long z, int h)
         {
-            Pos.X=x;
-            Pos.Y=y;
-            Pos.Z=z;
+            Pos = new Vector3i(x, y, z);
             Height=h;
         }
 

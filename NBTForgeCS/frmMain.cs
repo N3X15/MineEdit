@@ -1433,20 +1433,56 @@ namespace MineEdit
                             dlt.perfChart.AddValue((ActiveMdiChild as frmMap).Map.ChunksLoaded);
                         });
 
-                        dlt.CurrentTask = "Regenerating chunks...";
+                        Vector3i Max = new Vector3i(0,0,0);
+                        Vector3i Min = new Vector3i(int.MaxValue, int.MaxValue, int.MaxValue);
+                        dlt.CurrentTask = "Determining map scale...";
                         (ActiveMdiChild as frmMap).Map.ForEachProgress += feph;
                         dlt.ShowPerfChart(true);
                         dlt.perfChart.Clear();
                         dlt.perfChart.ScaleMode = SpPerfChart.ScaleMode.Relative;
-                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Y)
+                        (ActiveMdiChild as frmMap).Map.ForEachChunk(delegate(IMapHandler _mh, long X, long Z)
                         {
-                            if (dlt.STOP) return;
-                            dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Y);
-                            double min, max;
-                            (ActiveMdiChild as frmMap).Map.Generate(X, Y, out min, out max);
-                            dlt.grpPerformance.Text = string.Format("Terrain Profile [{0},{1}]m",(int)(min*100),(int)(max*100));
-                            dlt.perfChart.AddValue((decimal)max);
-                        }); 
+                            if (Min.X > X) Min.X = X;
+                            if (Max.X < X) Max.X = X;
+                            if (Min.Z > Z) Min.Z = Z;
+                            if (Max.Z < Z) Max.Z = Z;
+                            dlt.CurrentSubtask = string.Format("Map Scale: ({0},{1})", Max.X - Min.X, Max.Z - Min.Z);
+                            _mh.SaveAll();
+                        });
+
+                        int total = (int)((Max.X - Min.X) * (Max.Z - Min.Z));
+                        int completed = 0;
+                        for (int X = (int)Min.X; X < Max.X + 1; X++)
+                        {
+                            for (int Z = (int)Min.Z; Z < Max.Z + 1; Z++)
+                            {
+                                if (dlt.STOP) return;
+                                dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Z);
+                                double min, max;
+                                (ActiveMdiChild as frmMap).Map.Generate(X, Z, out min, out max);
+                                dlt.grpPerformance.Text = string.Format("Terrain Profile [{0},{1}]m", (int)(min * 100), (int)(max * 100));
+                                dlt.perfChart.AddValue((decimal)max);
+                                feph(total, completed++);
+                            }
+                        }
+
+                        completed = 0;
+                        Profiler profTrees = new Profiler("Trees");
+                        for (int X = (int)Min.X; X < Max.X + 1; X++)
+                        {
+                            for (int Z = (int)Min.Z; Z < Max.Z + 1; Z++)
+                            {
+                                profTrees.Start();
+                                if (dlt.STOP) return;
+                                dlt.CurrentSubtask = string.Format("Adding trees to chunk ({0},{1})", X, Z);
+                                double min, max;
+                                (ActiveMdiChild as frmMap).Map.Populate(X, Z);
+                                dlt.grpPerformance.Text = "Performance";
+                                profTrees.Stop();
+                                dlt.perfChart.AddValue(profTrees.Stop());
+                                feph(total, completed++);
+                            }
+                        }
                         /*
                         stage++;
                         dlt.CurrentTask = "Eroding chunk surfaces...";

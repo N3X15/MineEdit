@@ -1108,7 +1108,7 @@ namespace OpenMinecraft
             byte[, ,] blocks = _c.Blocks;
 
             //Console.WriteLine("BIOME");
-            BiomeType[,] biomes = _Generator.DetermineBiomes(hm, X, Z);
+            BiomeType[,] biomes = _Generator.DetermineBiomes(ChunkScale, X, Z);
 
             IMapHandler mh = this;
             // These use the block array.
@@ -1128,14 +1128,11 @@ namespace OpenMinecraft
 
             _c.Blocks = blocks;
             _c.UpdateOverview();
-            _c.Save();
             SetChunk(_c);
             File.WriteAllText(lockfile, _Generator.ToString());
 
 
-            //Console.WriteLine("TREES");
             // These use SetBlockAt() and company.
-            _Generator.AddTrees(ref mh, biomes, ref rand, (int)X, (int)Z, (int)ChunkY);
 
             //Console.WriteLine("SAVE");
             SaveAll();
@@ -2082,6 +2079,14 @@ namespace OpenMinecraft
             Chunk c = GetChunk(X, Z);
             if (c == null) return 0;
             return c.Data[x, y, z];
+        }
+
+        public override void Populate(int X, int Z)
+        {
+            BiomeType[,] biomes = _Generator.DetermineBiomes(ChunkScale, X, Z);
+            IMapHandler mh = this;
+            _Generator.AddTrees(ref mh, biomes, ref rand, X, Z, ChunkY);
+            SaveAll();
         }
     }
 }
