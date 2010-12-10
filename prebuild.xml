@@ -95,7 +95,8 @@
       <Reference name="LibNoise"/>
       <Reference name="LibNBT"/>
       <Reference name="System.Windows.Forms"/> <!-- Updater control -->
-      <Reference name="Procedurality.dll"/>
+      <Reference name="System.Data"/> <!-- Heightmap and metadata cache -->
+      <Reference name="System.Data.SQLite.dll"/> <!-- Heightmap and metadata cache -->
       <Reference name="log4net.dll"/>
       <Files>
         <Match pattern="*.cs" recurse="true">

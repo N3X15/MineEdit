@@ -204,6 +204,14 @@ namespace OpenMinecraft
         /// Overview of water depth
         /// </summary>
         public int[,] WaterDepth { get; protected set; }
+        /// <summary>
+        /// Heat (-1 to 1)
+        /// </summary>
+        public double[,] Temperatures { get; set; }
+        /// <summary>
+        /// Humidity (-1 to 1)
+        /// </summary>
+        public double[,] Humidity { get; set; }
 
         public IMapHandler Map
         {
@@ -272,5 +280,11 @@ namespace OpenMinecraft
             BlockLight = SkyLight = new byte[_Map.ChunkScale.X, _Map.ChunkScale.Y, _Map.ChunkScale.Z];
             HeightMap = new int[_Map.ChunkScale.X, _Map.ChunkScale.Z];
         }
+
+        public bool TerrainPopulated { get; set; }
+
+        public bool GeneratedByMineEdit { get; set; }
+
+        public int Dimension { get; set; }
     }
 }

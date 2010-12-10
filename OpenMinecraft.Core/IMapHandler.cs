@@ -14,6 +14,7 @@ namespace OpenMinecraft
         Boots
     }
     public delegate void ChunkIteratorDelegate(IMapHandler me, long X, long Y);
+    public delegate void ChunkFileIteratorDelegate(IMapHandler me, string filename);
     public delegate void CorruptChunkHandler(long X, long Y, string error, string file);
     public delegate void ForEachProgressHandler(int Total, int Complete);
 	public delegate void CachedChunkDelegate(long x, long y,Chunk c);
@@ -82,6 +83,7 @@ namespace OpenMinecraft
         public abstract int HurtTime { get; set; }
 
         public abstract void ForEachChunk(ChunkIteratorDelegate cmd);
+        public abstract void ForEachChunkFile(int Dimension, ChunkFileIteratorDelegate cmd);
         public abstract void ForEachCachedChunk(CachedChunkDelegate cmd);
 
         public abstract void BeginTransaction();
@@ -484,5 +486,7 @@ namespace OpenMinecraft
         }
 
         public abstract void Populate(int X, int Z);
+
+        public int Dimension { get; set; }
     }
 }

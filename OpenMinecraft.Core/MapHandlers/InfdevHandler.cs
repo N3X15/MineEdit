@@ -1141,7 +1141,8 @@ namespace OpenMinecraft
 
         private void AssertBottomBarrierIntegrity(byte [,,] b,string message)
         {
-            return; // I know they're OK in this version.
+            /*I know they're OK in this version.
+
             //Console.WriteLine("Assert "+message+"...");
             for (int x = 0; x < b.GetLength(0); x++)
             {
@@ -1155,6 +1156,7 @@ namespace OpenMinecraft
                 }
             }
             //Console.WriteLine(message+"OK");
+            */
         }
 
         private Dictionary<byte, int> GetBlockNumbers(byte[, ,] b)
@@ -1583,19 +1585,19 @@ namespace OpenMinecraft
 				cmd(c.Position.X, c.Position.Z, c);
 			}
 		}
-		public override void ForEachChunk(ChunkIteratorDelegate cmd)
-		{
-			string[] f = Directory.GetFiles(mFolder,"c*.*.dat",SearchOption.AllDirectories);
-			int Complete=0;
-			foreach (string file in f)
-			{
+        public override void ForEachChunk(ChunkIteratorDelegate cmd)
+        {
+            string[] f = Directory.GetFiles(mFolder, "c*.*.dat", SearchOption.AllDirectories);
+            int Complete = 0;
+            foreach (string file in f)
+            {
 
-				if (ForEachProgress != null)
-					ForEachProgress(f.Length, Complete++);
-				//if(_DEBUG) Console.WriteLine(Path.GetExtension(file));
-				if (Path.GetExtension(file) == "dat") continue;
-				if (file.EndsWith(".genlock")) continue;
-				NbtFile nf = new NbtFile(file);
+                if (ForEachProgress != null)
+                    ForEachProgress(f.Length, Complete++);
+                //if(_DEBUG) Console.WriteLine(Path.GetExtension(file));
+                if (Path.GetExtension(file) == "dat") continue;
+                if (file.EndsWith(".genlock")) continue;
+                NbtFile nf = new NbtFile(file);
                 try
                 {
                     nf.LoadFile();
@@ -1610,14 +1612,38 @@ namespace OpenMinecraft
                     if (CorruptChunk != null)
                     {
                         Vector2i pos = GetChunkCoordsFromFile(file);
-                        CorruptChunk(pos.X,pos.Y,"[" + Complete.ToString() + "]" + e.ToString(), file);
+                        CorruptChunk(pos.X, pos.Y, "[" + Complete.ToString() + "]" + e.ToString(), file);
                     }
-                //    continue;
+                    //    continue;
                 }
-			}
-			// This MUST be done.
-			ForEachProgress = null;
-		}
+            }
+            // This MUST be done.
+            ForEachProgress = null;
+        }
+        public override void ForEachChunkFile(int dimension, ChunkFileIteratorDelegate cmd)
+        {
+            string[] f = Directory.GetFiles(mFolder, "c*.*.dat", SearchOption.AllDirectories);
+            string dirDimension = string.Format("DIM-{0}", dimension);
+
+            int Complete = 0;
+            foreach (string file in f)
+            {
+
+                if (ForEachProgress != null)
+                    ForEachProgress(f.Length, Complete++);
+                if (Dimension == 0)
+                {
+                    if (file.Contains("DIM-")) continue;
+                }
+                else
+                    if (!file.Contains(dirDimension)) continue;
+
+                //if(_DEBUG) Console.WriteLine(Path.GetExtension(file));
+                cmd(this, file);
+            }
+            // This MUST be done.
+            ForEachProgress = null;
+        }
 
 		public override Vector2i GetChunkCoordsFromFile(string file)
         {

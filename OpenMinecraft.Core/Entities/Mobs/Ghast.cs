@@ -73,7 +73,7 @@ TAG_Compound: 12 entries
 			
         }
 
-        public NbtCompound ToNBT()
+        public override NbtCompound ToNBT()
         {
             NbtCompound c = base.ToNBT();
 			

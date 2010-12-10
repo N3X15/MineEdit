@@ -24,7 +24,8 @@ namespace OpenMinecraft
         */
         public override void MakeFoliage(ref IMapHandler map)
         {
-            int topy = (int)Pos.X + Height - 1;
+            Console.WriteLine("Adding tree at {0}", Pos);
+            int topy = (int)Pos.Y + Height - 1;
             int start = topy - 2;
             int end = topy + 2;
             for(int y = start;y<end;y++)
@@ -36,8 +37,9 @@ namespace OpenMinecraft
                     rad = 2;
                 for(int xoff = -rad;xoff<rad+1;xoff++)
                 {
-                    for(int zoff = -rad;zoff<rad+1;xoff++)
+                    for(int zoff = -rad;zoff<rad+1;zoff++)
                     {
+                        
                         if (Math.Abs(xoff) == Math.Abs(zoff) && Math.Abs(xoff) == rad)
                             continue;
                     

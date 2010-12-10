@@ -79,7 +79,7 @@ TAG_Compound: 13 entries
 			Anger = c.Get<NbtShort>("Anger").Value;
         }
 
-        public NbtCompound ToNBT()
+        public override NbtCompound ToNBT()
         {
             NbtCompound c = base.ToNBT();
 			

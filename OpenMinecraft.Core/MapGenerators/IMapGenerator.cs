@@ -90,28 +90,38 @@ namespace OpenMinecraft
                 }
 
                 if (tooclose) continue;
+                bool founddert = false;
                 for (int y = (int)H - 10; y > 0; y--)
                 {
                     switch (mh.GetBlockAt(me.X+xo, y, me.Y+zo))
                     {
                         case 0: // Air
+                        case 78: // Snow cover
                             continue;
-                        case 1: // ROCK
+                        // case 1: // ROCK
                         case 2: // GRASS
                         case 3: // DIRT
                             //Utils.GrowTree(ref blocks, rand, (int)me.X, (int)y + 1, (int)me.Y);
-                            
+                            mh.SetBlockAt(me.X + xo, y + 1, me.Y + zo, 6); // Sapling
+                            mh.SetDataAt(me.X + xo, y + 1, me.Y + zo, 15); // Growth stage 15.
+                            /*
                             Tree tree = new NormalTree(me.X + xo, y + 1, me.Y + zo, rand.Next(5, 8));
                             tree.MakeTrunk(ref mh);
                             tree.MakeFoliage(ref mh);
+                            */
+                            mh.SaveAll();
+                            founddert = true;
                             break;
                         /* Automatic ?
                         case 11: // SAND
                             Utils.GrowCactus(ref b, rand, me.X, y + 1, me.Y);
                             break;
                         */
-                        default: break;
+                        default:
+                            founddert = true; 
+                            break;
                     }
+                    if (founddert) break;
                 }
                 PlantedTrees.Add(me);
             }

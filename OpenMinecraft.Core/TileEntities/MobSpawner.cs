@@ -14,7 +14,13 @@ namespace OpenMinecraft.TileEntities
 
         // Needed for autoload
         public MobSpawner() { }
-
+        
+        public MobSpawner(LibNbt.Tags.NbtCompound c)
+            : base(c)
+        {
+            EntityId=(c["EntityId"] as NbtString).Value;
+            Delay = (c["Delay"] as NbtShort).Value;
+        }
         public MobSpawner(int CX, int CY, int CS, LibNbt.Tags.NbtCompound c)
             : base(CX, CY, CS, c)
         {

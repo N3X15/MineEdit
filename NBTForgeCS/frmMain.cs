@@ -1475,7 +1475,6 @@ namespace MineEdit
                                 profTrees.Start();
                                 if (dlt.STOP) return;
                                 dlt.CurrentSubtask = string.Format("Adding trees to chunk ({0},{1})", X, Z);
-                                double min, max;
                                 (ActiveMdiChild as frmMap).Map.Populate(X, Z);
                                 dlt.grpPerformance.Text = "Performance";
                                 profTrees.Stop();

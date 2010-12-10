@@ -137,8 +137,8 @@ namespace OpenMinecraft.TileEntities
         {
             c.Add(new NbtString("id", ID));
             c.Add(new NbtInt("x", (int)Pos.X));
-            c.Add(new NbtInt("y", (int)Pos.Z));
-            c.Add(new NbtInt("z", (int)Pos.Y));
+            c.Add(new NbtInt("y", (int)Pos.Y));
+            c.Add(new NbtInt("z", (int)Pos.Z));
         }
 
         public virtual NbtCompound ToNBT()
