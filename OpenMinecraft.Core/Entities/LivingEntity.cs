@@ -36,6 +36,11 @@ namespace OpenMinecraft.Entities
     public class LivingEntity:Entity
     {
 
+        [Category("LivingEntity"), Description("Amount of air this creature has left"), DefaultValue(200)]
+        public short Air { get; set; }
+
+        [Category("LivingEntity"), Description("OH GOD I'M ON FIRE"), DefaultValue(-20)]
+        public short Fire { get; set; }
 		
         [Category("LivingEntity"),Description("Health of the living entity.")]
         public short Health = 20;
@@ -62,6 +67,8 @@ namespace OpenMinecraft.Entities
                 Console.WriteLine(c);
                 return;
             }
+            Air = (c["Air"] as NbtShort).Value;
+            Fire = (c["Fire"] as NbtShort).Value;
             lolID = (c["id"] as NbtString).Value;
             Health = (c["Health"] as NbtShort).Value;
             HurtTime = (c["HurtTime"] as NbtShort).Value;
@@ -72,7 +79,9 @@ namespace OpenMinecraft.Entities
         public override NbtCompound ToNBT()
         {
             NbtCompound c = new NbtCompound();
-            Base2NBT(ref c,GetID());
+            Base2NBT(ref c, GetID());
+            c.Add(new NbtShort("Air", Air));
+            c.Add(new NbtShort("Fire", Fire));
             c.Add(new NbtShort("Health",       Health));
             c.Add(new NbtShort("HurtTime",     HurtTime));
             c.Add(new NbtShort("AttackTime",   AttackTime));

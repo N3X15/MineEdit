@@ -37,7 +37,7 @@ namespace OpenMinecraft
         List<Vector2i> mChangedChunks = new List<Vector2i>();
 		Dictionary<Guid, Entity> mEntities = new Dictionary<Guid, Entity>();
 		Dictionary<Guid, TileEntity> mTileEntities = new Dictionary<Guid, TileEntity>();
-
+        MapMetadata mCache;
         public override string Filename { get; set; }
         public override int InventoryCapacity { get { return 9 * 4; } }
         public override int ChunksLoaded { get { return mChunks.Count; } }
@@ -262,11 +262,16 @@ namespace OpenMinecraft
 				System.Windows.Forms.DialogResult dr = System.Windows.Forms.MessageBox.Show("Your level.dat is broken. Copying over level.dat_old...","ERROR",System.Windows.Forms.MessageBoxButtons.OKCancel);
 				if (dr == System.Windows.Forms.DialogResult.OK)
 				{
-					File.Copy(Path.ChangeExtension(filename, "dat_old"), filename);
+					File.Copy(Path.ChangeExtension(filename, "dat_old"), filename, true);
 					Load(filename);
 				}
 				else return;
-			}
+            }
+            if (mCache == null)
+            {
+                mCache = new MapMetadata(this, mFolder);
+                mCache.UpdateCache();
+            }
 			LoadChunk(0, 0);
 		}
 
@@ -472,6 +477,9 @@ namespace OpenMinecraft
 						}
 					}
 				}
+
+                if (!mCache.LoadChunkMetadata(ref c))
+                    mCache.SaveChunkMetadata(c);
                 //File.WriteAllText(Path.ChangeExtension(c.Filename,".dump.txt"), mChunk.RootTag.ToString());
 				//if (c>0)  if(_DEBUG) Console.WriteLine("*** {0} spawners found.", c);
 				//if(_DEBUG) Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
@@ -522,6 +530,7 @@ namespace OpenMinecraft
 			foreach (NbtCompound c in ents.Tags)
 			{
                 Entity e = Entity.GetEntity(c);
+                if (e == null) continue;
                 // TODO: Verify entity positioning.
                 e.Pos.X = e.Pos.X + (CX * (double)ChunkX);
                 e.Pos.Z = e.Pos.Z + (CZ * (double)ChunkZ);
@@ -734,7 +743,7 @@ namespace OpenMinecraft
 			// TILE ENTITIES //////////////////////////////////////////////
 			foreach (KeyValuePair<Guid, TileEntity> tent in cnk.TileEntities)
 			{
-				ents.Add(tent.Value.ToNBT());
+				tents.Add(tent.Value.ToNBT());
 			}
 			Level.Set("TileEntities",tents);
 
@@ -747,6 +756,8 @@ namespace OpenMinecraft
 			
             // For debuggan
             File.WriteAllText(cnk.Filename + ".txt", c.RootTag.ToString());
+
+            mCache.SaveChunkMetadata(cnk);
         }
 
         public override Vector3i Local2Global(int CX, int CZ, Vector3i local)
@@ -1647,41 +1658,23 @@ namespace OpenMinecraft
 
 		public override Vector2i GetChunkCoordsFromFile(string file)
         {
-            return GetChunkCoordsFromFile(file,false);
-        }
-        public Vector2i GetChunkCoordsFromFile(string file,bool test)
-        {
             Vector2i r = new Vector2i(0, 0);
-            // cX.Y.dat
-            // X.Y.dat
-            string[] peices =Path.GetFileName(file.Substring(1)).Split('.');
-            long X;
-            long Y;
-            Radix.Decode(peices[0],36,out X);
-            Radix.Decode(peices[1],36,out Y);
-            r.X = (int)X;
-            r.Y = (int)Y;
-            if (test)
+            NbtFile f = new NbtFile(file);
+            try
             {
-                NbtFile f = new NbtFile(file);
-                try
-                {
-                    f.LoadFile();
-                }
-                catch (Exception e)
-                {
-                    if (CorruptChunk != null)
-                        CorruptChunk(X,Y,e.ToString(), file);
-                    return null;
-                }
-                NbtCompound Level = (NbtCompound)f.RootTag["Level"];
-                Vector2i t = new Vector2i(0, 0);
-                t.X = (Level["xPos"] as NbtInt).Value;
-                t.Y = (Level["zPos"] as NbtInt).Value;
-                f.Dispose();
-                if (t != r)
-                    throw new Exception("Test failed.");
+                f.LoadFile();
             }
+            catch (Exception e)
+            {
+                if (CorruptChunk != null)
+                    CorruptChunk(0,0,e.ToString(), file);
+                return null;
+            }
+            NbtCompound Level = (NbtCompound)f.RootTag["Level"];
+            Vector2i t = new Vector2i(0, 0);
+            r.X = (Level["xPos"] as NbtInt).Value;
+            r.Y = (Level["zPos"] as NbtInt).Value;
+            f.Dispose();
 			return r;
 		}
 

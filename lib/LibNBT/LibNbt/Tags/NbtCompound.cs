@@ -195,7 +195,7 @@ namespace LibNbt.Tags
 		public void Set(string tagName, NbtTag tag)
 		{
             if (!mTags.ContainsKey(tagName))
-                throw new KeyNotFoundException(tagName);
+                mTags.Add(tagName,tag);
 
             tag.Name = tagName; // Just make sure.
             mTags[tagName] = tag;

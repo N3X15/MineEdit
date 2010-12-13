@@ -331,8 +331,8 @@ namespace MineEdit
             perfChart.Dock = DockStyle.Fill;
             perfChart.PerfChartStyle.AntiAliasing = true;
             perfChart.PerfChartStyle.AvgLinePen.Color = Color.Aqua;
-            perfChart.PerfChartStyle.BackgroundColorBottom = Color.DarkSeaGreen;
-            perfChart.PerfChartStyle.BackgroundColorTop = Color.LightSeaGreen;
+            perfChart.PerfChartStyle.BackgroundColorBottom = Color.DarkOliveGreen;
+            perfChart.PerfChartStyle.BackgroundColorTop = Color.Olive;
             perfChart.PerfChartStyle.ChartLinePen.Color = Color.Yellow;
             perfChart.PerfChartStyle.HorizontalGridPen.Color = Color.FromArgb(128, Color.Yellow);
             perfChart.PerfChartStyle.VerticalGridPen.Color = Color.FromArgb(128, Color.Yellow);

@@ -41,12 +41,6 @@ namespace OpenMinecraft.Entities
 		
         public Vector3d Pos = new Vector3d(0,0,0);
         public Vector3d Motion = new Vector3d(0,0,0);
-
-        [Category("Entity"),Description("Amount of air this creature has left"),DefaultValue(200)]
-        public short Air { get; set; }
-        
-        [Category("Entity"), Description("OH GOD I'M ON FIRE"), DefaultValue(-20)]
-        public short Fire { get; set; }
         
         [Category("Entity"), Description("OH GOD I'M FALLING")]
         public float FallDistance { get; set; }
@@ -67,14 +61,14 @@ namespace OpenMinecraft.Entities
         public static List<string> KnownEntityVars = new List<string>(new string[] {
             "id",
             "OnGround",
-            "Air",
-            "Fire",
             "FallDistance",
             "Motion",
             "Pos",
             "Rotation",
 
             // LIVINGENTITY
+            "Air",
+            "Fire",
             "Health",
             "HurtTime",
             "AttackTime",
@@ -136,8 +130,6 @@ namespace OpenMinecraft.Entities
 
         internal void SetBaseStuff(NbtCompound c)
         {
-            Air = (c["Air"] as NbtShort).Value;
-            Fire = (c["Fire"] as NbtShort).Value;
             FallDistance = (c["FallDistance"] as NbtFloat).Value;
             Motion = new Vector3d(c["Motion"] as NbtList,false);
             Pos = new Vector3d(c["Pos"] as NbtList,false);
@@ -148,8 +140,6 @@ namespace OpenMinecraft.Entities
 
         internal void Base2NBT(ref NbtCompound c,string _id)
         {
-            c.Add(new NbtShort("Air", Air));
-            c.Add(new NbtShort("Fire", Fire));
             c.Add(new NbtFloat("FallDistance", FallDistance));
             c.Add(new NbtByte("OnGround", OnGround));
             c.Add(new NbtString("id", _id));
@@ -180,8 +170,12 @@ namespace OpenMinecraft.Entities
             {
                 Console.WriteLine(c.ToString());
             }
+
+            if (c.Has("x") && c.Has("y") && c.Has("z"))
+                throw new Exception("TileEntity is in Entities compound!?");
+
             string entID = c.Get<NbtString>("id").Value;
-            
+            if (entID == "NULL") return null;
             if (EntityTypes.ContainsKey(entID))
             {
                 try

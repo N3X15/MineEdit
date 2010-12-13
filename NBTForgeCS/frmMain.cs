@@ -42,6 +42,7 @@ namespace MineEdit
         private ToolStripSeparator toolStripSeparator5;
         private ToolStripComboBox tsbDimension;
         List<frmMap> OpenFiles = new List<frmMap>();
+        dlgStatus mStatusWindow = null;
 
         #region Windows Form Designer generated code
 
@@ -924,6 +925,7 @@ namespace MineEdit
                     return;
                 }
                 mh.CorruptChunk += new CorruptChunkHandler(OnCorruptChunk);
+                mh.StatusUpdate += new StatusUpdateHandler(mh_StatusUpdate);
                 mh.Load(FileName);
                 string mn = NewForm();
                 frmMap map = GetMap(mn);
@@ -941,6 +943,26 @@ namespace MineEdit
                 SetMap(mn, map);
 
                 Settings.SetLUF(FileName);
+            }
+        }
+
+        void mh_StatusUpdate(IMapHandler _mh, short status, string message)
+        {
+            Console.WriteLine("[STATUSUPDATE] " + message);
+            if (status != 0)
+            {
+                lblStatus.Text = message;
+                tsbProgress.Style = ProgressBarStyle.Marquee;
+                if (mStatusWindow == null)
+                {
+                    mStatusWindow = new dlgStatus(_mh, message);
+                    mStatusWindow.ShowDialog();
+                }
+            }
+            else
+            {
+                ResetStatus();
+                tsbProgress.Style = ProgressBarStyle.Continuous;
             }
         }
 
@@ -1639,8 +1661,8 @@ namespace MineEdit
 
                     ClearReport();
 
-                    dlgLoading load = new dlgLoading((ActiveMdiChild as frmMap).Map);
-                    load.ShowDialog();
+                    //dlgLoading load = new dlgLoading((ActiveMdiChild as frmMap).Map);
+                    //load.ShowDialog();
 
                     ShowReport();
 

@@ -13,6 +13,7 @@ namespace OpenMinecraft
         Legs,
         Boots
     }
+    public delegate void StatusUpdateHandler(IMapHandler map, short status,string message);
     public delegate void ChunkIteratorDelegate(IMapHandler me, long X, long Y);
     public delegate void ChunkFileIteratorDelegate(IMapHandler me, string filename);
     public delegate void CorruptChunkHandler(long X, long Y, string error, string file);
@@ -22,6 +23,7 @@ namespace OpenMinecraft
     {
         public abstract event CorruptChunkHandler CorruptChunk;
         public abstract event ForEachProgressHandler ForEachProgress;
+        public event StatusUpdateHandler StatusUpdate;
 
         public abstract Dictionary<Guid, Entity> Entities { get; }
         public abstract Dictionary<Guid, TileEntity> TileEntities { get; }
@@ -488,5 +490,17 @@ namespace OpenMinecraft
         public abstract void Populate(int X, int Z);
 
         public int Dimension { get; set; }
+
+        public void SetBusy(string message)
+        {
+            if(StatusUpdate!=null)
+                StatusUpdate(this, 1, message);
+        }
+
+        public void SetIdle()
+        {
+            if (StatusUpdate != null)
+                StatusUpdate(this, 0, "");
+        }
     }
 }
