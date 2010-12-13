@@ -951,17 +951,18 @@ namespace MineEdit
             Console.WriteLine("[STATUSUPDATE] " + message);
             if (status != 0)
             {
-                lblStatus.Text = message;
+                tsbStatus.Text = message;
                 tsbProgress.Style = ProgressBarStyle.Marquee;
                 if (mStatusWindow == null)
                 {
                     mStatusWindow = new dlgStatus(_mh, message);
-                    mStatusWindow.ShowDialog();
+                    mStatusWindow.Show();
                 }
             }
             else
             {
                 ResetStatus();
+                tsbStatus.Text = "";
                 tsbProgress.Style = ProgressBarStyle.Continuous;
             }
         }
@@ -1220,7 +1221,8 @@ namespace MineEdit
                 MessageBox.Show(string.Format("Unable to open file {0}: Unrecognised format", Path.GetFileName(FileName)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            mh.CorruptChunk +=new CorruptChunkHandler(OnCorruptChunk);
+            mh.CorruptChunk += new CorruptChunkHandler(OnCorruptChunk);
+            mh.StatusUpdate += new StatusUpdateHandler(mh_StatusUpdate);
             mh.Load(FileName);
             mh.SetDimension(dim);
 

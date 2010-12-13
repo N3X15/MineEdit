@@ -10,6 +10,7 @@ namespace OpenMinecraft
 {
     public class MapMetadata
     {
+        bool FirstCache = true;
         ReaderWriterLock rwLock = new ReaderWriterLock();
         Thread mThread;
         public string Filename { get; set; }
@@ -26,6 +27,8 @@ namespace OpenMinecraft
         {
             map=_map;
             Filename=Path.Combine(folder, "mineedit.db3");
+            FirstCache = !File.Exists(Filename);
+
             string dsn = string.Format(@"Data Source={0};Version=3", Filename);
             database = new SQLiteConnection(dsn);
             database.Open();
@@ -79,7 +82,7 @@ namespace OpenMinecraft
             //{
                 BuildDatabaseIfNeeded();
                 map.SetBusy("Updating cache...");
-                Console.WriteLine("Please wait, caching chunks...");
+                Console.WriteLine("Please wait, {0}...", (FirstCache) ? "creating cache (may take a while)" : "updating cache");
                 foreach (Dimension dim in map.GetDimensions())
                 {
                     map.ForEachChunkFile(dim.ID, delegate(IMapHandler _map, string file)
@@ -98,10 +101,11 @@ namespace OpenMinecraft
                             Vector2i pos = map.GetChunkCoordsFromFile(file);
                             if (pos == null) return;
                             //Console.WriteLine(string.Format("Updating chunk {0} in {1} ({2})...", pos, dim.Name, file));
-                            map.SetBusy(string.Format("Updating chunk {0} in {1}...", pos, dim.Name));
+                            map.SetBusy(string.Format("Please wait, {0}...\r\nUpdating chunk {1} in {2}...", (FirstCache) ? "creating cache (may take a while)": "updating cache", pos, dim.Name));
                             Chunk c = map.GetChunk(pos.X, pos.Y);
                             map.SaveAll();
                         }
+                        System.Windows.Forms.Application.DoEvents();
                     });
                 }
                 map.SetIdle();
