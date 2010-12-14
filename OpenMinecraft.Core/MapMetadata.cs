@@ -78,19 +78,24 @@ namespace OpenMinecraft
         public void UpdateCache()
         {
             SQLiteTransaction trans = database.BeginTransaction();
+            int numChunksChanged = 0;
+            int numNewChunks = 0;
             //mThread = new Thread(delegate()
             //{
-                BuildDatabaseIfNeeded();
                 map.SetBusy("Updating cache...");
-                Console.WriteLine("Please wait, {0}...", (FirstCache) ? "creating cache (may take a while)" : "updating cache");
+                map.SetBusy(string.Format("Please wait, {0}...\r\n{1} new, {2} changed", (FirstCache) ? "creating cache (may take a while)" : "updating cache", numNewChunks, numChunksChanged));
                 foreach (Dimension dim in map.GetDimensions())
                 {
                     map.ForEachChunkFile(dim.ID, delegate(IMapHandler _map, string file)
                     {
                         bool NeedsUpdate = false;
+                        bool NewChunk = false;
                         object ret = ExecuteScalarSQL("SELECT cnkMD5 FROM Chunks WHERE cnkFile='" + file + "';");
-                        if(ret==null)
+                        if (ret == null)
+                        {
+                            NewChunk = true;
                             NeedsUpdate = true;
+                        }
                         if (!NeedsUpdate)
                         {
                             if (ret.ToString() != GetMD5HashFromFile(file))
@@ -98,10 +103,14 @@ namespace OpenMinecraft
                         }
                         if (NeedsUpdate)
                         {
+                            if (NewChunk)
+                                numNewChunks++;
+                            else
+                                numChunksChanged++;
                             Vector2i pos = map.GetChunkCoordsFromFile(file);
                             if (pos == null) return;
                             //Console.WriteLine(string.Format("Updating chunk {0} in {1} ({2})...", pos, dim.Name, file));
-                            map.SetBusy(string.Format("Please wait, {0}...\r\nUpdating chunk {1} in {2}...", (FirstCache) ? "creating cache (may take a while)": "updating cache", pos, dim.Name));
+                            map.SetBusy(string.Format("Please wait, {0}...\r\n{1} new, {2} changed", (FirstCache) ? "creating cache (may take a while)": "updating cache", numNewChunks,numChunksChanged));
                             Chunk c = map.GetChunk(pos.X, pos.Y);
                             map.SaveAll();
                         }
@@ -109,6 +118,7 @@ namespace OpenMinecraft
                     });
                 }
                 map.SetIdle();
+                trans.Commit(); // NOW save to disk.
             //});
             //mThread.Start();
         }
@@ -156,12 +166,22 @@ namespace OpenMinecraft
                 if(rwLock.IsReaderLockHeld)
                     rwLock.ReleaseReaderLock();
             }
-            if (!TablesPresent.Contains("Cache") 
-                || !TablesPresent.Contains("Dimensions")
+            /*
+            [CACHE] Table Cache exists!
+            [CACHE] Table Chunks exists!
+            [CACHE] Table Dimensions exists!
+            [CACHE] Table Dungeons exists!
+            [CACHE] Table Entities exists!
+            [CACHE] Table TileEntities exists!
+            [CACHE] Table Trees exists!
+            */
+            if (!TablesPresent.Contains("Cache")
                 || !TablesPresent.Contains("Chunks")
-                || !TablesPresent.Contains("Trees")
+                || !TablesPresent.Contains("Dimensions")
+                || !TablesPresent.Contains("Dungeons")
                 || !TablesPresent.Contains("Entities")
-                || !TablesPresent.Contains("Dungeons"))
+                || !TablesPresent.Contains("Trees")
+                || !TablesPresent.Contains("TileEntities"))
                 RebuildCache();
 
             object reportedVersion=ExecuteScalarSQL("SELECT cacheVersion FROM Cache;");
@@ -171,6 +191,7 @@ namespace OpenMinecraft
 
         private void RebuildCache()
         {
+            Console.WriteLine("*** REBUILDING CACHE! ***");
             lock (TablesPresent)
             {
                 if (TablesPresent.Count > 0)
@@ -186,6 +207,8 @@ namespace OpenMinecraft
             CreateChunksTable();
             CreateDungeonsTable();
             CreateTreesTable();
+            CreateEntitiesTable();
+            CreateTileEntitiesTable();
         }
 
         private void CreateDimensionsTable()
@@ -231,6 +254,34 @@ INSERT INTO Cache (cacheVersion) VALUES (" + VERSION + ");";
     dimID   INTEGER
     dgnSpawns TEXT,
     PRIMARY KEY(dgnX,dgnY,dgnZ,dimID)
+);";
+            ExecuteNonquerySQL(sql);
+        }
+        private void CreateEntitiesTable()
+        {
+            string sql = @"CREATE TABLE IF NOT EXISTS Entities
+(
+    entX    REAL,
+    entY    REAL,
+    entZ    REAL,
+    dimID   INTEGER,
+    entType TEXT,
+    entNBT  BLOB,
+    PRIMARY KEY(entX,entY,entZ,dimID)
+);";
+            ExecuteNonquerySQL(sql);
+        }
+        private void CreateTileEntitiesTable()
+        {
+            string sql = @"CREATE TABLE IF NOT EXISTS TileEntities
+(
+    tentX    INTEGER,
+    tentY    INTEGER,
+    tentZ    INTEGER,
+    dimID   INTEGER,
+    tentType TEXT,
+    tentNBT  BLOB,
+    PRIMARY KEY(tentX,tentY,tentZ,dimID)
 );";
             ExecuteNonquerySQL(sql);
         }
@@ -365,5 +416,7 @@ INSERT INTO Cache (cacheVersion) VALUES (" + VERSION + ");";
             }
             return true;
         }
+
+
     }
 }

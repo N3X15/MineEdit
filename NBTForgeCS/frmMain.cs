@@ -948,10 +948,10 @@ namespace MineEdit
 
         void mh_StatusUpdate(IMapHandler _mh, short status, string message)
         {
-            Console.WriteLine("[STATUSUPDATE] " + message);
+            //Console.WriteLine("[STATUSUPDATE] " + message);
             if (status != 0)
             {
-                tsbStatus.Text = message;
+                tsbStatus.Text = message.Replace("\r\n"," ");
                 tsbProgress.Style = ProgressBarStyle.Marquee;
                 if (mStatusWindow == null)
                 {
