@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using OpenMinecraft;
 
 namespace MineEdit
@@ -22,7 +15,6 @@ namespace MineEdit
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(dlgStatus));
             this.lblMessage = new System.Windows.Forms.Label();
             this.pbIcon = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pbIcon)).BeginInit();
@@ -41,7 +33,7 @@ namespace MineEdit
             // 
             // pbIcon
             // 
-            this.pbIcon.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pbIcon.BackgroundImage")));
+            this.pbIcon.BackgroundImage = global::MineEdit.Properties.Resources.emblem_important;
             this.pbIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.pbIcon.Dock = System.Windows.Forms.DockStyle.Left;
             this.pbIcon.Location = new System.Drawing.Point(0, 0);

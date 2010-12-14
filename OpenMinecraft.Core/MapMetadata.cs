@@ -5,6 +5,10 @@ using System.Data.SQLite;
 using System.Data;
 using System.IO;
 using System.Threading;
+using OpenMinecraft.Entities;
+using OpenMinecraft.TileEntities;
+using LibNbt.Tags;
+using LibNbt;
 
 namespace OpenMinecraft
 {
@@ -15,7 +19,7 @@ namespace OpenMinecraft
         Thread mThread;
         public string Filename { get; set; }
         public List<string> TablesPresent { get; set; }
-        private static readonly int VERSION=1;
+        private static readonly int VERSION=2;
         SQLiteConnection database;
         IMapHandler map;
        
@@ -370,8 +374,121 @@ INSERT INTO Cache (cacheVersion) VALUES (" + VERSION + ");";
                 if (rwLock.IsWriterLockHeld)
                     rwLock.ReleaseWriterLock();
             }
+
+            ExecuteNonquerySQL(
+                string.Format(
+@"DELETE FROM Entities 
+WHERE 
+    entX < {0}+15 AND 
+    entY < {1}+127 AND 
+    entZ < {2}+15 AND
+    entX > {0} AND
+    entY > {1} AND
+    entZ > {2} AND
+    dimID = {3};",
+                 c.Position.X,
+                 c.Position.Y,
+                 c.Position.Z,
+                 c.Dimension));
+
+            ExecuteNonquerySQL(
+                string.Format(
+@"DELETE FROM TileEntities 
+WHERE 
+    tentX < {0}+15 AND 
+    tentY < {1}+127 AND 
+    tentZ < {2}+15 AND
+    tentX > {0} AND
+    tentY > {1} AND
+    tentZ > {2} AND
+    dimID = {3};",
+                 c.Position.X,
+                 c.Position.Y,
+                 c.Position.Z,
+                 c.Dimension));
+
+            try
+            {
+                rwLock.AcquireWriterLock(1000);
+                using (SQLiteCommand cmd = database.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT INTO Entities (entX,entY,entZ,dimID,entType,entNBT) VALUES (@entX,@entY,@entZ,@dimID,@entType,@entNBT)";
+                    cmd.Parameters.AddRange(new SQLiteParameter[] 
+                {
+                    new SQLiteParameter("@entX"),
+                    new SQLiteParameter("@entY"),
+                    new SQLiteParameter("@entZ"),
+                    new SQLiteParameter("@dimID"),
+                    new SQLiteParameter("@entType"),
+                    new SQLiteParameter("@entNBT")
+                });
+                    cmd.Prepare();
+                    foreach (Entity e in c.Entities.Values)
+                    {
+                        cmd.Parameters["@entX"].Value = e.Pos.X;
+                        cmd.Parameters["@entY"].Value = e.Pos.Y;
+                        cmd.Parameters["@entZ"].Value = e.Pos.Z;
+                        cmd.Parameters["@dimID"].Value = c.Dimension;
+                        cmd.Parameters["@entType"].Value = e.GetID();
+                        cmd.Parameters["@entNBT"].Value = NBT2Bytes(e.ToNBT());
+                        try
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception) { }
+                    }
+                }
+            }
+            finally
+            {
+                if (rwLock.IsWriterLockHeld)
+                    rwLock.ReleaseWriterLock();
+            }
+
+            try
+            {
+                rwLock.AcquireWriterLock(1000);
+                using (SQLiteCommand cmd = database.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT INTO TileEntities (tentX,tentY,tentZ,dimID,tentType,tentNBT) VALUES (@tentX,@tentY,@tentZ,@dimID,@tentType,@tentNBT)";
+                    cmd.Parameters.AddRange(new SQLiteParameter[] 
+                    {
+                        new SQLiteParameter("@tentX"),
+                        new SQLiteParameter("@tentY"),
+                        new SQLiteParameter("@tentZ"),
+                        new SQLiteParameter("@dimID"),
+                        new SQLiteParameter("@tentType"),
+                        new SQLiteParameter("@tentNBT")
+                    });
+                    cmd.Prepare();
+                    foreach (TileEntity e in c.TileEntities.Values)
+                    {
+                        cmd.Parameters["@tentX"].Value = e.Pos.X;
+                        cmd.Parameters["@tentY"].Value = e.Pos.Y;
+                        cmd.Parameters["@tentZ"].Value = e.Pos.Z;
+                        cmd.Parameters["@dimID"].Value = c.Dimension;
+                        cmd.Parameters["@tentType"].Value = e.GetID();
+                        cmd.Parameters["@tentNBT"].Value = NBT2Bytes(e.ToNBT());
+                        try
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception) { }
+                    }
+                }
+            }
+            finally
+            {
+                if (rwLock.IsWriterLockHeld)
+                    rwLock.ReleaseWriterLock();
+            }
         }
 
+        /// <summary>
+        /// Load cached data into the chunk
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         internal bool LoadChunkMetadata(ref Chunk c)
         {
             try
@@ -417,6 +534,19 @@ INSERT INTO Cache (cacheVersion) VALUES (" + VERSION + ");";
             return true;
         }
 
+        private object NBT2Bytes(NbtCompound nbtCompound)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                NbtFile f = new NbtFile();
+                f.RootTag = nbtCompound;
+                f.SaveFile(ms,false);
+                //ms.Position = 0;
+                //byte[] buffer = new byte[ms.Length];
+                //ms.Read(buffer, 0, buffer.Length);
+                return ms.ToArray();
+            }
+        }
 
     }
 }

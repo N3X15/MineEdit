@@ -1,6 +1,8 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Prebuild xmlns="http://dnpb.sourceforge.net/schemas/prebuild-1.7.xsd" version="1.7">
-  <Solution name="MineEdit" activeConfig="Release" path="./" version="0.1.0-$Rev$">
+<?xml version="1.0" encoding="utf-8"?>
+<Prebuild xmlns="http://dnpb.sourceforge.net/schemas/prebuild-1.7.xsd"
+version="1.7">
+  <Solution name="MineEdit" activeConfig="Release" path="./"
+  version="0.1.0-$Rev$">
     <Configuration name="Debug">
       <Options>
         <CompilerDefines>TRACE;DEBUG</CompilerDefines>
@@ -31,8 +33,8 @@
         <NoStdLib>false</NoStdLib>
       </Options>
     </Configuration>
-	
-    <Project frameworkVersion="v3_5" name="LibNBT" path="lib/LibNBT/" type="Library">
+    <Project frameworkVersion="v3_5" name="LibNBT"
+    path="lib/LibNBT/" type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../../bin/</OutputPath>
@@ -43,16 +45,15 @@
           <OutputPath>../../bin/</OutputPath>
         </Options>
       </Configuration>
-
       <ReferencePath>../../bin/</ReferencePath>
-      <Reference name="System"/>
-      <Reference name="log4net.dll"/>
+      <Reference name="System" />
+      <Reference name="log4net.dll" />
       <Files>
         <Match path="LibNbt" pattern="*.cs" recurse="true" />
       </Files>
     </Project>
-	
-    <Project frameworkVersion="v3_5" name="LibNBT.Tests" path="lib/LibNBT/" type="Library">
+    <Project frameworkVersion="v3_5" name="LibNBT.Tests"
+    path="lib/LibNBT/" type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../../bin/</OutputPath>
@@ -63,18 +64,17 @@
           <OutputPath>../../bin/</OutputPath>
         </Options>
       </Configuration>
-
       <ReferencePath>../../bin/</ReferencePath>
-      <Reference name="System"/>
-      <Reference name="LibNBT"/>
-      <Reference name="nunit.framework.dll"/>
-      <Reference name="log4net.dll"/>
+      <Reference name="System" />
+      <Reference name="LibNBT" />
+      <Reference name="nunit.framework.dll" />
+      <Reference name="log4net.dll" />
       <Files>
         <Match path="LibNbt.Test" pattern="*.cs" recurse="true" />
       </Files>
     </Project>
-
-    <Project frameworkVersion="v3_5" name="OpenMinecraft.Core" path="OpenMinecraft.Core/" type="Library">
+    <Project frameworkVersion="v3_5" name="OpenMinecraft.Core"
+    path="OpenMinecraft.Core/" type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../bin/</OutputPath>
@@ -85,30 +85,32 @@
           <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
-
       <ReferencePath>../bin/</ReferencePath>
-      <Reference name="System"/>
-      <Reference name="System.Xml"/>
-      <Reference name="System.Web"/>
-      <Reference name="System.Drawing"/>
-      <Reference name="System.Core"/>
-      <Reference name="LibNoise"/>
-      <Reference name="LibNBT"/>
-      <Reference name="System.Windows.Forms"/> <!-- Updater control -->
-      <Reference name="System.Data"/> <!-- Heightmap and metadata cache -->
-      <Reference name="System.Data.SQLite.dll"/> <!-- Heightmap and metadata cache -->
-      <Reference name="log4net.dll"/>
+      <Reference name="System" />
+      <Reference name="System.Xml" />
+      <Reference name="System.Web" />
+      <Reference name="System.Drawing" />
+      <Reference name="System.Core" />
+      <Reference name="LibNoise" />
+      <Reference name="LibNBT" />
+      <Reference name="System.Windows.Forms" />
+      <!-- Updater control -->
+      <Reference name="System.Data" />
+      <!-- Heightmap and metadata cache -->
+      <Reference name="System.Data.SQLite.dll" />
+      <!-- Heightmap and metadata cache -->
+      <Reference name="log4net.dll" />
       <Files>
         <Match pattern="*.cs" recurse="true">
-			<Exclude pattern="Tests" />
-		</Match>
+          <Exclude pattern="Tests" />
+        </Match>
         <!--<Match pattern="*.resx" recurse="true" />-->
-		<Match pattern="*.png" path="Resources" recurse="false" buildAction="EmbeddedResource" />
+        <Match pattern="*.png" path="Resources" recurse="false"
+        buildAction="EmbeddedResource" />
       </Files>
     </Project>
-	
-	
-    <Project frameworkVersion="v3_5" name="OpenMinecraft.Tests" path="OpenMinecraft.Tests/" type="Library">
+    <Project frameworkVersion="v3_5" name="OpenMinecraft.Tests"
+    path="OpenMinecraft.Tests/" type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../bin/</OutputPath>
@@ -119,19 +121,19 @@
           <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
-
       <ReferencePath>../bin/</ReferencePath>
-      <Reference name="System"/>
-      <Reference name="LibNBT"/>
-      <Reference name="OpenMinecraft.Core"/>
-      <Reference name="nunit.framework.dll"/>
-      <Reference name="log4net.dll"/>
+      <Reference name="System" />
+      <Reference name="LibNBT" />
+      <Reference name="OpenMinecraft.Core" />
+      <Reference name="nunit.framework.dll" />
+      <Reference name="log4net.dll" />
       <Files>
         <Match pattern="*.cs" recurse="true" />
       </Files>
     </Project>
-
-    <Project frameworkVersion="v3_5" name="OpenMinecraft.2DRendering" path="OpenMinecraft.2DRendering/" type="Library">
+    <Project frameworkVersion="v3_5"
+    name="OpenMinecraft.2DRendering"
+    path="OpenMinecraft.2DRendering/" type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../bin/</OutputPath>
@@ -142,20 +144,20 @@
           <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
-
       <ReferencePath>../bin/</ReferencePath>
-      <Reference name="System"/>
-      <Reference name="System.Xml"/>
-      <Reference name="System.Web"/>
-      <Reference name="System.Drawing"/>
-      <Reference name="OpenMinecraft.Core"/>
-      <Reference name="log4net.dll"/>
+      <Reference name="System" />
+      <Reference name="System.Xml" />
+      <Reference name="System.Web" />
+      <Reference name="System.Drawing" />
+      <Reference name="OpenMinecraft.Core" />
+      <Reference name="log4net.dll" />
       <Files>
         <Match pattern="*.cs" recurse="true" />
       </Files>
     </Project>
-
-    <Project frameworkVersion="v3_5" name="OpenMinecraft.3DRendering" path="OpenMinecraft.3DRendering/" type="Library">
+    <Project frameworkVersion="v3_5"
+    name="OpenMinecraft.3DRendering"
+    path="OpenMinecraft.3DRendering/" type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../bin/</OutputPath>
@@ -166,24 +168,23 @@
           <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
-
       <ReferencePath>../bin/</ReferencePath>
-      <Reference name="System"/>
-      <Reference name="System.Xml"/>
-      <Reference name="System.Web"/>
-      <Reference name="System.Drawing"/>
-      <Reference name="System.Windows.Forms"/>
-      <Reference name="OpenMinecraft.Core"/>
-      <Reference name="OpenTK"/>
-      <Reference name="OpenTK.Compatibility"/>
-      <Reference name="OpenTK.GLControl"/>
-      <Reference name="log4net.dll"/>
+      <Reference name="System" />
+      <Reference name="System.Xml" />
+      <Reference name="System.Web" />
+      <Reference name="System.Drawing" />
+      <Reference name="System.Windows.Forms" />
+      <Reference name="OpenMinecraft.Core" />
+      <Reference name="OpenTK" />
+      <Reference name="OpenTK.Compatibility" />
+      <Reference name="OpenTK.GLControl" />
+      <Reference name="log4net.dll" />
       <Files>
         <Match pattern="*.cs" recurse="true" />
       </Files>
     </Project>
-
-    <Project frameworkVersion="v3_5" name="ServerLauncher" path="LaunchServer/" type="Exe">
+    <Project frameworkVersion="v3_5" name="ServerLauncher"
+    path="LaunchServer/" type="Exe">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../bin/</OutputPath>
@@ -194,20 +195,19 @@
           <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
-
       <ReferencePath>../bin/</ReferencePath>
-      <Reference name="System"/>
-      <Reference name="System.Xml"/>
-      <Reference name="System.Web"/>
-      <Reference name="System.Drawing"/>
-      <Reference name="OpenMinecraft.Core"/>
-      <Reference name="log4net.dll"/>
+      <Reference name="System" />
+      <Reference name="System.Xml" />
+      <Reference name="System.Web" />
+      <Reference name="System.Drawing" />
+      <Reference name="OpenMinecraft.Core" />
+      <Reference name="log4net.dll" />
       <Files>
         <Match pattern="*.cs" recurse="true" />
       </Files>
     </Project>
-
-    <Project frameworkVersion="v3_5" name="MineEdit" path="NBTForgeCS/" type="WinExe">
+    <Project frameworkVersion="v3_5" name="MineEdit"
+    path="NBTForgeCS/" type="WinExe">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../bin/</OutputPath>
@@ -218,25 +218,27 @@
           <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
-
       <ReferencePath>../bin/</ReferencePath>
-      <Reference name="System"/>
-      <Reference name="System.Xml"/>
-      <Reference name="System.Web"/>
-      <Reference name="System.Drawing"/>
-      <Reference name="System.Windows.Forms"/>
-      <Reference name="OpenMinecraft.Core"/>
-      <Reference name="OpenMinecraft.3DRendering"/>
-      <Reference name="OpenTK"/>
-      <Reference name="OpenTK.Compatibility"/>
-      <Reference name="OpenTK.GLControl"/>
-      <Reference name="LibNBT"/>
-      <Reference name="log4net.dll"/>
-      <Reference name="SpPerfChart.dll"/> <!-- Performance chart -->
+      <Reference name="System" />
+      <Reference name="System.Xml" />
+      <Reference name="System.Web" />
+      <Reference name="System.Drawing" />
+      <Reference name="System.Windows.Forms" />
+      <Reference name="OpenMinecraft.Core" />
+      <Reference name="OpenMinecraft.3DRendering" />
+      <Reference name="OpenTK" />
+      <Reference name="OpenTK.Compatibility" />
+      <Reference name="OpenTK.GLControl" />
+      <Reference name="LibNBT" />
+      <Reference name="log4net.dll" />
+      <Reference name="SpPerfChart.dll" />
+      <!-- Performance chart -->
       <Files>
         <Match pattern="*.cs" recurse="true" />
         <Match pattern="Properties/*.resx" />
-		<Match pattern="*.*" path="Resources" recurse="false" buildAction="EmbeddedResource" />
+        <Match pattern="Properties/*.cs" />
+        <Match pattern="*.*" path="Resources" recurse="false"
+        buildAction="EmbeddedResource" />
       </Files>
     </Project>
   </Solution>
