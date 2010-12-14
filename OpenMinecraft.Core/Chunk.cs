@@ -154,29 +154,40 @@ namespace OpenMinecraft
 
         public void UpdateOverview()
         {
-            for (int x = 0; x < Size.X; x++)
+            HeightMap = new int[Size.X, Size.Z];
+            Overview = new byte[Size.X, Size.Z];
+            SkyLight = new byte[Size.X, Size.Y, Size.Z];
+            // Sky light
+            int light = 0;
+            int WaterLevel = 0;
+            bool foundheight = false;
+            for (int block_x = 0; block_x < 16; block_x++)
             {
-                for (int z = 0; z < Size.Z; z++)
+                for (int block_z = 0; block_z < 16; block_z++)
                 {
-                    bool hit = false; ;
-                    for (int y = (int)Size.Y-1; y > 0; y--)
+                    light = 15;
+                    foundheight = false;
+                    int blockx_blockz = (block_z << 7) + (block_x << 11);
+
+                    for (int block_y = 127; block_y > 0; block_y--)
                     {
-                        byte b = Blocks[x,y,z];
-                        if (b != 0)
+                        byte block = Blocks[block_x,block_y,block_z];
+
+                        light -= OpenMinecraft.Blocks.Get(block).Stop;
+                        if (light < 0)
                         {
-                            if (!hit)
-                            {
-                                Overview[x, z] = b;
-                                HeightMap[x, z] = y;
-
-                                if (MaxHeight < y) MaxHeight = y;
-                                if (MinHeight > y) MinHeight = y;
-                            }
-
-                            if (b != 9 && b != 8)
-                                break;
-                            WaterDepth[x, z]++;
+                            light = 0;
                         }
+
+                        // Calculate heightmap while looping this
+                        if ((block != 0) && (foundheight == false))
+                        {
+                            HeightMap[block_x, block_z] = ((block_y == 127) ? block_y : block_y + 1);
+                            Overview[block_x, block_z] = block;
+                            foundheight = true;
+                        }
+
+                        SkyLight[block_x, block_y, block_z]=(byte)light;
                     }
                 }
             }

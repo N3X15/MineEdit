@@ -46,7 +46,9 @@ namespace OpenMinecraft
         }
 
         public override string ToString()
-        {            
+        {
+            if (numSamples == 0)
+                return string.Format("[PROFILER] Operation {0} has no samples to work with.",Operation);
             long min = fastestRun;//*nanosecPerTick;
             long max = slowestRun;//*nanosecPerTick;
             long avg = numMS/numSamples;

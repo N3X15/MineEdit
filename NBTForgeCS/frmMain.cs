@@ -1476,6 +1476,7 @@ namespace MineEdit
 
                         int total = (int)((Max.X - Min.X) * (Max.Z - Min.Z));
                         int completed = 0;
+                        (ActiveMdiChild as frmMap).Map.Cache.BeginTransaction();
                         for (int X = (int)Min.X; X < Max.X + 1; X++)
                         {
                             for (int Z = (int)Min.Z; Z < Max.Z + 1; Z++)
@@ -1489,8 +1490,10 @@ namespace MineEdit
                                 feph(total, completed++);
                             }
                         }
+                        (ActiveMdiChild as frmMap).Map.Cache.CommitTransaction();
 
                         completed = 0;
+                        /*
                         Profiler profTrees = new Profiler("Trees");
                         for (int X = (int)Min.X; X < Max.X + 1; X++)
                         {
@@ -1506,6 +1509,7 @@ namespace MineEdit
                                 feph(total, completed++);
                             }
                         }
+                        */
                         /*
                         stage++;
                         dlt.CurrentTask = "Eroding chunk surfaces...";
@@ -1534,6 +1538,9 @@ namespace MineEdit
                         (ActiveMdiChild as frmMap).Map.Time = 0;
                         //Utils.FixPlayerPlacement(ref (ActiveMdiChild as frmMap).Map);
                         (ActiveMdiChild as frmMap).Map.Save();
+
+                        (ActiveMdiChild as frmMap).Map.Cache.UpdateCache();
+                        
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
                         
                         // DEACTIVATE AUTOREPAIR

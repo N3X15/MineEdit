@@ -37,7 +37,6 @@ namespace OpenMinecraft
         List<Vector2i> mChangedChunks = new List<Vector2i>();
 		Dictionary<Guid, Entity> mEntities = new Dictionary<Guid, Entity>();
 		Dictionary<Guid, TileEntity> mTileEntities = new Dictionary<Guid, TileEntity>();
-        MapMetadata mCache;
         public override string Filename { get; set; }
         public override int InventoryCapacity { get { return 9 * 4; } }
         public override int ChunksLoaded { get { return mChunks.Count; } }
@@ -267,10 +266,10 @@ namespace OpenMinecraft
 				}
 				else return;
             }
-            if (mCache == null)
+            if (Cache == null)
             {
-                mCache = new MapMetadata(this, mFolder);
-                mCache.UpdateCache();
+                Cache = new MapMetadata(this, mFolder);
+                Cache.UpdateCache();
             }
 			LoadChunk(0, 0);
 		}
@@ -478,8 +477,8 @@ namespace OpenMinecraft
 					}
 				}
 
-                if (!mCache.LoadChunkMetadata(ref c))
-                    mCache.SaveChunkMetadata(c);
+                if (!Cache.LoadChunkMetadata(ref c))
+                    Cache.SaveChunkMetadata(c);
                 //File.WriteAllText(Path.ChangeExtension(c.Filename,".dump.txt"), mChunk.RootTag.ToString());
 				//if (c>0)  if(_DEBUG) Console.WriteLine("*** {0} spawners found.", c);
 				//if(_DEBUG) Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
@@ -687,7 +686,6 @@ namespace OpenMinecraft
 		{
 			NbtFile c = new NbtFile(cnk.Filename);
 
-            // TODO: PosY -> PosZ
             c.RootTag = NewNBTChunk(cnk.Position.X, cnk.Position.Z);
             NbtCompound Level = (NbtCompound)c.RootTag["Level"];
 
@@ -709,7 +707,6 @@ namespace OpenMinecraft
 			blocks = null;
 
 			// LIGHTING ///////////////////////////////////////////////////
-			// TODO:  Whatever is going on in here is crashing Minecraft now.
 			byte[] lighting = CompressLightmap(cnk.SkyLight,true);
 			Level.Set("SkyLight",new NbtByteArray("SkyLight", lighting));
 
@@ -725,7 +722,7 @@ namespace OpenMinecraft
 			{
 				for (int z = 0; z < ChunkZ; z++)
 				{
-                    hm[z + (x << 4)] = (byte)cnk.HeightMap[x, z];
+                    hm[z << 4 | x] = (byte)(cnk.HeightMap[x, z] & 0xff); // idk
 				}
 			}
             Level.Set("HeightMap", new NbtByteArray("HeightMap", hm));
@@ -757,7 +754,7 @@ namespace OpenMinecraft
             // For debuggan
             File.WriteAllText(cnk.Filename + ".txt", c.RootTag.ToString());
 
-            mCache.SaveChunkMetadata(cnk);
+            Cache.SaveChunkMetadata(cnk); // This is probably what lags.
         }
 
         public override Vector3i Local2Global(int CX, int CZ, Vector3i local)
@@ -1072,10 +1069,19 @@ namespace OpenMinecraft
 
 
         Perlin treeNoise;
+        RidgedMultifractal caveNoise;
         Random dungeonNoise;
 
         Random rand = new Random();
 
+        Profiler profGen = new Profiler("Generate");
+        Profiler profErode = new Profiler("Erosion");
+        Profiler profBiome = new Profiler("Biomes");
+        Profiler profVoxelize = new Profiler("Voxelize");
+        Profiler profDgn = new Profiler("Dungeons");
+        Profiler profPrecip = new Profiler("Precipitate");
+        Profiler profSave = new Profiler("Save");
+        Profiler profSoil = new Profiler("Soil");
 		public override bool Generate(long X, long Z, out double min, out double max)
         {
             min = 0;
@@ -1088,6 +1094,11 @@ namespace OpenMinecraft
                 treeNoise.Persistence = 0.5;
                 treeNoise.OctaveCount = 1;
                 dungeonNoise = new Random((int)RandomSeed);
+                caveNoise = new RidgedMultifractal();
+                caveNoise.Seed = (int)this.RandomSeed + 5;
+                caveNoise.Frequency = 0.025;
+                //caveNoise.Persistence = 0.25;
+                caveNoise.OctaveCount = 1;
             }
             if (_Generator == null)
             {
@@ -1105,7 +1116,9 @@ namespace OpenMinecraft
 					File.Delete(lockfile);
 			}
             //Console.WriteLine("GEN");
+            profGen.Start();
 			double[,] hm = _Generator.Generate(this, X, Z,out min, out max);
+            profGen.Stop();
 
             if (hm == null)
             {
@@ -1119,22 +1132,34 @@ namespace OpenMinecraft
             byte[, ,] blocks = _c.Blocks;
 
             //Console.WriteLine("BIOME");
+            profBiome.Start();
             BiomeType[,] biomes = _Generator.DetermineBiomes(ChunkScale, X, Z);
+            profBiome.Stop();
 
             IMapHandler mh = this;
             // These use the block array.
 
             //Console.WriteLine("VOXELIZE");
+            profVoxelize.Start();
             HeightmapToVoxelspace(hm, ref blocks);                                       AssertBottomBarrierIntegrity(blocks, "HeightmapToVoxelspace");
+            profVoxelize.Stop();
 
             //Console.WriteLine("ADDSOIL");
-            _Generator.AddSoil(ref blocks, biomes, 63, 6, _Generator.Materials);         AssertBottomBarrierIntegrity(blocks, "AddSoil");
+            profSoil.Start();
+            _Generator.AddSoil(X,Z,caveNoise,hm,ref blocks, biomes, 63, 6, _Generator.Materials);         AssertBottomBarrierIntegrity(blocks, "AddSoil");
+            profSoil.Stop();
 
             //Console.WriteLine("DUNGEONS");
+            profDgn.Start();
             _Generator.AddDungeons(ref blocks, ref mh, dungeonNoise, X, Z);              AssertBottomBarrierIntegrity(blocks, "AddDungeons");
+            profDgn.Stop();
 
             //Console.WriteLine("PRECIP");
+            profPrecip.Start();
             _Generator.Precipitate(ref blocks, biomes, _Generator.Materials, X, Z);      AssertBottomBarrierIntegrity(blocks, "Precipitate");
+            profPrecip.Stop();
+
+            profSave.Start();
             mh.SaveAll();
 
             _c.Blocks = blocks;
@@ -1147,6 +1172,25 @@ namespace OpenMinecraft
 
             //Console.WriteLine("SAVE");
             SaveAll();
+            profSave.Stop();
+
+            string profres = profBiome.ToString();
+            profres += "\r\n";
+            profres += profDgn.ToString();
+            profres += "\r\n";
+            profres += profErode.ToString();
+            profres += "\r\n";
+            profres += profGen.ToString();
+            profres += "\r\n";
+            profres += profPrecip.ToString();
+            profres += "\r\n";
+            profres += profSave.ToString();
+            profres += "\r\n";
+            profres += profSoil.ToString();
+            profres += "\r\n";
+            profres += profVoxelize.ToString();
+
+            File.WriteAllText("GEN_PROFILE.txt", profres);
             return true;
 		}
 
@@ -1623,7 +1667,8 @@ namespace OpenMinecraft
                     if (CorruptChunk != null)
                     {
                         Vector2i pos = GetChunkCoordsFromFile(file);
-                        CorruptChunk(pos.X, pos.Y, "[" + Complete.ToString() + "]" + e.ToString(), file);
+                        if(pos!=null)
+                            CorruptChunk(pos.X, pos.Y, "[" + Complete.ToString() + "]" + e.ToString(), file);
                     }
                     //    continue;
                 }
@@ -1656,7 +1701,7 @@ namespace OpenMinecraft
             ForEachProgress = null;
         }
 
-		public override Vector2i GetChunkCoordsFromFile(string file)
+		internal override Vector2i _GetChunkCoordsFromFile(string file)
         {
             Vector2i r = new Vector2i(0, 0);
             NbtFile f = new NbtFile(file);

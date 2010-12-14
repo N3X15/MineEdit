@@ -16,12 +16,13 @@ namespace OpenMinecraft
     {
         bool FirstCache = true;
         ReaderWriterLock rwLock = new ReaderWriterLock();
-        Thread mThread;
         public string Filename { get; set; }
         public List<string> TablesPresent { get; set; }
-        private static readonly int VERSION=2;
+        private static readonly int VERSION=3;
         SQLiteConnection database;
         IMapHandler map;
+        Dictionary<string, Vector3i> mFileCoords = new Dictionary<string, Vector3i>();
+        private SQLiteTransaction mTransaction;
        
         // CHUNKS(PK(cnkX, cnkZ), cnkTemperatureMap, cnkHumidityMap, cnkOriginalVoxels)
         // TREES(PK(treeX,treeZ), treeHeight, treeType)
@@ -30,7 +31,7 @@ namespace OpenMinecraft
         public MapMetadata(IMapHandler _map, string folder)
         {
             map=_map;
-            Filename=Path.Combine(folder, "mineedit.db3");
+            Filename=Path.Combine(folder, "mineedit.cache");
             FirstCache = !File.Exists(Filename);
 
             string dsn = string.Format(@"Data Source={0};Version=3", Filename);
@@ -84,6 +85,7 @@ namespace OpenMinecraft
             SQLiteTransaction trans = database.BeginTransaction();
             int numChunksChanged = 0;
             int numNewChunks = 0;
+
             //mThread = new Thread(delegate()
             //{
                 map.SetBusy("Updating cache...");
@@ -94,37 +96,84 @@ namespace OpenMinecraft
                     {
                         bool NeedsUpdate = false;
                         bool NewChunk = false;
-                        object ret = ExecuteScalarSQL("SELECT cnkMD5 FROM Chunks WHERE cnkFile='" + file + "';");
-                        if (ret == null)
+                        using (SQLiteCommand cmd = database.CreateCommand())
                         {
-                            NewChunk = true;
-                            NeedsUpdate = true;
-                        }
-                        if (!NeedsUpdate)
-                        {
-                            if (ret.ToString() != GetMD5HashFromFile(file))
+                            Vector2i pos;
+                            cmd.CommandText="SELECT cnkMD5,cnkX,cnkZ,dimID FROM Chunks WHERE cnkFile='" + file + "';";
+                            SQLiteDataReader rdr = cmd.ExecuteReader();
+                            if (!rdr.HasRows)
+                            {
+                                NewChunk = true;
                                 NeedsUpdate = true;
+                                pos = map.GetChunkCoordsFromFile(file,true);
+                            } else {
+                                pos=new Vector2i(
+                                    (int)((long)rdr["cnkX"]),
+                                    (int)((long)rdr["cnkZ"])
+                                    );
+                                if(!mFileCoords.ContainsKey(file))
+                                    mFileCoords.Add(file,new Vector3i(pos.X,pos.Y,
+                                        (int)((long)rdr["dimID"])));
+                            }
+                            
+                            if (dim.MinimumChunk.X > pos.X) dim.MinimumChunk.X = pos.X;
+                            if (dim.MaximumChunk.X < pos.X) dim.MaximumChunk.X = pos.X;
+                            if (dim.MinimumChunk.Y > pos.Y) dim.MinimumChunk.Y = pos.Y;
+                            if (dim.MaximumChunk.Y < pos.Y) dim.MaximumChunk.Y = pos.Y;
+
+                            if (!NeedsUpdate)
+                            {
+                                if (rdr["cnkMD5"].ToString() != GetMD5HashFromFile(file))
+                                    NeedsUpdate = true;
+                            }
+                            if (NeedsUpdate)
+                            {
+                                if (NewChunk)
+                                    numNewChunks++;
+                                else
+                                    numChunksChanged++;
+                                if (pos == null) return;
+                                //Console.WriteLine(string.Format("Updating chunk {0} in {1} ({2})...", pos, dim.Name, file));
+                                map.SetBusy(string.Format("Please wait, {0}...\r\n{1} new, {2} changed", (FirstCache) ? "creating cache (may take a while)" : "updating cache", numNewChunks, numChunksChanged));
+                                Chunk c = map.GetChunk(pos.X, pos.Y);
+                                map.SaveAll();
+                            }
+                            System.Windows.Forms.Application.DoEvents();
                         }
-                        if (NeedsUpdate)
-                        {
-                            if (NewChunk)
-                                numNewChunks++;
-                            else
-                                numChunksChanged++;
-                            Vector2i pos = map.GetChunkCoordsFromFile(file);
-                            if (pos == null) return;
-                            //Console.WriteLine(string.Format("Updating chunk {0} in {1} ({2})...", pos, dim.Name, file));
-                            map.SetBusy(string.Format("Please wait, {0}...\r\n{1} new, {2} changed", (FirstCache) ? "creating cache (may take a while)": "updating cache", numNewChunks,numChunksChanged));
-                            Chunk c = map.GetChunk(pos.X, pos.Y);
-                            map.SaveAll();
-                        }
-                        System.Windows.Forms.Application.DoEvents();
+                        UpdateDimension(dim);
                     });
                 }
                 map.SetIdle();
                 trans.Commit(); // NOW save to disk.
             //});
             //mThread.Start();
+        }
+
+        private void UpdateDimension(Dimension dim)
+        {
+            try
+            {
+                rwLock.AcquireWriterLock(300);
+                using (SQLiteCommand cmd = database.CreateCommand())
+                {
+                    cmd.CommandText = "REPLACE INTO Dimensions (dimID,dimFolder,dimMinX,dimMinZ,dimMaxX,dimMaxZ) VALUES (@dimID,@dimFolder,@dimMinX,@dimMinZ,@dimMaxX,@dimMaxZ);";
+                    cmd.Parameters.AddRange(new SQLiteParameter[]{
+                        new SQLiteParameter("@dimID",dim.ID),
+                        new SQLiteParameter("@dimFolder",dim.Folder),
+                        new SQLiteParameter("@dimMinX",dim.MinimumChunk.X),
+                        new SQLiteParameter("@dimMinZ",dim.MinimumChunk.Y),
+                        new SQLiteParameter("@dimMaxX",dim.MaximumChunk.X),
+                        new SQLiteParameter("@dimMaxZ",dim.MaximumChunk.Y)
+                    });
+                    cmd.Prepare();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            finally
+            {
+                if (rwLock.IsWriterLockHeld)
+                    rwLock.ReleaseWriterLock();
+            }
         }
         protected string GetMD5HashFromFile(string fileName)
         {
@@ -221,9 +270,7 @@ namespace OpenMinecraft
 CREATE TABLE IF NOT EXISTS Dimensions
 (
     dimID       INTEGER,
-    dimFolder   INTEGER,
-    dimSizeX    INTEGER,
-    dimSizeZ    INTEGER,
+    dimFolder   TEXT,
     dimMinX     INTEGER,
     dimMinZ     INTEGER,
     dimMaxX     INTEGER,
@@ -317,29 +364,75 @@ INSERT INTO Cache (cacheVersion) VALUES (" + VERSION + ");";
     cnkFile TEXT,
     cnkTemperatures BLOB,
     cnkHumidity BLOB,
+    cnkOverview BLOB,
     cnkFlags INTEGER,
     PRIMARY KEY(cnkX,cnkZ,dimID)
 );";
             ExecuteNonquerySQL(sql);
         }
 
+        public void BeginTransaction()
+        {
+            try
+            {
+                rwLock.AcquireWriterLock(300);
+                mTransaction = database.BeginTransaction();
+            }
+            finally
+            {
+                if(rwLock.IsWriterLockHeld)
+                    rwLock.ReleaseWriterLock();
+            }
+        }
+
+        public void RollbackTransaction()
+        {
+            try
+            {
+                rwLock.AcquireWriterLock(300);
+                mTransaction.Rollback();
+            }
+            finally
+            {
+                if (rwLock.IsWriterLockHeld)
+                    rwLock.ReleaseWriterLock();
+            }
+        }
+
+        public void CommitTransaction()
+        {
+            try
+            {
+                rwLock.AcquireWriterLock(300);
+                mTransaction.Commit();
+            }
+            finally
+            {
+                if (rwLock.IsWriterLockHeld)
+                    rwLock.ReleaseWriterLock();
+            }
+        }
+
 
         internal void SaveChunkMetadata(Chunk c)
         {
+            c.UpdateOverview();
             try
             {
                 rwLock.AcquireWriterLock(1000);
                 using (SQLiteCommand cmd = database.CreateCommand())
                 {
-                    cmd.CommandText = "REPLACE INTO Chunks (cnkX, cnkZ, dimID, cnkMD5, cnkFile, cnkTemperatures, cnkHumidity, cnkFlags) VALUES (@cnkX,@cnkZ,@dimID,@cnkMD5,@cnkFile,@cnkTemperatures,@cnkHumidity,@cnkFlags);";
+                    cmd.CommandText = "REPLACE INTO Chunks (cnkX, cnkZ, dimID, cnkMD5, cnkFile, cnkTemperatures, cnkHumidity, cnkOverview, cnkFlags) VALUES (@cnkX,@cnkZ,@dimID,@cnkMD5,@cnkFile,@cnkTemperatures,@cnkHumidity,@cnkOverview,@cnkFlags);";
                     cmd.Parameters.Add(new SQLiteParameter("@cnkX", c.Position.X));
                     cmd.Parameters.Add(new SQLiteParameter("@cnkZ", c.Position.Z));
                     cmd.Parameters.Add(new SQLiteParameter("@dimID", c.Dimension));
                     cmd.Parameters.Add(new SQLiteParameter("@cnkMD5", GetMD5HashFromFile(c.Filename)));
 
-                    byte[] tmap, hmap;
+                    byte[] tmap, hmap, omap;
                     int idx = 0;
-                    tmap = hmap = new byte[c.Size.X * c.Size.Z];
+                    tmap = new byte[c.Size.X * c.Size.Z];
+                    hmap = new byte[c.Size.X * c.Size.Z];
+                    omap = new byte[c.Size.X * c.Size.Z];
                     if (c.Temperatures != null && c.Humidity != null)
                     {
                         for (int x = 0; x < c.Size.X; x++)
@@ -347,8 +440,19 @@ INSERT INTO Cache (cacheVersion) VALUES (" + VERSION + ");";
                             for (int z = 0; z < c.Size.Z; z++)
                             {
                                 tmap[idx] = (byte)(c.Temperatures[x, z] * 255);
-                                hmap[idx++] = (byte)(c.Humidity[x, z] * 255);
+                                hmap[idx] = (byte)(c.Humidity[x, z] * 255);
+                                omap[idx] = c.Overview[x, z];
+                                idx++;
                             }
+                        }
+                    }
+                    idx = 0;
+                    for (int x = 0; x < c.Size.X; x++)
+                    {
+                        for (int z = 0; z < c.Size.Z; z++)
+                        {
+                            omap[idx] = c.Overview[x, z];
+                            idx++;
                         }
                     }
 
@@ -356,6 +460,8 @@ INSERT INTO Cache (cacheVersion) VALUES (" + VERSION + ");";
     ParameterDirection.Input, false, 0, 0, null, DataRowVersion.Current, tmap));
                     cmd.Parameters.Add(new SQLiteParameter("@cnkHumidity", DbType.Binary, hmap.Length,
     ParameterDirection.Input, false, 0, 0, null, DataRowVersion.Current, hmap));
+                    cmd.Parameters.Add(new SQLiteParameter("@cnkOverview", DbType.Binary, omap.Length,
+    ParameterDirection.Input, false, 0, 0, null, DataRowVersion.Current, omap));
 
 
                     cmd.Parameters.Add(new SQLiteParameter("@cnkFile", c.Filename));
@@ -412,7 +518,7 @@ WHERE
                 rwLock.AcquireWriterLock(1000);
                 using (SQLiteCommand cmd = database.CreateCommand())
                 {
-                    cmd.CommandText = "INSERT INTO Entities (entX,entY,entZ,dimID,entType,entNBT) VALUES (@entX,@entY,@entZ,@dimID,@entType,@entNBT)";
+                    cmd.CommandText = "REPLACE INTO Entities (entX,entY,entZ,dimID,entType,entNBT) VALUES (@entX,@entY,@entZ,@dimID,@entType,@entNBT)";
                     cmd.Parameters.AddRange(new SQLiteParameter[] 
                 {
                     new SQLiteParameter("@entX"),
@@ -450,7 +556,7 @@ WHERE
                 rwLock.AcquireWriterLock(1000);
                 using (SQLiteCommand cmd = database.CreateCommand())
                 {
-                    cmd.CommandText = "INSERT INTO TileEntities (tentX,tentY,tentZ,dimID,tentType,tentNBT) VALUES (@tentX,@tentY,@tentZ,@dimID,@tentType,@tentNBT)";
+                    cmd.CommandText = "REPLACE INTO TileEntities (tentX,tentY,tentZ,dimID,tentType,tentNBT) VALUES (@tentX,@tentY,@tentZ,@dimID,@tentType,@tentNBT)";
                     cmd.Parameters.AddRange(new SQLiteParameter[] 
                     {
                         new SQLiteParameter("@tentX"),
@@ -548,5 +654,37 @@ WHERE
             }
         }
 
+        internal Vector2i GetChunkCoords(string file)
+        {
+            Vector2i pos=null;
+            if (mFileCoords.ContainsKey(file))
+            {
+                Vector3i coords = mFileCoords[file];
+                return new Vector2i((int)coords.X, (int)coords.Y); // Z is dimension
+            }
+            Console.WriteLine("[CACHE] Couldn't find file " + file + " in the coordinate cache. Trying database...");
+            try
+            {
+                rwLock.AcquireReaderLock(300);
+                using (SQLiteCommand cmd = database.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT cnkX,cnkZ FROM Chunks WHERE cnkFile='" + file + "';";
+                    SQLiteDataReader rdr = cmd.ExecuteReader();
+                    if (rdr.HasRows)
+                    {
+                        pos = new Vector2i(
+                            (int)((long)rdr["cnkX"]),
+                            (int)((long)rdr["cnkZ"])
+                        );
+                    }
+                }
+            }
+            finally
+            {
+                if (rwLock.IsReaderLockHeld)
+                    rwLock.ReleaseReaderLock();
+            }
+            return pos;
+        }
     }
 }

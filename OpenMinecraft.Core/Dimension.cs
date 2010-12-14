@@ -10,6 +10,18 @@ namespace OpenMinecraft
         public int ID;
         public string Name;
         public string Folder;
+        public Vector2i MaximumChunk = new Vector2i(-1,-1);
+        public Vector2i MinimumChunk = new Vector2i(1,1);
+        public Vector2i Size
+        {
+            get
+            {
+                return new Vector2i(
+                    MaximumChunk.X - MinimumChunk.X,
+                    MaximumChunk.Y - MinimumChunk.Y
+                );
+            }
+        }
 
         public Dimension(int id, string name, string folder)
         {

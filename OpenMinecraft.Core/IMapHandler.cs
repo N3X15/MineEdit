@@ -21,6 +21,9 @@ namespace OpenMinecraft
 	public delegate void CachedChunkDelegate(long x, long y,Chunk c);
     public abstract class IMapHandler
     {
+
+        public MapMetadata Cache { get; set; }
+
         public abstract event CorruptChunkHandler CorruptChunk;
         public abstract event ForEachProgressHandler ForEachProgress;
         public event StatusUpdateHandler StatusUpdate;
@@ -39,6 +42,8 @@ namespace OpenMinecraft
         public abstract Vector3i ChunkScale { get; }
         public abstract Vector3i MapMin { get; }
         public abstract Vector3i MapMax { get; }
+        public abstract int Time { get; set; }
+        public abstract long RandomSeed { get; set; }
 
         public abstract int Health { get; set; }
         public abstract int Air { get; set; }
@@ -46,6 +51,13 @@ namespace OpenMinecraft
         public abstract string Filename { get; set; }
         public abstract Vector3d PlayerPos { get; set; }
         public abstract Vector3i Spawn { get; set; }
+        public abstract int HurtTime { get; set; }
+
+        public abstract int InventoryCapacity { get; }
+        public abstract int InventoryOnHandCapacity { get; }
+        public abstract int InventoryColumns { get; }
+
+        public abstract bool HasMultipleChunks { get; }
 
         public abstract void ClearInventory();
         public abstract bool GetInventory(int slot, out short itemID, out short Damage, out byte Count, out string failreason);
@@ -60,17 +72,9 @@ namespace OpenMinecraft
 
         public abstract Vector3i GetMousePos(Vector3i p, int scale, ViewAngle viewAngle);
 
-        public abstract int InventoryCapacity { get; }
-        public abstract int InventoryOnHandCapacity { get; }
-        public abstract int InventoryColumns { get; }
-
         public abstract void GetOverview(int CX, int CY, Vector3i pos, out int h, out byte block, out int waterdepth);
 
         public abstract void Load();
-
-        public abstract int Time { get; set; }
-
-        public abstract bool HasMultipleChunks { get; }
 
         public abstract void LoadChunk(long X, long Y);
         public abstract void CullChunk(long X, long Y);
@@ -81,8 +85,6 @@ namespace OpenMinecraft
 
         public abstract void SetTileEntity(TileEntity e);
         public abstract void RemoveTileEntity(TileEntity e);
-
-        public abstract int HurtTime { get; set; }
 
         public abstract void ForEachChunk(ChunkIteratorDelegate cmd);
         public abstract void ForEachChunkFile(int Dimension, ChunkFileIteratorDelegate cmd);
@@ -97,8 +99,6 @@ namespace OpenMinecraft
         public abstract Chunk GetChunk(long x, long y);
         public abstract void SetChunk(Chunk c);
 
-        public abstract long RandomSeed { get; set; }
-
         public abstract void SaveChunk(Chunk chunk);
         public abstract void ChunkModified(long x, long y);
 
@@ -106,7 +106,12 @@ namespace OpenMinecraft
         public abstract IMapGenerator Generator { get; set; }
         public abstract bool Generate(long X, long Y, out double min, out double max);
 
-        public abstract Vector2i GetChunkCoordsFromFile(string filename);
+        /// <summary>
+        /// Returns chunk location from the chunk's own internal coordinate store.  Slow.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        internal abstract Vector2i _GetChunkCoordsFromFile(string filename);
 
         public abstract byte GetBlockAt(int x, int y, int z);
         public abstract void SetBlockAt(int x, int y, int z, byte val);
@@ -410,7 +415,7 @@ namespace OpenMinecraft
             {
                 for (int z = 0; z < ZScale; ++z)
                 {
-                    int height = (int)(hm[x, z] * (YScale - 3));
+                    int height = (int)(Math.Min(hm[x, z],1d) * (YScale - 3));
                     if (height > maxH) maxH=height;
                     for (int y = 0; y < YScale; ++y)
                     {
@@ -462,24 +467,52 @@ namespace OpenMinecraft
         /// <param name="matidx"></param>
         /// <param name="invert"></param>
         /// <returns></returns>
-        public double DistanceToMaterial(Vector3i cord, Vector3i vec, byte matidx, bool invert=false)
+        public double DistanceToMaterial(Vector3i cord, Vector3i vec, byte matidx, bool invert = false)
         {
             Vector3i curcord = cord + .5;
             int iterations = 0;
-            while(
-                curcord.X>0 && curcord.Y>0 && curcord.Z > 0 &&
-                curcord.X<ChunkScale.X && curcord.Y<ChunkScale.Y && curcord.Z < ChunkScale.Z)
+            while (curcord.Y > 0 && curcord.Y < ChunkScale.Y)
             {
-                byte mat = GetBlockAt(curcord.X,curcord.Y,curcord.Z);
-                if(mat == matidx && invert == false) break;
+                byte mat = GetBlockAt(curcord.X, curcord.Y, curcord.Z);
+                if (mat == matidx && invert == false) break;
                 else if (mat != matidx && invert) break;
                 else
                 {
                     curcord = curcord + vec;
-                    iterations ++;
+                    iterations++;
                 }
             }
             return iterations;
+        }
+
+        /// <summary>
+        /// Try to find a block in this direction.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="direction"></param>
+        /// <param name="matFilter"></param>
+        /// <param name="invert"></param>
+        /// <returns></returns>
+        public byte CastRay(Vector3i from, Vector3i direction, List<byte> matFilter, bool invert, out int iterations)
+        {
+            invert =!invert;
+            Vector3i curcord = from + .5;
+            iterations = 0;
+            byte mat = 0;
+            while (
+                curcord.X > 0 && curcord.Y > 0 && curcord.Z > 0 &&
+                curcord.X < ChunkScale.X && curcord.Y < ChunkScale.Y && curcord.Z < ChunkScale.Z)
+            {
+                mat = GetBlockAt(curcord.X, curcord.Y, curcord.Z);
+                if (matFilter.Contains(mat) && invert == false) break;
+                else if (!matFilter.Contains(mat) && invert) break;
+                else
+                {
+                    curcord = curcord + direction;
+                    iterations++;
+                }
+            }
+            return mat;
         }
 
         public byte GetBlockAt(long x,long y,long z)
@@ -501,6 +534,27 @@ namespace OpenMinecraft
         {
             if (StatusUpdate != null)
                 StatusUpdate(this, 0, "");
+        }
+
+        Profiler prof = new Profiler("GetChunkCoordsFromFile");
+        public virtual Vector2i GetChunkCoordsFromFile(string file, bool fromMapCache=false)
+        {
+            prof.Start();
+            if (fromMapCache)
+            {
+                Vector2i _c = _GetChunkCoordsFromFile(file);
+                prof.Stop();
+                return _c;
+            }
+            Vector2i c = Cache.GetChunkCoords(file);
+            if (c == null)
+            {
+                Console.WriteLine("[CACHE] Don't have {0}'s coords, using slow coord fetching.");
+                c = _GetChunkCoordsFromFile(file);
+            }
+            prof.Stop();
+            Console.WriteLine(prof.ToString());
+            return c;
         }
     }
 }

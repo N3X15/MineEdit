@@ -140,16 +140,28 @@ namespace OpenMinecraft
                 }
             }
         }
-        public virtual void AddSoil(ref byte[,,] b, BiomeType[,] biomes, int WaterHeight, int depth, MapGenMaterials mats)
+        public virtual void AddSoil(long X, long Z, RidgedMultifractal CaveNoise, double[,] hm,ref byte[,,] b, BiomeType[,] biomes, int WaterHeight, int depth, MapGenMaterials mats)
         {
-            int YH = b.GetLength(1)-2;
+            int YH = b.GetLength(1) - 2;
+            double xo = (double)(X * b.GetLength(0));
+            double zo = (double)(Z * b.GetLength(2));
             for (int x = 0; x < b.GetLength(0); x++)
             {
                 //Console.WriteLine();
                 for (int z = 0; z < b.GetLength(2); z++)
                 {
+                    double hmY=(double)(System.Math.Min(hm[x, z],1d) * (b.GetLength(1) - 3));
                     bool HavePloppedGrass = false;
                     bool HaveTouchedSoil = false;
+                    // Caves first
+                    if (GenerateCaves)
+                    {
+                        for (int y = 0; y < b.GetLength(1); y++)
+                        {
+                            if (b[x, y, z] == 1 && ((CaveNoise.GetValue(x + xo, y, z + zo) / 2) + 1) < Utils.Lerp(0.95d, 0.20d, (((double)y / (hmY + 1)))) && !(b[x, y, z] == 9 || b[x, y, z] == 8 || b[x, y, z] == 12 || b[x, y, z] == 13))
+                                b[x, y, z] = 0;
+                        }
+                    }
                     for (int y = (int)b.GetLength(1) - 1; y > 0; y--)
                     {
                         byte supportBlock = b[x, y-1, z];
