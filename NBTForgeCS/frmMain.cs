@@ -1474,24 +1474,46 @@ namespace MineEdit
                             _mh.SaveAll();
                         });
 
+                        (ActiveMdiChild as frmMap).Map.Cache.Enabled = false;
+
                         int total = (int)((Max.X - Min.X) * (Max.Z - Min.Z));
                         int completed = 0;
-                        (ActiveMdiChild as frmMap).Map.Cache.BeginTransaction();
-                        for (int X = (int)Min.X; X < Max.X + 1; X++)
+                        (ActiveMdiChild as frmMap).Map.ForEachKnownChunk(0,delegate(IMapHandler _mh, long X, long Z)
                         {
-                            for (int Z = (int)Min.Z; Z < Max.Z + 1; Z++)
+                            if (dlt.STOP) return;
+                            dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Z);
+                            double min, max;
+                            (ActiveMdiChild as frmMap).Map.Generate(X, Z, out min, out max);
+                            dlt.grpPerformance.Text = string.Format("Terrain Profile [{0},{1}]m", (int)(min * 100), (int)(max * 100));
+                            dlt.perfChart.AddValue((decimal)max);
+                            feph(total, completed++);
+                        });
+
+                        if ((ActiveMdiChild as frmMap).Map.Generator.GenerateCaves)
+                        {
+                            dlt.CurrentTask = "Generating caves...";
+                            dlt.grpPerformance.Text = "Generation time (ms)";
+                            Random rand = new Random((int)(ActiveMdiChild as frmMap).Map.RandomSeed);
+                            Profiler profCaves = new Profiler("Cave");
+                            (ActiveMdiChild as frmMap).Map.ForEachKnownChunk(0, delegate(IMapHandler _mh, long X, long Z)
                             {
                                 if (dlt.STOP) return;
-                                dlt.CurrentSubtask = string.Format("Generating chunk ({0},{1})", X, Z);
-                                double min, max;
-                                (ActiveMdiChild as frmMap).Map.Generate(X, Z, out min, out max);
-                                dlt.grpPerformance.Text = string.Format("Terrain Profile [{0},{1}]m", (int)(min * 100), (int)(max * 100));
-                                dlt.perfChart.AddValue((decimal)max);
-                                feph(total, completed++);
-                            }
+                                dlt.CurrentSubtask = string.Format("Generating caves in chunk ({0},{1})", X, Z);
+                                if (rand.Next(3) != 0)
+                                {
+                                    int xo = (int)(X * _mh.ChunkScale.X);
+                                    int zo = (int)(Z * _mh.ChunkScale.Z);
+                                    int x = rand.Next((int)_mh.ChunkScale.X - 1);
+                                    int z = rand.Next((int)_mh.ChunkScale.Z - 1);
+                                    int y = rand.Next((int)(_mh.GetHeightAt(x, z) * 127) + 5);
+                                    profCaves.Start();
+                                    new Cave(ref rand, ref _mh, new Vector3i(x + xo, y, z + zo));
+                                    Console.WriteLine("LOLDONE");
+                                    dlt.perfChart.AddValue(profCaves.Stop());
+                                    feph(total, completed++);
+                                }
+                            });
                         }
-                        (ActiveMdiChild as frmMap).Map.Cache.CommitTransaction();
-
                         completed = 0;
                         /*
                         Profiler profTrees = new Profiler("Trees");
@@ -1539,7 +1561,7 @@ namespace MineEdit
                         //Utils.FixPlayerPlacement(ref (ActiveMdiChild as frmMap).Map);
                         (ActiveMdiChild as frmMap).Map.Save();
 
-                        (ActiveMdiChild as frmMap).Map.Cache.UpdateCache();
+                        (ActiveMdiChild as frmMap).Map.Cache.Enabled = true;
                         
                         MessageBox.Show("Done.  Keep in mind that loading may initially be slow.");
                         

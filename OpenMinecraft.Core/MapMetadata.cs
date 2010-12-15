@@ -14,6 +14,19 @@ namespace OpenMinecraft
 {
     public class MapMetadata
     {
+        bool mEnabled = true;
+        public bool Enabled {
+            get
+            {
+                return mEnabled;
+            }
+            set
+            {
+                mEnabled = value;
+                if (mEnabled)
+                    UpdateCache();
+            }
+        }
         bool FirstCache = true;
         ReaderWriterLock rwLock = new ReaderWriterLock();
         public string Filename { get; set; }
@@ -23,6 +36,9 @@ namespace OpenMinecraft
         IMapHandler map;
         Dictionary<string, Vector3i> mFileCoords = new Dictionary<string, Vector3i>();
         private SQLiteTransaction mTransaction;
+
+        public Dictionary<Guid, Entity> Entities = new Dictionary<Guid, Entity>();
+        public Dictionary<Guid, TileEntity> TileEntities = new Dictionary<Guid, TileEntity>();
        
         // CHUNKS(PK(cnkX, cnkZ), cnkTemperatureMap, cnkHumidityMap, cnkOriginalVoxels)
         // TREES(PK(treeX,treeZ), treeHeight, treeType)
@@ -82,67 +98,78 @@ namespace OpenMinecraft
 
         public void UpdateCache()
         {
+            TileEntities.Clear();
+            Entities.Clear();
             SQLiteTransaction trans = database.BeginTransaction();
             int numChunksChanged = 0;
             int numNewChunks = 0;
-
+            int numChunksTotal = 0;
             //mThread = new Thread(delegate()
             //{
                 map.SetBusy("Updating cache...");
                 map.SetBusy(string.Format("Please wait, {0}...\r\n{1} new, {2} changed", (FirstCache) ? "creating cache (may take a while)" : "updating cache", numNewChunks, numChunksChanged));
-                foreach (Dimension dim in map.GetDimensions())
+                Dimension[] dims = (Dimension[])map.GetDimensions();
+                Dimension dim = dims[map.Dimension];
+                map.ForEachChunkFile(dim.ID, delegate(IMapHandler _map, string file)
                 {
-                    map.ForEachChunkFile(dim.ID, delegate(IMapHandler _map, string file)
+                    bool NeedsUpdate = false;
+                    bool NewChunk = false;
+                    using (SQLiteCommand cmd = database.CreateCommand())
                     {
-                        bool NeedsUpdate = false;
-                        bool NewChunk = false;
-                        using (SQLiteCommand cmd = database.CreateCommand())
+                        Vector2i pos;
+                        cmd.CommandText="SELECT cnkMD5,cnkX,cnkZ,dimID FROM Chunks WHERE cnkFile='" + file + "';";
+                        SQLiteDataReader rdr = cmd.ExecuteReader();
+                        if (!rdr.HasRows)
                         {
-                            Vector2i pos;
-                            cmd.CommandText="SELECT cnkMD5,cnkX,cnkZ,dimID FROM Chunks WHERE cnkFile='" + file + "';";
-                            SQLiteDataReader rdr = cmd.ExecuteReader();
-                            if (!rdr.HasRows)
-                            {
-                                NewChunk = true;
-                                NeedsUpdate = true;
-                                pos = map.GetChunkCoordsFromFile(file,true);
-                            } else {
-                                pos=new Vector2i(
-                                    (int)((long)rdr["cnkX"]),
-                                    (int)((long)rdr["cnkZ"])
-                                    );
-                                if(!mFileCoords.ContainsKey(file))
-                                    mFileCoords.Add(file,new Vector3i(pos.X,pos.Y,
-                                        (int)((long)rdr["dimID"])));
-                            }
-                            
-                            if (dim.MinimumChunk.X > pos.X) dim.MinimumChunk.X = pos.X;
-                            if (dim.MaximumChunk.X < pos.X) dim.MaximumChunk.X = pos.X;
-                            if (dim.MinimumChunk.Y > pos.Y) dim.MinimumChunk.Y = pos.Y;
-                            if (dim.MaximumChunk.Y < pos.Y) dim.MaximumChunk.Y = pos.Y;
-
-                            if (!NeedsUpdate)
-                            {
-                                if (rdr["cnkMD5"].ToString() != GetMD5HashFromFile(file))
-                                    NeedsUpdate = true;
-                            }
-                            if (NeedsUpdate)
-                            {
-                                if (NewChunk)
-                                    numNewChunks++;
-                                else
-                                    numChunksChanged++;
-                                if (pos == null) return;
-                                //Console.WriteLine(string.Format("Updating chunk {0} in {1} ({2})...", pos, dim.Name, file));
-                                map.SetBusy(string.Format("Please wait, {0}...\r\n{1} new, {2} changed", (FirstCache) ? "creating cache (may take a while)" : "updating cache", numNewChunks, numChunksChanged));
-                                Chunk c = map.GetChunk(pos.X, pos.Y);
-                                map.SaveAll();
-                            }
-                            System.Windows.Forms.Application.DoEvents();
+                            NewChunk = true;
+                            NeedsUpdate = true;
+                            pos = map.GetChunkCoordsFromFile(file,true);
+                        } else {
+                            pos=new Vector2i(
+                                (int)((long)rdr["cnkX"]),
+                                (int)((long)rdr["cnkZ"])
+                                );
+                            if(!mFileCoords.ContainsKey(file))
+                                mFileCoords.Add(file,new Vector3i(pos.X,pos.Y,
+                                    (int)((long)rdr["dimID"])));
                         }
-                        UpdateDimension(dim);
-                    });
-                }
+                            
+                        if (dim.MinimumChunk.X > pos.X) dim.MinimumChunk.X = pos.X;
+                        if (dim.MaximumChunk.X < pos.X) dim.MaximumChunk.X = pos.X;
+                        if (dim.MinimumChunk.Y > pos.Y) dim.MinimumChunk.Y = pos.Y;
+                        if (dim.MaximumChunk.Y < pos.Y) dim.MaximumChunk.Y = pos.Y;
+
+                        if (!NeedsUpdate)
+                        {
+                            if (rdr["cnkMD5"].ToString() != GetMD5HashFromFile(file))
+                                NeedsUpdate = true;
+                        }
+                        if (NeedsUpdate)
+                        {
+                            if (NewChunk)
+                                numNewChunks++;
+                            else
+                                numChunksChanged++;
+                            if (pos == null) return;
+                            //Console.WriteLine(string.Format("Updating chunk {0} in {1} ({2})...", pos, dim.Name, file));
+                            map.SetBusy(string.Format("Please wait, {0}...\r\n{1} new, {2} changed", (FirstCache) ? "creating cache (may take a while)" : "updating cache", numNewChunks, numChunksChanged));
+                            Chunk c = map.GetChunk(pos.X, pos.Y);
+                            map.UnloadChunks();
+                        }
+                        System.Windows.Forms.Application.DoEvents();
+                    }
+
+                    // Dump it from RAM onto disk to prevent bloat.
+                    if (numChunksChanged + numNewChunks % 500 == 499)
+                    {
+                        Console.WriteLine("Saving cache...");
+                        map.SetBusy(string.Format("Please wait, {0}...\r\n[Saving]", (FirstCache) ? "creating cache (may take a while)" : "updating cache"));
+                        trans.Commit();
+                        trans = database.BeginTransaction();
+                        map.UnloadChunks();
+                    }
+                });
+                UpdateDimension(dim);
                 map.SetIdle();
                 trans.Commit(); // NOW save to disk.
             //});
@@ -416,6 +443,7 @@ INSERT INTO Cache (cacheVersion) VALUES (" + VERSION + ");";
 
         internal void SaveChunkMetadata(Chunk c)
         {
+            if (!mEnabled) return;
             c.UpdateOverview();
             try
             {
@@ -542,6 +570,10 @@ WHERE
                             cmd.ExecuteNonQuery();
                         }
                         catch (Exception) { }
+                        if (Entities.ContainsKey(e.UUID))
+                            Entities[e.UUID] = e;
+                        else
+                            Entities.Add(e.UUID, e);
                     }
                 }
             }
@@ -580,6 +612,10 @@ WHERE
                             cmd.ExecuteNonQuery();
                         }
                         catch (Exception) { }
+                        if (TileEntities.ContainsKey(e.UUID))
+                            TileEntities[e.UUID] = e;
+                        else
+                            TileEntities.Add(e.UUID, e);
                     }
                 }
             }
@@ -597,6 +633,7 @@ WHERE
         /// <returns></returns>
         internal bool LoadChunkMetadata(ref Chunk c)
         {
+            if (!mEnabled) return true;
             try
             {
                 rwLock.AcquireReaderLock(1000);
@@ -630,6 +667,7 @@ WHERE
                     int flags = rdr.GetInt32(i++);
                     c.TerrainPopulated = (flags & 1) == 1;
                     c.GeneratedByMineEdit = (flags & 2) == 2;
+                    c.Cached = true;
                 }
             }
             finally
@@ -685,6 +723,35 @@ WHERE
                     rwLock.ReleaseReaderLock();
             }
             return pos;
+        }
+
+        public IEnumerable<Vector2i> GetKnownChunks(int dimension)
+        {
+            List<Vector2i> known = new List<Vector2i>();
+            try
+            {
+                rwLock.AcquireReaderLock(300);
+                using (SQLiteCommand cmd = database.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT cnkX,cnkZ FROM Chunks WHERE dimID=" + dimension.ToString() + " ORDER BY cnkX,cnkZ;";
+                    SQLiteDataReader rdr =cmd.ExecuteReader();
+                    while (rdr.Read())
+                    {
+                        Vector2i cpos = new Vector2i(
+                            (int)(long)rdr["cnkX"],
+                            (int)(long)rdr["cnkZ"]
+                        );
+                        if (!known.Contains(cpos))
+                            known.Add(cpos);
+                    }
+                }
+            }
+            finally
+            {
+                if (rwLock.IsReaderLockHeld)
+                    rwLock.ReleaseReaderLock();
+            }
+            return known;
         }
     }
 }

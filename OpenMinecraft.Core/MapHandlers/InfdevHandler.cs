@@ -13,6 +13,7 @@ namespace OpenMinecraft
 {
 	public class InfdevHandler:IMapHandler
 	{
+        public bool _CACHE_ENABLED = true;
 
 #if DEBUG
         public bool _DEBUG = true; // Improve performance.  Maybe.
@@ -49,6 +50,9 @@ namespace OpenMinecraft
             get { return mAutoRepair; }
             set { mAutoRepair = value; }
         }
+
+        int mCurrentChunkX,mCurrentChunkZ;
+        Chunk mCurrentChunk;
 
         /// <summary>
         /// Spawn position (Y/Z positions flipped)
@@ -449,7 +453,6 @@ namespace OpenMinecraft
 				c.Data = DecompressDatamap(level.Get<NbtByteArray>("Data").Value);
 
 				c.Loading = false;
-				c.UpdateOverview();
 
 				Vector2i ci = GetChunkHandle(x, z);
 				if (mChunks.ContainsKey(ci))
@@ -477,8 +480,11 @@ namespace OpenMinecraft
 					}
 				}
 
+                // Update overview called in here (if needed).
                 if (!Cache.LoadChunkMetadata(ref c))
+                {
                     Cache.SaveChunkMetadata(c);
+                }
                 //File.WriteAllText(Path.ChangeExtension(c.Filename,".dump.txt"), mChunk.RootTag.ToString());
 				//if (c>0)  if(_DEBUG) Console.WriteLine("*** {0} spawners found.", c);
 				//if(_DEBUG) Console.WriteLine("Loaded {0} bytes from chunk {1}.", CurrentChunks.Length, c.Filename);
@@ -639,26 +645,38 @@ namespace OpenMinecraft
 
 		public Chunk GetChunk(int x, int z, bool GenerateNewChunkIfNeeded)
 		{
+            if (mCurrentChunk != null && mCurrentChunkX == x && mCurrentChunkZ == z)
+                return mCurrentChunk;
+            mCurrentChunkX = x;
+            mCurrentChunkZ = z;
             Vector2i id = GetChunkHandle(x, z);
 			Chunk c;
             double min, max;
 			if (!mChunks.TryGetValue(id, out c))
 			{
-				if(File.Exists(GetChunkFilename(x,z)))
-					return _LoadChunk(x, z);
+                if (File.Exists(GetChunkFilename(x, z)))
+                {
+                    mCurrentChunk = _LoadChunk(x, z);
+                    return mCurrentChunk;
+                }
 				if (GenerateNewChunkIfNeeded)
 				{
 					Generate(x, z, out min, out max);
-					return GetChunk(x, z);
+                    mCurrentChunk = GetChunk(x, z);
+					return mCurrentChunk;
 				}
 				return null;
 			}
+            mCurrentChunk = c;
 			return c;
 		}
 
         public override void SetChunk(Chunk cnk)
         {
             Vector2i id = GetChunkHandle((int)cnk.Position.X, (int)cnk.Position.Z);
+            mCurrentChunk = cnk;
+            mCurrentChunkX = (int)cnk.Position.X;
+            mCurrentChunkZ = (int)cnk.Position.Z;
             if (mChunks.ContainsKey(id))
                 mChunks[id] = cnk;
             else
@@ -897,25 +915,18 @@ namespace OpenMinecraft
 
 		private int GetBlockIndex(int x, int y, int z)
 		{
-			//return y * ChunkY + x * ChunkY * ChunkX + z;
-            //return y + (z * ChunkY + (x * ChunkY * ChunkZ)); // WIKI LIES
-            //return z * ChunkY + x * ChunkY * ChunkX + y;  
-            //return y + (z * 128) + (x * 128 * 16);
             return x << 11 | z << 7 | y;
 		}
         
 
 		public override byte GetBlockAt(int px, int y, int pz)
 		{
-            int X = px / ChunkX;
-            int Z = pz / ChunkZ;
-
-            int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
-            int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
-
+            if (y < 0 || y >= ChunkY) return KnownBlocks.Error;
+            int X, Z;
+            Vector3i local = Global2Local(new Vector3i(px, y, pz), out X, out Z);
             Chunk c = GetChunk(X, Z);
-            if (c == null) return 0;
-			return c.Blocks[x, y, z];
+            if (c == null) return KnownBlocks.Error;
+            return c.Blocks[local.X, local.Y, local.Z];
 		}
 
 		public override void GetLightAt(int px, int y, int pz, out byte skyLight, out byte blockLight)
@@ -936,15 +947,21 @@ namespace OpenMinecraft
 
 		public override void SetBlockAt(int px, int y, int pz, byte val)
         {
+            if (y < 0 || y >= ChunkY) return;
+            /*
             int X = px / ChunkX;
             int Z = pz / ChunkZ;
 
             int x = px - ((px >> 4) * ChunkX); //(px >> 4) & 0xf;
             int z = pz - ((pz >> 4) * ChunkZ); //(py >> 4) & 0xf;
+            */
+
+            int X, Z;
+            Vector3i local = Global2Local(new Vector3i(px, y, pz), out X, out Z);
 
             Chunk c = GetChunk(X, Z);
             if (c == null) return;
-			c.Blocks[x, y, z] = val;
+			c.Blocks[local.X, y, local.Z] = val;
 			SetChunk(X, Z, c);
         }
 
@@ -1017,7 +1034,7 @@ namespace OpenMinecraft
 				mChangedChunks.Add(id);
 		}
 
-		private void UnloadChunks()
+		public override void UnloadChunks()
 		{
 			mChunks.Clear();
 			mChangedChunks.Clear();
@@ -1139,22 +1156,18 @@ namespace OpenMinecraft
             IMapHandler mh = this;
             // These use the block array.
 
-            //Console.WriteLine("VOXELIZE");
             profVoxelize.Start();
             HeightmapToVoxelspace(hm, ref blocks);                                       AssertBottomBarrierIntegrity(blocks, "HeightmapToVoxelspace");
             profVoxelize.Stop();
 
-            //Console.WriteLine("ADDSOIL");
             profSoil.Start();
             _Generator.AddSoil(X,Z,caveNoise,hm,ref blocks, biomes, 63, 6, _Generator.Materials);         AssertBottomBarrierIntegrity(blocks, "AddSoil");
             profSoil.Stop();
 
-            //Console.WriteLine("DUNGEONS");
-            profDgn.Start();
-            _Generator.AddDungeons(ref blocks, ref mh, dungeonNoise, X, Z);              AssertBottomBarrierIntegrity(blocks, "AddDungeons");
-            profDgn.Stop();
+            //profDgn.Start();
+            //_Generator.AddDungeons(ref blocks, ref mh, dungeonNoise, X, Z);              AssertBottomBarrierIntegrity(blocks, "AddDungeons");
+            //profDgn.Stop();
 
-            //Console.WriteLine("PRECIP");
             profPrecip.Start();
             _Generator.Precipitate(ref blocks, biomes, _Generator.Materials, X, Z);      AssertBottomBarrierIntegrity(blocks, "Precipitate");
             profPrecip.Stop();
@@ -1163,7 +1176,7 @@ namespace OpenMinecraft
             mh.SaveAll();
 
             _c.Blocks = blocks;
-            _c.UpdateOverview();
+            //_c.UpdateOverview();
             SetChunk(_c);
             File.WriteAllText(lockfile, _Generator.ToString());
 
@@ -1479,13 +1492,20 @@ namespace OpenMinecraft
 				!Check(y, -1, ChunkZ) ||
 				!Check(z, -1, ChunkY))
 			{
-				//if(_DEBUG) Console.WriteLine("<{0},{1},{2}> out of bounds", x, y, z);
 				return;
-			}
+            }
             Vector2i ci = GetChunkHandle(CX, CZ);
-			if (!mChunks.ContainsKey(ci))
-				return;
-			Chunk c = mChunks[ci];
+            Chunk c;
+            if (mCurrentChunk != null && mCurrentChunkX == CX && mCurrentChunkZ == CZ)
+            {
+                c = mCurrentChunk;
+            }
+            else
+            {
+                if (!mChunks.ContainsKey(ci))
+                    return;
+                c = mChunks[ci];
+            }
 			c.Blocks[x,y,z]=id;
 			mChunks[ci] = c;
 			if (!mChangedChunks.Contains(ci))
@@ -1632,14 +1652,26 @@ namespace OpenMinecraft
 		{
 			throw new NotImplementedException();
 		}
-		public override void ForEachCachedChunk(CachedChunkDelegate cmd)
-		{
-			List<Chunk> cl = new List<Chunk>(mChunks.Values);
-			foreach (Chunk c in cl)
-			{
-				cmd(c.Position.X, c.Position.Z, c);
-			}
-		}
+        public override void ForEachCachedChunk(CachedChunkDelegate cmd)
+        {
+            List<Chunk> cl = new List<Chunk>(mChunks.Values);
+            foreach (Chunk c in cl)
+            {
+                cmd(c.Position.X, c.Position.Z, c);
+            }
+        }
+        public override void ForEachKnownChunk(int dimension, ChunkIteratorDelegate cmd)
+        {
+            List<Vector2i> knownChunks = new List<Vector2i>(Cache.GetKnownChunks(dimension));
+            int c=0;
+            foreach (Vector2i pos in knownChunks)
+            {
+                c++;
+                cmd(this, pos.X, pos.Y);
+                if (ForEachProgress != null)
+                    ForEachProgress(knownChunks.Count, c);
+            }
+        }
         public override void ForEachChunk(ChunkIteratorDelegate cmd)
         {
             string[] f = Directory.GetFiles(mFolder, "c*.*.dat", SearchOption.AllDirectories);
@@ -1679,6 +1711,7 @@ namespace OpenMinecraft
         public override void ForEachChunkFile(int dimension, ChunkFileIteratorDelegate cmd)
         {
             string[] f = Directory.GetFiles(mFolder, "c*.*.dat", SearchOption.AllDirectories);
+            Console.WriteLine("Found {0} files.", f.Length);
             string dirDimension = string.Format("DIM-{0}", dimension);
 
             int Complete = 0;

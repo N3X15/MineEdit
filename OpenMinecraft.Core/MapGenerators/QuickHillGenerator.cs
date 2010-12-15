@@ -16,7 +16,7 @@ namespace OpenMinecraft
         protected Random rand;
         // Main terrain noise (two combined Perlin noises)
         protected FastNoise TerrainNoise;
-        protected FastRidgedMultifractal ContinentNoise;
+        protected Perlin ContinentNoise;
         protected Perlin CaveNoise;
 
         public double mCaveThreshold = 0.85d;
@@ -84,15 +84,15 @@ namespace OpenMinecraft
 
         private void Setup()
         {
-            Frequency = 00.1;
+            Frequency = 0.1;
             ContinentNoiseFrequency = 0.02;
-            Lacunarity = 0.05;
+            Lacunarity = 2; // 0.05
             Persistance = 0.5;
             OctaveCount = 3;
-            mContinentNoiseOctaves = 1;
+            mContinentNoiseOctaves = 6;
 
             TerrainNoise = new FastNoise();
-            ContinentNoise = new FastRidgedMultifractal();
+            ContinentNoise = new Perlin();
             CaveNoise = new Perlin();
             TerrainNoise.Seed = (int)Seed;
             ContinentNoise.Seed = (int)Seed + 2;
@@ -107,7 +107,7 @@ namespace OpenMinecraft
             ContinentNoise.NoiseQuality = NoiseQuality;
             ContinentNoise.OctaveCount = mContinentNoiseOctaves;
             ContinentNoise.Lacunarity = Lacunarity;
-            //ContinentNoise.Persistence = Persistance;
+            ContinentNoise.Persistence = Persistance;
 
             CaveNoise.Frequency = Frequency;
             CaveNoise.NoiseQuality = NoiseQuality;
@@ -141,14 +141,11 @@ namespace OpenMinecraft
             {
                 for (int z = 0; z < chunksize.Z; z++)
                 {
-                    //double height = 0.3 + ContinentNoise.GetValue((double)(x + x_o) / 10d, (double)(z + z_o) / 10d, 0) * 0.5;
-                    //height += TerrainNoise.GetValue(x + x_o, z + z_o, 0) * 0.125;
 
-                    //height *= 60; // Bring from [0,1] -> [0,128]
-
-                    double height = (ContinentNoise.GetValue((double)(x + x_o) / 10d, (double)(z + z_o) / 10d, 0)*-1d + 1d) * 0.5d; // 2.0
-                    height += 0.1 + TerrainNoise.GetValue(x + x_o, z + z_o, 0) * 0.0125;
-
+                    double height = 1-Utils.FixLibnoiseOutput(ContinentNoise.GetValue((double)(x + x_o) / 10d, (double)(z + z_o) / 10d, 0));
+                    height *= 0.5;
+                    height += 0.25;
+                    height = Utils.Clamp(height, 0.1, 1);
                     if (height < minHeight) minHeight = height;
                     if (height > maxHeight) maxHeight = height;
 

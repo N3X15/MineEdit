@@ -6,6 +6,7 @@ using System.IO;
 using OpenMinecraft.TileEntities;
 using OpenMinecraft.Entities;
 using System.Security.Cryptography;
+using System.Drawing;
 
 namespace OpenMinecraft
 {
@@ -45,6 +46,85 @@ namespace OpenMinecraft
             return Math.Min(Math.Max(val, min), max);
         }
         #endregion
+
+        /// <summary>
+        /// Calculates interpolated point between two points using Catmull-Rom Spline
+        /// </summary>
+        /// <remarks>
+        /// Points calculated exist on the spline between points two and three.
+        /// </remarks>
+        /// <param name="p0">First Point</param>
+        /// <param name="p1">Second Point</param>
+        /// <param name="p2">Third Point</param>
+        /// <param name="p3">Fourth Point</param>
+        /// <param name="t">
+        /// Normalised distance between second and third point 
+        /// where the spline point will be calculated
+        /// </param>
+        /// <returns>
+        /// Calculated Spline Point
+        /// </returns>
+        static public PointF PointOnCurve(PointF p0, PointF p1, PointF p2, PointF p3, float t)
+        {
+            PointF ret = new PointF();
+
+            float t2 = t * t;
+            float t3 = t2 * t;
+
+            ret.X = 0.5f * ((2.0f * p1.X) +
+            (-p0.X + p2.X) * t +
+            (2.0f * p0.X - 5.0f * p1.X + 4 * p2.X - p3.X) * t2 +
+            (-p0.X + 3.0f * p1.X - 3.0f * p2.X + p3.X) * t3);
+
+            ret.Y = 0.5f * ((2.0f * p1.Y) +
+            (-p0.Y + p2.Y) * t +
+            (2.0f * p0.Y - 5.0f * p1.Y + 4 * p2.Y - p3.Y) * t2 +
+            (-p0.Y + 3.0f * p1.Y - 3.0f * p2.Y + p3.Y) * t3);
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Calculates interpolated point between two points using Catmull-Rom Spline
+        /// </summary>
+        /// <remarks>
+        /// Points calculated exist on the spline between points two and three.
+        /// </remarks>
+        /// <param name="p0">First Point</param>
+        /// <param name="p1">Second Point</param>
+        /// <param name="p2">Third Point</param>
+        /// <param name="p3">Fourth Point</param>
+        /// <param name="t">
+        /// Normalised distance between second and third point 
+        /// where the spline point will be calculated
+        /// </param>
+        /// <returns>
+        /// Calculated Spline Point
+        /// </returns>
+        static public Vector3d PointOnCurve(Vector3d p0, Vector3d p1, Vector3d p2, Vector3d p3, double t)
+        {
+            Vector3d ret = new Vector3d(0,0,0);
+
+            double t2 = t * t;
+            double t3 = t2 * t;
+
+            ret.X = 0.5d * ((2.0d * p1.X) +
+            (-p0.X + p2.X) * t +
+            (2.0d * p0.X - 5.0d * p1.X + 4 * p2.X - p3.X) * t2 +
+            (-p0.X + 3.0d * p1.X - 3.0d * p2.X + p3.X) * t3);
+
+            ret.Y = 0.5d * ((2.0d * p1.Y) +
+            (-p0.Y + p2.Y) * t +
+            (2.0d * p0.Y - 5.0d * p1.Y + 4 * p2.Y - p3.Y) * t2 +
+            (-p0.Y + 3.0d * p1.Y - 3.0d * p2.Y + p3.Y) * t3);
+
+            ret.Z = 0.5d * ((2.0d * p1.Z) +
+            (-p0.Z + p2.Z) * t +
+            (2.0d * p0.Z - 5.0d * p1.Z + 4 * p2.Z - p3.Z) * t2 +
+            (-p0.Z + 3.0d * p1.Z - 3.0d * p2.Z + p3.Z) * t3);
+
+            return ret;
+        }
 
         #region OpenJDK Stuff
         /*
@@ -533,6 +613,11 @@ namespace OpenMinecraft
                     return;
                 }
             }
+        }
+
+        internal static double FixLibnoiseOutput(double p)
+        {
+            return (p + 1) / 2;
         }
     }
     /// <summary>

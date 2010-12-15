@@ -99,7 +99,6 @@ namespace OpenMinecraft
             set
             {
                 _Blocks = value;
-                UpdateOverview();
                 Changed();
             }
         }
@@ -297,5 +296,7 @@ namespace OpenMinecraft
         public bool GeneratedByMineEdit { get; set; }
 
         public int Dimension { get; set; }
+
+        public bool Cached { get; set; }
     }
 }

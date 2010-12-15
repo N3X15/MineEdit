@@ -168,6 +168,15 @@ namespace OpenMinecraft
 			return new BlockSide(id);
 		}
 	}
+
+    public static class KnownBlocks
+    {
+        public static readonly byte Air=0;
+        public static readonly byte Rock=1;
+        public static readonly byte Water=8;
+        public static readonly byte StillWater=9;
+        public static readonly byte Error=255;
+    }
     public static class Blocks
     {
         /// <summary>

@@ -89,6 +89,7 @@ namespace OpenMinecraft
         public abstract void ForEachChunk(ChunkIteratorDelegate cmd);
         public abstract void ForEachChunkFile(int Dimension, ChunkFileIteratorDelegate cmd);
         public abstract void ForEachCachedChunk(CachedChunkDelegate cmd);
+        public abstract void ForEachKnownChunk(int Dimension, ChunkIteratorDelegate cmd);
 
         public abstract void BeginTransaction();
         public abstract void CommitTransaction();
@@ -136,6 +137,7 @@ namespace OpenMinecraft
         internal abstract void SetPrelimHeightAt(int x, int z, double h);
 
         public abstract void SaveAll(bool cullheightmaps=true);
+        public abstract void UnloadChunks();
 
         public abstract bool Autorepair { get; set; }
 
@@ -556,5 +558,6 @@ namespace OpenMinecraft
             Console.WriteLine(prof.ToString());
             return c;
         }
+
     }
 }
