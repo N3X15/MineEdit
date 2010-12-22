@@ -13,6 +13,28 @@ namespace OpenMinecraft
         public abstract string Version { get; }
 
         public abstract MapGenMaterials Materials { get; set; }
+
+        [Category("Caves"),
+        Description("The perlin noise generator spits out a value from 0 to 1.  Blocks are removed for caves above this threshold.")]
+        public double CaveThreshold 
+        { 
+            get {return mCaveThreshold;} 
+            set {mCaveThreshold=value; }
+        }
+
+        [Category("Caverns"), Description("At ground level, the value threshold for caverns is this value.")]
+        public double CavernThresholdMin 
+        { 
+            get {return mCavernThresholdMin;} 
+            set {mCavernThresholdMin=Utils.Clamp(value,0,1); }
+        }
+
+        [Category("Caverns"), Description("At bedrock level, the value threshold for caverns is this value.")]
+        public double CavernThresholdMax 
+        { 
+            get {return mCavernThresholdMax;} 
+            set {mCavernThresholdMax=Utils.Clamp(value,0,1); }
+        }
         
         public abstract double[,] Generate(IMapHandler map, long X, long Z, out double min, out double max);
 
@@ -31,18 +53,22 @@ namespace OpenMinecraft
         [Browsable(false)]
         public abstract bool GenerateTrees { get; set; }
 
-        public abstract void Save(string Folder);
-        public abstract void Load(string Folder);
-
-        Simplex HumidityNoise;
-        Simplex TemperatureNoise;
-        private static double BIOME_SCALE=200;
-        
         [Category("Biomes"), Description("Temperature offset.  Valid temperatures are between -1 (cold) and 1 (hot).")]
         public double TemperatureOffset { get; set; }
 
         [Category("Biomes"), Description("Humidity offset.  Valid humidities are between -1 (dry) and 1 (wet).")]
         public double HumidityOffset { get; set; }
+
+        Simplex HumidityNoise;
+        Simplex TemperatureNoise;
+        private static double BIOME_SCALE=200;
+
+        double mCaveThreshold = 0.85d;
+        double mCavernThresholdMin = 0.25d;
+        double mCavernThresholdMax = 0.95d;
+
+        public abstract void Save(string Folder);
+        public abstract void Load(string Folder);
 
         public void SetupBiomeNoise(int RandomSeed)
         {
@@ -112,11 +138,9 @@ namespace OpenMinecraft
                             mh.SaveAll();
                             founddert = true;
                             break;
-                        /* Automatic ?
                         case 11: // SAND
-                            Utils.GrowCactus(ref b, rand, me.X, y + 1, me.Y);
+                            //Utils.GrowCactus(ref b, rand, me.X, y + 1, me.Y);
                             break;
-                        */
                         default:
                             founddert = true; 
                             break;
@@ -140,7 +164,7 @@ namespace OpenMinecraft
                 }
             }
         }
-        public virtual void AddSoil(long X, long Z, RidgedMultifractal CaveNoise, double[,] hm,ref byte[,,] b, BiomeType[,] biomes, int WaterHeight, int depth, MapGenMaterials mats)
+        public virtual void AddSoil(long X, long Z, RidgedMultifractal CavernNoise, Perlin CaveNoise, double[,] hm,ref byte[,,] b, BiomeType[,] biomes, int WaterHeight, int depth, MapGenMaterials mats)
         {
             int YH = b.GetLength(1) - 2;
             double xo = (double)(X * b.GetLength(0));
@@ -158,8 +182,19 @@ namespace OpenMinecraft
                     {
                         for (int y = 0; y < b.GetLength(1); y++)
                         {
-                            if (b[x, y, z] == 1 && ((CaveNoise.GetValue(x + xo, y, z + zo) / 2) + 1) < Utils.Lerp(0.95d, 0.20d, (((double)y / (hmY + 1)))) && !(b[x, y, z] == 9 || b[x, y, z] == 8 || b[x, y, z] == 12 || b[x, y, z] == 13))
+                            // If we're in rock, and CavernNoise value is under a threshold value calculated by height 
+                            //  or CaveNoise value is over threshold value, and the block we're removing won't fall on us...
+                            if (
+                                b[x, y, z] == 1
+                                && (
+                                    ((CavernNoise.GetValue(x + xo, y, z + zo) / 2) + 1) < Utils.Lerp(CavernThresholdMax, CavernThresholdMin, (((double)y / (hmY + 1))))
+                                    || (Utils.FixLibnoiseOutput(CaveNoise.GetValue(x + xo, y, z + zo)) > CaveThreshold)
+                                )
+                                && !(b[x, y, z] == 9 || b[x, y, z] == 8 || b[x, y, z] == 12 || b[x, y, z] == 13))
+                            {
+                                // Remove it
                                 b[x, y, z] = 0;
+                            }
                         }
                     }
                     for (int y = (int)b.GetLength(1) - 1; y > 0; y--)
@@ -178,10 +213,26 @@ namespace OpenMinecraft
                                 case 8: // Water
                                 case 9: // Water
                                     BiomeType bt = biomes[x,z];
-                                    if ((y - depth <= WaterHeight && GenerateWater) ||  bt == BiomeType.Desert)
-                                        b[x, y, z] = (bt == BiomeType.Taiga || bt == BiomeType.TemperateForest || bt == BiomeType.Tundra) ? mats.Soil:mats.Sand;
+                                    if (bt == BiomeType.Tundra)
+                                    {
+                                        b[x, y, z] = mats.Sand;
+                                    }
                                     else
-                                        b[x, y, z] = (HavePloppedGrass) ? mats.Soil : mats.Grass;
+                                    {
+                                        if (y - depth <= WaterHeight && GenerateWater)
+                                        {
+                                            if ((bt == BiomeType.Taiga || bt == BiomeType.TemperateForest || bt == BiomeType.Tundra) && y > WaterHeight)
+                                            {
+                                                b[x, y, z] = (HavePloppedGrass) ? mats.Soil : mats.Grass;
+                                            }
+                                            else
+                                            {
+                                                b[x, y, z] = mats.Sand;
+                                            }
+                                        }
+                                        else
+                                            b[x, y, z] = (HavePloppedGrass) ? mats.Soil : mats.Grass;
+                                    }
                                     if (!HavePloppedGrass)
                                         HavePloppedGrass = true;
                                     break;

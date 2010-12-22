@@ -954,12 +954,12 @@ namespace MineEdit
             // 
             this.numHurtTime.Location = new System.Drawing.Point(74, 97);
             this.numHurtTime.Maximum = new decimal(new int[] {
-            3000,
+            32768,
             0,
             0,
             0});
             this.numHurtTime.Minimum = new decimal(new int[] {
-            3000,
+            32768,
             0,
             0,
             -2147483648});
@@ -993,12 +993,12 @@ namespace MineEdit
             // 
             this.numAir.Location = new System.Drawing.Point(74, 71);
             this.numAir.Maximum = new decimal(new int[] {
-            3000,
+            32768,
             0,
             0,
             0});
             this.numAir.Minimum = new decimal(new int[] {
-            3000,
+            32768,
             0,
             0,
             -2147483648});
@@ -1022,12 +1022,12 @@ namespace MineEdit
             // 
             this.numFire.Location = new System.Drawing.Point(74, 45);
             this.numFire.Maximum = new decimal(new int[] {
-            3000,
+            32768,
             0,
             0,
             0});
             this.numFire.Minimum = new decimal(new int[] {
-            3000,
+            32768,
             0,
             0,
             -2147483648});
@@ -1051,12 +1051,12 @@ namespace MineEdit
             // 
             this.numHealth.Location = new System.Drawing.Point(74, 19);
             this.numHealth.Maximum = new decimal(new int[] {
-            3000,
+            32768,
             0,
             0,
             0});
             this.numHealth.Minimum = new decimal(new int[] {
-            3000,
+            32768,
             0,
             0,
             -2147483648});

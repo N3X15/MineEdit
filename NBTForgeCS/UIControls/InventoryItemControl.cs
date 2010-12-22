@@ -40,7 +40,13 @@ namespace MineEdit
 		public event ChangedHandler Changed;
 
 		private string _Name="";
-		private InventoryItem Item;
+        private InventoryItem Item;
+
+
+        public Image Img;
+        public Bitmap Icon;
+        public bool Selected = false;
+        public byte Slot { get; set; }
 		public string MyName 
 		{ 
 			get 
@@ -83,10 +89,6 @@ namespace MineEdit
 		{
 			if (Changed != null) Changed();
 		}
-
-		public Image Img;
-		public Bitmap Icon;
-		public bool Selected=false;
 
 		protected override void OnMouseHover(EventArgs e)
 		{
@@ -182,15 +184,66 @@ namespace MineEdit
 			Img = b.Image;
 			_Name = b.Name;
 			Item.ID = type;
-			this.AllowDrop = true;
-			this.DragDrop += new System.Windows.Forms.DragEventHandler(this.InventoryItem_DragDrop);
-			this.DragEnter += new System.Windows.Forms.DragEventHandler(this.InventoryItem_DragEnter);
-			this.MouseDown += new MouseEventHandler(InventoryItem_MouseDown);
-			this.KeyDown += new KeyEventHandler(InventoryItem_KeyDown);
-			this.KeyUp += new KeyEventHandler(InventoryItem_KeyUp);
+            this.AllowDrop = true;
+            //this.Inventory.Changed += new InventoryCollection.InventoryChangedDelegate(inventoryCollection_Changed);
+            this.AllowDrop = true;
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.InventoryItem_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.InventoryItem_DragEnter);
+            this.DragOver += new DragEventHandler(InventoryItemControl_DragOver);
+            this.MouseDown += new MouseEventHandler(InventoryItem_MouseDown);
+            this.MouseUp += new MouseEventHandler(InventoryItemControl_MouseUp);
+            this.MouseMove += new MouseEventHandler(InventoryItemControl_MouseMove);
 			Changed += Render;
             Render();
 		}
+
+        void InventoryItemControl_DragOver(object sender, DragEventArgs e)
+        {
+            // Set the effect based upon the KeyState.
+            if ((e.KeyState & (8 + 32)) == (8 + 32) &&
+                (e.AllowedEffect & DragDropEffects.Link) == DragDropEffects.Link)
+            {
+                // KeyState 8 + 32 = CTL + ALT
+
+                // Link drag-and-drop effect.
+                e.Effect = DragDropEffects.Link;
+
+            }
+            else if ((e.KeyState & 32) == 32 &&
+              (e.AllowedEffect & DragDropEffects.Link) == DragDropEffects.Link)
+            {
+
+                // ALT KeyState for link.
+                e.Effect = DragDropEffects.Link;
+
+            }
+            else if ((e.KeyState & 4) == 4 &&
+              (e.AllowedEffect & DragDropEffects.Move) == DragDropEffects.Move)
+            {
+
+                // SHIFT KeyState for move.
+                e.Effect = DragDropEffects.Move;
+
+            }
+            else if ((e.KeyState & 8) == 8 &&
+              (e.AllowedEffect & DragDropEffects.Copy) == DragDropEffects.Copy)
+            {
+
+                // CTL KeyState for copy.
+                e.Effect = DragDropEffects.Copy;
+
+            }
+            else if ((e.AllowedEffect & DragDropEffects.Move) == DragDropEffects.Move)
+            {
+
+                // By default, the drop action should be move, if allowed.
+                e.Effect = DragDropEffects.Move;
+
+            }
+            else
+                e.Effect = DragDropEffects.None;
+
+        }
 
 		public InventoryItemControl(byte myslot,ref InventoryCollection inventoryCollection)
 		{
@@ -218,11 +271,36 @@ namespace MineEdit
 			this.DragDrop += new System.Windows.Forms.DragEventHandler(this.InventoryItem_DragDrop);
 			this.DragEnter += new System.Windows.Forms.DragEventHandler(this.InventoryItem_DragEnter);
 			this.MouseDown += new MouseEventHandler(InventoryItem_MouseDown);
-			this.KeyDown += new KeyEventHandler(InventoryItem_KeyDown);
-			this.KeyUp += new KeyEventHandler(InventoryItem_KeyUp);
+            this.MouseUp += new MouseEventHandler(InventoryItemControl_MouseUp);
+            this.MouseMove += new MouseEventHandler(InventoryItemControl_MouseMove);
 			Changed += Render;
 			Render();
 		}
+
+        void InventoryItemControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            dragBoxFromMouseDown = Rectangle.Empty;
+        }
+
+        void InventoryItemControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            if ((e.Button & MouseButtons.Left) == MouseButtons.Left) 
+            {
+                // If the mouse moves outside the rectangle, start the drag.
+                if (dragBoxFromMouseDown != Rectangle.Empty &&
+                    !dragBoxFromMouseDown.Contains(e.X, e.Y))
+                {
+                    // The screenOffset is used to account for any desktop bands 
+                    // that may be at the top or left side of the screen when 
+                    // determining when to cancel the drag drop operation.
+                    screenOffset = SystemInformation.WorkingArea.Location;
+
+                    DragDropEffects dde = DoDragDrop(this, DragDropEffects.All | DragDropEffects.Link);
+                    if (dde == DragDropEffects.Move)
+                        Empty();
+                }
+            }
+        }
 
 		void inventoryCollection_Changed(byte slot)
 		{
@@ -242,28 +320,21 @@ namespace MineEdit
 				Render();
 			}
 		}
-		bool DoCopy = false;
 		private OpenMinecraft.InventoryCollection Inventory;
-		void InventoryItem_KeyUp(object sender, KeyEventArgs e)
-		{
-			if (e.KeyCode == Keys.Shift)
-				DoCopy = false;
-		}
-
-		void InventoryItem_KeyDown(object sender, KeyEventArgs e)
-		{
-			if (e.KeyCode == Keys.Shift)
-				DoCopy = true;
-		}
+        private  Rectangle dragBoxFromMouseDown;
+        private Point screenOffset;
 
 		void InventoryItem_MouseDown(object sender, MouseEventArgs e)
-		{
-			if (e.Button == System.Windows.Forms.MouseButtons.Right)
-			{
-				DoDragDrop(this, DragDropEffects.All);
-				if(!DoCopy)
-					Empty();
-			}
+        {            
+            // Remember the point where the mouse down occurred. The DragSize indicates
+            // the size that the mouse can move before a drag event should be started.                
+            Size dragSize = SystemInformation.DragSize;
+
+            // Create a rectangle using the DragSize, with the mouse position being
+            // at the center of the rectangle.
+            dragBoxFromMouseDown = new Rectangle(new Point(e.X - (dragSize.Width / 2),
+                                                            e.Y - (dragSize.Height / 2)), dragSize);
+
 		}
 
 		private void Empty()
@@ -325,7 +396,5 @@ namespace MineEdit
 			Refresh();
 			Console.WriteLine("Received data, copying.");
 		}
-
-		public byte Slot { get; set; }
 	}
 }

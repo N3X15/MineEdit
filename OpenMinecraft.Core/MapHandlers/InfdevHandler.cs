@@ -1086,7 +1086,8 @@ namespace OpenMinecraft
 
 
         Perlin treeNoise;
-        RidgedMultifractal caveNoise;
+        RidgedMultifractal cavernNoise;
+        Perlin caveNoise;
         Random dungeonNoise;
 
         Random rand = new Random();
@@ -1111,10 +1112,16 @@ namespace OpenMinecraft
                 treeNoise.Persistence = 0.5;
                 treeNoise.OctaveCount = 1;
                 dungeonNoise = new Random((int)RandomSeed);
-                caveNoise = new RidgedMultifractal();
-                caveNoise.Seed = (int)this.RandomSeed + 5;
-                caveNoise.Frequency = 0.025;
+                cavernNoise = new RidgedMultifractal();
+                cavernNoise.Seed = (int)this.RandomSeed + 5;
+                cavernNoise.Frequency = 0.025;
                 //caveNoise.Persistence = 0.25;
+                cavernNoise.OctaveCount = 1;
+                caveNoise = new Perlin();
+                caveNoise.Seed = (int)RandomSeed + 2;
+                caveNoise.Frequency = 0.03;
+                caveNoise.Lacunarity = 0.01;
+                caveNoise.Persistence = 0.01;
                 caveNoise.OctaveCount = 1;
             }
             if (_Generator == null)
@@ -1161,7 +1168,7 @@ namespace OpenMinecraft
             profVoxelize.Stop();
 
             profSoil.Start();
-            _Generator.AddSoil(X,Z,caveNoise,hm,ref blocks, biomes, 63, 6, _Generator.Materials);         AssertBottomBarrierIntegrity(blocks, "AddSoil");
+            _Generator.AddSoil(X,Z,cavernNoise, caveNoise, hm,ref blocks, biomes, 63, 6, _Generator.Materials);         AssertBottomBarrierIntegrity(blocks, "AddSoil");
             profSoil.Stop();
 
             //profDgn.Start();

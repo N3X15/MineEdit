@@ -40,6 +40,24 @@ namespace MineEdit
         public Dictionary<int, InventoryItemControl> Stuff = new Dictionary<int, InventoryItemControl>();
 
         private IMapHandler _Map;
+        private ContextMenuStrip cmnuCount;
+        private System.ComponentModel.IContainer components;
+        private ToolStripMenuItem mnuSet1Count;
+        private ToolStripMenuItem toolStripMenuItem2;
+        private ToolStripMenuItem toolStripMenuItem3;
+        private ContextMenuStrip cmnuDamage;
+        private ToolStripMenuItem mnuRepair;
+        private ToolStripMenuItem mnuSuperRepair;
+        private ContextMenuStrip cmnuItem;
+        private ToolStripMenuItem repairToolStripMenuItem;
+        private ToolStripMenuItem superRepairToolStripMenuItem;
+        private ToolStripMenuItem deleteToolStripMenuItem;
+        private ToolStripMenuItem countToolStripMenuItem;
+        private ToolStripMenuItem toolStripMenuItem4;
+        private ToolStripMenuItem toolStripMenuItem5;
+        private ToolStripMenuItem toolStripMenuItem6;
+        private ToolStripMenuItem toolStripMenuItem7;
+        private ToolStripMenuItem toolStripMenuItem8;
         private int ArmorOffset;
 
         public int Capacity
@@ -143,8 +161,9 @@ namespace MineEdit
                     InventoryItemControl inv = new InventoryItemControl(id, dmg, count);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
+                    inv.ContextMenuStrip = cmnuItem;
                     this.splitInv.Panel1.Controls.Add(inv);
-                    Console.WriteLine("[Inventory] Adding #{0} - {1} {2} @ {3} damage", i, inv.Count, inv.Name, inv.Damage);
+                    //Console.WriteLine("[Inventory] Adding #{0} - {1} {2} @ {3} damage", i, inv.Count, inv.Name, inv.Damage);
                     Stuff.Add(i, inv);
                 }
                 else
@@ -152,9 +171,10 @@ namespace MineEdit
                     InventoryItemControl inv = new InventoryItemControl(0, 0, 1);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
+                    inv.ContextMenuStrip = cmnuItem;
                     this.splitInv.Panel1.Controls.Add(inv);
                     Stuff.Add(i, inv);
-                    Console.WriteLine("[Inventory] Failed to add #{0} - {1}", i, failreason);
+                    //Console.WriteLine("[Inventory] Failed to add #{0} - {1}", i, failreason);
                 }
             }
             int invc =ArmorOffset= Stuff.Count;
@@ -170,11 +190,9 @@ namespace MineEdit
                     InventoryItemControl inv = new InventoryItemControl(id, dmg, count);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
-                    inv.MouseDown += new MouseEventHandler(inv_MouseDown);
-                    inv.MouseUp += new MouseEventHandler(inv_MouseUp);
-                    inv.MouseLeave += new EventHandler(inv_MouseLeave);
+                    inv.ContextMenuStrip = cmnuItem;
                     this.splitInv.Panel1.Controls.Add(inv);
-                    Console.WriteLine("[Inventory] Adding #{0} - {1} {2} @ {3} damage", i, inv.Count, inv.Name, inv.Damage);
+                    //Console.WriteLine("[Inventory] Adding #{0} - {1} {2} @ {3} damage", i, inv.Count, inv.Name, inv.Damage);
                     Stuff.Add(invc+i, inv);
                 }
                 else
@@ -182,17 +200,15 @@ namespace MineEdit
                     InventoryItemControl inv = new InventoryItemControl(0, 0, 1);
                     inv.Render();
                     inv.Click += new EventHandler(inv_Click);
-                    inv.MouseDown += new MouseEventHandler(inv_MouseDown);
-                    inv.MouseUp += new MouseEventHandler(inv_MouseUp);
-                    inv.MouseLeave += new EventHandler(inv_MouseLeave);
+                    inv.ContextMenuStrip = cmnuItem;
                     this.splitInv.Panel1.Controls.Add(inv);
                     Stuff.Add(invc+i, inv);
-                    Console.WriteLine("[Inventory] Failed to add #{0} - {1}", i, failreason);
+                    //Console.WriteLine("[Inventory] Failed to add #{0} - {1}", i, failreason);
                 }
             }
 
             DoLayout();
-            Refresh();
+            Invalidate();
         }
 
         void inv_MouseLeave(object sender, EventArgs e)
@@ -386,15 +402,18 @@ namespace MineEdit
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.splitInv = new System.Windows.Forms.SplitContainer();
             this.gbEdit = new System.Windows.Forms.GroupBox();
             this.cmdDeleteInv = new System.Windows.Forms.Button();
             this.numDamage = new System.Windows.Forms.NumericUpDown();
             this.cmdApply2Selected = new System.Windows.Forms.Button();
-            this.cmdSuperRepair = new System.Windows.Forms.Button();
-            this.cmdRepair = new System.Windows.Forms.Button();
             this.lblDamage = new System.Windows.Forms.Label();
             this.numCount = new System.Windows.Forms.NumericUpDown();
+            this.cmnuCount = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.mnuSet1Count = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.lblCount = new System.Windows.Forms.Label();
             this.cmbType = new System.Windows.Forms.ComboBox();
             this.lblObjType = new System.Windows.Forms.Label();
@@ -403,12 +422,28 @@ namespace MineEdit
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbSaveTemplate = new System.Windows.Forms.ToolStripButton();
             this.tsbOpenTemplate = new System.Windows.Forms.ToolStripButton();
+            this.cmnuDamage = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.mnuRepair = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuSuperRepair = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmnuItem = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.repairToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.superRepairToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.countToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
             this.splitInv.Panel2.SuspendLayout();
             this.splitInv.SuspendLayout();
             this.gbEdit.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numDamage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
+            this.cmnuCount.SuspendLayout();
             this.toolStrip1.SuspendLayout();
+            this.cmnuDamage.SuspendLayout();
+            this.cmnuItem.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitInv
@@ -426,7 +461,7 @@ namespace MineEdit
             // splitInv.Panel2
             // 
             this.splitInv.Panel2.Controls.Add(this.gbEdit);
-            this.splitInv.Size = new System.Drawing.Size(552, 229);
+            this.splitInv.Size = new System.Drawing.Size(570, 229);
             this.splitInv.SplitterDistance = 300;
             this.splitInv.TabIndex = 0;
             // 
@@ -435,8 +470,6 @@ namespace MineEdit
             this.gbEdit.Controls.Add(this.cmdDeleteInv);
             this.gbEdit.Controls.Add(this.numDamage);
             this.gbEdit.Controls.Add(this.cmdApply2Selected);
-            this.gbEdit.Controls.Add(this.cmdSuperRepair);
-            this.gbEdit.Controls.Add(this.cmdRepair);
             this.gbEdit.Controls.Add(this.lblDamage);
             this.gbEdit.Controls.Add(this.numCount);
             this.gbEdit.Controls.Add(this.lblCount);
@@ -445,14 +478,14 @@ namespace MineEdit
             this.gbEdit.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbEdit.Location = new System.Drawing.Point(0, 0);
             this.gbEdit.Name = "gbEdit";
-            this.gbEdit.Size = new System.Drawing.Size(248, 229);
+            this.gbEdit.Size = new System.Drawing.Size(266, 229);
             this.gbEdit.TabIndex = 0;
             this.gbEdit.TabStop = false;
             this.gbEdit.Text = "Inventory Editor";
             // 
             // cmdDeleteInv
             // 
-            this.cmdDeleteInv.Location = new System.Drawing.Point(80, 194);
+            this.cmdDeleteInv.Location = new System.Drawing.Point(80, 136);
             this.cmdDeleteInv.Name = "cmdDeleteInv";
             this.cmdDeleteInv.Size = new System.Drawing.Size(120, 23);
             this.cmdDeleteInv.TabIndex = 11;
@@ -474,7 +507,7 @@ namespace MineEdit
             0,
             -2147483648});
             this.numDamage.Name = "numDamage";
-            this.numDamage.Size = new System.Drawing.Size(120, 20);
+            this.numDamage.Size = new System.Drawing.Size(84, 20);
             this.numDamage.TabIndex = 10;
             this.numDamage.Value = new decimal(new int[] {
             1,
@@ -492,26 +525,6 @@ namespace MineEdit
             this.cmdApply2Selected.UseVisualStyleBackColor = true;
             this.cmdApply2Selected.Click += new System.EventHandler(this.button2_Click);
             // 
-            // cmdSuperRepair
-            // 
-            this.cmdSuperRepair.Location = new System.Drawing.Point(80, 165);
-            this.cmdSuperRepair.Name = "cmdSuperRepair";
-            this.cmdSuperRepair.Size = new System.Drawing.Size(120, 23);
-            this.cmdSuperRepair.TabIndex = 8;
-            this.cmdSuperRepair.Text = "Super Repair";
-            this.cmdSuperRepair.UseVisualStyleBackColor = true;
-            this.cmdSuperRepair.Click += new System.EventHandler(this.cmdSuperRepair_Click);
-            // 
-            // cmdRepair
-            // 
-            this.cmdRepair.Location = new System.Drawing.Point(80, 136);
-            this.cmdRepair.Name = "cmdRepair";
-            this.cmdRepair.Size = new System.Drawing.Size(120, 23);
-            this.cmdRepair.TabIndex = 8;
-            this.cmdRepair.Text = "Repair Selected";
-            this.cmdRepair.UseVisualStyleBackColor = true;
-            this.cmdRepair.Click += new System.EventHandler(this.button1_Click);
-            // 
             // lblDamage
             // 
             this.lblDamage.AutoSize = true;
@@ -523,6 +536,7 @@ namespace MineEdit
             // 
             // numCount
             // 
+            this.numCount.ContextMenuStrip = this.cmnuCount;
             this.numCount.Location = new System.Drawing.Point(80, 55);
             this.numCount.Maximum = new decimal(new int[] {
             255,
@@ -530,13 +544,46 @@ namespace MineEdit
             0,
             0});
             this.numCount.Name = "numCount";
-            this.numCount.Size = new System.Drawing.Size(120, 20);
+            this.numCount.Size = new System.Drawing.Size(84, 20);
             this.numCount.TabIndex = 4;
             this.numCount.Value = new decimal(new int[] {
             1,
             0,
             0,
             0});
+            // 
+            // cmnuCount
+            // 
+            this.cmnuCount.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuSet1Count,
+            this.toolStripMenuItem2,
+            this.toolStripMenuItem3});
+            this.cmnuCount.Name = "cmnuCount";
+            this.cmnuCount.Size = new System.Drawing.Size(93, 70);
+            // 
+            // mnuSet1Count
+            // 
+            this.mnuSet1Count.Name = "mnuSet1Count";
+            this.mnuSet1Count.Size = new System.Drawing.Size(92, 22);
+            this.mnuSet1Count.Tag = "1";
+            this.mnuSet1Count.Text = "1";
+            this.mnuSet1Count.Click += new System.EventHandler(this.SetCount);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuItem2.Tag = "64";
+            this.toolStripMenuItem2.Text = "64";
+            this.toolStripMenuItem2.Click += new System.EventHandler(this.SetCount);
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuItem3.Tag = "255";
+            this.toolStripMenuItem3.Text = "255";
+            this.toolStripMenuItem3.Click += new System.EventHandler(this.SetCount);
             // 
             // lblCount
             // 
@@ -556,7 +603,7 @@ namespace MineEdit
             this.cmbType.FormattingEnabled = true;
             this.cmbType.Location = new System.Drawing.Point(80, 28);
             this.cmbType.Name = "cmbType";
-            this.cmbType.Size = new System.Drawing.Size(162, 21);
+            this.cmbType.Size = new System.Drawing.Size(180, 21);
             this.cmbType.TabIndex = 2;
             this.cmbType.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.cmbType_DrawItem);
             this.cmbType.SelectedIndexChanged += new System.EventHandler(this.cmbType_SelectedIndexChanged);
@@ -580,7 +627,7 @@ namespace MineEdit
             this.tsbOpenTemplate});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(552, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(570, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -615,6 +662,101 @@ namespace MineEdit
             this.tsbOpenTemplate.Text = "Open Template";
             this.tsbOpenTemplate.Click += new System.EventHandler(this.tsbOpenTemplate_Click);
             // 
+            // cmnuDamage
+            // 
+            this.cmnuDamage.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuRepair,
+            this.mnuSuperRepair});
+            this.cmnuDamage.Name = "cmnuDamage";
+            this.cmnuDamage.Size = new System.Drawing.Size(187, 70);
+            this.cmnuDamage.Text = "Damage";
+            // 
+            // mnuRepair
+            // 
+            this.mnuRepair.Name = "mnuRepair";
+            this.mnuRepair.Size = new System.Drawing.Size(186, 22);
+            this.mnuRepair.Tag = "0";
+            this.mnuRepair.Text = "Repair (0)";
+            this.mnuRepair.Click += new System.EventHandler(this.SetDamage);
+            // 
+            // mnuSuperRepair
+            // 
+            this.mnuSuperRepair.Name = "mnuSuperRepair";
+            this.mnuSuperRepair.Size = new System.Drawing.Size(186, 22);
+            this.mnuSuperRepair.Tag = "-32768";
+            this.mnuSuperRepair.Text = "Super Repair (-32768)";
+            this.mnuSuperRepair.Click += new System.EventHandler(this.SetDamage);
+            // 
+            // cmnuItem
+            // 
+            this.cmnuItem.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.repairToolStripMenuItem,
+            this.superRepairToolStripMenuItem,
+            this.deleteToolStripMenuItem,
+            this.countToolStripMenuItem});
+            this.cmnuItem.Name = "cmnuItem";
+            this.cmnuItem.Size = new System.Drawing.Size(141, 92);
+            // 
+            // repairToolStripMenuItem
+            // 
+            this.repairToolStripMenuItem.Name = "repairToolStripMenuItem";
+            this.repairToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.repairToolStripMenuItem.Text = "&Repair";
+            // 
+            // superRepairToolStripMenuItem
+            // 
+            this.superRepairToolStripMenuItem.Name = "superRepairToolStripMenuItem";
+            this.superRepairToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.superRepairToolStripMenuItem.Text = "&Super Repair";
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.deleteToolStripMenuItem.Text = "&Delete";
+            // 
+            // countToolStripMenuItem
+            // 
+            this.countToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem4,
+            this.toolStripMenuItem5,
+            this.toolStripMenuItem6,
+            this.toolStripMenuItem7,
+            this.toolStripMenuItem8});
+            this.countToolStripMenuItem.Name = "countToolStripMenuItem";
+            this.countToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.countToolStripMenuItem.Text = "Count";
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuItem4.Text = "1";
+            // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuItem5.Text = "64";
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuItem6.Text = "128";
+            // 
+            // toolStripMenuItem7
+            // 
+            this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuItem7.Text = "192";
+            // 
+            // toolStripMenuItem8
+            // 
+            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuItem8.Text = "255";
+            // 
             // Inventory
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -622,15 +764,18 @@ namespace MineEdit
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.splitInv);
             this.Name = "Inventory";
-            this.Size = new System.Drawing.Size(552, 229);
+            this.Size = new System.Drawing.Size(570, 229);
             this.splitInv.Panel2.ResumeLayout(false);
             this.splitInv.ResumeLayout(false);
             this.gbEdit.ResumeLayout(false);
             this.gbEdit.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numDamage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
+            this.cmnuCount.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.cmnuDamage.ResumeLayout(false);
+            this.cmnuItem.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -641,7 +786,6 @@ namespace MineEdit
         private System.Windows.Forms.SplitContainer splitInv;
         private System.Windows.Forms.GroupBox gbEdit;
         private System.Windows.Forms.Button cmdApply2Selected;
-        private System.Windows.Forms.Button cmdRepair;
         private System.Windows.Forms.Label lblDamage;
         private System.Windows.Forms.NumericUpDown numCount;
         private System.Windows.Forms.Label lblCount;
@@ -649,7 +793,6 @@ namespace MineEdit
         private System.Windows.Forms.Label lblObjType;
         private System.Windows.Forms.NumericUpDown numDamage;
         private System.Windows.Forms.Button cmdDeleteInv;
-        private System.Windows.Forms.Button cmdSuperRepair;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbSaveTemplate;
         private System.Windows.Forms.ToolStripButton tsbOpenTemplate;
@@ -705,7 +848,7 @@ namespace MineEdit
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Repair(object sender, EventArgs e)
         {
             for (int i = 0; i < Stuff.Count; i++)
             {
@@ -856,6 +999,34 @@ namespace MineEdit
         private void cmbType_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void SetCount(object sender, EventArgs e)
+        {
+            if (((ToolStripMenuItem)sender).Tag != null)
+            {
+                for (int i = 0; i < Stuff.Count; i++)
+                {
+                    if (Stuff.ContainsKey(i) && Stuff[i].Selected)
+                    {
+                        Stuff[i].Count = byte.Parse((string)((ToolStripMenuItem)sender).Tag);
+                    }
+                }
+            }
+        }
+
+        private void SetDamage(object sender, EventArgs e)
+        {
+            if (((ToolStripMenuItem)sender).Tag != null)
+            {
+                for (int i = 0; i < Stuff.Count; i++)
+                {
+                    if (Stuff.ContainsKey(i) && Stuff[i].Selected)
+                    {
+                        Stuff[i].Damage = short.Parse((string)((ToolStripMenuItem)sender).Tag);
+                    }
+                }
+            }
         }
 
     }
